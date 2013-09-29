@@ -1,0 +1,7 @@
+﻿CREATE TABLE [dbo].[QuotationSource]
+(
+	Id INT NOT NULL IDENTITY(1,1), 
+	Name NVARCHAR(30) NOT NULL,
+	AuthName NVARCHAR(30) NOT NULL,
+	Password NVARCHAR(60) NOT NULL,
+)

@@ -1,0 +1,35 @@
+﻿<UserControl x:Class="ManagerConsole.UI.RoleManagerControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:ig="http://schemas.infragistics.com/xaml"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid Loaded="Grid_Loaded">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10*"/>
+            <RowDefinition Height="135*"/>
+        </Grid.RowDefinitions>
+        <Button x:Name="AddRole" Content="New Role" Click="AddRole_Click"/>
+        <ig:XamTileManager x:Name="RoleManager" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" >
+            <ig:XamTileManager.NormalModeSettings>
+                <ig:NormalModeSettings>
+                    <ig:NormalModeSettings.TileConstraints>
+                        <ig:TileConstraints MaxHeight="50" MaxWidth="150"/>
+                    </ig:NormalModeSettings.TileConstraints>
+                </ig:NormalModeSettings>
+            </ig:XamTileManager.NormalModeSettings>
+            <ig:XamTileManager.MaximizedModeSettings>
+                <ig:MaximizedModeSettings VerticalTileAreaAlignment="Top">
+                    <ig:MaximizedModeSettings.MinimizedExpandedTileConstraints>
+                        <ig:TileConstraints MinWidth="300" MaxWidth="300" MaxHeight="50" />
+                    </ig:MaximizedModeSettings.MinimizedExpandedTileConstraints>
+                    <ig:MaximizedModeSettings.MinimizedTileConstraints>
+                        <ig:TileConstraints MinWidth="300" MaxWidth="300" />
+                    </ig:MaximizedModeSettings.MinimizedTileConstraints>
+                </ig:MaximizedModeSettings>
+            </ig:XamTileManager.MaximizedModeSettings>
+        </ig:XamTileManager>
+    </Grid>
+</UserControl>
