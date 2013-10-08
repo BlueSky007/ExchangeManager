@@ -1,0 +1,158 @@
+﻿<UserControl x:Class="ManagerConsole.QutePriceControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:igGrid="http://schemas.infragistics.com/xaml"
+             mc:Ignorable="d" 
+             d:DesignHeight="800" d:DesignWidth="1000" Loaded="onLoad">
+    <UserControl.Resources>
+        <Style x:Key="CellStyle" TargetType="igGrid:CellControl">
+            <Setter Property="BorderBrush" Value="#FFDEDEDE" />
+            <Setter Property="BorderThickness" Value="1,1,1,1" />
+        </Style>
+        <Style x:Key="InActiveCellStyle" TargetType="igGrid:CellControl">
+            <Setter Property="BorderBrush" Value="#FFDEDEDE" />
+            <Setter Property="BorderThickness" Value="1,1,1,1" />
+            <Setter Property="Background" Value="LightGray" />
+        </Style>
+        <Style x:Key="TimesCellStyle" TargetType="igGrid:CellControl">
+            <Setter Property="Foreground" Value="Red" />
+            <Setter Property="FontSize" Value="15"></Setter>
+        </Style>
+        <Style x:Key="EditCellStyle" TargetType="igGrid:CellControl">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="igGrid:CellControl">
+                        <Grid>
+                            <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" x:Name="Root" />
+                            <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Visibility="Collapsed" x:Name="AltElem" />
+                            <Rectangle Margin="0,0,1,0">
+                                <Rectangle.Fill>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <LinearGradientBrush.GradientStops>
+                                            <GradientStopCollection>
+                                                <GradientStop Offset="0" Color="#FFF6F9FC" />
+                                                <GradientStop Offset="1" Color="#FFB4D0E9" />
+                                            </GradientStopCollection>
+                                        </LinearGradientBrush.GradientStops>
+                                    </LinearGradientBrush>
+                                </Rectangle.Fill>
+                            </Rectangle>
+                            <Rectangle Fill="#0C333333" Height="1" VerticalAlignment="Bottom" Margin="0,0,1,0" />
+                            <ContentPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid x:Name="LayoutRoot">
+        <MediaElement x:Name="_Media" Volume="1" />
+        <Border Margin="0 0 5 0">
+            <igGrid:XamGrid ColumnWidth="Auto" x:Name="QuotePriceGrid" AutoGenerateColumns="False" CellStyle="{StaticResource CellStyle}" Foreground="#FF18341B"
+                            CellExitedEditMode="QuotePriceGrid_CellExitedEditMode" CellControlAttached="QuotePriceGrid_CellControlAttached">
+                <igGrid:XamGrid.Background>
+                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                        <GradientStop Color="#FFCDCACA" Offset="1"/>
+                        <GradientStop Color="#FFB6B6B6" Offset="0"/>
+                        <GradientStop Color="White" Offset="0"/>
+                    </LinearGradientBrush>
+                </igGrid:XamGrid.Background>
+                <igGrid:XamGrid.EditingSettings>
+                    <igGrid:EditingSettings AllowEditing="Cell" IsEnterKeyEditingEnabled="True" IsF2EditingEnabled="True" IsMouseActionEditingEnabled="SingleClick" />
+                </igGrid:XamGrid.EditingSettings>
+                <igGrid:XamGrid.FixedColumnSettings>
+                    <igGrid:FixedColumnSettings AllowFixedColumns="DropArea"/>
+                </igGrid:XamGrid.FixedColumnSettings>
+                <igGrid:XamGrid.GroupBySettings>
+                    <igGrid:GroupBySettings AllowGroupByArea="Top" IsGroupable="True" />
+                </igGrid:XamGrid.GroupBySettings>
+                <!--Column Setting-->
+                <igGrid:XamGrid.Columns>
+                    <igGrid:ColumnLayout Key="QuotePriceClients" HeaderVisibility="false">
+                        <igGrid:ColumnLayout.Columns>
+                            <igGrid:UnboundColumn Key="SingleHandler" IsFixed="Left">
+                                <igGrid:UnboundColumn.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button x:Name="AbandonSingleBtn" Width="65" Height="25" Content="Abandon" Click="QuoteHandler_Click" DataContext="{Binding}"/>
+                                            <Button x:Name="UpdateSingleBtn" Width="65" Height="25" Content="Update" Click="QuoteHandler_Click"  DataContext="{Binding}"/>
+                                            <Button x:Name="SendSingleBtn"  Width="65" Height="25" Content="Send" Click="QuoteHandler_Click" DataContext="{Binding}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </igGrid:UnboundColumn.ItemTemplate>
+                            </igGrid:UnboundColumn>
+
+                            <igGrid:TemplateColumn Key="IsSelected" Width="60" HorizontalContentAlignment="Center" IsReadOnly="False" HeaderText="Select">
+                                <igGrid:TemplateColumn.ItemTemplate>
+                                    <DataTemplate>
+                                        <CheckBox x:Name="SelectSigleChk" IsChecked="{Binding IsSelected,Mode=TwoWay}" Click="CheckBox_Click"/>
+                                    </DataTemplate>
+                                </igGrid:TemplateColumn.ItemTemplate>
+                            </igGrid:TemplateColumn>
+                            <igGrid:TextColumn Key="AdjustSingle" Width="60" IsReadOnly="False" HeaderText="Adjust" />
+                            <igGrid:TextColumn Key="ExchangeCode" Width="80" IsReadOnly="True" HeaderText="Exchange Code"/>
+                            <igGrid:TextColumn Key="QuoteMessage"  Width="150" IsReadOnly="True" HeaderText="Message" Visibility="Hidden"/>
+                            <igGrid:TextColumn Key="InstrumentCode" Width="100" IsReadOnly="True" HeaderText="Item" Visibility="Hidden"/>
+                            <igGrid:TextColumn Key="TimeStamp" FormatString="{}{0:HH:mm:ss}" Width="100" HeaderText="Time" IsReadOnly="True"/>
+                            <igGrid:TextColumn Key="WaitTimes" CellStyle="{StaticResource TimesCellStyle}"  Width="80" HeaderText="Count" IsReadOnly="True"/>
+                            <igGrid:TextColumn Key="Origin"  Width="80" HeaderText="Source" IsReadOnly="True" />
+                            <igGrid:TextColumn Key="LastOrigin"  Width="80" HeaderText="Last" IsReadOnly="True"/>
+                            <igGrid:TextColumn Key="Diff"  Width="80" HeaderText="Diff" IsReadOnly="True"/>
+                            <igGrid:TextColumn Key="Bid"  Width="80" HeaderText="Bid" IsReadOnly="True"/>
+                            <igGrid:TextColumn Key="Ask"  Width="80" HeaderText="Ask" IsReadOnly="True"/>
+                            <igGrid:TextColumn Key="QuoteLot"  Width="60" HeaderText="Lot"  IsReadOnly="True"/>
+                            <igGrid:TextColumn Key="AnswerLot"  Width="60" HeaderText="Answer Lot"  IsReadOnly="False"/>
+                            <igGrid:TextColumn Key="CustomerCode"  Width="60" HeaderText="Client" IsReadOnly="True"/>
+                        </igGrid:ColumnLayout.Columns>
+                    </igGrid:ColumnLayout>
+                    <igGrid:UnboundColumn Key="Handle" IsFixed="Left">
+                        <igGrid:UnboundColumn.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button x:Name="AbandonBtn" Width="65" Height="25" Content="Abandon" Click="QuoteHandler_Click" DataContext="{Binding}"/>
+                                    <Button x:Name="UpdateBtn" Width="65" Height="25" Content="Update" Click="QuoteHandler_Click"  DataContext="{Binding}"/>
+                                    <Button x:Name="SendBtn"  Width="65" Height="25" Content="Send" Click="QuoteHandler_Click" DataContext="{Binding}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </igGrid:UnboundColumn.ItemTemplate>
+                    </igGrid:UnboundColumn>
+                    <igGrid:UnboundColumn Key="EnquiryQuantityHandler" HeaderText="Quantity" IsFixed="Left">
+                        <igGrid:UnboundColumn.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Vertical">
+                                    <RadioButton x:Name="AboveRadio" BorderBrush="#FF314D34" Content="Above" Checked="QuantityHandler_Click" />
+                                    <RadioButton x:Name="BelowRadio" BorderBrush="#FF314D34" IsChecked="True" Content="Below" Checked="QuantityHandler_Click"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </igGrid:UnboundColumn.ItemTemplate>
+                    </igGrid:UnboundColumn>
+                    <igGrid:TemplateColumn Key="SelectedAll" Width="60" HorizontalContentAlignment="Center" IsReadOnly="False" HeaderText="Selected All">
+                        <igGrid:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox x:Name="SelectedAllChk" IsChecked="{Binding SelectedAll,Mode=TwoWay}" Click="CheckBox_Click"/>
+                            </DataTemplate>
+                        </igGrid:TemplateColumn.ItemTemplate>
+                    </igGrid:TemplateColumn>
+                    <igGrid:TextColumn Key="InstrumentCode" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Item"/>
+                    <igGrid:TemplateColumn Key="Adjust" Width="150" HeaderText="Adjust" IsReadOnly="False" IsGroupable="False">
+                        <igGrid:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="0">
+                                    <TextBox x:Name="AdjustPriceText" Text="{Binding Adjust,Mode=TwoWay}" Width="80"/>
+                                    <Button x:Name="UpButton" Content="+" Background="#FFE16941" Width="30" Click="AdjustPrice_Click"/>
+                                    <Button x:Name="DownButton" Content="-" Background="#FF314D34" Width="30" Click="AdjustPrice_Click"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </igGrid:TemplateColumn.ItemTemplate>
+                    </igGrid:TemplateColumn>
+                    <igGrid:TextColumn Key="Origin" Width="80" HeaderText="Origin" HorizontalContentAlignment="Right" IsReadOnly="True" />
+                    <igGrid:TextColumn Key="AdjustLot" CellStyle="{StaticResource EditCellStyle}" Width="80" HeaderText="Lot Adjust" HorizontalContentAlignment="Right" IsReadOnly="False"/>
+                </igGrid:XamGrid.Columns>
+            </igGrid:XamGrid>
+        </Border>
+    </Grid>
+    
+</UserControl>
