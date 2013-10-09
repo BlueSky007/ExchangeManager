@@ -63,6 +63,7 @@
     <Compile Include="LoginResult.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="Order.cs" />
+    <Compile Include="OrderRelation.cs" />
     <Compile Include="Price.cs" />
     <Compile Include="PrimitiveQuotation.cs" />
     <Compile Include="PrivateDailyQuotation.cs" />
@@ -76,6 +77,7 @@
     <Compile Include="TradePolicy.cs" />
     <Compile Include="TradePolicyDetail.cs" />
     <Compile Include="Transaction.cs" />
+    <Compile Include="Transactions\OrderRelation.cs" />
     <Compile Include="User.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

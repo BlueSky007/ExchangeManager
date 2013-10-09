@@ -50,6 +50,25 @@ namespace Manager.Common
         Forex = 10,
         Physical = 20
     }
+    public enum TransactionType
+    {
+        Single,
+        Pair,
+        OneCancelOther,
+        Mapping,
+        MultipleClose,
+        Assign = 100,//AssigningOrderID == AssigningOrderID (the id of order been assigned from)
+    }
+
+    public enum TransactionSubType
+    {
+        None = 0,
+        Amend,  //AssigningOrderID == AmendedOrderId (the id of order been amended)
+        IfDone, //AssigningOrderID == IfOrderId (the id of order used as condition)
+        Match,
+        Assign, //AssigningOrderID == AssigningOrderID (id of the order been assigned from) //NotImplemented
+        Mapping,
+    }
     public enum TradeOption
     {
         Invalid,
@@ -105,4 +124,108 @@ namespace Manager.Common
         Transit,//used by trader, to hide history open order and disable close order
         BlackList//Is same as AccountType.Common except add notify message
     }
+    public enum OrderType
+    {
+        SpotTrade,
+        Limit,
+        Market,
+        MarketOnOpen,
+        MarketOnClose,
+        OneCancelOther,
+        Risk,
+        Stop,
+        MultipleClose,
+        MarketToLimit,
+        StopLimit,
+        FAK_Market
+    }
+
+    public enum OrderRelationType
+    {
+        Close,
+        OCO,
+        Assignment,
+        IfDone,
+        ChangeToOCO
+    }
+
+    public enum TransactionError
+    {
+        NoLinkedServer = -1,
+        OK = 0,
+        RuntimeError = 1,
+
+        DbOperationFailed = 2,
+
+        TransactionAlreadyExists = 3,
+        HasNoOrders = 4,
+        InvalidRelation = 5,
+        InvalidLotBalance = 6,
+        ExceedOpenLotBalance = 7,
+        InvalidPrice = 8,
+    }
+    public enum CancelReason
+    {
+        CustomerCanceled,
+        DealerCanceled,
+        RiskMonitorCanceled,
+        MooMocNewPositionNotAllowed,
+        InitialOrderCanNotBeAmended,
+        OrderExpired,
+        InvalidPrice,
+
+        RiskMonitorDelete,
+        AccountResetFailed,
+        //DealerCanceled,
+        NecessaryIsNotWithinThreshold,
+        MarginIsNotEnough,
+        AccountIsNotTrading,
+        InstrumentIsNotAccepting,
+        TimingIsNotAcceptable,
+        OrderTypeIsNotAcceptable,
+        HasNoAccountsLocked,
+        IsLockedByAgent,
+        //InvalidPrice,
+        LossExecutedOrderInOco,
+        ExceedOpenLotBalance,
+        OneCancelOther,
+        //CustomerCanceled,
+        AccountIsInAlerting,
+        //RiskMonitorCanceled,
+        //OrderExpired,
+        LimitStopAddPositionNotAllowed,
+        //MooMocNewPositionNotAllowed,
+        TransactionCannotBeBooked,
+        OnlySptMktIsAllowedForPreCheck,
+        InvalidTransactionPhase,
+        TransactionExpired,
+        //InitialOrderCanNotBeAmended,
+        OtherReason,
+        PriceChanged,
+        OpenOrderIsClosed,
+        ReplacedWithMaxLot,
+        ShortSellNotAllowed,
+        ExceedMaxPhysicalValue,
+        BalanceOrEquityIsShort,
+        PrepaymentIsNotAllowed,
+        ExistPendingLimitCloseOrder,
+
+    }
+    public enum ExpireType
+    {
+        Day,
+        GTC,
+        IOC,
+        GTD,
+        Session,
+        FillOrKill,
+        FillAndKill,
+
+        //below are not realy expire type, all these will bo convert to GTD
+        GoodTillMonthDay,
+        GTF,
+        GTM,
+        GoodTillMonthSession
+    }
+
 }

@@ -45,6 +45,7 @@ namespace Manager.Common
             this.BSStatus = bSStatus;
         }
 
+        #region IFilter
         public Guid? AccountId
         {
             get { return null; }
@@ -52,13 +53,26 @@ namespace Manager.Common
 
         public Guid? InstrumentId
         {
-            get { return this.InstrumentID; }
+            get { return null; }
         }
+        #endregion
     }
 
-    public class PrimitiveQuotationMessage : Message
+    public class PrimitiveQuotationMessage : Message, IFilterable
     {
         public PrimitiveQuotation Quotation;
+
+        #region IFilter
+        public Guid? AccountId
+        {
+            get { return null; }
+        }
+
+        public Guid? InstrumentId
+        {
+            get { return null; }
+        }
+        #endregion
     }
 
     public class SourceStatusMessage : Message
@@ -83,6 +97,7 @@ namespace Manager.Common
             this.DeletedSettings = deletedSettings;
         }
 
+        #region IFilter
         public Guid? AccountId
         {
             get { return null; }
@@ -92,7 +107,165 @@ namespace Manager.Common
         {
             get { return null; }
         }
+        #endregion
     }
 
+    public class PlaceMessage : Message, IFilterable
+    {
+        public Transaction[] Transactions { get; set; }
+        public Order[] Orders { get; set; }
+        public OrderRelation[] OrderRelations { get; set; }
+
+        public PlaceMessage(string exchangeCode,Transaction[] transactions, Order[] orders, OrderRelation[] orderRelations)
+        {
+            this.ExchangeCode = exchangeCode;
+            this.Transactions = transactions;
+            this.Orders = orders;
+            this.OrderRelations = orderRelations;
+        }
+
+        #region IFilter
+        public Guid? AccountId
+        {
+            get { return null; }
+        }
+
+        public Guid? InstrumentId
+        {
+            get { return null; }
+        }
+        #endregion
+    }
+
+    public class ExecuteMessage : Message, IFilterable
+    {
+        public Transaction[] Transactions { get; set; }
+        public Order[] Orders { get; set; }
+        public OrderRelation[] OrderRelations { get; set; }
+
+        public ExecuteMessage(string exchangeCode, Transaction[] transactions, Order[] orders, OrderRelation[] orderRelations)
+        {
+            this.ExchangeCode = exchangeCode;
+            this.Transactions = transactions;
+            this.Orders = orders;
+            this.OrderRelations = orderRelations;
+        }
+
+        #region IFilter
+        public Guid? AccountId
+        {
+            get { return null; }
+        }
+
+        public Guid? InstrumentId
+        {
+            get { return null; }
+        }
+        #endregion
+    }
+
+    public class Execute2Message : Message, IFilterable
+    {
+        public Transaction[] Transactions { get; set; }
+        public Order[] Orders { get; set; }
+        public OrderRelation[] OrderRelations { get; set; }
+
+        public Execute2Message(string exchangeCode, Transaction[] transactions, Order[] orders, OrderRelation[] orderRelations)
+        {
+            this.ExchangeCode = exchangeCode;
+            this.Transactions = transactions;
+            this.Orders = orders;
+            this.OrderRelations = orderRelations;
+        }
+
+        #region IFilter
+        public Guid? AccountId
+        {
+            get { return null; }
+        }
+
+        public Guid? InstrumentId
+        {
+            get { return null; }
+        }
+        #endregion
+    }
+
+    public class CutMessage : Message, IFilterable
+    {
+        public Transaction[] Transactions { get; set; }
+        public Order[] Orders { get; set; }
+        public OrderRelation[] OrderRelations { get; set; }
+
+        public CutMessage(string exchangeCode, Transaction[] transactions, Order[] orders, OrderRelation[] orderRelations)
+        {
+            this.ExchangeCode = exchangeCode;
+            this.Transactions = transactions;
+            this.Orders = orders;
+            this.OrderRelations = orderRelations;
+        }
+
+        #region IFilter
+        public Guid? AccountId
+        {
+            get { return null; }
+        }
+
+        public Guid? InstrumentId
+        {
+            get { return null; }
+        }
+        #endregion
+    }
+
+    public class CancelMessage : Message, IFilterable
+    {
+        public Guid TransactionId { get; set; }
+        public TransactionError ErrorCode { get; set; }
+        public CancelReason CancelReason { get; set; }
+
+        public CancelMessage(Guid transactionId,TransactionError errorCode,CancelReason cancelReason)
+        {
+            this.TransactionId = transactionId;
+            this.ErrorCode = errorCode;
+            this.CancelReason = cancelReason;
+        }
+
+        #region IFilter
+        public Guid? AccountId
+        {
+            get { return null; }
+        }
+
+        public Guid? InstrumentId
+        {
+            get { return null; }
+        }
+        #endregion
+    }
+
+    public class HitMessage : Message, IFilterable
+    {
+        public Order[] Orders { get; set; }
+
+        public HitMessage(Order[] orders)
+        {
+            this.Orders = orders;
+        }
+
+        #region IFilter
+        public Guid? AccountId
+        {
+            get { return null; }
+        }
+
+        public Guid? InstrumentId
+        {
+            get { return null; }
+        }
+        #endregion
+    }
+
+    
    
 }
