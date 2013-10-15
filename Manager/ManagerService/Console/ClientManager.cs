@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
 using System.Text;
+using System.Diagnostics;
 using Manager.Common;
 
 namespace ManagerService.Console
@@ -21,17 +22,17 @@ namespace ManagerService.Console
             this._ConsoleServiceHost.Open();
         }
 
-        public Client AddClient(string oldSessionId, string sessionId, Guid userId, IClientProxy clientProxy, Language language)
+        public Client AddClient(string oldSessionId, string sessionId, Guid userId, IClientProxy clientProxy, Language language, Dictionary<string, List<Guid>> accountPermissions, Dictionary<string, List<Guid>> instrumentPermissions)
         {
             Client client;
             if (!string.IsNullOrEmpty(oldSessionId) && this._Clients.TryGetValue(oldSessionId, out client))
             {
-                client.Replace(sessionId, clientProxy);
+                client.Replace(sessionId, clientProxy, accountPermissions, instrumentPermissions);
                 this._Clients.Remove(oldSessionId);
             }
             else
             {
-                client = new Client(sessionId, userId, clientProxy, language);
+                client = new Client(sessionId, userId, clientProxy, language, accountPermissions, instrumentPermissions);
             }
             this._Clients.Add(client.SessionId, client);
             return client;

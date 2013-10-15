@@ -6,20 +6,6 @@ using System.Text;
 
 namespace ManagerConsole.ViewModel
 {
-
-    public class AccessPermission
-    {
-        public ModuleType Type { get; set; }
-        public int OperationId { get; set; }
-        public string OperationName { get; set; }
-
-        public AccessPermission(ModuleType type, int Id)
-        {
-            Type = type;
-            OperationId = Id;
-        }
-    }
-
     public class AccessPermissionTree
     {
         public List<CategoryNode> CategoryNodes { get; set; }
@@ -32,8 +18,7 @@ namespace ManagerConsole.ViewModel
 
     public class CategoryNode
     {
-        public int Id { get; set; }
-        public string CategoryDescription { get; set; }
+        public ModuleCategoryType CategoryType { get; set; }
         public List<ModuleNode> ModuleNodes { get; set; }
 
         public CategoryNode()
@@ -44,8 +29,7 @@ namespace ManagerConsole.ViewModel
 
     public class ModuleNode
     {
-        public int Id { get; set; }
-        public string ModuleDescription { get; set; }
+        public ModuleType Type { get; set; }
         public List<OperationNode> OperationNodes { get; set; }
 
         public ModuleNode()
@@ -56,52 +40,30 @@ namespace ManagerConsole.ViewModel
 
     public class OperationNode
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public string OperationDescription { get; set; }
     }
 
     public class DataPermissionTree
     {
-        public List<DataPermission> DataPermissions { get; set; }
-
-        public DataPermissionTree()
-        {
-            DataPermissions = new List<DataPermission>();
-        }
+        public List<ExchangeSystemNode> ExChangeSystemNodes { get; set; }
     }
 
-    public class DataPermission
+    public class ExchangeSystemNode
     {
-        public DataPermissionType Type { get; set; }
-        public string Description { get; set; }
-        public List<ExChangeSystem> ExChangeSystems { get; set; }
-
-        public DataPermission()
-        {
-            ExChangeSystems = new List<ExChangeSystem>();
-        }
+        public string ExChangeCode { get; set; }
+        public List<DataObjectTypeNode> DataObjectTypeNodes { get; set; }
     }
 
-    public enum DataPermissionType
+    public class DataObjectTypeNode
     {
-        Account,
-        Instrument
+        public DataObjectType Type { get; set; }
+        public List<DataObjectNode> DataObjectNodes { get; set; }
     }
 
-    public class ExChangeSystem
+    public class DataObjectNode
     {
-        public string ExchangeCode { get; set; }
-        public List<Target> Targets { get; set; }
-
-        public ExChangeSystem()
-        {
-            Targets = new List<Target>();
-        }
-    }
-
-    public class Target
-    {
-        public Guid TargetId { get; set; }
-        public string TargetDescription { get; set; }
+        public Guid DataObjectId { get; set; }
+        public string Decription { get; set; }
     }
 }

@@ -6,6 +6,7 @@ using iExchange.Common;
 using Manager.Common;
 using System.Diagnostics;
 using System.Xml;
+using CommonTransactionError = Manager.Common.TransactionError;
 
 namespace ManagerService.Exchange
 {
@@ -101,6 +102,14 @@ namespace ManagerService.Exchange
             {
                 Logger.TraceEvent(TraceEventType.Error, "ExchangeSystem.Answer Error:\r\n" + ex.ToString());
             }
+        }
+
+        public CommonTransactionError AcceptPlace(Guid transactionId)
+        {
+            CommonTransactionError errorCode = CommonTransactionError.OK;
+
+            //errorCode = this._StateServer.AcceptPlace(transactionId);
+            return errorCode;
         }
         
     }

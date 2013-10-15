@@ -53,7 +53,7 @@ namespace ManagerConsole.Helper
             };
 
             TextBlock msgLabel = new TextBlock() { Foreground = new SolidColorBrush(Colors.Blue), Text = message, Margin = new Thickness(10), VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, TextWrapping = TextWrapping.Wrap };
-            Button okBtn = new Button() { Content = "OK", Width = 100, Height = 25, VerticalAlignment = VerticalAlignment.Bottom, Margin = new Thickness(5), HorizontalAlignment = HorizontalAlignment.Center, Tag = commonDialogWin, TabIndex = 1 };
+            Button okBtn = new Button() { Content = "OK", Width = 80, Height = 25, VerticalAlignment = VerticalAlignment.Bottom, Margin = new Thickness(5), HorizontalAlignment = HorizontalAlignment.Center, Tag = commonDialogWin, TabIndex = 1 };
             okBtn.Click += new RoutedEventHandler(okBtn_Click);
 
             StackPanel msgPanel = new StackPanel();

@@ -22,22 +22,7 @@ namespace ManagerConsole.Model
       
 
         [OperationContract(IsInitiating = false)]
-        FunctionTree GetFunctionTree();
-
-
-        [OperationContract(AsyncPattern = true)]
-        IAsyncResult BeginGetAccessPermissionTree(int roleId, AsyncCallback callback, object asyncState);
-        AccessPermissionTree EndGetAccessPermissionTree(IAsyncResult result);
-
-        [OperationContract(AsyncPattern = true)]
-        IAsyncResult BeginGetDataPermissionTree(int roleId, AsyncCallback callback, object asyncState);
-        DataPermissionTree EndGetDataPermissionTree(IAsyncResult result);
-
-
-        [OperationContract(AsyncPattern = true)]
-        IAsyncResult BeginUpdateRolePermission(int roleId, int editType, string roleName, AccessPermissionTree accessTree, DataPermissionTree dataTree, AsyncCallback callback, object asyncState);
-        bool EndUpdateRolePermission(IAsyncResult result);
-      
+        FunctionTree GetFunctionTree();      
 
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginLogout(AsyncCallback callback, object asyncState);
@@ -55,6 +40,9 @@ namespace ManagerConsole.Model
         List<RoleData> GetRoles();
 
         [OperationContract(IsInitiating = false)]
+        RoleData GetAllPermission();
+
+        [OperationContract(IsInitiating = false)]
         bool ChangePassword(string currentPassword, string newPassword);
 
 
@@ -68,9 +56,13 @@ namespace ManagerConsole.Model
 
         [OperationContract(IsInitiating = false)]
         void SendQuotePrice(List<Answer> sendQuotePrices);
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginAcceptPlace(Guid transactionId,AsyncCallback callback, object asyncState);
+        TransactionError EndAcceptPlace(IAsyncResult result);
+
         #endregion
 
-        
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginDeleteUser(Guid userId, AsyncCallback callback, object asyncState);
         bool EndDeleteUser(IAsyncResult result);

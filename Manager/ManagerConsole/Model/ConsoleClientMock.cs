@@ -48,6 +48,9 @@ namespace ManagerConsole.Model
                     new Module{ Type= ModuleType.QuotePolicy, Category= ModuleCategoryType.Configuration, ModuleDescription="QuotePolicy" },
                     new Module{ Type= ModuleType.AbnormalQuotation, Category= ModuleCategoryType.Quotation, ModuleDescription="异常价格处理" },
                     new Module{ Type= ModuleType.Quote, Category= ModuleCategoryType.Dealing, ModuleDescription="询价" },
+                    new Module{ Type= ModuleType.DQOrderTask, Category= ModuleCategoryType.Dealing, ModuleDescription="即市单处理" },
+                    new Module{ Type= ModuleType.LMTOrderTask, Category= ModuleCategoryType.Dealing, ModuleDescription="限价单处理" },
+                    new Module{ Type= ModuleType.MooMocTask, Category= ModuleCategoryType.Dealing, ModuleDescription="开市/收市市场单处理" },
                 }
             };
         }

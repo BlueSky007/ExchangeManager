@@ -22,6 +22,7 @@ namespace ManagerConsole.Model
         private int? _MaxAutoPoint;
         private int? _Spread;
         private int? _MaxSpread;
+        private int? _AcceptDQVariation;
         #endregion
         public Guid Id
         {
@@ -176,5 +177,24 @@ namespace ManagerConsole.Model
                 }
             }
         }
+
+        public int AcceptDQVariation
+        {
+            get { return (int)this._AcceptDQVariation; }
+            set{this._AcceptDQVariation = value;}
+        }
+
+        public bool CheckVariation(decimal variation)
+        {
+            if (variation < 0 && variation < (0 - this.AcceptDQVariation))
+            {
+                return false;
+            }
+            return true;
+        }
+
+
+
+
     }
 }

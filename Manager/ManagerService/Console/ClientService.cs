@@ -17,18 +17,44 @@ namespace ManagerService.Console
 
         public LoginResult Login(string userName, string password, string oldSessionId, Language language)
         {
-            Guid userId = UserDataAccess.LoginIn(userName,password);
             LoginResult loginResult = new LoginResult();
-            if (userId != Guid.Empty)
+            List<DataPermission> dataPermissions = new List<DataPermission>();
+            try
             {
-                string sessionId = OperationContext.Current.SessionId;
-                IClientProxy clientProxy = OperationContext.Current.GetCallbackChannel<IClientProxy>();
-                this._Client = Manager.ClientManager.AddClient(oldSessionId, sessionId, userId, clientProxy, language);
+                Guid userId = UserDataAccess.Login(userName, password,out dataPermissions);
+                if (userId != Guid.Empty)
+                {
+                    Dictionary<string, List<Guid>> accountPermissions = new Dictionary<string, List<Guid>>();
+                    Dictionary<string, List<Guid>> instrumentPermissions = new Dictionary<string, List<Guid>>();
+                    foreach (DataPermission data in dataPermissions)
+                    {
+                        List<Guid> memberIds = ExchangeData.GetMemberIds(data.ExchangeSystemCode, data.DataObjectId);
+                        if (data.DataObjectType ==  DataObjectType.Account)
+                        {
+                            accountPermissions.Add(data.ExchangeSystemCode, memberIds);
+                        }
+                        else
+                        {
+                            instrumentPermissions.Add(data.ExchangeSystemCode, memberIds);
+                        }
+                    }
+                    string sessionId = OperationContext.Current.SessionId;
+                    IClientProxy clientProxy = OperationContext.Current.GetCallbackChannel<IClientProxy>();
+                    this._Client = Manager.ClientManager.AddClient(oldSessionId, sessionId, userId, clientProxy, language,accountPermissions,instrumentPermissions);
 
-                OperationContext.Current.Channel.Faulted += this._Client.Channel_Broken;
-                OperationContext.Current.Channel.Closed += this._Client.Channel_Broken;
-                loginResult.SessionId = sessionId;
-            }           
+                    OperationContext.Current.Channel.Faulted += this._Client.Channel_Broken;
+                    OperationContext.Current.Channel.Closed += this._Client.Channel_Broken;
+                    loginResult.SessionId = sessionId;
+                }
+                else
+                {
+                    OperationContext.Current.Channel.Abort();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "userName:{0}, login failed:\r\n{1}", userName, ex.ToString());
+            }
             return loginResult;
         }
 
@@ -85,7 +111,7 @@ namespace ManagerService.Console
 
         public List<RoleData> GetRoles()
         {
-            List<RoleData> roles = UserDataAccess.GetRoles();
+            List<RoleData> roles = UserDataAccess.GetRoles(this._Client.language.ToString());
             return roles;
         }
 
@@ -124,23 +150,20 @@ namespace ManagerService.Console
             }
         }
 
-        public AccessPermissionTree GetAccessPermissionTree(int roleId)
+        public RoleData GetAllPermission()
         {
-            AccessPermissionTree tree = UserDataAccess.GetAccessPermissionTree(roleId);
-            return tree;
+            try
+            {
+                RoleData data = UserDataAccess.GetAllPermissions(Manager.ManagerSettings.ExchangeSystems, this._Client.language.ToString());
+                return data;
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "GetAllPermission.\r\n{0}", ex.ToString());
+                return null;
+            }
         }
 
-        public DataPermissionTree GetDataPermissionTree(int roleId)
-        {
-            DataPermissionTree tree = new DataPermissionTree();
-            return tree;
-        }
-
-        public bool UpdateRolePermission(int roleId,int editType, string roleName, AccessPermissionTree accessTree, DataPermissionTree dataTree)
-        {
-            UserDataAccess.UpdateRolePermission(roleId,editType,roleName,accessTree,dataTree);
-            return true;
-        }
         #endregion
 
         #region DealingConsole
@@ -180,6 +203,24 @@ namespace ManagerService.Console
             }
         }
 
+        public TransactionError AcceptPlace(Guid transactionId)
+        {
+            TransactionError transactionError = TransactionError.OK;
+            string exchangeCode = "WF01";
+            try
+            {
+                ExchangeSystem exchangeSystem = Manager.ExchangeManager.GetExchangeSystem(exchangeCode);
+                transactionError = exchangeSystem.AcceptPlace(transactionId);
+
+                //string objectIDs = "AcceptPlace";
+                //Write Log
+            }
+            catch (Exception ex)
+            {
+                Logger.AddEvent(TraceEventType.Error, "ClientService.AcceptPlace error:\r\n{0}", ex.ToString());
+            }
+            return transactionError;
+        }
         #endregion
 
 

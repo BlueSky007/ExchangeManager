@@ -16,6 +16,7 @@ namespace Manager.Common
 
     [KnownType(typeof(PriceMessage)),
     KnownType(typeof(QuoteMessage)),
+    KnownType(typeof(PlaceMessage)),
     KnownType(typeof(PrimitiveQuotationMessage))]
     public class Message
     {
@@ -112,9 +113,15 @@ namespace Manager.Common
 
     public class PlaceMessage : Message, IFilterable
     {
+        public Guid AccountID { get; set; }
+        public Guid InstrumentID { get; set; }
         public Transaction[] Transactions { get; set; }
         public Order[] Orders { get; set; }
         public OrderRelation[] OrderRelations { get; set; }
+
+        public PlaceMessage()
+        { 
+        }
 
         public PlaceMessage(string exchangeCode,Transaction[] transactions, Order[] orders, OrderRelation[] orderRelations)
         {
@@ -127,12 +134,12 @@ namespace Manager.Common
         #region IFilter
         public Guid? AccountId
         {
-            get { return null; }
+            get { return this.AccountID; }
         }
 
         public Guid? InstrumentId
         {
-            get { return null; }
+            get { return this.InstrumentID; }
         }
         #endregion
     }
@@ -262,6 +269,39 @@ namespace Manager.Common
         public Guid? InstrumentId
         {
             get { return null; }
+        }
+        #endregion
+    }
+
+    //OrderTask
+    public class AcceptPlaceMessage : Message, IFilterable
+    {
+        public Guid InstrumentID { get; set; }
+        public Guid AccountID { get; set; }
+        public Guid TransactionID { get; set; }
+        public TransactionError ErrorCode = TransactionError.OK;
+
+        public AcceptPlaceMessage()
+        { 
+        }
+        public AcceptPlaceMessage(string exchangeCode,Guid instrumentID, Guid accountID, Guid transactionID, TransactionError errorCode)
+        {
+            this.ExchangeCode = exchangeCode;
+            this.InstrumentID = instrumentID;
+            this.AccountID = accountID;
+            this.TransactionID = transactionID;
+            this.ErrorCode = errorCode;
+        }
+
+        #region IFilter
+        public Guid? AccountId
+        {
+            get { return this.AccountID; }
+        }
+
+        public Guid? InstrumentId
+        {
+            get { return this.InstrumentID; }
         }
         #endregion
     }

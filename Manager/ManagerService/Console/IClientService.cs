@@ -32,6 +32,9 @@ namespace ManagerService.Console
         List<RoleData> GetRoles();
 
         [OperationContract(IsInitiating = false)]
+        RoleData GetAllPermission();
+
+        [OperationContract(IsInitiating = false)]
         bool UpdateUsers(UserData user, string password, bool isNewUser);
 
         [OperationContract(IsInitiating = false)]
@@ -39,6 +42,9 @@ namespace ManagerService.Console
 
         [OperationContract(IsInitiating = false)]
         void SendQuotePrice(List<Answer> sendQuotePrices);
+
+        [OperationContract(IsInitiating = true)]
+        TransactionError AcceptPlace(Guid transactionId);
     }
 
     [ServiceContract]

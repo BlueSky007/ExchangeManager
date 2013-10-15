@@ -43,7 +43,7 @@ namespace ManagerService.DataAccess
             )
         {
             string sql = "dbo.GetInitialDataForQuotationManager";
-            DataAccess.ExecuteReader(sql, CommandType.StoredProcedure, delegate(SqlDataReader reader)
+            DataAccess.GetInstance().ExecuteReader(sql, CommandType.StoredProcedure, delegate(SqlDataReader reader)
             {
                 while (reader.Read())
                 {

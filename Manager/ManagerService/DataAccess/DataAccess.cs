@@ -9,16 +9,45 @@ namespace ManagerService.DataAccess
 {
     public class DataAccess
     {
-        public static SqlConnection GetSqlConnection()
+        private const string ManagerDb = "ManagerDb";
+        private static Dictionary<string, DataAccess> DataAccessInstances = new Dictionary<string, DataAccess>();
+        public static DataAccess GetInstance(string exchangeCode = null)
         {
-            SqlConnection sqlConnection = new SqlConnection(System.Configuration.ConfigurationManager.AppSettings["ManagerDBConnection"]);
+            string key = string.IsNullOrEmpty(exchangeCode) ? DataAccess.ManagerDb : exchangeCode;
+            DataAccess instance;
+            if (!DataAccess.DataAccessInstances.TryGetValue(key, out instance))
+            {
+                instance = new DataAccess(exchangeCode);
+                DataAccess.DataAccessInstances.Add(key, instance);
+            }
+            return instance;
+        }
+
+        private string _ConnectionString;
+
+        private DataAccess(string exchangeCode = null)
+        {
+            if (string.IsNullOrEmpty(exchangeCode))
+            {
+                this._ConnectionString = System.Configuration.ConfigurationManager.AppSettings["ManagerDBConnection"];
+            }
+            else
+            {
+                ExchangeSystemSetting exchangeSystemSetting = Manager.ManagerSettings.ExchangeSystems.Single(e => e.Code == exchangeCode);
+                this._ConnectionString = exchangeSystemSetting.DbConnectionString;
+            }
+        }
+
+        public SqlConnection GetSqlConnection()
+        {
+            SqlConnection sqlConnection = new SqlConnection(this._ConnectionString);
             sqlConnection.Open();
             return sqlConnection;
         }
 
-        public static object ExecuteScalar(string sql, CommandType commandType, params SqlParameter[] parameters)
+        public object ExecuteScalar(string sql, CommandType commandType, params SqlParameter[] parameters)
         {
-            using (SqlConnection connection = DataAccess.GetSqlConnection())
+            using (SqlConnection connection = this.GetSqlConnection())
             {
                 using (SqlCommand command = connection.CreateCommand())
                 {
@@ -33,9 +62,9 @@ namespace ManagerService.DataAccess
             }
         }
 
-        public static int ExecuteNonQuery(string sql, CommandType commandType, params SqlParameter[] parameters)
+        public int ExecuteNonQuery(string sql, CommandType commandType, params SqlParameter[] parameters)
         {
-            using (SqlConnection connection = DataAccess.GetSqlConnection())
+            using (SqlConnection connection = this.GetSqlConnection())
             {
                 using (SqlCommand command = connection.CreateCommand())
                 {
@@ -50,9 +79,9 @@ namespace ManagerService.DataAccess
             }
         }
 
-        public static void ExecuteReader(string sql, CommandType commandType, Action<SqlDataReader> processData, params SqlParameter[] parameters)
+        public void ExecuteReader(string sql, CommandType commandType, Action<SqlDataReader> processData, params SqlParameter[] parameters)
         {
-            using (SqlConnection connection = DataAccess.GetSqlConnection())
+            using (SqlConnection connection = this.GetSqlConnection())
             {
                 using (SqlCommand command = connection.CreateCommand())
                 {

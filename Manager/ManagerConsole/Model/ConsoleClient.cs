@@ -95,14 +95,14 @@ namespace ManagerConsole.Model
             this._AccessPermissions = permissions;
         }
 
-        public bool CheckPermissions(ModuleType type, int operationId)
-        {
-            return this._AccessPermissions.Contains(new AccessPermission(type, operationId));
-        }
-
         public List<RoleData> GetRoles()
         {
             return this._ServiceProxy.GetRoles();
+        }
+
+        public RoleData GetAllPermission()
+        {
+            return this._ServiceProxy.GetAllPermission();
         }
 
         public void UpdateUser(UserData user, string password,bool isNewUser, Action<bool> EndUpdateUser)
@@ -124,6 +124,15 @@ namespace ManagerConsole.Model
         {
             this._ServiceProxy.SendQuotePrice(sendQuotePrices);
         }
+
+        public void AcceptPlace(Guid transactionId, Action<TransactionError> EndAcceptPlace)
+        {
+            this._ServiceProxy.BeginAcceptPlace(transactionId, delegate(IAsyncResult result)
+            {
+                TransactionError transactionError = this._ServiceProxy.EndAcceptPlace(result);
+                EndAcceptPlace(transactionError);
+            }, null);
+        }
         #endregion
 
         public void DeleteUser(Guid userId, Action<bool> EndDeleteUser)
@@ -135,31 +144,6 @@ namespace ManagerConsole.Model
             }, null);
         }
 
-        public void GetAccessPermissionTree(int roleId, Action<AccessPermissionTree> EndGetAccessPermissionTree)
-        {
-            this._ServiceProxy.BeginGetAccessPermissionTree(roleId, delegate(IAsyncResult ar)
-            {
-                AccessPermissionTree accessTree = this._ServiceProxy.EndGetAccessPermissionTree(ar);
-                EndGetAccessPermissionTree(accessTree);
-            }, null);
-        }
-
-        public void GetDataPermissionTree(int roleId, Action<DataPermissionTree> EndGetDataPermissionTree)
-        {
-            this._ServiceProxy.BeginGetDataPermissionTree(roleId, delegate(IAsyncResult ar)
-            {
-                DataPermissionTree dataTree = this._ServiceProxy.EndGetDataPermissionTree(ar);
-                EndGetDataPermissionTree(dataTree);
-            }, null);
-        }
-
-        public void UpdateRolePermission(int roleId, int editType, string roleName, AccessPermissionTree accessTree, DataPermissionTree dataTree, Action<bool> EndUpdatePermission)
-        {
-            this._ServiceProxy.BeginUpdateRolePermission(roleId, editType, roleName, accessTree, dataTree, delegate(IAsyncResult ar)
-            {
-                bool isSuccess = this._ServiceProxy.EndUpdateRolePermission(ar);
-                EndUpdatePermission(isSuccess);
-            }, null);
-        }
+        
     }
 }

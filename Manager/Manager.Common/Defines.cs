@@ -19,7 +19,7 @@ namespace Manager.Common
         Configuration = 2,
         Quotation = 3,
         Dealing = 4,
-        QueryReport = 5
+        QueryReport = 5,
     }
 
     public enum ModuleType
@@ -30,7 +30,11 @@ namespace Manager.Common
         QuoationSource = 9,
         QuotePolicy = 10,
         AbnormalQuotation = 11,
-        Quote = 12
+        Quote = 12,
+        DQOrderTask = 13,
+        LMTOrderTask = 14,
+        MooMocTask = 15,
+
     }
     public enum Language
     {
@@ -84,18 +88,7 @@ namespace Manager.Common
         Completed,
         Deleted
     }
-    public enum BuySell
-    {
-        Buy,
-        Sell
-    }
-
-    public enum OpenClose
-    {
-        Open,
-        Close
-    }
-
+    
     public enum BSStatus
     {
         None = -1,
@@ -227,5 +220,6 @@ namespace Manager.Common
         GTM,
         GoodTillMonthSession
     }
+
 
 }

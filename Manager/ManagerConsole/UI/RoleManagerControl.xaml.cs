@@ -36,13 +36,18 @@ namespace ManagerConsole.UI
         {
             if (this.RoleManager.Items.Count <= 0)
             {
+                RoleData data = new RoleData();
+                data = ConsoleClient.Instance.GetAllPermission();
                 List<RoleData> roles = ConsoleClient.Instance.GetRoles();
                 foreach (RoleData item in roles)
                 {
-                    XamTile tile = new XamTile();
-                    tile.Header = item.RoleName;
-                    tile.Content = new RoleTileControl(item.RoleId, item.RoleName, false, AddNewRole);
-                    this.RoleManager.Items.Add(tile);
+                    if (item.RoleId!=1)
+                    {
+                        XamTile tile = new XamTile();
+                        tile.Header = item.RoleName;
+                        tile.Content = new RoleTileControl(item.RoleId, item.RoleName, false, item, data, AddNewRole);
+                        this.RoleManager.Items.Add(tile);
+                    }
                 }
             }
         }

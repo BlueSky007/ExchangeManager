@@ -75,6 +75,7 @@
     <Compile Include="Console\ClientService.cs" />
     <Compile Include="Console\IClientService.cs" />
     <Compile Include="DataAccess\DataAccess.cs" />
+    <Compile Include="DataAccess\ExchangeData.cs" />
     <Compile Include="DataAccess\QuotationData.cs" />
     <Compile Include="DataAccess\UserDataAccess.cs" />
     <Compile Include="Exchange\CommandConvertor.cs" />

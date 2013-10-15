@@ -28,7 +28,7 @@ namespace ManagerService.Exchange
         [OperationContract]
         void GetInitData();
 
-        [OperationContract]
-        void Answer(QuoteQuotation quotation);
+        //[OperationContract]
+        //void Answer(QuoteQuotation quotation);
     }
 }

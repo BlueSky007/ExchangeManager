@@ -40,6 +40,10 @@ namespace ManagerConsole
                     break;
                 case ModuleType.Quote:
                     return new QutePriceControl();
+                case ModuleType.DQOrderTask:
+                    return new DQOrderTaskControl();
+                case ModuleType.LMTOrderTask:
+                    return new OrderTaskControl();
                 default:
                     break;
             }

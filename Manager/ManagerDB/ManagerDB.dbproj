@@ -245,7 +245,7 @@
     <Build Include="Schema Objects\Schemas\dbo\Tables\Keys\FK_PriceRangeCheckRule_Instrument.fkey.sql">
       <SubType>Code</SubType>
     </Build>
-    <Build Include="Schema Objects\Schemas\dbo\Programmability\Stored Procedures\GeneratorEntity.proc.sql">
+    <Build Include="Schema Objects\Schemas\dbo\Programmability\Stored Procedures\GenerateEntity.proc.sql">
       <SubType>Code</SubType>
     </Build>
     <Build Include="Schema Objects\Schemas\dbo\Programmability\Stored Procedures\GetInitialDataForQuotationManager.proc.sql">

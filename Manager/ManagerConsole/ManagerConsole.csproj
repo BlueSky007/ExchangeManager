@@ -83,7 +83,11 @@
       <DependentUpon>ChangePassword.xaml</DependentUpon>
     </Compile>
     <Compile Include="Helper\CommonDialogWin.cs" />
+    <Compile Include="Helper\Enums.cs" />
+    <Compile Include="Helper\OrderTaskManager.cs" />
     <Compile Include="Helper\PropertyChangedNotifier.cs" />
+    <Compile Include="Helper\Toolkit.cs" />
+    <Compile Include="InitDataManager.cs" />
     <Compile Include="LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
     </Compile>
@@ -97,6 +101,16 @@
     <Compile Include="Model\Order.cs" />
     <Compile Include="Model\QuotePriceClient.cs" />
     <Compile Include="Model\SystemParameterClient.cs" />
+    <Compile Include="Model\Transaction.cs" />
+    <Compile Include="UI\DQOrderTaskControl.xaml.cs">
+      <DependentUpon>DQOrderTaskControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\ExcuteOrderConfirm.xaml.cs">
+      <DependentUpon>ExcuteOrderConfirm.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\OrderTaskControl.xaml.cs">
+      <DependentUpon>OrderTaskControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\QutePriceControl.xaml.cs">
       <DependentUpon>QutePriceControl.xaml</DependentUpon>
     </Compile>
@@ -112,7 +126,10 @@
     <Compile Include="UI\UserTileControl.xaml.cs">
       <DependentUpon>UserTileControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="User.cs" />
+    <Compile Include="ViewModel\DQOrderTaskForInstrument.cs" />
     <Compile Include="ViewModel\Login.cs" />
+    <Compile Include="ViewModel\OrderTask.cs" />
     <Compile Include="ViewModel\QuotePriceForInstrument.cs" />
     <Compile Include="ViewModel\UserModel.cs" />
     <Page Include="ChangePassword.xaml">
@@ -136,6 +153,18 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="UI\DQOrderTaskControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\ExcuteOrderConfirm.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\OrderTaskControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\QutePriceControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

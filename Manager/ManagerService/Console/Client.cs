@@ -14,13 +14,17 @@ namespace ManagerService.Console
         private IClientProxy _ClientProxy;
         private RelayEngine<Message> _MessageRelayEngine;
         private Language _Language;
+        private Dictionary<string, List<Guid>> _AccountPermission;
+        private Dictionary<string, List<Guid>> _InstrumentPermission;
 
-        public Client(string sessionId,Guid userId, IClientProxy clientProxy, Language language)
+        public Client(string sessionId, Guid userId, IClientProxy clientProxy, Language language, Dictionary<string, List<Guid>> accountPermissions, Dictionary<string, List<Guid>> instrumentPermissions)
         {
             this._SessionId = sessionId;
             this._UserId = userId;
             this._ClientProxy = clientProxy;
             this._Language = language;
+            this._AccountPermission = accountPermissions;
+            this._InstrumentPermission = instrumentPermissions;
             this._MessageRelayEngine = new RelayEngine<Message>(this.SendMessage, this.HandlEngineException);
         }
 
@@ -28,11 +32,18 @@ namespace ManagerService.Console
         public Guid userId { get { return this._UserId; } }
         public Language language { get { return this._Language; } }
 
-        public void Replace(string sessionId, IClientProxy clientProxy)
+        public void Replace(string sessionId, IClientProxy clientProxy, Dictionary<string, List<Guid>> accountPermissions, Dictionary<string, List<Guid>> instrumentPermissions)
         {
             this._SessionId = sessionId;
             this._ClientProxy = clientProxy;
+            this._AccountPermission = accountPermissions;
+            this._InstrumentPermission = instrumentPermissions;
             this._MessageRelayEngine.Resume();
+        }
+
+        public void InitPermissionData(List<DataPermission> dataPermission)
+        {
+
         }
 
         public void AddMessage(Message message)
@@ -79,10 +90,10 @@ namespace ManagerService.Console
             IFilterable filterableMessage = message as IFilterable;
             // TODO: perform filter here
             if (filterableMessage.AccountId != null)
-            { 
+            {
             }
             if (filterableMessage.InstrumentId != null)
-            { 
+            {
             }
 
             return message;

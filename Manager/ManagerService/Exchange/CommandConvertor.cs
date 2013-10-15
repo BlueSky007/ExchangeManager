@@ -32,6 +32,13 @@ namespace ManagerService.Exchange
             return quoteMessage;
         }
 
+        private static Message Convert(string exchangeCode, AcceptPlaceCommand acceptPlaceCommand)
+        {
+            AcceptPlaceMessage acceptPlaceMessage = new AcceptPlaceMessage(exchangeCode,acceptPlaceCommand.InstrumentID,
+                acceptPlaceCommand.AccountID, acceptPlaceCommand.TransactionID, (ManagerCommon.TransactionError)acceptPlaceCommand.ErrorCode);
+            return acceptPlaceMessage;
+        }
+
         private static Message Convert(string exchagenCode, UpdateCommand updateCommand)
         {
             XmlNode content = updateCommand.Content;
@@ -60,6 +67,8 @@ namespace ManagerService.Exchange
 
             CommandConvertor.Parse(transactionNode, out transactions, out orders, out orderRelations);
             PlaceMessage placeMessage = new PlaceMessage(exchangeCode,transactions, orders, orderRelations);
+            placeMessage.AccountID = placeCommand.AccountID;
+            placeMessage.InstrumentID = placeCommand.InstrumentID;
             return placeMessage;
         }
 

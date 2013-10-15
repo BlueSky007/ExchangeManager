@@ -9,7 +9,7 @@ namespace Manager.Common
     {
         public bool? IsCustomerVisibleToDealer { get; set; }
 
-        public bool? CanDealerViewAccountInfo { get; set; }
+        public bool CanDealerViewAccountInfo { get; set; }
 
         public bool? DealerUsingAccountPermission { get; set; }
 
@@ -22,5 +22,7 @@ namespace Manager.Common
         public System.Int32 LotDecimal { get; set; }
 
         public System.Int32 _EnquiryOutTimeSeconds;
+
+        public bool AutoConfirmOrder { get; set; }
     }
 }

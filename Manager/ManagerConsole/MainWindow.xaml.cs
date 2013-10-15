@@ -16,6 +16,7 @@ using System.Windows.Shapes;
 using Manager.Common;
 using Infragistics.Windows.DockManager;
 using ManagerConsole.Model;
+using ManagerConsole.Helper;
 
 namespace ManagerConsole
 {
@@ -26,10 +27,17 @@ namespace ManagerConsole
     {
         private Dictionary<int, Module> _Modules = new Dictionary<int, Module>();
         private ConsoleClient _ConsoleClient = new ConsoleClient();
+        public InitDataManager InitDataManager = new InitDataManager();
+        public CommonDialogWin CommonDialogWin;
+        public ConfirmDialogWin ConfirmDialogWin;
+        public bool IsActive = false;
 
         public MainWindow()
         {
             InitializeComponent();
+           
+            this.CommonDialogWin = new CommonDialogWin(this.MainFrame);
+            this.ConfirmDialogWin = new ConfirmDialogWin(this.MainFrame);
         }
 
         private void treeViewItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -96,6 +104,8 @@ namespace ManagerConsole
                 functionNode.MouseDoubleClick += treeViewItem_MouseDoubleClick;
                 catalogNode.Items.Add(functionNode);
             }
+
+            this.AttachEvent();
         }
 
         private ContentPane AddContentPane(int moduleType)
@@ -135,5 +145,34 @@ namespace ManagerConsole
             changePasswordWindow.Show();
             changePasswordWindow.BringToFront();
         }
+
+        #region Event
+        private void AttachEvent()
+        {
+            ConsoleClient.Instance.MessageClient.QuoteOrderToDealerEvent += this.MessageClient_QuoteOrderReceived;
+        }
+        #endregion
+        #region Notify Dealing
+
+        void MessageClient_QuoteOrderReceived(PlaceMessage placeMessage)
+        {
+            this.Dispatcher.BeginInvoke((Action<PlaceMessage>)delegate(PlaceMessage message)
+            {
+                this.InitDataManager.AddPlaceMessage(message);
+
+                ContentPane contentPane = this.DockManager.ActivePane;
+                TreeViewItem moduleNode = (TreeViewItem)this.FunctionTree.SelectedItem;
+                if (moduleNode == null || moduleNode.Tag == null) return;
+                int moduleId = (int)moduleNode.Tag;
+
+                if (moduleId == 13)
+                {
+ 
+                }
+
+            }, placeMessage);
+        }
+        
+        #endregion
     }
 }

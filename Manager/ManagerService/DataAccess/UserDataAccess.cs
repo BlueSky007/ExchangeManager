@@ -1,44 +1,65 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Security.Cryptography;
 using Manager.Common;
+using System.Xml;
 
 namespace ManagerService.DataAccess
 {
-    public class UserDataAccess:DataAccess
+    public class UserDataAccess
     {
-        public static Guid LoginIn(string userName, string password)
+        public static Guid Login(string userName, string password, out List<DataPermission> dataPermissions)
         {
             Guid userId = Guid.Empty;
-            using (SqlConnection sqlConnection = DataAccess.GetSqlConnection())
+            string sqlPassword = null;
+            dataPermissions = new List<DataPermission>();
+            using (SqlConnection connection = DataAccess.GetInstance().GetSqlConnection())
             {
-                SqlCommand command = sqlConnection.CreateCommand();
-                command.CommandText = "SELECT u.Id, u.[Password] FROM dbo.Users u WHERE u.[Name]=@userName";
-                command.CommandType = System.Data.CommandType.Text;
-                command.Parameters.Add(new SqlParameter("@userName", userName));
-                SqlDataReader reader = command.ExecuteReader();
-                reader.Read();
-                userId = (Guid)reader.GetValue(0);
-                string sqlPassword = reader.GetValue(1).ToString();
-                if (UserDataAccess.CheckPassword(password, sqlPassword))
+                using (SqlCommand command = connection.CreateCommand())
                 {
+                    command.CommandText = "[dbo].[Login]";
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@userName", userName));
+                    command.Parameters.Add(new SqlParameter("@password", password));
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            userId = (Guid)reader["Id"];
+                            sqlPassword = (string)reader["Password"];
+                        }
+                        if (userId != Guid.Empty)
+                        {
+                            if (!UserDataAccess.CheckPassword(password, sqlPassword)) userId = Guid.Empty;
+                        }
+                        if (userId != Guid.Empty)
+                        {
+                            reader.NextResult();
+                            while (reader.Read())
+                            {
+                                DataPermission permission = new DataPermission();
+                                permission.ExchangeSystemCode = reader["IExchangeCode"].ToString();
+                                permission.DataObjectType = (DataObjectType)reader["DataObjectType"];
+                                permission.DataObjectId = (Guid)reader["DataObjectId"];
+                                dataPermissions.Add(permission);
+                            }
+                        }
+                    }
                     return userId;
                 }
-                else
-                {
-                    return Guid.Empty;
-                }
-
             }
         }
+                
+        
 
         public static bool ChangePassword(Guid userId, string currentPassword, string newPassword)
         {
             string password = string.Empty;
-            using (SqlConnection sqlConnection = DataAccess.GetSqlConnection())
+            using (SqlConnection sqlConnection = DataAccess.GetInstance().GetSqlConnection())
             {
                 SqlCommand command = sqlConnection.CreateCommand();
                 command.CommandText = "SELECT u.[Password] FROM dbo.Users u WHERE u.Id=@userId";
@@ -51,7 +72,7 @@ namespace ManagerService.DataAccess
             if (UserDataAccess.CheckPassword(currentPassword, password))
             {
                 string encryptNewPassword = UserDataAccess.GetMd5EncryptPassword(newPassword);
-                using (SqlConnection sqlConnection = DataAccess.GetSqlConnection())
+                using (SqlConnection sqlConnection = DataAccess.GetInstance().GetSqlConnection())
                 {
                     SqlCommand command = sqlConnection.CreateCommand();
                     command.CommandText = "UPDATE dbo.Users SET [Password] = @newPassword WHERE Id= @userId";
@@ -66,7 +87,6 @@ namespace ManagerService.DataAccess
             {
                 return false;
             }
-            
         }
 
         public static string GetMd5EncryptPassword(string password)
@@ -76,7 +96,7 @@ namespace ManagerService.DataAccess
             {
                 byte[] data = md5.ComputeHash(Encoding.Unicode.GetBytes(password));
                 StringBuilder strBuilder = new StringBuilder();
-                for (int i = 0; i <data.Length; i++)
+                for (int i = 0; i < data.Length; i++)
                 {
                     strBuilder.Append(data[i].ToString("x2"));
                 }
@@ -92,10 +112,10 @@ namespace ManagerService.DataAccess
             return (comparer.Compare(encryptedStr, currentPassword) == 0);
         }
 
-        public static FunctionTree BuildFunctionTree(Guid userId,Language language)
+        public static FunctionTree BuildFunctionTree(Guid userId, Language language)
         {
             FunctionTree tree = new FunctionTree();
-            using (SqlConnection sqlConnection = DataAccess.GetSqlConnection())
+            using (SqlConnection sqlConnection = DataAccess.GetInstance().GetSqlConnection())
             {
                 SqlCommand command = sqlConnection.CreateCommand();
                 command.CommandText = "[dbo].[FunctionTree_GetData]";
@@ -109,7 +129,6 @@ namespace ManagerService.DataAccess
                     category.CategoryType = (ModuleCategoryType)reader.GetValue(0);
                     category.CategoryDescription = reader.GetValue(1).ToString();
                     tree.Categories.Add(category);
-                    
                 }
                 reader.NextResult();
                 while (reader.Read())
@@ -127,7 +146,7 @@ namespace ManagerService.DataAccess
         public static List<UserData> GetUserData()
         {
             List<UserData> data = new List<UserData>();
-            using (SqlConnection sqlConnection = DataAccess.GetSqlConnection())
+            using (SqlConnection sqlConnection = DataAccess.GetInstance().GetSqlConnection())
             {
                 SqlCommand command = sqlConnection.CreateCommand();
                 command.CommandText = "SELECT u.Id,u.[Name],r.Id,r.RoleName FROM dbo.Users u INNER JOIN dbo.UserInRole uir ON uir.UserId = u.Id INNER JOIN dbo.Roles r ON r.Id = uir.RoleId";
@@ -146,15 +165,12 @@ namespace ManagerService.DataAccess
             return data;
         }
 
-        public static List<RoleData> GetRoles()
+        public static List<RoleData> GetRoles(string language)
         {
             List<RoleData> roles = new List<RoleData>();
-            using (SqlConnection sqlConnection = DataAccess.GetSqlConnection())
+            string sql = "[dbo].[GetAllRoleData]";
+            DataAccess.GetInstance().ExecuteReader(sql, CommandType.StoredProcedure, delegate(SqlDataReader reader)
             {
-                SqlCommand command = sqlConnection.CreateCommand();
-                command.CommandText = "SELECT r.Id,r.RoleName FROM dbo.Roles r";
-                command.CommandType = System.Data.CommandType.Text;
-                SqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
                     RoleData role = new RoleData();
@@ -162,17 +178,38 @@ namespace ManagerService.DataAccess
                     role.RoleName = reader.GetValue(1).ToString();
                     roles.Add(role);
                 }
-            }
+                reader.NextResult();
+                while (reader.Read())
+                {
+                    AccessPermission access = new AccessPermission();
+                    access.CategotyType = (ModuleCategoryType)reader["CategoryId"];
+                    access.ModuleType = (ModuleType)reader["ModuleId"];
+                    access.OperationId = (int)reader["OperationId"];
+                    access.OperationName = reader["OperationName"].ToString();
+                    int id = (int)reader["RoleId"];
+                    roles[id].AccessPermissions.Add(access);
+                }
+                reader.NextResult();
+                while (reader.Read())
+                {
+                    DataPermission data = new DataPermission();
+                    int id = (int)reader["RoleId"];
+                    data.ExchangeSystemCode = reader["IExchangeCode"].ToString();
+                    data.DataObjectType = (DataObjectType)reader["DataObjectType"];
+                    data.DataObjectId = (Guid)reader["DataObjectId"];
+                    roles[id].DataPermissions.Add(data);
+                }
+            }, new SqlParameter("@language", language));
             return roles;
         }
 
         public static bool AddNewUser(UserData user, string password)
         {
             string encryptPassword = UserDataAccess.GetMd5EncryptPassword(password);
-            using (SqlConnection sqlConnection = DataAccess.GetSqlConnection())
+            using (SqlConnection sqlConnection = DataAccess.GetInstance().GetSqlConnection())
             {
                 SqlCommand command = sqlConnection.CreateCommand();
-                command.CommandText = string.Format("INSERT INTO dbo.Users(Id,[Name],[Password]) VALUES('{0}','{1}','{2}') INSERT INTO dbo.UserInRole(UserId,RoleId) VALUES ('{3}',{4})",user.UserId,user.UserName,encryptPassword,user.UserId,user.RoleId);
+                command.CommandText = string.Format("INSERT INTO dbo.Users(Id,[Name],[Password]) VALUES('{0}','{1}','{2}') INSERT INTO dbo.UserInRole(UserId,RoleId) VALUES ('{3}',{4})", user.UserId, user.UserName, encryptPassword, user.UserId, user.RoleId);
                 command.CommandType = System.Data.CommandType.Text;
                 command.ExecuteNonQuery();
             }
@@ -184,18 +221,18 @@ namespace ManagerService.DataAccess
             string commandText = "UPDATE dbo.Users SET";
             if (!string.IsNullOrEmpty(user.UserName))
             {
-                commandText += string.Format("[Name]='{0}'",user.UserName);
+                commandText += string.Format("[Name]='{0}'", user.UserName);
             }
             if (string.IsNullOrEmpty(password))
             {
                 commandText += string.Format("[Password]=N'{0}'", UserDataAccess.GetMd5EncryptPassword(password));
             }
             commandText += string.Format("WHERE Id='{0}'", user.UserId);
-            if (user.RoleId!=0)
+            if (user.RoleId != 0)
             {
                 commandText += string.Format("UPDATE dbo.UserInRole SET RoleId = {0} WHERE UserId='{1}'", user.RoleId, user.UserId);
             }
-            using (SqlConnection sqlConnection = DataAccess.GetSqlConnection())
+            using (SqlConnection sqlConnection = DataAccess.GetInstance().GetSqlConnection())
             {
                 SqlCommand command = sqlConnection.CreateCommand();
                 command.CommandText = commandText;
@@ -207,106 +244,48 @@ namespace ManagerService.DataAccess
 
         public static bool DeleteUser(Guid userId)
         {
-            using (SqlConnection sqlConnection = DataAccess.GetSqlConnection())
+            using (SqlConnection sqlConnection = DataAccess.GetInstance().GetSqlConnection())
             {
                 SqlCommand command = sqlConnection.CreateCommand();
-                command.CommandText = string.Format("DELETE FROM dbo.UserInRole WHERE UserId = '{0}' DELETE FROM dbo.Users WHERE Id = '{1}'", userId, userId);
+                command.CommandText = string.Format("DELETE FROM dbo.UserInRole WHERE UserId = @userId DELETE FROM dbo.Users WHERE Id = '{1}'", userId, userId);
                 command.CommandType = System.Data.CommandType.Text;
                 command.ExecuteNonQuery();
             }
             return true;
         }
 
-        public static AccessPermissionTree GetAccessPermissionTree(int roleId)
-        {
-            AccessPermissionTree tree = new AccessPermissionTree();
-            using (SqlConnection sqlConnection = DataAccess.GetSqlConnection())
-            {
-                SqlCommand command = sqlConnection.CreateCommand();
-                command.CommandText = "dbo.InitAccessPermissionTree";
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@roleId", roleId));
-                SqlDataReader reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    CategoryNode node = new CategoryNode();
-                    node.Id = (int)reader.GetValue(0);
-                    node.CategoryDescription = reader.GetValue(1).ToString();
-                    tree.CategoryNodes.Add(node);
-                }
-                reader.NextResult();
-                while (reader.Read())
-                {
-                    ModuleNode node = new ModuleNode();
-                    node.Id = (int)reader.GetValue(0);
-                    node.ModuleDescription = reader.GetValue(2).ToString();
-                    tree.CategoryNodes.Find(c => c.Id == (int)reader.GetValue(1)).ModuleNodes.Add(node);
-                }
-                reader.NextResult();
-                while (reader.Read())
-                {
-                    OperationNode node = new OperationNode();
-                    node.Id = (Guid)reader.GetValue(2);
-                    node.OperationDescription = reader.GetValue(3).ToString();
-                    tree.CategoryNodes.Find(c => c.Id == (int)reader.GetValue(0)).ModuleNodes.Find(m => m.Id == (int)reader.GetValue(1)).OperationNodes.Add(node);
-                }
-            }
-            return tree;
-        }
+        
 
-        public static void UpdateRolePermission(int roleId,int editType, string roleName, AccessPermissionTree accessTree, DataPermissionTree dataTree)
+        public static RoleData GetAllPermissions(ExchangeSystemSetting[] ExchangeSystems,string language)
         {
-            string xmlAccessTree = string.Empty;
-            string xmlDataTree = string.Empty;
-            if (editType == 1)
+            RoleData data = new RoleData();
+            using (SqlConnection con = DataAccess.GetInstance().GetSqlConnection())
             {
-                StringBuilder accessStr = new StringBuilder();
-                accessStr.Append("<AccessTree>");
-                foreach (CategoryNode cate in accessTree.CategoryNodes)
+                using (SqlCommand command = con.CreateCommand())
                 {
-                    foreach (ModuleNode module in cate.ModuleNodes)
+                    command.CommandText = "SELECT f3.Id AS CategoryId,f2.Id AS ModuleId,f.Id AS OperationId,(CASE WHEN @language='CHT' THEN f.NameCHT ELSE (CASE WHEN @language='CHS' THEN f.NameCHS ELSE f.NameENG END) END) AS OperationName FROM  dbo.[Function] f INNER JOIN dbo.[Function] f2 ON f2.Id=f.ParentId INNER JOIN dbo.[Function] f3 ON f3.Id=f2.ParentId WHERE f3.ParentId=0";
+                    command.CommandType = CommandType.Text;
+                    command.Parameters.Add(new SqlParameter("@language", language));
+                    using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        foreach (OperationNode operation in module.OperationNodes)
+                        while (reader.Read())
                         {
-                            accessStr.AppendFormat("<Access Id=\"{0}\"/>", operation.Id);
+                            AccessPermission access = new AccessPermission();
+                            access.CategotyType = (ModuleCategoryType)reader["CategoryId"];
+                            access.ModuleType = (ModuleType)reader["ModuleId"];
+                            access.OperationId = (int)reader["OperationId"];
+                            access.OperationName = reader["OperationName"].ToString();
+                            data.AccessPermissions.Add(access);
                         }
                     }
                 }
-                accessStr.Append("</AccessTree>");
-                xmlAccessTree = accessStr.ToString();
-
-                StringBuilder dataStr = new StringBuilder();
-                dataStr.Append("<DataTree>");
-                foreach (DataPermission data in dataTree.DataPermissions)
-                {
-                    foreach (ExChangeSystem sys in data.ExChangeSystems)
-                    {
-                        foreach (Target target in sys.Targets)
-                        {
-                            dataStr.AppendFormat("<Data Id=\"{0}\"/>", target.TargetId);
-                        }
-                    }
-                }
-                dataStr.Append("</DataTree>");
-                xmlDataTree = dataStr.ToString();
             }
-            using (SqlConnection sqlConnection = DataAccess.GetSqlConnection())
+            foreach (ExchangeSystemSetting system in ExchangeSystems)
             {
-                SqlCommand command = sqlConnection.CreateCommand();
-                command.CommandText = "dbo.UpdateRolePermission";
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@roleId", roleId));
-                if (editType ==0)
-                {
-                    command.Parameters.Add(new SqlParameter("@roleName", roleName));
-                }
-                if (editType == 1)
-                {
-                    command.Parameters.Add(new SqlParameter("@xmlAccessTree", xmlAccessTree));
-                    command.Parameters.Add(new SqlParameter("@xmlDataTree", xmlDataTree));
-                }
-                command.ExecuteNonQuery();
+                List<DataPermission> dataPermissions = ExchangeData.GetAllDataPermissions(system.Code);
+                data.DataPermissions.AddRange(dataPermissions);
             }
+            return data;
         }
     }
 }

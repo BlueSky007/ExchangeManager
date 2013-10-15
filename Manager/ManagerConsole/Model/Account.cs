@@ -7,7 +7,7 @@ namespace ManagerConsole.Model
 {
     public class Account
     {
-        public Guid Id { get; private set; }
+        public Guid Id { get; set; }
         public string Code { get; set; }
     }
 }
