@@ -28,6 +28,7 @@ namespace ManagerConsole.Model
         IAsyncResult BeginLogout(AsyncCallback callback, object asyncState);
         void EndLogout(IAsyncResult result);
 
+        #region UserManager
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginGetAccessPermissions(AsyncCallback callback, object asyncState);
         List<AccessPermission> EndGetAccessPermissions(IAsyncResult result);
@@ -47,8 +48,22 @@ namespace ManagerConsole.Model
 
 
         [OperationContract(AsyncPattern = true)]
-        IAsyncResult BeginUpdateUsers(UserData user,string password,bool isNewUser, AsyncCallback callback, object asyncState);
+        IAsyncResult BeginUpdateUsers(UserData user, string password, bool isNewUser, AsyncCallback callback, object asyncState);
         bool EndUpdateUsers(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginDeleteUser(Guid userId, AsyncCallback callback, object asyncState);
+        bool EndDeleteUser(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginUpdateRole(RoleData role,bool isNewRole, AsyncCallback callback, object asyncState);
+        bool EndUpdateRole(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginDeleteRole(int roleId, AsyncCallback callback, object asyncState);
+        bool EndDeleteRole(IAsyncResult result);
+
+        #endregion
 
         #region QuotePrice
         [OperationContract(IsInitiating = false)]
@@ -61,11 +76,14 @@ namespace ManagerConsole.Model
         IAsyncResult BeginAcceptPlace(Guid transactionId,AsyncCallback callback, object asyncState);
         TransactionError EndAcceptPlace(IAsyncResult result);
 
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginCancelPlace(Guid transactionId, CancelReason cancelReason, AsyncCallback callback, object asyncState);
+        TransactionError EndCancelPlace(IAsyncResult result);
+
         #endregion
 
-        [OperationContract(AsyncPattern = true)]
-        IAsyncResult BeginDeleteUser(Guid userId, AsyncCallback callback, object asyncState);
-        bool EndDeleteUser(IAsyncResult result);
+        
+       
       
     }
 

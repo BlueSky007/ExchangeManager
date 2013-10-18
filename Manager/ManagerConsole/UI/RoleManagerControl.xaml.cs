@@ -22,6 +22,8 @@ namespace ManagerConsole.UI
     /// </summary>
     public partial class RoleManagerControl : UserControl
     {
+        private List<RoleData> _roleDatas;
+        private RoleData _AllRolePermissions;
         public RoleManagerControl()
         {
             InitializeComponent();
@@ -29,30 +31,81 @@ namespace ManagerConsole.UI
 
         private void AddRole_Click(object sender, RoutedEventArgs e)
         {
-            
+            try
+            {
+                XamTile tile = new XamTile();
+                tile.Header = "New Role";
+                tile.CloseAction = TileCloseAction.RemoveItem;
+                tile.Content = new RoleTileControl(true, this._AllRolePermissions, this._AllRolePermissions, AddNewRole,DeleteRole);
+                if (this.RoleManager.Items.Contains(tile))
+                {
+                    this.RoleManager.Items.Remove(tile);
+                }
+                tile.IsMaximized = true;
+                this.RoleManager.Items.Add(tile);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "AddRole_Click.\r\n{0}", ex.ToString());
+            }
         }
 
         private void Grid_Loaded(object sender, RoutedEventArgs e)
         {
-            if (this.RoleManager.Items.Count <= 0)
+            try
             {
-                RoleData data = new RoleData();
-                data = ConsoleClient.Instance.GetAllPermission();
-                List<RoleData> roles = ConsoleClient.Instance.GetRoles();
-                foreach (RoleData item in roles)
+                if (this.RoleManager.Items.Count <= 0)
                 {
-                    if (item.RoleId!=1)
+                    RoleData data = new RoleData();
+                    data = ConsoleClient.Instance.GetAllPermission();
+                    List<RoleData> roles = ConsoleClient.Instance.GetRoles();
+                    this._roleDatas = roles;
+                    this._AllRolePermissions = data;
+                    foreach (RoleData item in roles)
                     {
-                        XamTile tile = new XamTile();
-                        tile.Header = item.RoleName;
-                        tile.Content = new RoleTileControl(item.RoleId, item.RoleName, false, item, data, AddNewRole);
-                        this.RoleManager.Items.Add(tile);
+                        if (item.RoleId != 1)
+                        {
+                            XamTile tile = new XamTile();
+                            tile.Header = item.RoleName;
+                            tile.Content = new RoleTileControl(false, item, data, AddNewRole,DeleteRole);
+                            this.RoleManager.Items.Add(tile);
+                        }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "RoleManagerControl/Grid_Loaded.\r\n{0}", ex.ToString());
+            }
         }
-        private void AddNewRole(bool result)
+        private void AddNewRole(bool result,RoleData role)
         {
+            try
+            {
+                XamTile tile = new XamTile();
+                tile.Header = role.RoleName;
+                tile.Content = new RoleTileControl(false, role, this._AllRolePermissions, AddNewRole,DeleteRole);
+                this.RoleManager.Items.Add(tile);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "AddNewRole.\r\n{0}", ex.ToString());                
+            }
+        }
+
+        public void DeleteRole(RoleData role)
+        {
+            try
+            {
+                XamTile tile = new XamTile();
+                tile.Header = role.RoleName;
+                tile.Content = new RoleTileControl(false, role, this._AllRolePermissions, AddNewRole, DeleteRole);
+                this.RoleManager.Items.Remove(tile);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "DeleteRole.\r\n{0}", ex.ToString());
+            }
         }
     }
 }

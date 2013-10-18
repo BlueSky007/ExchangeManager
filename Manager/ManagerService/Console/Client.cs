@@ -10,17 +10,17 @@ namespace ManagerService.Console
     public class Client
     {
         private string _SessionId;
-        private Guid _UserId;
+        private User _User;
         private IClientProxy _ClientProxy;
         private RelayEngine<Message> _MessageRelayEngine;
         private Language _Language;
         private Dictionary<string, List<Guid>> _AccountPermission;
         private Dictionary<string, List<Guid>> _InstrumentPermission;
 
-        public Client(string sessionId, Guid userId, IClientProxy clientProxy, Language language, Dictionary<string, List<Guid>> accountPermissions, Dictionary<string, List<Guid>> instrumentPermissions)
+        public Client(string sessionId, User user, IClientProxy clientProxy, Language language, Dictionary<string, List<Guid>> accountPermissions, Dictionary<string, List<Guid>> instrumentPermissions)
         {
             this._SessionId = sessionId;
-            this._UserId = userId;
+            this._User = user;
             this._ClientProxy = clientProxy;
             this._Language = language;
             this._AccountPermission = accountPermissions;
@@ -29,7 +29,8 @@ namespace ManagerService.Console
         }
 
         public string SessionId { get { return this._SessionId; } }
-        public Guid userId { get { return this._UserId; } }
+        public Guid userId { get { return this._User.UserId; } }
+        public User user { get { return this._User; } }
         public Language language { get { return this._Language; } }
 
         public void Replace(string sessionId, IClientProxy clientProxy, Dictionary<string, List<Guid>> accountPermissions, Dictionary<string, List<Guid>> instrumentPermissions)

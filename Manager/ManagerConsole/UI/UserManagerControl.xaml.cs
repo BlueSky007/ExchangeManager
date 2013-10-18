@@ -27,13 +27,14 @@ namespace ManagerConsole
         {
             InitializeComponent();
         }
-
+        private List<RoleData> _roles;
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
             try
             {
                 if (this.UserManager.Items.Count == 0)
                 {
+                    this._roles = ConsoleClient.Instance.GetRoles();
                     ConsoleClient.Instance.GetUserData(this.InitUserTile);
                 }
             }
@@ -54,7 +55,7 @@ namespace ManagerConsole
                          XamTile tile = new XamTile();
                          tile.CloseAction = TileCloseAction.DoNothing;
                          tile.Header = item.UserName;
-                         tile.Content = new UserTileControl(item, false, DeleteUser);
+                         tile.Content = new UserTileControl(item,this._roles, false, DeleteUser);
                          this.UserManager.Items.Add(tile);
                      }
                  }, data);
@@ -72,7 +73,7 @@ namespace ManagerConsole
                 XamTile tile = new XamTile();
                 tile.CloseAction = TileCloseAction.RemoveItem;
                 tile.Header = "Add New User";
-                tile.Content = new UserTileControl(Guid.Empty, "", 0, "", true, AddUserSuccess);
+                tile.Content = new UserTileControl(Guid.Empty, "", 0, "", true,this._roles, AddUserSuccess);
                 if (this.UserManager.Items.Contains(tile))
                 {
                     this.UserManager.Items.Remove(tile);
@@ -86,14 +87,14 @@ namespace ManagerConsole
             }
         }
 
-        public void AddUserSuccess(UserData user)
+        public void AddUserSuccess(bool IsSuccess,UserData user)
         {
             try
             {
                 XamTile tile = new XamTile();
                 tile.CloseAction = TileCloseAction.DoNothing;
                 tile.Header = user.UserName;
-                tile.Content = new UserTileControl(user.UserId, user.UserName, user.RoleId, user.RoleName, false, AddUserSuccess);
+                tile.Content = new UserTileControl(user,this._roles, false, AddUserSuccess);
                 this.UserManager.Items.Add(tile);
             }
             catch (Exception ex)
@@ -108,7 +109,7 @@ namespace ManagerConsole
             {
                 if (isSuccess)
                 {
-                    this.UserManager.Items.Remove(new UserTileControl(user, false, DeleteUser));
+                    this.UserManager.Items.Remove(new UserTileControl(user,this._roles, false, DeleteUser));
                 }
             }
             catch (Exception ex)

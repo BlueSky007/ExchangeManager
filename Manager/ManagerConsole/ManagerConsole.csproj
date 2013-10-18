@@ -42,6 +42,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="infragisticswpf4.controls.charts.xamdatachart.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
+    <Reference Include="infragisticswpf4.controls.editors.xamcomboeditor.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
     <Reference Include="infragisticswpf4.controls.grids.xamgrid.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
     <Reference Include="infragisticswpf4.controls.interactions.xamdialogwindow.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
     <Reference Include="infragisticswpf4.controls.layouts.xamtilemanager.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
@@ -94,19 +95,31 @@
     <Compile Include="Model\Account.cs" />
     <Compile Include="Model\ConsoleClient.cs" />
     <Compile Include="Model\ConsoleClientMock.cs" />
+    <Compile Include="Model\Customer.cs" />
+    <Compile Include="Model\DealingPolicyDetail.cs" />
     <Compile Include="Model\EventLogEntity.cs" />
+    <Compile Include="Model\Function.cs" />
     <Compile Include="Model\IClientService.cs" />
     <Compile Include="Model\InstrumentClient.cs" />
     <Compile Include="Model\MessageClient.cs" />
     <Compile Include="Model\Order.cs" />
+    <Compile Include="Model\QuotePolicyDetail.cs" />
     <Compile Include="Model\QuotePriceClient.cs" />
+    <Compile Include="Model\SystemParameter.cs" />
     <Compile Include="Model\SystemParameterClient.cs" />
+    <Compile Include="Model\TradePolicy.cs" />
+    <Compile Include="Model\TradePolicyDetail.cs" />
     <Compile Include="Model\Transaction.cs" />
+    <Compile Include="SettingsChangedEventArgs.cs" />
+    <Compile Include="SettingsManager.cs" />
     <Compile Include="UI\DQOrderTaskControl.xaml.cs">
       <DependentUpon>DQOrderTaskControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\ExcuteOrderConfirm.xaml.cs">
       <DependentUpon>ExcuteOrderConfirm.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\MooMocOrderTask.xaml.cs">
+      <DependentUpon>MooMocOrderTask.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\OrderTaskControl.xaml.cs">
       <DependentUpon>OrderTaskControl.xaml</DependentUpon>
@@ -126,9 +139,9 @@
     <Compile Include="UI\UserTileControl.xaml.cs">
       <DependentUpon>UserTileControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="User.cs" />
     <Compile Include="ViewModel\DQOrderTaskForInstrument.cs" />
     <Compile Include="ViewModel\Login.cs" />
+    <Compile Include="ViewModel\MooMocOrderForInstrument.cs" />
     <Compile Include="ViewModel\OrderTask.cs" />
     <Compile Include="ViewModel\QuotePriceForInstrument.cs" />
     <Compile Include="ViewModel\UserModel.cs" />
@@ -158,6 +171,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\ExcuteOrderConfirm.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\MooMocOrderTask.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -17,10 +17,11 @@ namespace ManagerService.Console
         void Logout();
 
         [OperationContract(IsInitiating = false)]
-        bool ChangePassword(string currentPassword, string newPassword);
-
-        [OperationContract(IsInitiating = false)]
         FunctionTree GetFunctionTree();
+
+        #region UserManager
+        [OperationContract(IsInitiating = false)]
+        bool ChangePassword(string currentPassword, string newPassword);
 
         [OperationContract(IsInitiating = false)]
         List<AccessPermission> GetAccessPermissions();
@@ -38,6 +39,16 @@ namespace ManagerService.Console
         bool UpdateUsers(UserData user, string password, bool isNewUser);
 
         [OperationContract(IsInitiating = false)]
+        bool DeleteUser(Guid userId);
+
+        [OperationContract(IsInitiating = false)]
+        bool UpdateRole(RoleData role, bool isNewRole);
+
+        [OperationContract(IsInitiating = false)]
+        bool DeleteRole(int roleId);
+        #endregion
+
+        [OperationContract(IsInitiating = false)]
         void AbandonQuote(List<Answer> abandonQuotePrices);
 
         [OperationContract(IsInitiating = false)]
@@ -45,6 +56,9 @@ namespace ManagerService.Console
 
         [OperationContract(IsInitiating = true)]
         TransactionError AcceptPlace(Guid transactionId);
+
+        [OperationContract(IsInitiating = false)]
+        TransactionError CancelPlace(Guid transactionId, CancelReason cancelReason);
     }
 
     [ServiceContract]

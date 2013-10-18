@@ -1,0 +1,155 @@
+﻿<UserControl x:Class="ManagerConsole.UI.MooMocOrderTask"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:igGrid="http://schemas.infragistics.com/xaml"
+             mc:Ignorable="d" 
+              d:DesignHeight="500" d:DesignWidth="1000">
+    <UserControl.Resources>
+        <Style x:Key="CellStyle" TargetType="igGrid:CellControl">
+            <Setter Property="BorderBrush" Value="#FFDEDEDE" />
+            <Setter Property="BorderThickness" Value="1,1,1,1" />
+        </Style>
+        <Style x:Key="InActiveCellStyle" TargetType="igGrid:CellControl">
+            <Setter Property="BorderBrush" Value="#FFDEDEDE" />
+            <Setter Property="BorderThickness" Value="1,1,1,1" />
+            <Setter Property="Background" Value="LightGray" />
+        </Style>
+        <Style x:Key="TimesCellStyle" TargetType="igGrid:CellControl">
+            <Setter Property="Foreground" Value="Red" />
+            <Setter Property="FontSize" Value="15"></Setter>
+        </Style>
+        <Style x:Key="ButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#FF86CEF3"/>
+        </Style>
+    </UserControl.Resources>
+    <Grid x:Name="LayRootGrid">
+        <Border Margin="0 0 5 0" BorderBrush="Black" Grid.Row="0">
+            <igGrid:XamGrid x:Name="MooMocOrderTaskGrid" AutoGenerateColumns="False" Background="#FF808080" ColumnWidth="Auto" CellStyle="{StaticResource CellStyle}" Foreground="{Binding IsBuyBrush}">
+                <igGrid:XamGrid.EditingSettings>
+                    <igGrid:EditingSettings AllowEditing="None" IsEnterKeyEditingEnabled="True" IsF2EditingEnabled="True"/>
+                </igGrid:XamGrid.EditingSettings>
+                <igGrid:XamGrid.FixedColumnSettings>
+                    <igGrid:FixedColumnSettings AllowFixedColumns="DropArea"/>
+                </igGrid:XamGrid.FixedColumnSettings>
+                <igGrid:XamGrid.GroupBySettings>
+                    <igGrid:GroupBySettings AllowGroupByArea="Top" IsGroupable="True" EmptyGroupByAreaContent="开市/收市单操作     拖动列标题栏在此分组"/>
+                </igGrid:XamGrid.GroupBySettings>
+
+                <!--Column Setting-->
+                <igGrid:XamGrid.Columns>
+                    <igGrid:ColumnLayout Key="OrderTasks" HeaderVisibility="false">
+                        <igGrid:ColumnLayout.Columns>
+                            <igGrid:TemplateColumn Key="DQHandle" HeaderText="Action" IsFixed="Left">
+                                <igGrid:TemplateColumn.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" Width="120">
+                                            <Button x:Name="DQAcceptSigleBtn" Background="#FFADD8E6" Width="60"  Height="25" Content="Accept" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine1.IsVisibility}" IsEnabled="{Binding DQCellDataDefine1.IsEnable}"/>
+                                            <Button x:Name="DQRejectSigleBtn" Background="#FFADD8E6" Width="60" Foreground="Red" Height="25" Content="Reject" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine2.IsVisibility}" IsEnabled="{Binding DQCellDataDefine2.IsEnable}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </igGrid:TemplateColumn.ItemTemplate>
+                            </igGrid:TemplateColumn>
+                            <igGrid:TemplateColumn Key="IsSelected" Width="60" HorizontalContentAlignment="Center" IsReadOnly="False" HeaderText="Select">
+                                <igGrid:TemplateColumn.ItemTemplate>
+                                    <DataTemplate>
+                                        <CheckBox x:Name="SelectSigleChk" IsChecked="{Binding IsSelected,Mode=TwoWay}"/>
+                                    </DataTemplate>
+                                </igGrid:TemplateColumn.ItemTemplate>
+                            </igGrid:TemplateColumn>
+                            <igGrid:TemplateColumn Key="OrderStatus" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Message">
+                                <igGrid:TemplateColumn.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding OrderStatus}" Foreground="{Binding RowBrush}"/>
+                                    </DataTemplate>
+                                </igGrid:TemplateColumn.ItemTemplate>
+                            </igGrid:TemplateColumn>
+                            <igGrid:TemplateColumn Key="InstrumentCode" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Item">
+                                <igGrid:TemplateColumn.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding InstrumentCode}" Foreground="{Binding RowBrush}"/>
+                                    </DataTemplate>
+                                </igGrid:TemplateColumn.ItemTemplate>
+                            </igGrid:TemplateColumn>
+                            <igGrid:TextColumn Key="TimeStamp" FormatString="{}{0:HH:mm:ss}" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="App Time" />
+                            <igGrid:TextColumn Key="SubmitDateTime" FormatString="{}{0:HH:mm:ss}" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Submit time"  IsSorted="Descending" />
+                            <igGrid:TextColumn Key="AccountCode" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Account" />
+                            <igGrid:TemplateColumn Key="IsBuyString" Width="60" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="B/S">
+                                <igGrid:TemplateColumn.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding IsBuyString}" Foreground="{Binding IsBuyBrush}"/>
+                                    </DataTemplate>
+                                </igGrid:TemplateColumn.ItemTemplate>
+                            </igGrid:TemplateColumn>
+                            <igGrid:TextColumn Key="Lot" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Lot" />
+                            <igGrid:TemplateColumn Key="IsOpenString" HeaderText="N/C" Width="60" HorizontalContentAlignment="Center" IsReadOnly="True">
+                                <igGrid:TemplateColumn.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding IsOpenString}" Foreground="{Binding IsOpenBrush}" />
+                                    </DataTemplate>
+                                </igGrid:TemplateColumn.ItemTemplate>
+                            </igGrid:TemplateColumn>
+                            <igGrid:TemplateColumn Key="TradeOption" HorizontalContentAlignment="Center" HeaderText="Option" IsReadOnly="True"/>
+                            <igGrid:TemplateColumn Key="QuotePolicyCode" HorizontalContentAlignment="Center" HeaderText="Quote Policy" IsReadOnly="True"/>
+                            <igGrid:TextColumn Key="SetPrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Set Price" />
+                            <igGrid:TextColumn Key="DiffPrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Price Dif"  />
+                            <igGrid:TextColumn Key="DQMaxMove" Width="80" HeaderText="DQ MaxMove" HorizontalContentAlignment="Center" IsReadOnly="True" />
+                            <igGrid:TextColumn Key="TransactionCode" Width="100" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Tran Code" />
+                            <igGrid:TextColumn Key="ContractSize" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Size"  />
+                            <igGrid:TextColumn Key="OrderType" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True"  HeaderText="Type"/>
+
+                        </igGrid:ColumnLayout.Columns>
+                    </igGrid:ColumnLayout>
+
+                    <!--Column Setting-->
+                    <igGrid:TemplateColumn Key="MooMocHandle" HeaderText="Action" IsFixed="Left">
+                        <igGrid:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Width="120">
+                                    <Button x:Name="DQAcceptBtn" Width="60"  Height="25" Content="Accept" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine1.IsVisibility}" IsEnabled="{Binding DQCellDataDefine1.IsEnable}"/>
+                                    <Button x:Name="DQRejecBtn"  Width="60" Foreground="Red" Height="25" Content="Reject" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine2.IsVisibility}" IsEnabled="{Binding DQCellDataDefine2.IsEnable}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </igGrid:TemplateColumn.ItemTemplate>
+                    </igGrid:TemplateColumn>
+                    <igGrid:TemplateColumn Key="InstrumentCode" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Item">
+                        <igGrid:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding InstrumentCode}" Foreground="{Binding RowBrush}"/>
+                            </DataTemplate>
+                        </igGrid:TemplateColumn.ItemTemplate>
+                    </igGrid:TemplateColumn>
+
+                    <igGrid:TemplateColumn Key="Origin" Width="80" HorizontalContentAlignment="Center"  HeaderText="Origin">
+                        <igGrid:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Origin}" Foreground="{Binding IsBuyBrush}"/>
+                            </DataTemplate>
+                        </igGrid:TemplateColumn.ItemTemplate>
+                    </igGrid:TemplateColumn>
+                    <igGrid:TextColumn Key="SumSellLot"  Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Total Sell" />
+                    <igGrid:TextColumn Key="SumBuyLot" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Total Buy" />
+                    <igGrid:TextColumn Key="Instrument.Ask"  Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Ask" />
+                    <igGrid:TextColumn Key="Instrument.Bid" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Bid" />
+                    <igGrid:TemplateColumn Key="BuySellString" HeaderText="BuySell"  Width="100">
+                        <igGrid:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <!--<igCombo:XamComboEditor x:Name="BuySellCombo" Loaded="" Width="90" SelectionChanged="" />-->
+                                <ComboBox x:Name="BuySellCombo" Margin="0" Foreground="Blue" ItemsSource="{Binding BuySellList}"  SelectedItem="{Binding BuySellString,Mode=TwoWay}"  Width="90" />
+                            </DataTemplate>
+                        </igGrid:TemplateColumn.ItemTemplate>
+                    </igGrid:TemplateColumn>
+
+                    <igGrid:TemplateColumn Key="OpenCloseString" HeaderText="Is Open" Width="100">
+                        <igGrid:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <ComboBox x:Name="IsOPenCombo" Margin="0" Foreground="Blue" ItemsSource="{Binding OpenCloseList}" SelectedItem="{Binding OpenCloseString,Mode=TwoWay}" Width="90" />
+                            </DataTemplate>
+                        </igGrid:TemplateColumn.ItemTemplate>
+                    </igGrid:TemplateColumn>
+                </igGrid:XamGrid.Columns>
+            </igGrid:XamGrid>
+        </Border>
+    </Grid>
+</UserControl>

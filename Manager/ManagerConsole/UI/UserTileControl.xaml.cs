@@ -24,24 +24,25 @@ namespace ManagerConsole.UI
     {
         private bool _isNewUser;
         private UserData _user;
-        private Action<UserData> _AddSuccessAction;
-        private Action<bool,UserData> _DeleteUser;
+        private List<RoleData> _roles;
+        private Action<bool, UserData> _AddSuccessAction;
+        private Action<bool, UserData> _DeleteUser;
 
         public UserTileControl()
         {
             InitializeComponent();
         }
 
-        public UserTileControl(Guid userId, string userName, int roleId,string roleName,bool isNewUser,Action<UserData> AddSuccessAction)
+        public UserTileControl(Guid userId, string userName, int roleId, string roleName, bool isNewUser,List<RoleData> role, Action<bool,UserData> AddSuccessAction)
         {
             this._isNewUser = isNewUser;
             this._user = new UserData();
             this._user.UserId = userId;
-            this._user.RoleId = roleId;
             this._user.UserName = userName;
-            this._user.RoleName = roleName;
+            this._roles = role;
             this._AddSuccessAction = AddSuccessAction;
             InitializeComponent();
+            this.RoleName_List.ItemsSource = this._roles;
             if (isNewUser)
             {
                 this.Edit_Click(null, null);
@@ -54,26 +55,35 @@ namespace ManagerConsole.UI
                 this.RoleName_Text.Text = roleName;
                 this.UserName.IsReadOnly = true;
                 this.NewPassword.IsReadOnly = true;
-                this.RoleName_List.SelectedValue = roleId;
+                this.RoleName_List.SelectedItem = roleId;
+                this.RoleName_List.ItemsSource = this._roles;
             }
         }
 
-        public UserTileControl(UserData userData, bool isNewUser, Action<bool,UserData> DeleteUser)
+        public UserTileControl(UserData userData,List<RoleData> roles, bool isNewUser, Action<bool,UserData> DeleteUser)
         {
-            InitializeComponent();
-            this._isNewUser = isNewUser;
-            this._user = new UserData();
-            this._user.UserId = userData.UserId;
-            this._user.RoleId = userData.RoleId;
-            this._user.UserName = userData.UserName;
-            this._user.RoleName = userData.RoleName;
-            this._DeleteUser = DeleteUser;
-            
-            this.UserName.Text = userData.UserName;
-            this.RoleName_Text.Text = userData.RoleName;
-            this.UserName.IsReadOnly = true;
-            this.NewPassword.IsReadOnly = true;
-            this.RoleName_List.SelectedValue = userData.RoleId;
+            try
+            {
+                InitializeComponent();
+                this._isNewUser = isNewUser;
+                this._user = userData;
+                this._DeleteUser = DeleteUser;
+                this._roles = roles;
+                this.UserName.Text = userData.UserName;
+                string text = string.Empty;
+                foreach (RoleData role in userData.Roles)
+                {
+                    text += role.RoleName + ",";
+                }
+                this.RoleName_Text.Text = text;
+                this.UserName.IsReadOnly = true;
+                this.NewPassword.IsReadOnly = true;
+                this.RoleName_List.ItemsSource = this._roles;
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "UserTileControl.\r\n{0}", ex.ToString());
+            }
         }
 
         private void Edit_Click(object sender, RoutedEventArgs e)
@@ -141,6 +151,13 @@ namespace ManagerConsole.UI
                 this.NewPassword.IsReadOnly = true;
                 this.ConfirmPassword.Visibility = System.Windows.Visibility.Hidden;
                 this.Confirm.Visibility = System.Windows.Visibility.Hidden;
+                this.UserName.Text = this._user.UserName;
+                string text = string.Empty;
+                foreach (RoleData role in this._user.Roles)
+                {
+                    text += role.RoleName + ",";
+                }
+                this.RoleName_Text.Text = text;
             }
             catch (Exception ex)
             {
@@ -155,43 +172,40 @@ namespace ManagerConsole.UI
                 if (this.CheckSubmitData())
                 {
                     UserData user = new UserData();
-                    RoleData role = (RoleData)this.RoleName_List.SelectedItem;
-
+                    user.UserId = Guid.NewGuid();
+                    user.UserName = this.UserName.Text;
+                    foreach (var item in this.RoleName_List.SelectedItems)
+                    {
+                        user.Roles.Add((RoleData)item);
+                    }
+                    string text = string.Empty;
+                    foreach (RoleData role in user.Roles)
+                    {
+                        text += role.RoleName + ",";
+                    }
+                    this.RoleName_Text.Text = text;
                     if (this._isNewUser)
                     {
-                        user.UserId = Guid.NewGuid();
-                        user.UserName = this.UserName.Text;
-                        user.RoleId = role.RoleId;
-                        user.RoleName = role.RoleName;
                         this._user = user;
                         string password = this.NewPassword.Text;
                         ConsoleClient.Instance.UpdateUser(user, password, this._isNewUser, EndAddNewUser);
                     }
                     else
                     {
-                        user.UserId = this._user.UserId;
-                        user.UserName = this.UserName.Text;
                         if (this._user.UserName == this.UserName.Text)
                         {
                             user.UserName = string.Empty;
                         }
-                        if (role.RoleId != this._user.RoleId)
+                        if (this._user.Roles.SequenceEqual(user.Roles))
                         {
-                            user.RoleId = role.RoleId;
-                            user.RoleName = role.RoleName;
+                            user.Roles.Clear();
+                            string password = string.Empty;
+                            if (this.ChangePassword.Visibility == System.Windows.Visibility.Hidden)
+                            {
+                                password = this.NewPassword.Text;
+                            }
+                            ConsoleClient.Instance.UpdateUser(user, password, false, EndAddNewUser);
                         }
-                        else
-                        {
-                            user.RoleId = 0;
-                            user.RoleName = string.Empty;
-                        }
-
-                        string password = string.Empty;
-                        if (this.ChangePassword.Visibility == System.Windows.Visibility.Hidden)
-                        {
-                            password = this.NewPassword.Text;
-                        }
-                        ConsoleClient.Instance.UpdateUser(user, password, false, EndAddNewUser);
                     }
                 }
             }
@@ -223,18 +237,37 @@ namespace ManagerConsole.UI
                 this.Message.Content = "请输入用户名";
                 return false;
             }
-            if (role.RoleId != this._user.RoleId && this._user.UserName == this.UserName.Text)
-            {
-                if (this.ChangePassword.Visibility == System.Windows.Visibility.Visible)
-                {
-                    return false;
-                }
-                else if (string.IsNullOrEmpty(this.NewPassword.Text))
-                {
-                    return false;
-                }
-            }
             return true;
+        }
+
+        private void EndEidtUser(bool isSuccess)
+        {
+            this.Dispatcher.BeginInvoke((Action<bool>)delegate(bool result)
+            {
+                if (!result)
+                {
+                    this.Message.Foreground = Brushes.Red;
+                    this.Message.Content = "录入失败";
+                }
+                else
+                {
+                    this.Edit.Visibility = Visibility.Visible;
+                    this.NewPassword.Visibility = System.Windows.Visibility.Visible;
+                    this.RoleName_Text.Visibility = Visibility.Visible;
+                    this.Role_View.Visibility = System.Windows.Visibility.Visible;
+                    this.ChangePassword.Visibility = System.Windows.Visibility.Visible;
+                    this.Submit.Visibility = Visibility.Hidden;
+                    this.Cancel.Visibility = Visibility.Hidden;
+                    this.Delete.Visibility = System.Windows.Visibility.Hidden;
+                    this.UserName.IsReadOnly = true;
+                    this.RoleName_List.Visibility = Visibility.Hidden;
+                    this.Role_LabelEdit.Visibility = System.Windows.Visibility.Hidden;
+                    this.ChangePassword.Visibility = System.Windows.Visibility.Hidden;
+                    this.NewPassword.IsReadOnly = true;
+                    this.ConfirmPassword.Visibility = System.Windows.Visibility.Hidden;
+                    this.Confirm.Visibility = System.Windows.Visibility.Hidden;
+                }
+            }, isSuccess);
         }
 
         private void EndAddNewUser(bool isSuccess)
@@ -256,7 +289,7 @@ namespace ManagerConsole.UI
                          this.Message.Foreground = Brushes.Green;
                          this.Message.Content = "录入成功";
                          UserData user = new UserData();
-                         this._AddSuccessAction(this._user);
+                         this._AddSuccessAction(true,this._user);
                      }
                  }, isSuccess);
             }
@@ -271,7 +304,7 @@ namespace ManagerConsole.UI
         {
             try
             {
-                this.RoleName_List.ItemsSource = ConsoleClient.Instance.GetRoles();
+                this.RoleName_List.ItemsSource = this._roles;
             }
             catch (Exception ex)
             {

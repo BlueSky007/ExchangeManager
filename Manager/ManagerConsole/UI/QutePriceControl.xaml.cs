@@ -1,5 +1,4 @@
 ﻿using Infragistics.Controls.Grids;
-using Manager.Common;
 using ManagerConsole.Helper;
 using ManagerConsole.Model;
 using ManagerConsole.ViewModel;
@@ -19,6 +18,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using Logger = Manager.Common.Logger;
+using QuoteMessage = Manager.Common.QuoteMessage;
+using Answer = Manager.Common.Answer;
 
 namespace ManagerConsole
 {
@@ -182,7 +184,7 @@ namespace ManagerConsole
             Button btn = sender as Button;
             QuotePriceForInstrument quotePriceForInstrument;
             QuotePriceClient quotePriceClient;
-            List<QuoteQuotation> quoteQuotations = new List<QuoteQuotation>();
+            List<Manager.Common.QuoteQuotation> quoteQuotations = new List<Manager.Common.QuoteQuotation>();
 
             try
             {

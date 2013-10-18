@@ -12,9 +12,9 @@ namespace ManagerService.DataAccess
 {
     public class UserDataAccess
     {
-        public static Guid Login(string userName, string password, out List<DataPermission> dataPermissions)
+        public static User Login(string userName, string password, out List<DataPermission> dataPermissions)
         {
-            Guid userId = Guid.Empty;
+            User user = new User();
             string sqlPassword = null;
             dataPermissions = new List<DataPermission>();
             using (SqlConnection connection = DataAccess.GetInstance().GetSqlConnection())
@@ -29,32 +29,63 @@ namespace ManagerService.DataAccess
                     {
                         if (reader.Read())
                         {
-                            userId = (Guid)reader["Id"];
+                            user.UserId = (Guid)reader["Id"];
                             sqlPassword = (string)reader["Password"];
                         }
-                        if (userId != Guid.Empty)
+                        if (user.UserId != Guid.Empty)
                         {
-                            if (!UserDataAccess.CheckPassword(password, sqlPassword)) userId = Guid.Empty;
+                            if (!UserDataAccess.CheckPassword(password, sqlPassword))
+                            {
+                                user.UserId = Guid.Empty;
+                            }
                         }
-                        if (userId != Guid.Empty)
+                        if (user.UserId != Guid.Empty)
                         {
-                            reader.NextResult();
+                            if (reader.NextResult())
+                            {
+                                while (reader.Read())
+                        {
+                                    int roleId = (int)reader["Id"];
+                                    string roleName = reader["RoleName"].ToString();
+                                    user.Roles.Add(roleId, roleName);
+                                }
+                        }
+                            if (reader.NextResult())
+                        {
                             while (reader.Read())
                             {
                                 DataPermission permission = new DataPermission();
                                 permission.ExchangeSystemCode = reader["IExchangeCode"].ToString();
-                                permission.DataObjectType = (DataObjectType)reader["DataObjectType"];
+                                    permission.DataObjectType = (DataObjectType)(int.Parse(reader["DataObjectType"].ToString()));
                                 permission.DataObjectId = (Guid)reader["DataObjectId"];
                                 dataPermissions.Add(permission);
                             }
                         }
                     }
-                    return userId;
+                    }
+                    return user;
                 }
             }
         }
-                
-        
+
+        public static List<AccessPermission> GetAccessPermissions(Guid userId,Language language)
+        {
+            List<AccessPermission> permissions = new List<AccessPermission>();
+            string sql = "SELECT DISTINCT rfp.FunctionId,f.ParentId AS Module,f2.ParentId AS Category, (CASE @language WHEN'CHT' THEN f.NameCHT ELSE(CASE @language WHEN 'CHS' THEN f.NameCHS ELSE f.NameENG END) END) AS FunctionName FROM dbo.RoleFunctionPermission rfp INNER JOIN dbo.[Function] f ON f.Id=rfp.FunctionId INNER JOIN dbo.[Function] f2 ON f2.Id=f.ParentId INNER JOIN dbo.UserInRole uir ON uir.RoleId = rfp.RoleId WHERE uir.UserId=@userId";
+            DataAccess.GetInstance().ExecuteReader(sql, CommandType.Text, delegate(SqlDataReader reader)
+            {
+                while (reader.Read())
+                {
+                    AccessPermission access = new AccessPermission();
+                    access.CategotyType = (ModuleCategoryType)reader["Category"];
+                    access.ModuleType = (ModuleType)reader["Module"];
+                    access.OperationId = (int)reader["FunctionId"];
+                    access.OperationName = reader["FunctionName"].ToString();
+                    permissions.Add(access);
+                }
+            }, new SqlParameter("@userId", userId), new SqlParameter("@language",language.ToString()));
+            return permissions;
+        }
 
         public static bool ChangePassword(Guid userId, string currentPassword, string newPassword)
         {
@@ -149,18 +180,24 @@ namespace ManagerService.DataAccess
             using (SqlConnection sqlConnection = DataAccess.GetInstance().GetSqlConnection())
             {
                 SqlCommand command = sqlConnection.CreateCommand();
-                command.CommandText = "SELECT u.Id,u.[Name],r.Id,r.RoleName FROM dbo.Users u INNER JOIN dbo.UserInRole uir ON uir.UserId = u.Id INNER JOIN dbo.Roles r ON r.Id = uir.RoleId";
+                command.CommandText = "SELECT u.Id,u.[Name] FROM dbo.Users u SELECT uir.UserId,uir.RoleId,r.RoleName FROM dbo.UserInRole uir INNER JOIN dbo.Roles r ON r.Id = uir.RoleId";
                 command.CommandType = System.Data.CommandType.Text;
                 SqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
                     UserData user = new UserData();
-                    user.UserId = (Guid)reader.GetValue(0);
-                    user.UserName = reader.GetValue(1).ToString();
-                    user.RoleId = (int)reader.GetValue(2);
-                    user.RoleName = reader.GetValue(3).ToString();
+                    user.UserId = (Guid)reader["Id"];
+                    user.UserName = reader["Name"].ToString();
                     data.Add(user);
                 }
+                reader.NextResult();
+                while (reader.Read())
+                {
+                    RoleData role = new RoleData();
+                    role.RoleId = (int)reader["RoleId"];
+                    role.RoleName = reader["RoleName"].ToString();
+                    data.Find(u=>u.UserId==(Guid)reader["UserId"]).Roles.Add(role);
+            }
             }
             return data;
         }
@@ -187,7 +224,7 @@ namespace ManagerService.DataAccess
                     access.OperationId = (int)reader["OperationId"];
                     access.OperationName = reader["OperationName"].ToString();
                     int id = (int)reader["RoleId"];
-                    roles[id].AccessPermissions.Add(access);
+                    roles[id-1].AccessPermissions.Add(access);
                 }
                 reader.NextResult();
                 while (reader.Read())
@@ -195,9 +232,10 @@ namespace ManagerService.DataAccess
                     DataPermission data = new DataPermission();
                     int id = (int)reader["RoleId"];
                     data.ExchangeSystemCode = reader["IExchangeCode"].ToString();
-                    data.DataObjectType = (DataObjectType)reader["DataObjectType"];
+                    data.DataObjectType = (DataObjectType)(int.Parse(reader["DataObjectType"].ToString()));
                     data.DataObjectId = (Guid)reader["DataObjectId"];
-                    roles[id].DataPermissions.Add(data);
+                    data.DataObjectDescription = reader["DataObjectDescription"].ToString();
+                    roles[id-1].DataPermissions.Add(data);
                 }
             }, new SqlParameter("@language", language));
             return roles;
@@ -206,40 +244,84 @@ namespace ManagerService.DataAccess
         public static bool AddNewUser(UserData user, string password)
         {
             string encryptPassword = UserDataAccess.GetMd5EncryptPassword(password);
+            string roles = string.Empty;
+            bool isSuccess = false;
+            foreach (RoleData role in user.Roles)
+            {
+                roles += (role.RoleId + ",");
+            }
+            SqlParameter[] parameters = new SqlParameter[] { new SqlParameter("@userId", user.UserId), new SqlParameter("@userName", user.UserName), new SqlParameter("@password",encryptPassword), new SqlParameter("@roles",roles) };
             using (SqlConnection sqlConnection = DataAccess.GetInstance().GetSqlConnection())
             {
-                SqlCommand command = sqlConnection.CreateCommand();
-                command.CommandText = string.Format("INSERT INTO dbo.Users(Id,[Name],[Password]) VALUES('{0}','{1}','{2}') INSERT INTO dbo.UserInRole(UserId,RoleId) VALUES ('{3}',{4})", user.UserId, user.UserName, encryptPassword, user.UserId, user.RoleId);
-                command.CommandType = System.Data.CommandType.Text;
+                using (SqlTransaction transaction = sqlConnection.BeginTransaction())
+                {
+                    using (SqlCommand command = sqlConnection.CreateCommand())
+                    {
+                        command.CommandText = "[dbo].[User_AddNew]";
+                        command.Transaction = transaction;
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@userId", user.UserId));
+                        command.Parameters.Add(new SqlParameter("@userName", user.UserName));
+                        command.Parameters.Add(new SqlParameter("@password", encryptPassword));
+                        command.Parameters.Add(new SqlParameter("@roles", roles));
+                        command.Parameters.Add(new SqlParameter("@RETURN_VALUE", SqlDbType.Int) { Direction = ParameterDirection.ReturnValue });
                 command.ExecuteNonQuery();
+                        int returnValue = (int)command.Parameters["@RETURN_VALUE"].Value;
+                        isSuccess = (returnValue == 0);
+                        if (isSuccess)
+                        {
+                            transaction.Commit();
             }
-            return true;
+        }
+                }
+            }
+            return isSuccess;
         }
 
         public static bool EditUser(UserData user, string password)
         {
-            string commandText = "UPDATE dbo.Users SET";
-            if (!string.IsNullOrEmpty(user.UserName))
+            string roles = string.Empty;
+            bool isSuccess = false;
+            foreach (RoleData role in user.Roles)
             {
-                commandText += string.Format("[Name]='{0}'", user.UserName);
-            }
-            if (string.IsNullOrEmpty(password))
-            {
-                commandText += string.Format("[Password]=N'{0}'", UserDataAccess.GetMd5EncryptPassword(password));
-            }
-            commandText += string.Format("WHERE Id='{0}'", user.UserId);
-            if (user.RoleId != 0)
-            {
-                commandText += string.Format("UPDATE dbo.UserInRole SET RoleId = {0} WHERE UserId='{1}'", user.RoleId, user.UserId);
+                roles += (role.RoleId + ",");
             }
             using (SqlConnection sqlConnection = DataAccess.GetInstance().GetSqlConnection())
             {
-                SqlCommand command = sqlConnection.CreateCommand();
-                command.CommandText = commandText;
-                command.CommandType = System.Data.CommandType.Text;
-                command.ExecuteNonQuery();
+                using (SqlTransaction transaction = sqlConnection.BeginTransaction())
+                {
+                    using (SqlCommand command = sqlConnection.CreateCommand())
+                    {
+                        command.CommandText = "[dbo].[Users_Update]";
+                        command.Transaction = transaction;
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@userId", user.UserId));
+                        if (!string.IsNullOrEmpty(user.UserName))
+                        {
+                            command.Parameters.Add(new SqlParameter("@userName", user.UserName));
+                        }
+                        if (!string.IsNullOrEmpty(password))
+                        {
+                            string encryptPassword = UserDataAccess.GetMd5EncryptPassword(password);
+                            command.Parameters.Add(new SqlParameter("@password", encryptPassword));
+                        }
+                        if (user.Roles.Count != 0)
+                        {
+                            command.Parameters.Add(new SqlParameter("@roles", roles));
+                        }
+                        command.Parameters.Add(new SqlParameter("@RETURN_VALUE", SqlDbType.Int) { Direction = ParameterDirection.ReturnValue });
+                        command.ExecuteNonQuery();
+                        int returnValue = (int)command.Parameters["@RETURN_VALUE"].Value;
+                        isSuccess = (returnValue == 0);
+                        if (isSuccess)
+                        {
+                            transaction.Commit();
+                        }
+                    }
+
+                }
             }
-            return true;
+            return isSuccess;
         }
 
         public static bool DeleteUser(Guid userId)
@@ -253,8 +335,6 @@ namespace ManagerService.DataAccess
             }
             return true;
         }
-
-        
 
         public static RoleData GetAllPermissions(ExchangeSystemSetting[] ExchangeSystems,string language)
         {
@@ -286,6 +366,141 @@ namespace ManagerService.DataAccess
                 data.DataPermissions.AddRange(dataPermissions);
             }
             return data;
+        }
+
+        public static bool AddNewRole(RoleData role)
+        {
+            bool isSuccess = false;
+            string functionStr = string.Empty;
+            foreach (AccessPermission item in role.AccessPermissions)
+            {
+                functionStr += (item.OperationId + ",");
+            }
+            DataTable dataPermissionTable = new DataTable();
+            dataPermissionTable.Columns.Add("ExchangeCode", typeof(string));
+            dataPermissionTable.Columns.Add("DataObjectType", typeof(int));
+            dataPermissionTable.Columns.Add("DataObjectId", typeof(Guid));
+            dataPermissionTable.Columns.Add("DataObjectDescription", typeof(string));
+            foreach (DataPermission item in role.DataPermissions)
+            {
+                DataRow row = dataPermissionTable.NewRow();
+                row["ExchangeCode"] = item.ExchangeSystemCode;
+                row["DataObjectType"] = item.DataObjectType;
+                row["DataObjectId"] = item.DataObjectId;
+                row["DataObjectDescription"] = item.DataObjectDescription;
+                dataPermissionTable.Rows.Add(row);
+            }
+            using (SqlConnection sqlConnection = DataAccess.GetInstance().GetSqlConnection())
+            {
+                using (SqlTransaction transaction = sqlConnection.BeginTransaction())
+                {
+                    using (SqlCommand command = sqlConnection.CreateCommand())
+                    {
+                        command.CommandText = "[dbo].[Roles_AddNew]";
+                        command.Transaction = transaction;
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@roleName", role.RoleName));
+                        command.Parameters.Add(new SqlParameter("@functionPermssions", functionStr));
+                        SqlParameter parameter = command.Parameters.AddWithValue("@dataPermissions", dataPermissionTable);
+                        parameter.SqlDbType = SqlDbType.Structured;
+                        parameter.TypeName = "dbo.DataPermissionsTableType";
+                        command.Parameters.Add(new SqlParameter("@RETURN_VALUE", SqlDbType.Int) { Direction = ParameterDirection.ReturnValue });
+                        command.ExecuteNonQuery();
+                        int returnValue = (int)command.Parameters["@RETURN_VALUE"].Value;
+                        isSuccess = (returnValue == 0);
+                        if (isSuccess)
+                        {
+                            transaction.Commit();
+                        }
+                    }
+                }
+            }
+            return isSuccess;
+        }
+
+        public static bool EditRole(RoleData role)
+        {
+            bool isSuccess = false;
+            DataTable dataPermissionTable = new DataTable();
+            dataPermissionTable.Columns.Add("ExchangeCode", typeof(string));
+            dataPermissionTable.Columns.Add("DataObjectType", typeof(int));
+            dataPermissionTable.Columns.Add("DataObjectId", typeof(Guid));
+            dataPermissionTable.Columns.Add("DataObjectDescription", typeof(string));
+            foreach (DataPermission item in role.DataPermissions)
+            {
+                DataRow row = dataPermissionTable.NewRow();
+                row["ExchangeCode"] = item.ExchangeSystemCode;
+                row["DataObjectType"] = item.DataObjectType;
+                row["DataObjectId"] = item.DataObjectId;
+                row["DataObjectDescription"] = item.DataObjectDescription;
+                dataPermissionTable.Rows.Add(row);
+            }
+            using (SqlConnection con = DataAccess.GetInstance().GetSqlConnection())
+            {
+                using (SqlTransaction transaction = con.BeginTransaction())
+                {
+                    using (SqlCommand command = con.CreateCommand())
+                    {
+                        command.CommandText = "[dbo].[Roles_Update]";
+                        command.Transaction = transaction;
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@roleId", role.RoleId));
+                        if (string.IsNullOrEmpty(role.RoleName))
+                        {
+                            command.Parameters.Add(new SqlParameter("@roleName", role.RoleName));
+                        }
+                        if (role.AccessPermissions.Count != 0)
+                        {
+                            string functionStr = string.Empty;
+                            foreach (AccessPermission item in role.AccessPermissions)
+                            {
+                                functionStr += (item.OperationId + ",");
+                            }
+                            command.Parameters.Add(new SqlParameter("@functionPermssions", functionStr));
+                        }
+                        SqlParameter parameter = command.Parameters.AddWithValue("@dataPermissions", dataPermissionTable);
+                        parameter.SqlDbType = SqlDbType.Structured;
+                        parameter.TypeName = "dbo.DataPermissionsTableType";
+                        command.Parameters.Add(new SqlParameter("@RETURN_VALUE", SqlDbType.Int) { Direction = ParameterDirection.ReturnValue });
+                        command.ExecuteNonQuery();
+                        int returnValue = (int)command.Parameters["@RETURN_VALUE"].Value;
+                        isSuccess = (returnValue == 0);
+                        if (isSuccess)
+                        {
+                            transaction.Commit();
+                        }
+                    }
+                }
+            }
+            return isSuccess;
+        }
+
+        public static bool DeleteRole(int roleId,Guid userId)
+        {
+            string sql = "[dbo].[Role_Delete]";
+            bool isSuccess = false;
+            using (SqlConnection con = DataAccess.GetInstance().GetSqlConnection())
+            {
+                using (SqlTransaction transaction = con.BeginTransaction())
+                {
+                    using (SqlCommand command = con.CreateCommand())
+                    {
+                        command.CommandText = sql;
+                        command.Transaction = transaction;
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@roleId", roleId));
+                        command.Parameters.Add(new SqlParameter("@RETURN_VALUE", SqlDbType.Int) { Direction = ParameterDirection.ReturnValue });
+                        command.ExecuteNonQuery();
+                        int returnValue = (int)command.Parameters["@RETURN_VALUE"].Value;
+                        isSuccess = (returnValue == 0);
+                        if (isSuccess)
+                        {
+                            transaction.Commit();
+                        }
+                    }
+                }
+            }
+            return isSuccess;
         }
     }
 }

@@ -16,5 +16,7 @@ namespace Manager.Common
         public string DockLayout { get; set; }
 
         public string ContentLayout { get; set; }
+
+        public Guid UserId { get; set; }
     }
 }

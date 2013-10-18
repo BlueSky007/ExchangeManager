@@ -22,7 +22,7 @@ namespace ManagerService.Console
             this._ConsoleServiceHost.Open();
         }
 
-        public Client AddClient(string oldSessionId, string sessionId, Guid userId, IClientProxy clientProxy, Language language, Dictionary<string, List<Guid>> accountPermissions, Dictionary<string, List<Guid>> instrumentPermissions)
+        public Client AddClient(string oldSessionId, string sessionId, User user, IClientProxy clientProxy, Language language, Dictionary<string, List<Guid>> accountPermissions, Dictionary<string, List<Guid>> instrumentPermissions)
         {
             Client client;
             if (!string.IsNullOrEmpty(oldSessionId) && this._Clients.TryGetValue(oldSessionId, out client))
@@ -32,7 +32,7 @@ namespace ManagerService.Console
             }
             else
             {
-                client = new Client(sessionId, userId, clientProxy, language, accountPermissions, instrumentPermissions);
+                client = new Client(sessionId, user, clientProxy, language, accountPermissions, instrumentPermissions);
             }
             this._Clients.Add(client.SessionId, client);
             return client;

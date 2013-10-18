@@ -44,6 +44,8 @@ namespace ManagerConsole
                     return new DQOrderTaskControl();
                 case ModuleType.LMTOrderTask:
                     return new OrderTaskControl();
+                case ModuleType.MooMocTask:
+                    return new MooMocOrderTask();
                 default:
                     break;
             }

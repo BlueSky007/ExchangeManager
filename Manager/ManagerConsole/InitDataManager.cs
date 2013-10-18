@@ -22,11 +22,13 @@ namespace ManagerConsole
 
         private ObservableCollection<OrderTask> _OrderTaskEntities = new ObservableCollection<OrderTask>();
         private DQOrderTaskForInstrumentModel _DQOrderTaskForInstrumentModel = new DQOrderTaskForInstrumentModel();
+        private MooMocOrderForInstrumentModel _MooMocOrderForInstrumentModel = new MooMocOrderForInstrumentModel();
 
         #region Public Property
-        public CommonParameter SystemParameter
+        public SettingsManager SettingsManager
         {
-            get { return this._SystemParameter; }
+            get;
+            set;
         }
 
         public IEnumerable<Account> Accounts
@@ -55,11 +57,18 @@ namespace ManagerConsole
             get { return this._DQOrderTaskForInstrumentModel; }
             set { this._DQOrderTaskForInstrumentModel = value; }
         }
+
+        public MooMocOrderForInstrumentModel MooMocOrderForInstrumentModel
+        {
+            get { return this._MooMocOrderForInstrumentModel; }
+            set { this._MooMocOrderForInstrumentModel = value; }
+        }
         #endregion
 
-        public InitDataManager()
+        public InitDataManager(SettingsManager settingsManager)
         {
             //just test
+            this.SettingsManager = settingsManager;
             this.GetInitializeTestData();
         }
 
@@ -183,33 +192,11 @@ namespace ManagerConsole
 
         private void AddOrderTaskEntity(Order order)
         {
-            if (order.Transaction.OrderType == Manager.Common.OrderType.MarketOnOpen)
-            {
-                bool isExist = false;
-                foreach (OrderTask entity in this._OrderTaskEntities)
-                {
-                    if (entity.InstrumentClient.Id == order.Transaction.Instrument.Id)
-                    {
-                        order.Status = OrderStatus.TimeArrived;
-                        OrderTaskDetail detailOrder = new OrderTaskDetail(order);
-                        entity.MooMocOrderTasks.Add(detailOrder);
-                        isExist = true;
-                    }
-                }
-                if (!isExist)
-                {
-                    OrderTask orderTask = new OrderTask(order);
-                    OrderTaskDetail detailOrder = new OrderTaskDetail(order);
-                    orderTask.MooMocOrderTasks.Add(detailOrder);
-                    orderTask.OrderStatus = OrderStatus.TimeArrived;
-                    this._OrderTaskEntities.Add(orderTask);
-                }
-            }
-            else if (order.Transaction.OrderType == Manager.Common.OrderType.SpotTrade)
+            if (order.Transaction.OrderType == Manager.Common.OrderType.SpotTrade)
             {
                 OrderTask orderTask = new OrderTask(order);
                 orderTask.OrderStatus = OrderStatus.Placing;
-                //this._DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments
+
                 DQOrderTaskForInstrument dQOrderTaskForInstrument = null;
                 dQOrderTaskForInstrument = this._DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments.SingleOrDefault(P => P.Instrument.Id == order.Transaction.Instrument.Id);
                 if (dQOrderTaskForInstrument == null)
@@ -224,10 +211,36 @@ namespace ManagerConsole
                 }
                 dQOrderTaskForInstrument.OrderTasks.Add(orderTask);
             }
-            else
+            else if (order.Transaction.OrderType == Manager.Common.OrderType.MarketOnOpen || order.Transaction.OrderType == Manager.Common.OrderType.MarketOnClose)
             {
                 OrderTask orderTask = new OrderTask(order);
                 orderTask.OrderStatus = OrderStatus.Placing;
+                MooMocOrderForInstrument mooMocOrderForInstrument = null;
+                mooMocOrderForInstrument = this._MooMocOrderForInstrumentModel.MooMocOrderForInstruments.SingleOrDefault(P => P.Instrument.Id == order.Transaction.Instrument.Id);
+                if (mooMocOrderForInstrument == null)
+                {
+                    mooMocOrderForInstrument = new MooMocOrderForInstrument();
+                    InstrumentClient instrument = order.Transaction.Instrument;
+                    mooMocOrderForInstrument.Instrument = instrument;
+                    mooMocOrderForInstrument.Origin = instrument.Origin;
+                    mooMocOrderForInstrument.Variation = 0;
+
+                    this._MooMocOrderForInstrumentModel.MooMocOrderForInstruments.Add(mooMocOrderForInstrument);
+                }
+                if (orderTask.IsBuy == BuySell.Buy)
+                {
+                    mooMocOrderForInstrument.SumBuyLot += orderTask.Lot.Value;
+                }
+                else
+                {
+                    mooMocOrderForInstrument.SumSellLot += orderTask.Lot.Value;
+                }
+                mooMocOrderForInstrument.OrderTasks.Add(orderTask);
+            }
+            else
+            {
+                OrderTask orderTask = new OrderTask(order);
+                orderTask.OrderStatus = OrderStatus.TimeArrived;
                 this._OrderTaskEntities.Add(orderTask);
             }
         }

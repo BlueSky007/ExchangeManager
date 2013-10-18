@@ -47,19 +47,26 @@ namespace ManagerConsole
             // TODO: Call Update Service client here, Pass server address(IP,Port) to update service client
             //       and then wait until the update client process terminated.
             //       If there're no updates, then continue to login. otherwise the update client will terminate the Manager process.
-            this.LoginButton.IsEnabled = false;
-            string server;
-            int? port;
-            string updateServicePort = ConfigurationManager.AppSettings["UpdateServicePort"];
-            string defaultServicePort = ConfigurationManager.AppSettings["DefaultServicePort"];
-            if (this.TryGetServerAndPort(out server, out port))
+            if (this.UILanguage.SelectedItem != null)
             {
-                if (!port.HasValue) port = int.Parse(defaultServicePort);
-                ConsoleClient.Instance.Login(this.EndLogin, server, port.Value, this.UserNameTextBox.Text, this.PasswordTextBox.Password,(Manager.Common.Language)this.UILanguage.SelectedItem);
+                this.LoginButton.IsEnabled = false;
+                string server;
+                int? port;
+                string updateServicePort = ConfigurationManager.AppSettings["UpdateServicePort"];
+                string defaultServicePort = ConfigurationManager.AppSettings["DefaultServicePort"];
+                if (this.TryGetServerAndPort(out server, out port))
+                {
+                    if (!port.HasValue) port = int.Parse(defaultServicePort);
+                    ConsoleClient.Instance.Login(this.EndLogin, server, port.Value, this.UserNameTextBox.Text, this.PasswordTextBox.Password, (Manager.Common.Language)this.UILanguage.SelectedItem);
+                }
+                else
+                {
+                    this.HintMessage.Text = "Invalid server.";
+                }
             }
             else
             {
-                this.HintMessage.Text = "Invalid server.";
+                this.HintMessage.Text = "Please Select Language";
             }
         }
 

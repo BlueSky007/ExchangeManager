@@ -165,7 +165,7 @@ namespace ManagerConsole.UI
         #region Quote Order
         private void OnOrderAccept(OrderTask order)
         {
-            CommonParameter systemParameter = this._App.InitDataManager.SystemParameter;
+            SystemParameter systemParameter = this._App.InitDataManager.SettingsManager.SystemParameter;
             systemParameter.CanDealerViewAccountInfo = false;
             bool isOK = OrderTaskManager.CheckDQOrder(order, systemParameter);
             isOK = false;

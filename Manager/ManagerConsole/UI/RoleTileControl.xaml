@@ -24,11 +24,11 @@
             <ig:XamDataTree.GlobalNodeLayouts>
                 <ig:NodeLayout Key="CategoryNodes"
                                TargetTypeName="CategoryNode"
-                               DisplayMemberPath="CategoryDescription"
+                               DisplayMemberPath="CategoryType"
                                ></ig:NodeLayout>
                 <ig:NodeLayout Key="ModuleNodes"
                                TargetTypeName="ModuleNode"
-                               DisplayMemberPath="ModuleDescription"
+                               DisplayMemberPath="Type"
                                ></ig:NodeLayout>
                 <ig:NodeLayout Key="OperationNodes"
                                TargetTypeName="OperationNode"
@@ -41,27 +41,28 @@
                 <ig:CheckBoxSettings CheckBoxVisibility="Visible" CheckBoxMode="Auto" IsCheckBoxThreeState="True"/>
             </ig:XamDataTree.CheckBoxSettings>
             <ig:XamDataTree.GlobalNodeLayouts>
-                <ig:NodeLayout Key="DataPermission"
-                               TargetTypeName="DataPermission"
-                               DisplayMemberPath="Description">
+                <ig:NodeLayout Key="ExchangeSystemNode"
+                               TargetTypeName="ExchangeSystemNode"
+                               DisplayMemberPath="ExChangeCode">
                 </ig:NodeLayout>
-                <ig:NodeLayout Key="ExChangeSystem"
-                               TargetTypeName="ExChangeSystem"
-                               DisplayMemberPath="ExchangeCode">
+                <ig:NodeLayout Key="DataObjectTypeNode"
+                               TargetTypeName="DataObjectTypeNode"
+                               DisplayMemberPath="Type">
                 </ig:NodeLayout>
-                <ig:NodeLayout Key="Target"
-                               TargetTypeName="Target"
-                               DisplayMemberPath="TargetDescription">
+                <ig:NodeLayout Key="DataObjectNode"
+                               TargetTypeName="DataObjectNode"
+                               DisplayMemberPath="Decription">
                 </ig:NodeLayout>
             </ig:XamDataTree.GlobalNodeLayouts>
         </ig:XamDataTree>
         <Label Content="RoleName" HorizontalAlignment="Left" Margin="10,15,0,0" VerticalAlignment="Top" Width="71" Height="23" Grid.Row="1"/>
-        <TextBox x:Name="RoleName" HorizontalAlignment="Left" Height="23" Margin="98,15,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="204" Grid.Row="1" Grid.ColumnSpan="2"/>
-        <Button x:Name="Edit" Content="Edit" Click="Edit_Click"  HorizontalAlignment="Left" Margin="165,10,0,0" VerticalAlignment="Top" Width="75" Height="20" Grid.Column="1"/>
-        <Button x:Name="Cancel" Content="Cancel" Click="Cancel_Click" HorizontalAlignment="Left" Margin="165,10,0,0" Visibility="Hidden" VerticalAlignment="Top" Width="75" Grid.Column="1" Height="20"/>
+        <TextBox x:Name="RoleName" HorizontalAlignment="Left" Height="23" Margin="98,15,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="204" IsReadOnly="True" Grid.Row="1" Grid.ColumnSpan="2" TextChanged="RoleName_TextChanged"/>
+        <Button x:Name="Edit" Content="Edit" Click="Edit_Click"  HorizontalAlignment="Left" Margin="62,10,0,0" VerticalAlignment="Top" Width="75" Height="20" Grid.Column="1"/>
+        <Button x:Name="Cancel" Content="Cancel" Click="Cancel_Click" HorizontalAlignment="Left" Margin="62,10,0,0" Visibility="Hidden" VerticalAlignment="Top" Width="75" Grid.Column="1" Height="20"/>
         <Button x:Name="Submit" Content="Submit" Click="Submit_Click" HorizontalAlignment="Left" Margin="203,10,0,0" Visibility="Hidden" VerticalAlignment="Top" Width="75" RenderTransformOrigin="0.48,0.4" Height="20" Grid.ColumnSpan="2"/>
-        <Button x:Name="Delete" Content="Delete" Click="Delete_Click" HorizontalAlignment="Left" Margin="62,10,0,0" Visibility="Hidden" VerticalAlignment="Top" Width="75" RenderTransformOrigin="0.48,0.4" Height="20" Grid.Column="1"/>
+        <Button x:Name="Delete" Content="Delete" Click="Delete_Click" HorizontalAlignment="Left" Margin="165,10,0,0" Visibility="Visible" VerticalAlignment="Top" Width="75" RenderTransformOrigin="0.48,0.4" Height="20" Grid.Column="1"/>
         <Label Content="Access Permission" HorizontalAlignment="Left" Grid.Row="2" VerticalAlignment="Top" Width="132" Margin="1,2,0,0"/>
         <Label Content="Data Permission" HorizontalAlignment="Left" Margin="2,2,0,0" Grid.Row="2" VerticalAlignment="Top" Width="133" Grid.Column="1"/>
+        <Label x:Name="Message" Content="" Margin="0,55,10,0" Grid.ColumnSpan="2"/>
     </Grid>
 </UserControl>

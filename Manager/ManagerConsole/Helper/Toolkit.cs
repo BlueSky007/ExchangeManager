@@ -8,6 +8,8 @@ namespace ManagerConsole
 {
     public static class Toolkit
     {
+        public static SettingsManager SettingsManager;
+
         public static OrderTypeCategory GetCategory(this OrderType orderType)
         {
             if (orderType == OrderType.Market || orderType == OrderType.SpotTrade)

@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using CommonSystemParameter = Manager.Common.SystemParameter;
 
-namespace Manager.Common
+namespace ManagerConsole.Model
 {
     public class SystemParameter
     {
@@ -13,9 +14,9 @@ namespace Manager.Common
 
         public bool? DealerUsingAccountPermission { get; set; }
 
-        public System.Int32 MooMocAcceptDuration { get; set; }
+        public TimeSpan MooMocAcceptDuration { get; set; }
 
-        public System.Int32 MooMocCancelDuration { get; set; }
+        public TimeSpan MooMocCancelDuration { get; set; }
 
         public Guid? QuotePolicyDetailID { get; set; }
 
@@ -26,5 +27,13 @@ namespace Manager.Common
         public bool AutoConfirmOrder { get; set; }
 
         public bool ConfirmRejectDQOrder { get; set; } //WebConfig
+
+        internal void Update(CommonSystemParameter systemParameter)
+        {
+
+            this.MooMocAcceptDuration = TimeSpan.FromMinutes(systemParameter.MooMocAcceptDuration);
+            this.MooMocCancelDuration = TimeSpan.FromMinutes(systemParameter.MooMocCancelDuration);
+        }
     }
+
 }

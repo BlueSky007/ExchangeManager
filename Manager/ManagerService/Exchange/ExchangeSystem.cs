@@ -7,6 +7,7 @@ using Manager.Common;
 using System.Diagnostics;
 using System.Xml;
 using CommonTransactionError = Manager.Common.TransactionError;
+using CommonCancelReason = Manager.Common.CancelReason;
 
 namespace ManagerService.Exchange
 {
@@ -105,6 +106,14 @@ namespace ManagerService.Exchange
         }
 
         public CommonTransactionError AcceptPlace(Guid transactionId)
+        {
+            CommonTransactionError errorCode = CommonTransactionError.OK;
+
+            //errorCode = this._StateServer.AcceptPlace(transactionId);
+            return errorCode;
+        }
+
+        public CommonTransactionError CancelPlace(Guid transactionId, CommonCancelReason cancelReason)
         {
             CommonTransactionError errorCode = CommonTransactionError.OK;
 

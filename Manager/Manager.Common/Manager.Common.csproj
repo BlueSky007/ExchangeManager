@@ -48,6 +48,7 @@
     <Compile Include="Account.cs" />
     <Compile Include="Answer.cs" />
     <Compile Include="Customer.cs" />
+    <Compile Include="DealingPolicyDetail.cs" />
     <Compile Include="Defines.cs" />
     <Compile Include="Entities\DerivativeRelation.cs" />
     <Compile Include="Entities\Instrument.cs" />

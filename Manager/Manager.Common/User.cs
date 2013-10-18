@@ -5,12 +5,37 @@ using System.Text;
 
 namespace Manager.Common
 {
+    public class User
+    {
+        public Guid UserId { get; set; }
+        public string UserName { get; set; }
+        public Dictionary<int,string> Roles { get; set; }
+
+        public User()
+        {
+            Roles = new Dictionary<int, string>();
+        }
+        public bool IsInRole(string role)
+        {
+            return Roles.ContainsValue(role);
+        }
+
+        public bool IsInRole(int roleId)
+        {
+            return Roles.ContainsKey(roleId);
+        }
+    }
+
     public class UserData
     {
         public Guid UserId { get; set; }
         public string UserName { get; set; }
-        public int RoleId { get; set; }
-        public string RoleName { get; set; }
+        public List<RoleData> Roles { get; set; }
+
+        public UserData()
+        {
+            Roles = new List<RoleData>();
+        }
     }
 
     public class RoleData
@@ -53,7 +78,7 @@ namespace Manager.Common
 
     public enum DataObjectType
     {
-        Account,
-        Instrument
+        Account = 0,
+        Instrument = 1
     }
 }

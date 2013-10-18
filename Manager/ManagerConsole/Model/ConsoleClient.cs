@@ -22,7 +22,7 @@ namespace ManagerConsole.Model
         private IClientService _ServiceProxy;
         private MessageClient _MessageClient = null;
         private string _SessionId;
-        private List<AccessPermission> _AccessPermissions;
+        private Function _AccessPermissions;
 
         public MessageClient MessageClient
         {
@@ -46,10 +46,15 @@ namespace ManagerConsole.Model
                 if (result.Succeeded)
                 {
                     this._SessionId = result.SessionId;
-                    //this.GetAccessPermissions(this.EndGetPermissions);
+                    this.GetAccessPermissions(this.EndGetPermissions);
                 }
                 endLogin(result);
             }, null);
+        }
+
+        public bool IsHasPermission(int functionId)
+        {
+            return (this._AccessPermissions.FunctionPermissions.ContainsKey(functionId));
         }
 
         public FunctionTree GetFunctionTree()
@@ -66,6 +71,7 @@ namespace ManagerConsole.Model
             }
         }
 
+        #region UserManager
         public bool ChangePassword(string currentPassword, string newPassword)
         {
             //bool isSuccess = this._ServiceProxy.ChangePassword(currentPassword, newPassword);
@@ -78,21 +84,40 @@ namespace ManagerConsole.Model
             {
                 List<UserData> data = this._ServiceProxy.EndGetUserData(ar);
                 InitUserTile(data);
-            },null);
+            }, null);
         }
 
         private void GetAccessPermissions(Action<List<AccessPermission>> endGetPermissions)
         {
-            this._ServiceProxy.BeginGetAccessPermissions(delegate(IAsyncResult ar)
+            try
             {
-                List<AccessPermission> permissions = this._ServiceProxy.EndGetAccessPermissions(ar);
-                endGetPermissions(permissions);
-            }, null);
+
+                this._ServiceProxy.BeginGetAccessPermissions(delegate(IAsyncResult ar)
+                {
+                    List<AccessPermission> permissions = this._ServiceProxy.EndGetAccessPermissions(ar);
+                    endGetPermissions(permissions);
+                }, null);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "GetAccessPermissions.\r\n{0}", ex.ToString());
+            }
         }
 
         private void EndGetPermissions(List<AccessPermission> permissions)
         {
-            this._AccessPermissions = permissions;
+            try
+            {
+                this._AccessPermissions = new Function();
+                foreach (AccessPermission item in permissions)
+                {
+                    this._AccessPermissions.FunctionPermissions.Add(item.OperationId, item.OperationName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "EndGetPermissions.\r\n{0}", ex.ToString());
+            }
         }
 
         public List<RoleData> GetRoles()
@@ -105,14 +130,42 @@ namespace ManagerConsole.Model
             return this._ServiceProxy.GetAllPermission();
         }
 
-        public void UpdateUser(UserData user, string password,bool isNewUser, Action<bool> EndUpdateUser)
+        public void UpdateUser(UserData user, string password, bool isNewUser, Action<bool> EndUpdateUser)
         {
-            this._ServiceProxy.BeginUpdateUsers(user, password,isNewUser, delegate(IAsyncResult ar)
+            this._ServiceProxy.BeginUpdateUsers(user, password, isNewUser, delegate(IAsyncResult ar)
             {
                 bool isSuccess = this._ServiceProxy.EndUpdateUsers(ar);
                 EndUpdateUser(isSuccess);
             }, null);
         }
+
+        public void DeleteUser(Guid userId, Action<bool> EndDeleteUser)
+        {
+            this._ServiceProxy.BeginDeleteUser(userId, delegate(IAsyncResult ar)
+            {
+                bool isSuccess = this._ServiceProxy.EndDeleteUser(ar);
+                EndDeleteUser(isSuccess);
+            }, null);
+        }
+
+        public void UpdateRole(RoleData role, bool isNewRole, Action<bool> endUpdateRole)
+        {
+            this._ServiceProxy.BeginUpdateRole(role, isNewRole, delegate(IAsyncResult ar)
+            {
+                bool isSuccess = this._ServiceProxy.EndUpdateRole(ar);
+                endUpdateRole(isSuccess);
+            }, null);
+        }
+
+        public void DeleteRole(int roleId, Action<bool> endDelete)
+        {
+            this._ServiceProxy.BeginDeleteRole(roleId, delegate(IAsyncResult ar)
+            {
+                bool isSuccess = this._ServiceProxy.EndDeleteRole(ar);
+                endDelete(isSuccess);
+            }, null);
+        }
+        #endregion
 
         #region DealingConsole
         public void AbandonQuote(List<Answer> abandonQuotePrices)
@@ -133,16 +186,18 @@ namespace ManagerConsole.Model
                 EndAcceptPlace(transactionError);
             }, null);
         }
-        #endregion
 
-        public void DeleteUser(Guid userId, Action<bool> EndDeleteUser)
+        public void CancelPlace(Guid transactionId, CancelReason cancelReason, Action<TransactionError> EndCancelPlace)
         {
-            this._ServiceProxy.BeginDeleteUser(userId, delegate(IAsyncResult ar)
+            this._ServiceProxy.BeginCancelPlace(transactionId, cancelReason, delegate(IAsyncResult result) 
             {
-                bool isSuccess = this._ServiceProxy.EndDeleteUser(ar);
-                EndDeleteUser(isSuccess);
+                TransactionError transactionError = this._ServiceProxy.EndCancelPlace(result);
+                EndCancelPlace(transactionError);
             }, null);
         }
+        #endregion
+
+        
 
         
     }

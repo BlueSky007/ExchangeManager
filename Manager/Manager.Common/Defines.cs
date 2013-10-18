@@ -101,6 +101,7 @@ namespace Manager.Common
         Add = 0,
         Modify = 1,
         Delete = 2,
+        Initialize = 3,
     }
     public enum OriginType
     { 

@@ -47,18 +47,33 @@ namespace ManagerConsole.ViewModel
     public class DataPermissionTree
     {
         public List<ExchangeSystemNode> ExChangeSystemNodes { get; set; }
+
+        public DataPermissionTree()
+        {
+            ExChangeSystemNodes = new List<ExchangeSystemNode>();
+        }
     }
 
     public class ExchangeSystemNode
     {
         public string ExChangeCode { get; set; }
         public List<DataObjectTypeNode> DataObjectTypeNodes { get; set; }
+
+        public ExchangeSystemNode()
+        {
+            DataObjectTypeNodes = new List<DataObjectTypeNode>();
+        }
     }
 
     public class DataObjectTypeNode
     {
         public DataObjectType Type { get; set; }
         public List<DataObjectNode> DataObjectNodes { get; set; }
+
+        public DataObjectTypeNode()
+        {
+            DataObjectNodes = new List<DataObjectNode>();
+        }
     }
 
     public class DataObjectNode

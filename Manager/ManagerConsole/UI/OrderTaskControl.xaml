@@ -59,18 +59,7 @@
                         </igGrid:ColumnLayout.Columns>
                     </igGrid:ColumnLayout>
                     
-
-                    <igGrid:TemplateColumn Key="DQHandle" HeaderText="DQ Action" IsFixed="Left">
-                        <igGrid:TemplateColumn.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal" Width="120">
-                                    <Button x:Name="DQAcceptBtn" Background="#FFADD8E6" Width="60"  Height="25" Content="Accept" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine1.IsVisibility}" IsEnabled="{Binding DQCellDataDefine1.IsEnable}"/>
-                                    <Button x:Name="DQRejectBtn" Background="#FFADD8E6" Width="60" Foreground="Red" Height="25" Content="Reject" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine2.IsVisibility}" IsEnabled="{Binding DQCellDataDefine2.IsEnable}"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </igGrid:TemplateColumn.ItemTemplate>
-                    </igGrid:TemplateColumn>
-                    <igGrid:TemplateColumn Key="LMTHandle" IsFixed="Left" HeaderText="LMT Action">
+                    <igGrid:TemplateColumn Key="LMTHandle" IsFixed="Left" HeaderText="Action">
                         <igGrid:TemplateColumn.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" Width="240">

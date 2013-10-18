@@ -1,5 +1,4 @@
-﻿using Manager.Common;
-using ManagerConsole.Helper;
+﻿using ManagerConsole.Helper;
 using ManagerConsole.Model;
 using ManagerConsole.ViewModel;
 using System;
@@ -18,7 +17,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using CommonTransactionError = Manager.Common.TransactionError;
-using CommonParameter = Manager.Common.SystemParameter;
+using Logger = Manager.Common.Logger;
 
 namespace ManagerConsole.UI
 {
@@ -29,9 +28,9 @@ namespace ManagerConsole.UI
     {
         private CommonDialogWin _CommonDialogWin;
         private ConfirmDialogWin _ConfirmDialogWin;
+        private ConfirmOrderDialogWin _ConfirmOrderDialogWin;
         private ManagerConsole.MainWindow _App;
         private ExcuteOrderConfirm _AccountInfoConfirm = null;
-        private ObservableCollection<DQOrderTaskForInstrument> _DQOrderTaskForInstruments = new ObservableCollection<DQOrderTaskForInstrument>();
         public DQOrderTaskControl()
         {
             InitializeComponent();
@@ -41,6 +40,8 @@ namespace ManagerConsole.UI
 
             this._CommonDialogWin = this._App.CommonDialogWin;
             this._ConfirmDialogWin = this._App.ConfirmDialogWin;
+            this._ConfirmOrderDialogWin = this._App.ConfirmOrderDialogWin;
+            this._ConfirmOrderDialogWin.OnConfirmDialogResult += new ConfirmOrderDialogWin.ConfirmDialogResultHandle(ExcuteOrder);
             this.BindGridData();
         }
 
@@ -169,7 +170,7 @@ namespace ManagerConsole.UI
             }
             catch (Exception ex)
             {
-                Logger.TraceEvent(TraceEventType.Error, "DQOrderTaskControl.BuySellCombo_SelectionChanged error:\r\n{0}", ex.ToString());
+                Manager.Common.Logger.TraceEvent(TraceEventType.Error, "DQOrderTaskControl.BuySellCombo_SelectionChanged error:\r\n{0}", ex.ToString());
             }
         }
         #endregion
@@ -187,40 +188,48 @@ namespace ManagerConsole.UI
                 {
                     case "DQAcceptBtn":
                         dQOrderTaskForInstrument = btn.DataContext as DQOrderTaskForInstrument;
-                        this.ProcessAllOrder(dQOrderTaskForInstrument);
+                        this.ProcessAllOrder(dQOrderTaskForInstrument,true);
                         break;
                     case "DQRejecBtn":
                         dQOrderTaskForInstrument = btn.DataContext as DQOrderTaskForInstrument;
-                        //this.ProcessAllOrder(dQOrderTaskForInstrument);
+                        this.ProcessAllOrder(dQOrderTaskForInstrument, false);
                         break;
                     case "DQAcceptSigleBtn":
                         orderTask = btn.DataContext as OrderTask;
                         if (!orderTask.IsSelected) return;
-                        currentCellData  = orderTask.CellDataDefine1;
+                        currentCellData = orderTask.DQCellDataDefine1;
                         this.ProcessPendingOrder(orderTask, currentCellData);
                         break;
                     case "DQRejectSigleBtn":
                         orderTask = btn.DataContext as OrderTask;
                         if (!orderTask.IsSelected) return;
-                        currentCellData = orderTask.CellDataDefine2;
+                        currentCellData = orderTask.DQCellDataDefine2;
                         this.ProcessPendingOrder(orderTask, currentCellData);
                         break;
                 }
             }
             catch (Exception ex)
             {
-                Logger.TraceEvent(TraceEventType.Error, "DQOrderTaskControl.OrderHandlerBtn_Click error:\r\n{0}", ex.ToString());
+                Manager.Common.Logger.TraceEvent(TraceEventType.Error, "DQOrderTaskControl.OrderHandlerBtn_Click error:\r\n{0}", ex.ToString());
             }
         }
 
-        private void ProcessAllOrder(DQOrderTaskForInstrument dQOrderTaskForInstrument)
+        private void ProcessAllOrder(DQOrderTaskForInstrument dQOrderTaskForInstrument, bool acceptOrCancel)
         {
             CellDataDefine currentCellData;
             var executeAllOrder = dQOrderTaskForInstrument.OrderTasks.Where(P => P.IsSelected == true);
             foreach (OrderTask orderTask in executeAllOrder)
             {
-                currentCellData = orderTask.CellDataDefine1;
-                this.ProcessPendingOrder(orderTask, currentCellData);
+                if (acceptOrCancel)
+                {
+                    currentCellData = orderTask.CellDataDefine1;
+                    this.ProcessPendingOrder(orderTask, currentCellData);
+                }
+                else
+                {
+                    currentCellData = orderTask.CellDataDefine2;
+                    this.ProcessPendingOrder(orderTask, currentCellData);
+                }
             }
         }
 
@@ -243,7 +252,7 @@ namespace ManagerConsole.UI
                     isEnabled = currentCellData.IsEnable;
                     if (isEnabled)
                     {
-                        //OnOrderReject(row);
+                        this.OnOrderReject(orderTask);
                     }
                     break;
             }
@@ -254,8 +263,8 @@ namespace ManagerConsole.UI
         #region Quote Order
         private void OnOrderAccept(OrderTask order)
         {
-            CommonParameter systemParameter = this._App.InitDataManager.SystemParameter;
-            systemParameter.CanDealerViewAccountInfo = false;
+            SystemParameter systemParameter = this._App.InitDataManager.SettingsManager.SystemParameter;
+            systemParameter.CanDealerViewAccountInfo = true;
             bool isOK = OrderTaskManager.CheckDQOrder(order, systemParameter);
             isOK = false;
 
@@ -263,20 +272,64 @@ namespace ManagerConsole.UI
             {
                 if (systemParameter.CanDealerViewAccountInfo)
                 {
-                    //Show Account Information
+                    this._ConfirmOrderDialogWin.ShowDialogWin("55", "Confrim",order);
+                    return;
                 }
                 else
                 {
                     if (MessageBox.Show("Accept the order?", "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                     {
                         this.AcceptPlace(order.Transaction.Id);
+                        ObservableCollection<DQOrderTaskForInstrument> dQOrderTaskForInstruments = this._App.InitDataManager.DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments;
+                        DQOrderTaskForInstrument dQOrderTaskForInstrument = dQOrderTaskForInstruments.SingleOrDefault(P => P.Instrument.Id == order.Instrument.Id);
+                        dQOrderTaskForInstrument.OrderTasks.Remove(order); 
                     }
                 }
             }
         }
+
+        private void OnOrderReject(OrderTask order)
+        {
+            SystemParameter systemParameter = this._App.InitDataManager.SettingsManager.SystemParameter;
+
+            systemParameter.ConfirmRejectDQOrder = true;//test Data from WebConfig
+
+            if (systemParameter.ConfirmRejectDQOrder)
+            {
+                if (MessageBox.Show("Are you sure reject the order?", "Reject", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                {
+                    if (order.OrderStatus == OrderStatus.WaitAcceptRejectPlace
+                        || order.OrderStatus == OrderStatus.WaitAcceptRejectCancel
+                        || order.OrderStatus == OrderStatus.WaitOutPriceDQ
+                        || order.OrderStatus == OrderStatus.WaitOutLotDQ
+                        || (order.OrderStatus == OrderStatus.WaitNextPrice && order.Transaction.OrderType == Manager.Common.OrderType.Limit))
+                    {
+                        foreach(Order orderEntity in order.Transaction.Orders)
+                        {
+                            orderEntity.Status = OrderStatus.Deleting;
+                        }
+                        this.RejectPlace(order.Transaction.Id);
+                    }
+                    else
+                    {
+                        string sMsg = "The order is canceled or executed already";
+                        this._CommonDialogWin.ShowDialogWin(sMsg, "Alert");
+                    }
+                    ObservableCollection<DQOrderTaskForInstrument> dQOrderTaskForInstruments = this._App.InitDataManager.DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments;
+                    DQOrderTaskForInstrument dQOrderTaskForInstrument = dQOrderTaskForInstruments.SingleOrDefault(P => P.Instrument.Id == order.Instrument.Id);
+                    dQOrderTaskForInstrument.OrderTasks.Remove(order); 
+                }
+            }
+        }
+
         private void AcceptPlace(Guid transactionId)
         {
             ConsoleClient.Instance.AcceptPlace(transactionId, AcceptPlaceCallback);
+        }
+
+        private void RejectPlace(Guid transactionId)
+        {
+            ConsoleClient.Instance.CancelPlace(transactionId,Manager.Common.CancelReason.CustomerCanceled, RejectPlaceCallback);
         }
         //Call Back Event
         private void AcceptPlaceCallback(CommonTransactionError transactionError)
@@ -289,6 +342,27 @@ namespace ManagerConsole.UI
                 }
             }, transactionError);
         }
+        private void RejectPlaceCallback(CommonTransactionError transactionError)
+        {
+            this.Dispatcher.BeginInvoke((Action<CommonTransactionError>)delegate(CommonTransactionError result)
+            {
+                if (result == CommonTransactionError.OK)
+                {
+                    this._CommonDialogWin.ShowDialogWin("Reject Place Succeed", "Infromation");
+                }
+            }, transactionError);
+        }
         #endregion
+
+        void ExcuteOrder(bool yesOrNo, UIElement uIElement,OrderTask orderTask)
+        {
+            if (yesOrNo)
+            {
+                this.AcceptPlace(orderTask.Transaction.Id);
+                ObservableCollection<DQOrderTaskForInstrument> dQOrderTaskForInstruments = this._App.InitDataManager.DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments;
+                DQOrderTaskForInstrument dQOrderTaskForInstrument = dQOrderTaskForInstruments.SingleOrDefault(P => P.Instrument.Id == orderTask.Instrument.Id);
+                dQOrderTaskForInstrument.OrderTasks.Remove(orderTask); 
+            }
+        }
     }
 }

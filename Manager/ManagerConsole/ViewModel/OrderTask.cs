@@ -30,7 +30,7 @@ namespace ManagerConsole.ViewModel
             this._ExpireTime = order.Transaction.SubmitTime;
             this._Account = order.Transaction.Account;
             this._Transaction = order.Transaction;
-            this._InstrumentClient = order.Transaction.Instrument;
+            this._Instrument = order.Transaction.Instrument;
             this._MooMocOrderTasks = new ObservableCollection<OrderTaskDetail>();
 
             this.SetOrderStatus();
@@ -48,7 +48,7 @@ namespace ManagerConsole.ViewModel
         private bool _IsSelected = true;
         private Account _Account;
         private Transaction _Transaction;
-        private InstrumentClient _InstrumentClient;
+        private InstrumentClient _Instrument;
         private Guid? _OrderId;
         private ManagerCommon.Phase _Phase;
         private OrderStatus _OrderStatus = OrderStatus.Placing;
@@ -61,6 +61,7 @@ namespace ManagerConsole.ViewModel
         private ManagerCommon.TradeOption _TradeOption;
         private string _SetPrice;
         private string _BestPrice;
+        private int _DiffPrice;
         private int _DQMaxMove;
         private int? _HitCount = 0;
         private DateTime? _BestTime;
@@ -133,22 +134,22 @@ namespace ManagerConsole.ViewModel
             get { return this._OrderStatuString; }
             set { this._OrderStatuString = value; }
         }
-        public InstrumentClient InstrumentClient
+        public InstrumentClient Instrument
         {
-            get { return this._InstrumentClient; }
+            get { return this._Instrument; }
             set
             {
-                this._InstrumentClient = value;
-                this._InstrumentClient.OnPriceChangedHandler += new InstrumentClient.PriceChangedHandler(Instrument_OnPriceChangedHandler);
+                this._Instrument = value;
+                this._Instrument.OnPriceChangedHandler += new InstrumentClient.PriceChangedHandler(Instrument_OnPriceChangedHandler);
             }
         }
         public Guid? InstrumentId
         {
-            get { return this._InstrumentClient.Id; }
+            get { return this._Instrument.Id; }
         }
         public string InstrumentCode
         {
-            get { return this._InstrumentClient.Code; }
+            get { return this._Instrument.Code; }
         }
 
         public DateTime? TimeStamp
@@ -257,7 +258,7 @@ namespace ManagerConsole.ViewModel
 
         public string ReferencePrice
         {
-            get { return this._IsBuy == BuySell.Buy ? this._InstrumentClient.Ask : this._InstrumentClient.Bid; }
+            get { return this._IsBuy == BuySell.Buy ? this._Instrument.Ask : this._Instrument.Bid; }
         }
 
         public int? DiffPrice
@@ -387,22 +388,20 @@ namespace ManagerConsole.ViewModel
             }
         }
 
-        void Instrument_OnPriceChangedHandler(string askBid, string price)
+        void Instrument_OnPriceChangedHandler(string askBid, string newPrice)
         {
-            //this.OnPropertyChanged("ReferencePrice");
-            //if ((this._IsBuy.Value && string.Equals(askBid, "Ask")
-            //    || (!this._IsBuy.Value && string.Equals(askBid, "Bid"))))
-            //{
-            //    int setPrice = 0;
-            //    int refPrice = 0;
-            //    if (refPrice != null && setPrice != null)
-            //    {
-            //        this._DiffPrice = Math.Abs(refPrice - setPrice);
-            //        this.OnPropertyChanged("DiffPrice");
-            //    }
-            //}
-            //    ClientPrice setPrice = ClientPrice.CreateInstance(this._SetPrice, this._ClientInstrumentEntity.NumeratorUnit.Value, this._ClientInstrumentEntity.Denominator.Value);
-            //    ClientPrice refPrice = ClientPrice.CreateInstance(price, this._ClientInstrumentEntity.NumeratorUnit.Value, this._ClientInstrumentEntity.Denominator.Value);
+            this.OnPropertyChanged("ReferencePrice");
+            if ((this._IsBuy == BuySell.Buy && string.Equals(askBid, "Ask")
+                || (this._IsBuy == BuySell.Sell && string.Equals(askBid, "Bid"))))
+            {
+                ManagerCommon.Price setPrice = ManagerCommon.Price.CreateInstance(this._SetPrice, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+                ManagerCommon.Price refPrice = ManagerCommon.Price.CreateInstance(newPrice, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+                if (refPrice != null && setPrice != null)
+                {
+                    this._DiffPrice = Math.Abs(refPrice - setPrice);
+                    this.OnPropertyChanged("DiffPrice");
+                }
+            }
         }
         private void SetCellDataDefine(OrderStatus orderStatus)
         {
