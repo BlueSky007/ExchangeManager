@@ -53,7 +53,7 @@ namespace ManagerConsole.Model
             }, null);
         }
 
-        public bool IsHasPermission(int functionId)
+        public bool IsHasThisPermission(int functionId)
         {
             return (this._AccessPermissions.FunctionPermissions.ContainsKey(functionId));
         }
@@ -73,7 +73,7 @@ namespace ManagerConsole.Model
         }
 
         #region UserManager
-        public bool ChangePassword(string currentPassword, string newPassword)
+        public bool ChangePassword(string currentPassword, string newPassword,Guid userId )
         {
             //bool isSuccess = this._ServiceProxy.ChangePassword(currentPassword, newPassword);
             return false;
@@ -140,12 +140,12 @@ namespace ManagerConsole.Model
             }, null);
         }
 
-        public void DeleteUser(Guid userId, Action<bool> EndDeleteUser)
+        public void DeleteUser(Guid userId, Action<bool,Guid> EndDeleteUser)
         {
             this._ServiceProxy.BeginDeleteUser(userId, delegate(IAsyncResult ar)
             {
                 bool isSuccess = this._ServiceProxy.EndDeleteUser(ar);
-                EndDeleteUser(isSuccess);
+                EndDeleteUser(isSuccess,userId);
             }, null);
         }
 

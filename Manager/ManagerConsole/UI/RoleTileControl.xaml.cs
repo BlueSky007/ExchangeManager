@@ -190,21 +190,21 @@ namespace ManagerConsole.UI
                     if (this._EditType > 1)
                     {
                         if (!this._isNewRole)
-            {
+                        {
                             newRole.RoleId = this._RoleData.RoleId;
                         }
-                foreach (XamDataTreeNode category in this.AccessTree.Nodes)
-                {
-                    CategoryNode categoryNode = (CategoryNode)category.Data;
-                    categoryNode.ModuleNodes.Clear();
-                    foreach (XamDataTreeNode module in category.Nodes)
-                    {
-                        ModuleNode moduleNode = (ModuleNode)module.Data;
-                        moduleNode.OperationNodes.Clear();
-                        foreach (XamDataTreeNode operation in module.Nodes)
+                        foreach (XamDataTreeNode category in this.AccessTree.Nodes)
                         {
-                            if ((bool)operation.IsChecked)
+                            CategoryNode categoryNode = (CategoryNode)category.Data;
+                            categoryNode.ModuleNodes.Clear();
+                            foreach (XamDataTreeNode module in category.Nodes)
                             {
+                                ModuleNode moduleNode = (ModuleNode)module.Data;
+                                moduleNode.OperationNodes.Clear();
+                                foreach (XamDataTreeNode operation in module.Nodes)
+                                {
+                                    if ((bool)operation.IsChecked)
+                                    {
                                         AccessPermission access = new AccessPermission();
                                         access.CategotyType = categoryNode.CategoryType;
                                         access.ModuleType = moduleNode.Type;
@@ -212,8 +212,8 @@ namespace ManagerConsole.UI
                                         access.OperationId = operationNode.Id;
                                         access.OperationName = operationNode.OperationDescription;
                                         newRole.AccessPermissions.Add(access);
-                            }
-                        }
+                                    }
+                                }
 
                             }
                         }
@@ -234,8 +234,8 @@ namespace ManagerConsole.UI
                                         dataPermission.DataObjectId = data.DataObjectId;
                                         dataPermission.DataObjectDescription = data.Decription;
                                         newRole.DataPermissions.Add(dataPermission);
-                        }
-                    }
+                                    }
+                                }
                             }
                         }
                     }
@@ -247,8 +247,8 @@ namespace ManagerConsole.UI
                     if (CheckNewRole(newRole))
                     {
                         ConsoleClient.Instance.UpdateRole(newRole, this._isNewRole, EditResult);
+                    }
                 }
-            }
             }
             catch (Exception ex)
             {

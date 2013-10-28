@@ -112,7 +112,7 @@ namespace ManagerConsole.UI
                     orderTask.DoAcceptPlace();
                     break;
                 case HandleAction.OnOrderRejectPlace:
-                    //OnOrderRejectPlace(row);
+                    this.OrderHandle.OnOrderRejectPlace(orderTask);
                     break;
                 case HandleAction.OnOrderAcceptCancel:
                     //OnOrderAcceptCancel(row);
@@ -124,7 +124,7 @@ namespace ManagerConsole.UI
                     isEnabled = currentCellData.IsEnable;
                     if (isEnabled)
                     {
-                        //OnOrderUpdate(row);
+                        this.OrderHandle.OnOrderUpdate(orderTask);
                     }
                     break;
                 case HandleAction.OnOrderModify:
@@ -141,7 +141,7 @@ namespace ManagerConsole.UI
                     this.OrderHandle.OnOrderExecute(orderTask);
                     break;
                 case HandleAction.OnOrderCancel:
-                    //this.OnOrderCancel(order);
+                    this.OrderHandle.OnOrderCancel(orderTask);
                     break;
             }
         }

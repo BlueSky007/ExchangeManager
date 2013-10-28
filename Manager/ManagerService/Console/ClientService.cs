@@ -7,6 +7,7 @@ using Manager.Common;
 using ManagerService.DataAccess;
 using ManagerService.Exchange;
 using System.Diagnostics;
+using System.IO;
 using System.Xml;
 
 namespace ManagerService.Console
@@ -16,6 +17,8 @@ namespace ManagerService.Console
     {
         private Client _Client;
 
+        #region MainWindowFunction
+        
         public LoginResult Login(string userName, string password, string oldSessionId, Language language)
         {
             LoginResult loginResult = new LoginResult();
@@ -97,6 +100,28 @@ namespace ManagerService.Console
                 return new FunctionTree();
             }
         }
+
+        public bool SaveLayout(string layout, string content)
+        {
+            bool isSuccess = false;
+            string path = string.Format("./{0}",this._Client.userId);
+            string layoutPath = string.Format("./{0}/layout.xml",this._Client.userId);
+            string contentPath = string.Format("./{0}/content.xml", this._Client.userId);
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+            using (var stream = new StreamWriter(layoutPath))
+            {
+                stream.Write(layout);
+            }
+            using (var stream = new StreamWriter(contentPath))
+            {
+                stream.Write(content);
+            }
+            return isSuccess;
+        }
+        #endregion
 
         #region UserAndRoleManager
         public bool ChangePassword(string currentPassword, string newPassword)

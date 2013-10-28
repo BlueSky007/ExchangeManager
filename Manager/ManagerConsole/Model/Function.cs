@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Manager.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,7 +24,23 @@ namespace ManagerConsole.Model
         {
             return FunctionPermissions.ContainsValue(functionName);
         }
-    }
 
-    
+        public bool IsHasPermission(AccessPermission function)
+        {
+            bool isOwn = false;
+            if (FunctionPermissions.ContainsKey((int)function.CategotyType))
+            {
+                isOwn = true;
+            }
+            if (FunctionPermissions.ContainsKey((int)function.ModuleType))
+            {
+                isOwn = true;
+            }
+            if (FunctionPermissions.ContainsKey(function.OperationId))
+            {
+                isOwn = true;
+            }
+            return isOwn;
+        }
+    }    
 }

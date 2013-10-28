@@ -276,9 +276,13 @@ namespace ManagerConsole.Helper
         public delegate void ConfirmModifyPriceResultHandle(bool yesOrNo, string newPrice,OrderTask orderTask, HandleAction action);
         public event ConfirmModifyPriceResultHandle OnModifyPriceDialogResult;
 
+        public delegate void RejectOrderResultHandle(bool yesOrNo,OrderTask orderTask,HandleAction action);
+        public event RejectOrderResultHandle OnRejectOrderDialogResult;
+
         private Grid _LayoutContainer;
         private XamDialogWindow _ConfirmOrderDialogWin = null;
         private XamDialogWindow _ModifyPriceDialogWin = null;
+        private XamDialogWindow _RejectOrderDialogWin = null;
         private UIElement _ConfirmOptionElement = null;
         private OrderTask _OrderTask;
         private HandleAction _HandleAction;
@@ -396,7 +400,97 @@ namespace ManagerConsole.Helper
 
         }
 
+        //Reject Order DialogWin
+        public void ShowRejectOrderWin(string rejectMessage, OrderTask orderTask, HandleAction action)
+        {
+            if (this._RejectOrderDialogWin == null)
+            {
+                this._RejectOrderDialogWin = new XamDialogWindow()
+                {
+                    Width = 300,
+                    Height = 140,
+                    Header = "Confirm",
+                    StartupPosition = Infragistics.Controls.Interactions.StartupPosition.Center,
+                    IsModal = true,
+                    CloseButtonVisibility = Visibility.Collapsed,
+                    MinimizeButtonVisibility = Visibility.Collapsed,
+                    MaximizeButtonVisibility = Visibility.Collapsed,
+                };
+            }
+            this._OrderTask = orderTask;
+            this._HandleAction = action;
+            TextBlock alertLable = new TextBlock()
+            {
+                Name = "AlertLable",
+                Foreground = new SolidColorBrush(Colors.Blue),
+                Text = "Are you sure?",
+                Margin = new Thickness(5),
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
 
+            TextBlock RejectOrderMessage = new TextBlock()
+            {
+                Name = "RejectOrderMessage",
+                Foreground = new SolidColorBrush(Colors.Blue),
+                Text = rejectMessage,
+                Margin = new Thickness(5,15,0,0),
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+
+            StackPanel RejectOrderPanel = new StackPanel() { Name = "RejectOrderPanel", Orientation = Orientation.Vertical };
+            RejectOrderPanel.Margin = new Thickness(15, 0, 0, 0);
+            RejectOrderPanel.HorizontalAlignment = HorizontalAlignment.Left;
+            RejectOrderPanel.VerticalAlignment = VerticalAlignment.Center;
+            RejectOrderPanel.Children.Add(alertLable);
+            RejectOrderPanel.Children.Add(RejectOrderMessage);
+
+            Grid.SetRow(RejectOrderPanel, 0);
+
+            //按钮
+            Button RejectOrderOk = new Button() { Name = "RejectOrderOk", Content = "Yes", Width = 60, Height = 24, TabIndex = 1, Margin = new Thickness(25, 5, 0, 0) };
+            Button RejectOrderCancel = new Button() { Name = "RejectOrderCancel", Content = "No", Width = 60, Height = 24, Margin = new Thickness(25, 5, 0, 0) };
+            RejectOrderOk.Click += new RoutedEventHandler(RejectOrderOk_Click);
+            RejectOrderCancel.Click += new RoutedEventHandler(RejectOrderCancel_Click);
+
+            StackPanel panel = new StackPanel();
+            panel.Orientation = Orientation.Horizontal;
+            panel.Children.Add(RejectOrderOk);
+            panel.Children.Add(RejectOrderCancel);
+            panel.VerticalAlignment = VerticalAlignment.Bottom;
+            panel.HorizontalAlignment = HorizontalAlignment.Center;
+            panel.Margin = new Thickness(5);
+            Grid.SetRow(panel, 1);
+
+            Grid layoutGrid = new Grid();
+
+            LinearGradientBrush brush = new LinearGradientBrush();
+            brush.StartPoint = new Point(0.5, 0);
+            brush.EndPoint = new Point(0.5, 1);
+            GradientStop stop = new GradientStop();
+
+            layoutGrid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(50) });
+            layoutGrid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(50) });
+            layoutGrid.Children.Add(RejectOrderPanel);
+            layoutGrid.Children.Add(panel);
+
+            this._RejectOrderDialogWin.Content = layoutGrid;
+            int columnSpan = this._LayoutContainer.ColumnDefinitions.Count;
+            int rowSpan = this._LayoutContainer.RowDefinitions.Count;
+            if (columnSpan > 0) Grid.SetColumnSpan(this._RejectOrderDialogWin, columnSpan);
+            if (rowSpan > 0) Grid.SetRowSpan(this._RejectOrderDialogWin, rowSpan);
+
+            if (!this._LayoutContainer.Children.Contains(this._RejectOrderDialogWin))
+            {
+                this._LayoutContainer.Children.Add(this._RejectOrderDialogWin);
+            }
+
+            this._RejectOrderDialogWin.Show();
+        }
+
+
+        #region All Button Event
         //Account Information
         public void ShowDialogWin(AccountInfor accountInfor, string caption, OrderTask orderTask, HandleAction action)
         {
@@ -773,9 +867,31 @@ namespace ManagerConsole.Helper
                 this._ModifyPriceDialogWin.Close();
                 this._ModifyPriceDialogWin = null;
             }
+            if (this._RejectOrderDialogWin != null)
+            {
+                this._LayoutContainer.Children.Remove(this._RejectOrderDialogWin);
+                this._RejectOrderDialogWin.Close();
+                this._RejectOrderDialogWin = null;
+            }
         }
 
-        //
+        //Modify Price Event
+        void ModifyPriceOkBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Button okBtn = sender as Button;
+            Button cancelBtn = this._ModifyPriceDialogWin.FindName("ModifyPriceCancel") as Button;
+            if (okBtn != null) okBtn.IsEnabled = false;
+            if (cancelBtn != null) cancelBtn.IsEnabled = false;
+            TextBox priceText = this._ModifyPriceDialogWin.FindName("NewPriceText") as TextBox;
+            var newPrice = this._NewPriceElement.Text;
+
+            if (this.OnModifyPriceDialogResult != null)
+            {
+                this.OnModifyPriceDialogResult(true, newPrice, this._OrderTask, this._HandleAction);
+            }
+            this.Close();
+        }
+
         void ModifyPriceCancelBtn_Click(object sender, RoutedEventArgs e)
         {
             Button cancelBtn = sender as Button;
@@ -789,21 +905,37 @@ namespace ManagerConsole.Helper
             this.Close();
         }
 
-        void ModifyPriceOkBtn_Click(object sender, RoutedEventArgs e)
+        
+
+        //Reject Order Event
+        void RejectOrderOk_Click(object sender, RoutedEventArgs e)
         {
             Button okBtn = sender as Button;
-            Button cancelBtn = this._ModifyPriceDialogWin.FindName("ModifyPriceCancel") as Button;
+            Button cancelBtn = this._RejectOrderDialogWin.FindName("RejectOrderCancel") as Button;
             if (okBtn != null) okBtn.IsEnabled = false;
             if (cancelBtn != null) cancelBtn.IsEnabled = false;
-            TextBox priceText = this._ModifyPriceDialogWin.FindName("NewPriceText") as TextBox;
-            var newPrice = this._NewPriceElement.Text;
 
-            if (this.OnModifyPriceDialogResult != null)
+            if (this.OnRejectOrderDialogResult != null)
             {
-                this.OnModifyPriceDialogResult(true, newPrice,this._OrderTask, this._HandleAction);
+                this.OnRejectOrderDialogResult(true, this._OrderTask,this._HandleAction);
             }
             this.Close();
         }
+
+        void RejectOrderCancel_Click(object sender, RoutedEventArgs e)
+        {
+            Button cancelBtn = sender as Button;
+            Button okBtn = this._RejectOrderDialogWin.FindName("RejectOrderOk") as Button;
+            if (okBtn != null) okBtn.IsEnabled = false;
+            if (cancelBtn != null) cancelBtn.IsEnabled = false;
+            if (this.OnRejectOrderDialogResult != null)
+            {
+                this.OnRejectOrderDialogResult(false, null,this._HandleAction);
+            }
+            this.Close();
+        }
+
+        #endregion
 
     }
 }

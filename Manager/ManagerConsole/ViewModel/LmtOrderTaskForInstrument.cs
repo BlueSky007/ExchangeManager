@@ -20,6 +20,9 @@ namespace ManagerConsole.ViewModel
 
     public class LmtOrderTaskForInstrument : PropertyChangedNotifier
     {
+        public delegate void EmptyLmtOrderHandle(LmtOrderTaskForInstrument lmtOrderTaskForInstrument);
+        public event EmptyLmtOrderHandle OnEmptyLmtOrderTask;
+
         public LmtOrderTaskForInstrument()
         {
             this._OrderTasks = new ObservableCollection<OrderTask>();
@@ -75,5 +78,15 @@ namespace ManagerConsole.ViewModel
             set;
         }
         #endregion
+
+        //Remove
+        public void RemoveLmtOrderTask(OrderTask orderTask)
+        {
+            this.OrderTasks.Remove(orderTask);
+            if (this._OrderTasks.Count == 0)
+            {
+                this.OnEmptyLmtOrderTask(this);
+            }
+        }
     }
 }

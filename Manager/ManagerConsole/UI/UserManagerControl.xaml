@@ -6,31 +6,90 @@
              xmlns:Custom="http://infragistics.com/DataPresenter" xmlns:ig="http://schemas.infragistics.com/xaml" x:Class="ManagerConsole.UserManagerControl" 
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300" Loaded="UserControl_Loaded">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="10*"/>
-            <RowDefinition Height="135*"/>
-        </Grid.RowDefinitions>
-        <Button x:Name="AddUser" Content="New User" Click="AddUser_Click"/>
-        <ig:XamTileManager x:Name="UserManager" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" >
-            <ig:XamTileManager.NormalModeSettings>
-                <ig:NormalModeSettings>
-                    <ig:NormalModeSettings.TileConstraints>
-                        <ig:TileConstraints MaxHeight="50" MaxWidth="150"/>
-                    </ig:NormalModeSettings.TileConstraints>
-                </ig:NormalModeSettings>
-            </ig:XamTileManager.NormalModeSettings>
-            <ig:XamTileManager.MaximizedModeSettings>
-                <ig:MaximizedModeSettings VerticalTileAreaAlignment="Top">
-                    <ig:MaximizedModeSettings.MinimizedExpandedTileConstraints>
-                        <ig:TileConstraints MinWidth="300" MaxWidth="300" MaxHeight="50" />
-                    </ig:MaximizedModeSettings.MinimizedExpandedTileConstraints>
-                    <ig:MaximizedModeSettings.MinimizedTileConstraints>
-                        <ig:TileConstraints MinWidth="300" MaxWidth="300" />
-                    </ig:MaximizedModeSettings.MinimizedTileConstraints>
-                </ig:MaximizedModeSettings>
-            </ig:XamTileManager.MaximizedModeSettings>
-        </ig:XamTileManager>
-        
+    <UserControl.Resources>
+        <Style x:Key="MetroButton" TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="#EEEEEEEE"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="10 5"/>
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Grid>
+                            <Border
+                                x:Name="Border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}" />
+
+                            <ContentPresenter
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                Margin="{TemplateBinding Padding}"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                RecognizesAccessKey="True" />
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="OpacityMask" Value="#AA888888"/>
+                                <Setter Property="Margin" Value="2 1" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <!--<Setter Property="Background" Value="DimGray"/>-->
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Foreground" Value="#ADADAD"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+    <Grid x:Name="UseManagerFrame">
+        <Border Margin="0 0 5 0" BorderBrush="Black" Grid.Row="0">
+        <ig:XamGrid x:Name="UserManager" Loaded="UserControl_Loaded">
+                    <ig:XamGrid.PagerSettings>
+                    <ig:PagerSettings AllowPaging="Top" PageSize="30" DisplayPagerWhenOnlyOnePage="True">
+                    </ig:PagerSettings>
+                </ig:XamGrid.PagerSettings>
+                <ig:XamGrid.Columns>
+                    <ig:TemplateColumn Key="UserId">
+                        <ig:TemplateColumn.HeaderTemplate>
+                            <DataTemplate>
+                                <Button x:Name="New" Style="{StaticResource MetroButton}" Content="AddNew" Click="AddUser_Click"></Button>
+                            </DataTemplate>
+                        </ig:TemplateColumn.HeaderTemplate>
+                        <ig:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal">
+                                    <Button x:Name="Edit" Content="Edit" Tag="{Binding UserId}" Style="{StaticResource MetroButton}"  Click="Button_Click"></Button>
+                                    <Button x:Name="Delete" Content="Delete" Tag="{Binding UserId}" Style="{StaticResource MetroButton}"  Click="Button_Click"></Button>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ig:TemplateColumn.ItemTemplate>
+                    </ig:TemplateColumn>
+                    <ig:TextColumn Key="UserName" Width="200"></ig:TextColumn>
+                    <ig:TemplateColumn Key="Password" Width="AUTO">
+                        <ig:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="********"></TextBlock>
+                            </DataTemplate>
+                        </ig:TemplateColumn.ItemTemplate>
+                    </ig:TemplateColumn>
+                    <ig:TemplateColumn Key="Roles" MinimumWidth="300">
+                        <ig:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Roles, Mode=TwoWay}"/>
+                            </DataTemplate>
+                        </ig:TemplateColumn.ItemTemplate>    
+                    </ig:TemplateColumn>
+                </ig:XamGrid.Columns>
+        </ig:XamGrid>
+        </Border>
     </Grid>
 </UserControl>

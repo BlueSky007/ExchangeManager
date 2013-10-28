@@ -5,31 +5,151 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:ig="http://schemas.infragistics.com/xaml"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="600" d:DesignWidth="600">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibility"/>
+        <Style x:Key="MetroButton" TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="#EEEEEEEE"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="10 5"/>
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Grid>
+                            <Border
+                                x:Name="Border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}" />
+
+                            <ContentPresenter
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                Margin="{TemplateBinding Padding}"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                RecognizesAccessKey="True" />
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="OpacityMask" Value="#AA888888"/>
+                                <Setter Property="Margin" Value="2 1" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <!--<Setter Property="Background" Value="DimGray"/>-->
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Foreground" Value="#ADADAD"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
     <Grid Loaded="Grid_Loaded">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="40*"/>
+            <ColumnDefinition Width="60*"/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="10*"/>
-            <RowDefinition Height="135*"/>
+            <RowDefinition Height="50*"/>
+            <RowDefinition Height="50*"/>
         </Grid.RowDefinitions>
-        <Button x:Name="AddRole" Content="New Role" Click="AddRole_Click"/>
-        <ig:XamTileManager x:Name="RoleManager" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" >
-            <ig:XamTileManager.NormalModeSettings>
-                <ig:NormalModeSettings>
-                    <ig:NormalModeSettings.TileConstraints>
-                        <ig:TileConstraints MaxHeight="50" MaxWidth="150"/>
-                    </ig:NormalModeSettings.TileConstraints>
-                </ig:NormalModeSettings>
-            </ig:XamTileManager.NormalModeSettings>
-            <ig:XamTileManager.MaximizedModeSettings>
-                <ig:MaximizedModeSettings VerticalTileAreaAlignment="Top">
-                    <ig:MaximizedModeSettings.MinimizedExpandedTileConstraints>
-                        <ig:TileConstraints MinWidth="300" MaxWidth="300" MaxHeight="50" />
-                    </ig:MaximizedModeSettings.MinimizedExpandedTileConstraints>
-                    <ig:MaximizedModeSettings.MinimizedTileConstraints>
-                        <ig:TileConstraints MinWidth="300" MaxWidth="300" />
-                    </ig:MaximizedModeSettings.MinimizedTileConstraints>
-                </ig:MaximizedModeSettings>
-            </ig:XamTileManager.MaximizedModeSettings>
-        </ig:XamTileManager>
+        <StackPanel Orientation="Vertical" Grid.Row="0" Grid.Column="1">
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="Submit" Content="Submit" Style="{StaticResource MetroButton}" Visibility="Hidden" Click="Submit_Click"/>
+                <Button x:Name="Cancel" Content="Cancel" Style="{StaticResource MetroButton}" Visibility="Hidden" Click="Cancel_Click" Margin="20,0,0,0"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Label Content="RoleName" Width="AUTO"/>
+                <TextBox x:Name="RoleName" IsReadOnly="True" Width="200" Margin="30,0,0,0" />
+            </StackPanel>
+            <Grid HorizontalAlignment="Stretch" Margin="0,10,0,0">
+                <Label HorizontalAlignment="Left" Content="AccessPermission" ></Label>
+                <Button Style="{StaticResource MetroButton}" Content="ExpandAll" Click="AccessExpandAll_Click" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+            </Grid>
+            <ig:XamDataTree x:Name="AccessTree" Grid.Column="0" Grid.Row="3" Margin="0,0,3,0" Height="AUTO" >
+                <ig:XamDataTree.CheckBoxSettings>
+                    <ig:CheckBoxSettings CheckBoxVisibility="Hidden" CheckBoxMode="Auto" IsCheckBoxThreeState="True"/>
+                </ig:XamDataTree.CheckBoxSettings>
+                <ig:XamDataTree.GlobalNodeLayouts>
+                    <ig:NodeLayout Key="CategoryNodes"
+                               TargetTypeName="CategoryNode"
+                               DisplayMemberPath="CategoryType"
+                               ></ig:NodeLayout>
+                    <ig:NodeLayout Key="ModuleNodes"
+                               TargetTypeName="ModuleNode"
+                               DisplayMemberPath="Type"
+                               ></ig:NodeLayout>
+                    <ig:NodeLayout Key="OperationNodes"
+                               TargetTypeName="OperationNode"
+                               DisplayMemberPath="OperationDescription"
+                               ></ig:NodeLayout>
+                </ig:XamDataTree.GlobalNodeLayouts>
+            </ig:XamDataTree>
+        </StackPanel>
+        <StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="1">
+            <Grid HorizontalAlignment="Stretch">
+                <Label HorizontalAlignment="Left" Content="DataPermission"></Label>
+                <Button Style="{StaticResource MetroButton}" Content="ExpandAll" Click="DataExpandAll_Click" HorizontalAlignment="Right" HorizontalContentAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>
+            
+            <ig:XamDataTree x:Name="DataTree" Grid.Column="1" Grid.Row="3" Margin="2,0,0,0" Height="AUTO" >
+                <ig:XamDataTree.CheckBoxSettings>
+                    <ig:CheckBoxSettings CheckBoxVisibility="Hidden" CheckBoxMode="Auto" IsCheckBoxThreeState="True"/>
+                </ig:XamDataTree.CheckBoxSettings>
+                <ig:XamDataTree.GlobalNodeLayouts>
+                    <ig:NodeLayout Key="ExchangeSystemNode"
+                               TargetTypeName="ExchangeSystemNode"
+                               DisplayMemberPath="ExChangeCode">
+                    </ig:NodeLayout>
+                    <ig:NodeLayout Key="DataObjectTypeNode"
+                               TargetTypeName="DataObjectTypeNode"
+                               DisplayMemberPath="Type">
+                    </ig:NodeLayout>
+                    <ig:NodeLayout Key="DataObjectNode"
+                               TargetTypeName="DataObjectNode"
+                               DisplayMemberPath="Decription">
+                    </ig:NodeLayout>
+                </ig:XamDataTree.GlobalNodeLayouts>
+            </ig:XamDataTree>
+        </StackPanel>
+        <CheckBox x:Name="check" IsChecked="True"/>
+        <ig:XamGrid x:Name="RoleGrid" Grid.Column="0" Grid.RowSpan="2" CellClicked="RoleGrid_CellClicked" >
+            <ig:XamGrid.SelectionSettings>
+                <ig:SelectionSettings CellClickAction="SelectRow" CellSelection="Single" ColumnSelection="Single" RowSelection="Single"></ig:SelectionSettings>
+            </ig:XamGrid.SelectionSettings>
+            <ig:XamGrid.PagerSettings>
+                <ig:PagerSettings AllowPaging="Top" PageSize="30"/>
+            </ig:XamGrid.PagerSettings>
+            <ig:XamGrid.Columns>
+                <ig:TemplateColumn Key="RoleId">
+                    <ig:TemplateColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <Button Content="Add New" Click="AddRole_Click" Visibility="{Binding IsAllowAdd, Converter={StaticResource BooleanToVisibility}}" Style="{StaticResource MetroButton}"></Button>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ig:TemplateColumn.HeaderTemplate>
+                    <ig:TemplateColumn.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="Edit" Tag="{Binding RoleId}" Visibility="{Binding IsAllowEdit, Converter={StaticResource BooleanToVisibility}}" Style="{StaticResource MetroButton}" Click="EditButton_Click"></Button>
+                                <Button Content="Delete" Tag="{Binding RoleId}" Visibility="{Binding IsAllowDelete, Converter={StaticResource BooleanToVisibility}}" Style="{StaticResource MetroButton}" Click="DeleteButton_Click"></Button>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ig:TemplateColumn.ItemTemplate>
+                </ig:TemplateColumn>
+                <ig:TextColumn Key="RoleName"/>
+                <ig:TemplateColumn Visibility="Hidden" Key="IsAllowEdit"/>
+                <ig:TemplateColumn Key="IsAllowAdd" Visibility="Hidden"/>
+                <ig:TemplateColumn Key="IsAllowDelete" Visibility="Hidden"/>
+            </ig:XamGrid.Columns>
+        </ig:XamGrid>
     </Grid>
 </UserControl>

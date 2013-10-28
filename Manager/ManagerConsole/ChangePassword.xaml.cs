@@ -20,16 +20,49 @@ namespace ManagerConsole
     /// </summary>
     public partial class ChangePassword : XamDialogWindow
     {
+        private bool _IsInUserManager;
+        private bool _IsNewUser;
+        private Action<string> _UpdateNewPassword;
+        private Guid _UserId;
         public ChangePassword()
         {
             InitializeComponent();
+            this._IsNewUser = false;
+            this._IsInUserManager = false;
+        }
+
+        public ChangePassword(bool isNewUser,Guid userId,Action<string> UpdateNewPassword)
+        {
+            InitializeComponent();
+            if (isNewUser)
+            {
+                this.currentPassword.Visibility = System.Windows.Visibility.Hidden;
+            }
+            this._UserId = userId;
+            this._IsNewUser = isNewUser;
+            this._IsInUserManager = true;
+            this._UpdateNewPassword = UpdateNewPassword;
         }
 
         private void ConfirmButton_Click(object sender, RoutedEventArgs e)
         {
             if (this.newPassword.Password == this.confirmPassword.Password)
             {
-                bool isSuccess = ConsoleClient.Instance.ChangePassword(this.currentPassword.Password, this.newPassword.Password);
+                if (this._IsInUserManager)
+                {
+                    if (this._IsNewUser)
+                    {
+                        this._UpdateNewPassword(this.newPassword.Password);
+                    }
+                    else
+                    {
+                        ConsoleClient.Instance.ChangePassword(this.currentPassword.Password, this.newPassword.Password, this._UserId);
+                    }
+                }
+                else
+                {
+                    bool isSuccess = ConsoleClient.Instance.ChangePassword(this.currentPassword.Password, this.newPassword.Password, Guid.Empty);
+                }
             }
         }
 

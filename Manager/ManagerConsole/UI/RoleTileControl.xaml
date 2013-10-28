@@ -17,7 +17,7 @@
             <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
 
-        <ig:XamDataTree x:Name="AccessTree" Grid.Column="0" VerticalAlignment="Top" NodeCheckedChanged="NodeCheckedChanged" Loaded="AccessTree_Loaded" Grid.Row="3" Height="312"  HorizontalAlignment="Left" Width="247" >
+        <ig:XamDataTree x:Name="AccessTree" Grid.Column="0" NodeCheckedChanged="NodeCheckedChanged" Loaded="AccessTree_Loaded" Grid.Row="3" Margin="0,0,3,0" >
             <ig:XamDataTree.CheckBoxSettings>
                 <ig:CheckBoxSettings CheckBoxVisibility="Hidden" CheckBoxMode="Auto" IsCheckBoxThreeState="True"/>
             </ig:XamDataTree.CheckBoxSettings>
@@ -36,7 +36,7 @@
                                ></ig:NodeLayout>
             </ig:XamDataTree.GlobalNodeLayouts>
         </ig:XamDataTree>
-        <ig:XamDataTree x:Name="DataTree" Grid.Column="1" HorizontalAlignment="Left" NodeCheckedChanged="NodeCheckedChanged" VerticalAlignment="Top" Margin="2,0,0,0" Grid.Row="3" Loaded="DataTree_Loaded" Height="312" Width="248" >
+        <ig:XamDataTree x:Name="DataTree" Grid.Column="1" NodeCheckedChanged="NodeCheckedChanged" Grid.Row="3" Loaded="DataTree_Loaded" Margin="2,0,0,0" >
             <ig:XamDataTree.CheckBoxSettings>
                 <ig:CheckBoxSettings CheckBoxVisibility="Visible" CheckBoxMode="Auto" IsCheckBoxThreeState="True"/>
             </ig:XamDataTree.CheckBoxSettings>

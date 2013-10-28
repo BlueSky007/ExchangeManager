@@ -1,4 +1,5 @@
 ﻿using Infragistics.Controls.Layouts;
+using Infragistics.Controls.Editors;
 using Manager.Common;
 using ManagerConsole.Model;
 using ManagerConsole.UI;
@@ -15,6 +16,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Collections.ObjectModel;
+using ManagerConsole.ViewModel;
 
 namespace ManagerConsole
 {
@@ -27,14 +30,20 @@ namespace ManagerConsole
         {
             InitializeComponent();
         }
-        private List<RoleData> _roles;
+        private ObservableCollection<UserData> _AllUserData = new ObservableCollection<UserData>();
+        private ObservableCollection<UserModel> _users;
+        private ObservableCollection<RoleData> _roles;
+        private ObservableCollection<RoleData> _NewRole;
+        private UserModel _NewUser = new UserModel();
+        private string _Password;
+
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
             try
             {
-                if (this.UserManager.Items.Count == 0)
+                if (this._roles == null)
                 {
-                    this._roles = ConsoleClient.Instance.GetRoles();
+                    this._roles = new ObservableCollection<RoleData>(ConsoleClient.Instance.GetRoles());
                     ConsoleClient.Instance.GetUserData(this.InitUserTile);
                 }
             }
@@ -50,14 +59,33 @@ namespace ManagerConsole
             {
                 this.Dispatcher.BeginInvoke((Action<List<UserData>>)delegate(List<UserData> userData)
                  {
+                     
+                     //foreach (UserData item in userData)
+                     //{
+                     //    XamTile tile = new XamTile();
+                     //    tile.CloseAction = TileCloseAction.DoNothing;
+                     //    tile.Header = item.UserName;
+                     //    tile.Content = new UserTileControl(item, this._roles, false, DeleteUser);
+                     //    //this.UserManager.Items.Add(tile);
+                     //}
+                     this._AllUserData = new ObservableCollection<UserData>(userData);
+                     ObservableCollection<UserModel> users = new ObservableCollection<UserModel>();
                      foreach (UserData item in userData)
                      {
-                         XamTile tile = new XamTile();
-                         tile.CloseAction = TileCloseAction.DoNothing;
-                         tile.Header = item.UserName;
-                         tile.Content = new UserTileControl(item,this._roles, false, DeleteUser);
-                         this.UserManager.Items.Add(tile);
+                         UserModel user = new UserModel();
+                         user.UserId = item.UserId;
+                         user.UserName = item.UserName;
+                         user.Password = string.Empty;
+                         user.Roles = "";
+                         foreach (RoleData role in item.Roles)
+                         {
+                             user.Roles += role.RoleName + ";";
+                         }
+                         users.Add(user);
                      }
+                     this._users = users;
+                     this.UserManager.ItemsSource = this._users; 
+                     
                  }, data);
             }
             catch (Exception ex)
@@ -70,16 +98,13 @@ namespace ManagerConsole
         {
             try
             {
-                XamTile tile = new XamTile();
-                tile.CloseAction = TileCloseAction.RemoveItem;
-                tile.Header = "Add New User";
-                tile.Content = new UserTileControl(Guid.Empty, "", 0, "", true,this._roles, AddUserSuccess);
-                if (this.UserManager.Items.Contains(tile))
-                {
-                    this.UserManager.Items.Remove(tile);
-                }
-                tile.IsMaximized = true;
-                this.UserManager.Items.Add(tile);
+                UserData user = new UserData();
+                UserTileControl newUserDialog = new UserTileControl(user, this._roles, true, AddUserSuccess);
+                this.UseManagerFrame.Children.Add(newUserDialog);
+                newUserDialog.IsModal = true;
+                newUserDialog.Show();
+                newUserDialog.BringToFront();
+                
             }
             catch (Exception ex)
             {
@@ -87,15 +112,19 @@ namespace ManagerConsole
             }
         }
 
-        public void AddUserSuccess(bool IsSuccess,UserData user)
+        public void AddUserSuccess(bool isNewUser,UserData user)
         {
             try
             {
-                XamTile tile = new XamTile();
-                tile.CloseAction = TileCloseAction.DoNothing;
-                tile.Header = user.UserName;
-                tile.Content = new UserTileControl(user,this._roles, false, AddUserSuccess);
-                this.UserManager.Items.Add(tile);
+                UserModel newUser = new UserModel();
+                newUser.UserId = user.UserId;
+                newUser.UserName = user.UserName;
+                foreach (RoleData item in user.Roles)
+                {
+                    newUser.Roles += item.RoleName + ";";
+                }
+                this._users.Add(newUser);
+                //this.UserManager.Items.Add(tile);
             }
             catch (Exception ex)
             {
@@ -103,14 +132,68 @@ namespace ManagerConsole
             }
         }
 
-        public void DeleteUser(bool isSuccess,UserData user)
+        private void RoleName_List_Loaded(object sender, System.Windows.RoutedEventArgs e)
         {
             try
             {
-                if (isSuccess)
+                ((XamComboEditor)sender).ItemsSource = this._roles;
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "RoleName_List_Loaded.\r\n{0}", ex.ToString());
+            }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            Button btn = sender as Button;
+            Guid userId = (Guid)btn.Tag;
+            if (userId != Guid.Empty)
+            {
+                if (btn.Name == "Edit")
                 {
-                    this.UserManager.Items.Remove(new UserTileControl(user,this._roles, false, DeleteUser));
+                    UserModel userModel = this._users.Single(u => u.UserId == userId);
+                    UserData user = new UserData();
+                    user.UserId = userModel.UserId;
+                    user.UserName = userModel.UserName;
+                    string[] roles = userModel.Roles.Split(';');
+                    foreach (string item in roles)
+                    {
+                        RoleData role = this._roles.SingleOrDefault(r => r.RoleName == item);
+                        if (role != null)
+                        {
+                            user.Roles.Add(role);
+                        }
+                    }
+                    UserTileControl tile = new UserTileControl(user, this._roles, false, this.AddUserSuccess);
+                    this.UseManagerFrame.Children.Add(tile);
+                    tile.IsModal = true;
+                    tile.Show();
+                    tile.BringToFront();
                 }
+                else if (btn.Name == "Delete")
+                {
+                    ConsoleClient.Instance.DeleteUser(userId, this.DeleteUser);
+                }
+            }
+        }
+
+        public void DeleteUser(bool isSuccess,Guid userId)
+        {
+            try
+            {
+                this.Dispatcher.BeginInvoke((Action<bool>)delegate(bool result)
+                {
+                    if (!result)
+                    {
+                        MessageBox.Show("删除失败");
+                    }
+                    else
+                    {
+                        this._users.Remove(this._users.SingleOrDefault(u => u.UserId == userId));
+                        MessageBox.Show("删除成功");
+                    }
+                }, isSuccess);
             }
             catch (Exception ex)
             {

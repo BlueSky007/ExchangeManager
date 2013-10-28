@@ -1,11 +1,20 @@
 ﻿using Manager.Common;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Collections.ObjectModel;
 
 namespace ManagerConsole.ViewModel
 {
+    public class UserModel
+    {
+        public Guid UserId { get; set; }
+        public string UserName { get; set; }
+        public string Password { get; set; }
+        public string Roles { get; set; }
+    }
     public class AccessPermissionTree
     {
         public List<CategoryNode> CategoryNodes { get; set; }
@@ -80,5 +89,23 @@ namespace ManagerConsole.ViewModel
     {
         public Guid DataObjectId { get; set; }
         public string Decription { get; set; }
+    }
+
+    public class RoleGridData
+    {
+        public int RoleId { get; set; }
+        public string RoleName { get; set; }
+        public bool IsAllowEdit { get; set; }
+        public bool IsAllowDelete { get; set; }
+        public bool IsAllowAdd { get; set; }
+
+        public RoleGridData(RoleData role, bool isAllowAdd, bool isAllowDelete, bool isAllowEdit)
+        {
+            RoleId = role.RoleId;
+            RoleName = role.RoleName;
+            IsAllowAdd = isAllowAdd;
+            IsAllowDelete = isAllowDelete;
+            IsAllowEdit = isAllowEdit;
+        }
     }
 }

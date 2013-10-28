@@ -316,6 +316,7 @@ namespace ManagerConsole
 
                     this._LmtOrderTaskForInstrumentModel.LmtOrderTaskForInstruments.Add(lmtOrderTaskForInstrument);
                 }
+                lmtOrderTaskForInstrument.OnEmptyLmtOrderTask += new LmtOrderTaskForInstrument.EmptyLmtOrderHandle(LmtOrderTaskForInstrument_OnEmptyLmtOrderTask);
                 orderTask.SetCellDataDefine(orderTask.OrderStatus);
                 lmtOrderTaskForInstrument.OrderTasks.Add(orderTask);
 
@@ -333,6 +334,10 @@ namespace ManagerConsole
         void DQOrderTaskForInstrument_OnEmptyDQOrderTask(DQOrderTaskForInstrument dQOrderTaskForInstrument)
         {
             this._DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments.Remove(dQOrderTaskForInstrument);
+        }
+        void LmtOrderTaskForInstrument_OnEmptyLmtOrderTask(LmtOrderTaskForInstrument lmtOrderTaskForInstrument)
+        {
+            this._LmtOrderTaskForInstrumentModel.LmtOrderTaskForInstruments.Remove(lmtOrderTaskForInstrument);
         }
         #endregion
     }

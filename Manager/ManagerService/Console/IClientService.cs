@@ -19,6 +19,9 @@ namespace ManagerService.Console
 
         [OperationContract(IsInitiating = false)]
         FunctionTree GetFunctionTree();
+        
+        [OperationContract(IsInitiating = false)]
+        bool SaveLayout(string layout, string content);
 
         #region UserManager
         [OperationContract(IsInitiating = false)]

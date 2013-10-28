@@ -224,7 +224,7 @@ namespace ManagerService.DataAccess
                     access.OperationId = (int)reader["OperationId"];
                     access.OperationName = reader["OperationName"].ToString();
                     int id = (int)reader["RoleId"];
-                    roles[id-1].AccessPermissions.Add(access);
+                    roles.SingleOrDefault(r => r.RoleId == id).AccessPermissions.Add(access);
                 }
                 reader.NextResult();
                 while (reader.Read())
@@ -235,7 +235,7 @@ namespace ManagerService.DataAccess
                     data.DataObjectType = (DataObjectType)(int.Parse(reader["DataObjectType"].ToString()));
                     data.DataObjectId = (Guid)reader["DataObjectId"];
                     data.DataObjectDescription = reader["DataObjectDescription"].ToString();
-                    roles[id-1].DataPermissions.Add(data);
+                    roles.SingleOrDefault(r => r.RoleId == id).DataPermissions.Add(data);
                 }
             }, new SqlParameter("@language", language));
             return roles;
@@ -265,14 +265,14 @@ namespace ManagerService.DataAccess
                         command.Parameters.Add(new SqlParameter("@password", encryptPassword));
                         command.Parameters.Add(new SqlParameter("@roles", roles));
                         command.Parameters.Add(new SqlParameter("@RETURN_VALUE", SqlDbType.Int) { Direction = ParameterDirection.ReturnValue });
-                command.ExecuteNonQuery();
+                        command.ExecuteNonQuery();
                         int returnValue = (int)command.Parameters["@RETURN_VALUE"].Value;
                         isSuccess = (returnValue == 0);
                         if (isSuccess)
                         {
                             transaction.Commit();
-            }
-        }
+                        }
+                    }
                 }
             }
             return isSuccess;
@@ -326,13 +326,8 @@ namespace ManagerService.DataAccess
 
         public static bool DeleteUser(Guid userId)
         {
-            using (SqlConnection sqlConnection = DataAccess.GetInstance().GetSqlConnection())
-            {
-                SqlCommand command = sqlConnection.CreateCommand();
-                command.CommandText = string.Format("DELETE FROM dbo.UserInRole WHERE UserId = @userId DELETE FROM dbo.Users WHERE Id = '{1}'", userId, userId);
-                command.CommandType = System.Data.CommandType.Text;
-                command.ExecuteNonQuery();
-            }
+            string sql = "DELETE FROM dbo.UserInRole WHERE UserId = @userId DELETE FROM dbo.Users WHERE Id = @userId";
+            DataAccess.GetInstance().ExecuteNonQuery(sql, CommandType.Text, new SqlParameter("@userId", userId));
             return true;
         }
 

@@ -142,6 +142,19 @@ namespace ManagerConsole
             try
             {
                 string layout = this.DockManager.SaveLayout();
+                StringBuilder contentBld = new StringBuilder();
+                contentBld.Append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+                contentBld.Append("<Content>");
+                var array = this.DockManager.GetPanes(PaneNavigationOrder.VisibleOrder);
+                foreach (ContentPane item in array)
+                {
+                    if (item.Name.ToLower() != "leftedgedock" && item.Name.ToLower() != "rightedgedock")
+                    {
+                        contentBld.AppendFormat("<ContentPane Name=\"{0}\"/>", item.Name);
+                    }
+                }
+                contentBld.Append("</Content>");
+                string content = contentBld.ToString();
                 Logger.TraceEvent(System.Diagnostics.TraceEventType.Information, layout);
                 File.WriteAllText("Layout.xml", layout);
             }
