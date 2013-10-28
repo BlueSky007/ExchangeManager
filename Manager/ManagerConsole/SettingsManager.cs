@@ -42,6 +42,10 @@ namespace ManagerConsole
 
         #endregion
 
+        public void Initialize(SettingSet settingSet)
+        {
+            this.Update(settingSet, UpdateAction.Initialize);
+        }
 
         public void UpdateNotify(SettingSet addSet, SettingSet deletedSet, SettingSet modifySet)
         {
@@ -71,13 +75,12 @@ namespace ManagerConsole
         {
             if (action == UpdateAction.Initialize)
             {
- 
+                this.SystemParameter = new SystemParameter(settingSet.SystemParameter);
             }
             if (settingSet.SystemParameter != null)
             {
                 if (action == UpdateAction.Modify)
                 {
-                    this.SystemParameter = new SystemParameter();
                     this.SystemParameter.Update(settingSet.SystemParameter);
                 }
             }

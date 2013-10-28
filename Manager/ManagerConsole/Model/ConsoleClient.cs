@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
 using System.Text;
+using System.Xml;
 
 namespace ManagerConsole.Model
 {
@@ -194,6 +195,25 @@ namespace ManagerConsole.Model
                 TransactionError transactionError = this._ServiceProxy.EndCancelPlace(result);
                 EndCancelPlace(transactionError);
             }, null);
+        }
+
+        public void Execute(Guid transactionId, string buyPrice, string sellPrice, decimal lot, Guid orderId,out XmlNode xmlNode, Action<TransactionError> EndExecute)
+        {
+            this._ServiceProxy.BeginExecute(transactionId, buyPrice,sellPrice,lot,orderId,out xmlNode, delegate(IAsyncResult result)
+            {
+                TransactionError transactionError = this._ServiceProxy.EndExecute(result);
+                EndExecute(transactionError);
+            }, null);
+        }
+
+        public void ResetHit(Guid[] orderIds)
+        {
+            this._ServiceProxy.ResetHit(orderIds);
+        }
+
+        public AccountInformation GetAcountInfo(Guid transactionId)
+        {
+            return this._ServiceProxy.GetAcountInfo(transactionId);
         }
         #endregion
 

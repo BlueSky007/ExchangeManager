@@ -14,6 +14,9 @@ namespace ManagerConsole.Model
 
         public delegate void QuoteOrderToDealerEventHandler(PlaceMessage placeMessage);
         public event QuoteOrderToDealerEventHandler QuoteOrderToDealerEvent;
+
+        public delegate void HitPriceEventHandler(HitMessage hitMessage);
+        public event HitPriceEventHandler HitPriceEvent;
         #endregion
 
         private RelayEngine<Message> _MessageRelayEngine;
@@ -67,6 +70,23 @@ namespace ManagerConsole.Model
                 try
                 {
                     this.QuoteOrderToDealerEvent(placeMessage);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    this.HandleException(ex);
+                }
+            }
+            return true;
+        }
+
+        private bool Process(HitMessage hitMessage)
+        {
+            if (hitMessage != null)
+            {
+                try
+                {
+                    this.HitPriceEvent(hitMessage);
                     return true;
                 }
                 catch (Exception ex)

@@ -58,6 +58,13 @@
                                     </DataTemplate>
                                 </igGrid:TemplateColumn.ItemTemplate>
                             </igGrid:TemplateColumn>
+                            <igGrid:TemplateColumn Key="ExchangeCode"  Width="85" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Exchange Code" >
+                                <igGrid:TemplateColumn.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding ExchangeCode}" Foreground="Gold" FontWeight="Bold"/>
+                                    </DataTemplate>
+                                </igGrid:TemplateColumn.ItemTemplate>
+                            </igGrid:TemplateColumn>
                             <igGrid:TemplateColumn Key="OrderStatus" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Message">
                                 <igGrid:TemplateColumn.ItemTemplate>
                                     <DataTemplate>

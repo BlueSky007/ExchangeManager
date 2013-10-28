@@ -8,6 +8,11 @@ namespace ManagerConsole.Model
 {
     public class SystemParameter
     {
+        public SystemParameter(CommonSystemParameter systemParameter)
+        {
+            this.Update(systemParameter);
+        }
+
         public bool? IsCustomerVisibleToDealer { get; set; }
 
         public bool CanDealerViewAccountInfo { get; set; }
@@ -28,11 +33,19 @@ namespace ManagerConsole.Model
 
         public bool ConfirmRejectDQOrder { get; set; } //WebConfig
 
+        
+
         internal void Update(CommonSystemParameter systemParameter)
         {
-
+            this.IsCustomerVisibleToDealer = systemParameter.IsCustomerVisibleToDealer;
+            this.CanDealerViewAccountInfo = systemParameter.CanDealerViewAccountInfo;
+            this.DealerUsingAccountPermission = systemParameter.DealerUsingAccountPermission;
             this.MooMocAcceptDuration = TimeSpan.FromMinutes(systemParameter.MooMocAcceptDuration);
             this.MooMocCancelDuration = TimeSpan.FromMinutes(systemParameter.MooMocCancelDuration);
+            this.QuotePolicyDetailID = systemParameter.QuotePolicyDetailID;
+            this.LotDecimal = systemParameter.LotDecimal;
+            this.AutoConfirmOrder = systemParameter.AutoConfirmOrder;
+            this.ConfirmRejectDQOrder = systemParameter.ConfirmRejectDQOrder;
         }
     }
 

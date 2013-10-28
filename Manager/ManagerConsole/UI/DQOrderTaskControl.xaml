@@ -26,7 +26,8 @@
     </UserControl.Resources>
     <Grid x:Name="LayRootGrid">
         <Border Margin="0 0 5 0" BorderBrush="Black" Grid.Row="0">
-            <igGrid:XamGrid x:Name="DQOrderTaskGrid" AutoGenerateColumns="False" Background="#FF808080" ColumnWidth="Auto" CellStyle="{StaticResource CellStyle}" Foreground="{Binding IsBuyBrush}">
+            <igGrid:XamGrid x:Name="DQOrderTaskGrid" AutoGenerateColumns="False" ColumnWidth="Auto" 
+                            CellStyle="{StaticResource CellStyle}" Foreground="{Binding IsBuyBrush}" InitializeRow="DQOrderTaskGrid_InitializeRow">
                 <igGrid:XamGrid.EditingSettings>
                     <igGrid:EditingSettings AllowEditing="None" IsEnterKeyEditingEnabled="True" IsF2EditingEnabled="True"/>
                 </igGrid:XamGrid.EditingSettings>
@@ -45,8 +46,8 @@
                                 <igGrid:TemplateColumn.ItemTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal" Width="120">
-                                            <Button x:Name="DQAcceptSigleBtn" Background="#FFADD8E6" Width="60"  Height="25" Content="Accept" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine1.IsVisibility}" IsEnabled="{Binding DQCellDataDefine1.IsEnable}"/>
-                                            <Button x:Name="DQRejectSigleBtn" Background="#FFADD8E6" Width="60" Foreground="Red" Height="25" Content="Reject" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine2.IsVisibility}" IsEnabled="{Binding DQCellDataDefine2.IsEnable}"/>
+                                            <Button x:Name="DQAcceptSigleBtn" Background="#FFADD8E6" Width="60"  Content="Accept" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine1.IsVisibility}" IsEnabled="{Binding DQCellDataDefine1.IsEnable}"/>
+                                            <Button x:Name="DQRejectSigleBtn" Background="#FFADD8E6" Width="60" Foreground="Red" Content="Reject" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine2.IsVisibility}" IsEnabled="{Binding DQCellDataDefine2.IsEnable}"/>
                                         </StackPanel>
                                     </DataTemplate>
                                 </igGrid:TemplateColumn.ItemTemplate>
@@ -55,6 +56,13 @@
                                 <igGrid:TemplateColumn.ItemTemplate>
                                     <DataTemplate>
                                         <CheckBox x:Name="SelectSigleChk" IsChecked="{Binding IsSelected,Mode=TwoWay}" Click="CheckBox_Click"/>
+                                    </DataTemplate>
+                                </igGrid:TemplateColumn.ItemTemplate>
+                            </igGrid:TemplateColumn>
+                            <igGrid:TemplateColumn Key="ExchangeCode"  Width="85" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Exchange Code" >
+                                <igGrid:TemplateColumn.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding ExchangeCode}" Foreground="Gold" FontWeight="Bold"/>
                                     </DataTemplate>
                                 </igGrid:TemplateColumn.ItemTemplate>
                             </igGrid:TemplateColumn>
@@ -107,8 +115,8 @@
                         <igGrid:TemplateColumn.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" Width="120">
-                                    <Button x:Name="DQAcceptBtn" Width="60"  Height="25" Content="Accept" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine1.IsVisibility}" IsEnabled="{Binding DQCellDataDefine1.IsEnable}"/>
-                                    <Button x:Name="DQRejecBtn"  Width="60" Foreground="Red" Height="25" Content="Reject" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine2.IsVisibility}" IsEnabled="{Binding DQCellDataDefine2.IsEnable}"/>
+                                    <Button x:Name="DQAcceptBtn" Width="60"  Height="25" Content="Accept" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQAcceptCellDataDefine.IsVisibility}" IsEnabled="{Binding DQAcceptCellDataDefine.IsEnable}"/>
+                                    <Button x:Name="DQRejecBtn"  Width="60" Foreground="Red" Height="25" Content="Reject" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQRejectCellDataDefine.IsVisibility}" IsEnabled="{Binding DQRejectCellDataDefine.IsEnable}"/>
                                 </StackPanel>
                             </DataTemplate>
                         </igGrid:TemplateColumn.ItemTemplate>

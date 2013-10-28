@@ -32,29 +32,28 @@ namespace ManagerConsole.UI
         private CommonDialogWin _CommonDialogWin;
         private ConfirmDialogWin _ConfirmDialogWin;
         private ManagerConsole.MainWindow _App;
-        private ExcuteOrderConfirm _AccountInfoConfirm = null;
+        private OrderHandle OrderHandle;
         public OrderTaskControl()
         {
             InitializeComponent();
 
             this._App = ((ManagerConsole.MainWindow)Application.Current.MainWindow);
-            this._AccountInfoConfirm = new ExcuteOrderConfirm();
-            this._AccountInfoConfirm.Closed +=_AccountInfoConfirm_Closed;
             this._CommonDialogWin = this._App.CommonDialogWin;
             this._ConfirmDialogWin = this._App.ConfirmDialogWin;
+            OrderHandle = new OrderHandle();
             this.BindGridData();
         }
         void _AccountInfoConfirm_Closed(object sender, EventArgs e)
         {
-            if ((bool)this._AccountInfoConfirm.DialogResult)
-            {
-                MessageBox.Show("Do Accept");
-            }
+            //if ((bool)this._AccountInfoConfirm.DialogResult)
+            //{
+            //    MessageBox.Show("Do Accept");
+            //}
         }
 
         private void BindGridData()
         {
-            this.OrderTaskGrid.ItemsSource = this._App.InitDataManager.OrderTaskEntities;//this._OrderTaskEntity;
+            this.OrderTaskGrid.ItemsSource = this._App.InitDataManager.LmtOrderTaskForInstrumentModel.LmtOrderTaskForInstruments;//this._OrderTaskEntity;
             this._ConfirmDialogWin.OnConfirmDialogResult += new ConfirmDialogWin.ConfirmDialogResultHandle(ExcuteOrder);
         }
 
@@ -77,7 +76,6 @@ namespace ManagerConsole.UI
                 switch (btn.Name)
                 {
                     case "UpdateBtn":
-                        this._CommonDialogWin.ShowDialogWin("Update Now?", "Information");
                         currentCellData = orderTask.CellDataDefine1;
                         break;
                     case "ModiFyBtn":
@@ -101,20 +99,6 @@ namespace ManagerConsole.UI
             switch (actionType)
             {
                 case HandleAction.None:
-                    break;
-                case HandleAction.OnOrderAccept:
-                    isEnabled = currentCellData.IsEnable;
-                    if (isEnabled)
-                    {
-                        this.OnOrderAccept(orderTask); // DQ Order Accept
-                    }
-                    break;
-                case HandleAction.OnOrderReject:
-                    isEnabled = currentCellData.IsEnable;
-                    if (isEnabled)
-                    {
-                        //OnOrderReject(row);
-                    }
                     break;
                 case HandleAction.OnOrderDetail:
                     //OnOrderDetail(row);
@@ -147,14 +131,14 @@ namespace ManagerConsole.UI
                     isEnabled = currentCellData.IsEnable;
                     if (isEnabled)
                     {
-                        // OnOrderModify(row);
+                        this.OrderHandle.OnOrderModify(orderTask);
                     }
                     break;
                 case HandleAction.OnOrderWait:
-                    //order.DoWait();
+                    this.OrderHandle.OnOrderWait(orderTask);
                     break;
                 case HandleAction.OnOrderExecute:
-                    //OnOrderExecute(row);
+                    this.OrderHandle.OnOrderExecute(orderTask);
                     break;
                 case HandleAction.OnOrderCancel:
                     //this.OnOrderCancel(order);
@@ -185,20 +169,28 @@ namespace ManagerConsole.UI
                 }
             }
         }
+
+        
+
         private void AcceptPlace(Guid transactionId)
         {
-            ConsoleClient.Instance.AcceptPlace(transactionId, AcceptPlaceCallback);
+            //ConsoleClient.Instance.AcceptPlace(transactionId, AcceptPlaceCallback);
         }
-        //Call Back
-        private void AcceptPlaceCallback(CommonTransactionError transactionError)
+
+        private void ExecuteOrder()
+        { 
+        }
+       
+        #endregion
+
+        #region Grid Event
+        private void OrderTaskGrid_InitializeRow(object sender, Infragistics.Controls.Grids.InitializeRowEventArgs e)
         {
-            this.Dispatcher.BeginInvoke((Action<CommonTransactionError>)delegate(CommonTransactionError result)
-            {
-                if (result == CommonTransactionError.OK)
-                {
-                    this._CommonDialogWin.ShowDialogWin("Accept Place Succeed","Infromation");
-                }
-            }, transactionError);
+            Color bgColor = Colors.Transparent;
+            Style style = new Style(typeof(Infragistics.Controls.Grids.CellControl));
+            style.Setters.Add(new Setter(BackgroundProperty, new SolidColorBrush(bgColor)));
+
+            e.Row.CellStyle = style;
         }
         #endregion
 

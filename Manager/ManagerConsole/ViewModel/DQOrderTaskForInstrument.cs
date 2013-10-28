@@ -14,17 +14,22 @@ namespace ManagerConsole.ViewModel
 
         public DQOrderTaskForInstrumentModel()
         {
-            DQOrderTaskForInstruments = new ObservableCollection<DQOrderTaskForInstrument>();
+            this.DQOrderTaskForInstruments = new ObservableCollection<DQOrderTaskForInstrument>();
         }
     }
     public class DQOrderTaskForInstrument : PropertyChangedNotifier
     {
+        public delegate void EmptyDQOrderHandle(DQOrderTaskForInstrument dQOrderTaskForInstrument);
+        public event EmptyDQOrderHandle OnEmptyDQOrderTask;
+
+
         public DQOrderTaskForInstrument()
         {
             this._Instrument = new InstrumentClient();
             this._OrderTasks = new ObservableCollection<OrderTask>();
             this.BuySellList = new ObservableCollection<string>() { "All","Buy","Sell"};
             this.OpenCloseList = new ObservableCollection<string> { "All", "Open", "Close" };
+            this.CreateCellDataDefine();
         }
 
         #region Privete Property
@@ -37,6 +42,8 @@ namespace ManagerConsole.ViewModel
         private int _Variation;
         public bool _SelectedAll = true;
         private bool _IsBuy = true;
+        private CellDataDefine _DQAcceptCellDataDefine;
+        private CellDataDefine _DQRejectCellDataDefine;
         #endregion
 
         #region Public Property
@@ -109,9 +116,19 @@ namespace ManagerConsole.ViewModel
             get;
             set;
         }
+
+        public CellDataDefine DQAcceptCellDataDefine
+        {
+            get { return this._DQAcceptCellDataDefine; }
+            set { this._DQAcceptCellDataDefine = value; }
+        }
+
+        public CellDataDefine DQRejectCellDataDefine
+        {
+            get { return this._DQRejectCellDataDefine; }
+            set { this._DQRejectCellDataDefine = value; }
+        }
         #endregion
-
-
 
         #region Function
         public void SelectAllOrderTask(bool isChecked)
@@ -194,6 +211,29 @@ namespace ManagerConsole.ViewModel
                 }
             }
         }
+
+        //Remove
+        public void RemoveDQOrderTask(OrderTask orderTask)
+        {
+            this._OrderTasks.Remove(orderTask);
+            if (this._OrderTasks.Count == 0)
+            {
+                this.OnEmptyDQOrderTask(this);
+            }
+        }
+
         #endregion
+
+        internal void CreateCellDataDefine()
+        {
+            this._DQAcceptCellDataDefine = new CellDataDefine();
+            this._DQRejectCellDataDefine = new CellDataDefine();
+            this._DQAcceptCellDataDefine.Action = HandleAction.OnOrderAccept;
+            this._DQAcceptCellDataDefine.IsEnable = true;
+            this._DQAcceptCellDataDefine.IsVisibility = System.Windows.Visibility.Visible;
+            this._DQRejectCellDataDefine.Action = HandleAction.OnOrderReject;
+            this._DQRejectCellDataDefine.IsEnable = true;
+            this._DQRejectCellDataDefine.IsVisibility = System.Windows.Visibility.Visible;
+        }
     }
 }

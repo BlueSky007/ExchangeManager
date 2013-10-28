@@ -37,6 +37,12 @@ namespace ManagerConsole.Model
             set;
         }
 
+        public TransactionType Type
+        {
+            get;
+            set;
+        }
+
         public TransactionSubType SubType
         {
             get;
@@ -172,28 +178,6 @@ namespace ManagerConsole.Model
         }
         #endregion
 
-        private void Begin(bool isExecuted)
-        {
-            foreach (Order order in this.Orders)
-            {
-                switch (this.Phase)
-                {
-                    case Phase.Placing:
-                        break;
-                    case Phase.Placed:
-                        break;
-                    case Phase.Executed:
-                        break;
-                    case Phase.Canceled:
-                        break;
-                    case Phase.Deleted:
-                        break;
-                    case Phase.Completed:
-                        break;
-                }
-            }
-        }
-
         internal void Update(CommonTransaction transaction)
         {
             this.Id = transaction.Id;
@@ -207,7 +191,7 @@ namespace ManagerConsole.Model
             this.Phase = transaction.Phase;
             this.SubmitorId = transaction.SubmitorId;
             this.SubmitTime = transaction.SubmitTime;
-            //this.Type = transaction.Type;
+            this.Type = transaction.Type;
             this.SubType = transaction.SubType;
             this.AssigningOrderId = transaction.AssigningOrderId;
             this.InstrumentCategory = transaction.InstrumentCategory == null ? Manager.Common.InstrumentCategory.Forex : transaction.InstrumentCategory.Value;

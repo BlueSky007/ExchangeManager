@@ -2,40 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Manager.Common.Entities;
 using System.Data;
 using System.Data.SqlClient;
+using Manager.Common.QuotationEntities;
 
 namespace ManagerService.DataAccess
 {
-    public class SourceInstrumentKey
-    {
-        public SourceInstrumentKey(int sourceId, int instrumentId)
-        {
-            this.SourceId = sourceId;
-            this.InstrumentId = instrumentId;
-        }
-
-        public int SourceId { get; private set; }
-        public int InstrumentId { get; private set; }
-        public override bool Equals(object obj)
-        {
-            SourceInstrumentKey other = obj as SourceInstrumentKey;
-            if (other == null) return false;
-            return this.SourceId == other.SourceId && this.InstrumentId == other.InstrumentId;
-        }
-        public override int GetHashCode()
-        {
-            return string.Format("{0}|{1}", this.SourceId, this.InstrumentId).GetHashCode();
-        }
-    }
-
     public class QuotationData
     {
         internal static void GetQuotationMetadata(
             Dictionary<string, QuotationSource> quotationSources,
             Dictionary<string, Instrument> instruments,
-            Dictionary<int, InstrumentSourceRelation> instrumentSourceRelations,
+            Dictionary<int, Dictionary<int, InstrumentSourceRelation>> instrumentSourceRelations,
             Dictionary<int, DerivativeRelation> derivativeRelations,
             Dictionary<int, PriceRangeCheckRule> priceRangeCheckRules,
             Dictionary<int, WeightedPriceRule> weightedPriceRules,
@@ -67,21 +45,31 @@ namespace ManagerService.DataAccess
                     instrument.UseWeightedPrice = (bool)reader["UseWeightedPrice"];
                     instrument.Multiplier = reader["Multiplier"] == DBNull.Value ? null : (decimal?)reader["Multiplier"];
                     instrument.IsDerivative = (bool)reader["IsDerivative"];
+                    instrument.IsSwitchUseAgio = (bool)reader["IsSwitchUseAgio"];
+                    instrument.AgioSeconds = reader["AgioSeconds"] == DBNull.Value ? null : (int?)reader["AgioSeconds"];
+                    instrument.LeastTicks = reader["LeastTicks"] == DBNull.Value ? null : (int?)reader["LeastTicks"];
                     instruments.Add(instrument.Code, instrument);
                 }
                 reader.NextResult();
                 while (reader.Read())
                 {
-                    InstrumentSourceRelation instrumentSourceRelation = new InstrumentSourceRelation();
-                    instrumentSourceRelation.InstrumentId = (int)reader["InstrumentId"];
-                    instrumentSourceRelation.SourceId = (int)reader["SourceId"];
-                    instrumentSourceRelation.IsActive = (bool)reader["IsActive"];
-                    instrumentSourceRelation.IsDefault = (bool)reader["IsDefault"];
-                    instrumentSourceRelation.Priority = (int)reader["Priority"];
-                    instrumentSourceRelation.SwitchTimeout = (int)reader["SwitchTimeout"];
-                    instrumentSourceRelation.AdjustPoints = (decimal)reader["AdjustPoints"];
-                    instrumentSourceRelation.AdjustIncrement = (decimal)reader["AdjustIncrement"];
-                    instrumentSourceRelations.Add(instrumentSourceRelation.InstrumentId, instrumentSourceRelation);
+                    InstrumentSourceRelation relation = new InstrumentSourceRelation();
+                    relation.InstrumentId = (int)reader["InstrumentId"];
+                    relation.SourceId = (int)reader["SourceId"];
+                    relation.IsActive = (bool)reader["IsActive"];
+                    relation.IsDefault = (bool)reader["IsDefault"];
+                    relation.Priority = (int)reader["Priority"];
+                    relation.SwitchTimeout = (int)reader["SwitchTimeout"];
+                    relation.AdjustPoints = (decimal)reader["AdjustPoints"];
+                    relation.AdjustIncrement = (decimal)reader["AdjustIncrement"];
+                    //instrumentSourceRelations.Add(new SourceInstrumentKey(instrumentSourceRelation.SourceId, instrumentSourceRelation.InstrumentId), instrumentSourceRelation);
+                    Dictionary<int, InstrumentSourceRelation> sources;
+                    if (!instrumentSourceRelations.TryGetValue(relation.InstrumentId, out sources))
+                    {
+                        sources = new Dictionary<int, InstrumentSourceRelation>();
+                        instrumentSourceRelations.Add(relation.InstrumentId, sources);
+                    }
+                    sources.Add(relation.SourceId, relation);
                 }
                 reader.NextResult();
                 while (reader.Read())

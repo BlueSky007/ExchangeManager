@@ -85,6 +85,7 @@
     </Compile>
     <Compile Include="Helper\CommonDialogWin.cs" />
     <Compile Include="Helper\Enums.cs" />
+    <Compile Include="Helper\OrderPhaseManager.cs" />
     <Compile Include="Helper\OrderTaskManager.cs" />
     <Compile Include="Helper\PropertyChangedNotifier.cs" />
     <Compile Include="Helper\Toolkit.cs" />
@@ -110,6 +111,8 @@
     <Compile Include="Model\TradePolicy.cs" />
     <Compile Include="Model\TradePolicyDetail.cs" />
     <Compile Include="Model\Transaction.cs" />
+    <Compile Include="NotifyManager.cs" />
+    <Compile Include="OrderHandle.cs" />
     <Compile Include="SettingsChangedEventArgs.cs" />
     <Compile Include="SettingsManager.cs" />
     <Compile Include="UI\DQOrderTaskControl.xaml.cs">
@@ -140,6 +143,7 @@
       <DependentUpon>UserTileControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\DQOrderTaskForInstrument.cs" />
+    <Compile Include="ViewModel\LmtOrderTaskForInstrument.cs" />
     <Compile Include="ViewModel\Login.cs" />
     <Compile Include="ViewModel\MooMocOrderForInstrument.cs" />
     <Compile Include="ViewModel\OrderTask.cs" />

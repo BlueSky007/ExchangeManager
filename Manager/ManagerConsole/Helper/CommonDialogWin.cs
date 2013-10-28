@@ -7,6 +7,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using AccountInfor = Manager.Common.AccountInformation;
 
 namespace ManagerConsole.Helper
 {
@@ -269,21 +270,27 @@ namespace ManagerConsole.Helper
 
     public class ConfirmOrderDialogWin
     {
-        public delegate void ConfirmDialogResultHandle(bool yesOrNo, UIElement uIElement,OrderTask orderTask);
+        public delegate void ConfirmDialogResultHandle(bool yesOrNo, OrderTask orderTask, HandleAction action);
         public event ConfirmDialogResultHandle OnConfirmDialogResult;
+
+        public delegate void ConfirmModifyPriceResultHandle(bool yesOrNo, string newPrice,OrderTask orderTask, HandleAction action);
+        public event ConfirmModifyPriceResultHandle OnModifyPriceDialogResult;
 
         private Grid _LayoutContainer;
         private XamDialogWindow _ConfirmOrderDialogWin = null;
+        private XamDialogWindow _ModifyPriceDialogWin = null;
         private UIElement _ConfirmOptionElement = null;
         private OrderTask _OrderTask;
+        private HandleAction _HandleAction;
+        private TextBox _NewPriceElement;
 
         public ConfirmOrderDialogWin(Grid layoutContainer)
         {
             this._LayoutContainer = layoutContainer;
         }
-        public void ShowDialogWin(string message, string caption, OrderTask orderTask, UIElement uIElement)
+        public void ShowDialogWin(AccountInfor accountInfor, string caption, OrderTask orderTask, UIElement uIElement, HandleAction action)
         {
-            this.ShowDialogWin(message, caption, orderTask);
+            this.ShowDialogWin(accountInfor, caption, orderTask, action);
 
             var captionPanel = this._ConfirmOrderDialogWin.FindName("captionPanel") as StackPanel;
             if (captionPanel != null)
@@ -292,9 +299,106 @@ namespace ManagerConsole.Helper
 
                 this._ConfirmOptionElement = uIElement;
                 this._OrderTask = orderTask;
+                this._HandleAction = action;
             }
         }
-        public void ShowDialogWin(string message, string caption,OrderTask orderTask)
+
+        //Modify SetPrice
+        public void ShowDialogWin(string caption, OrderTask orderTask, HandleAction action)
+        {
+            if (this._ModifyPriceDialogWin == null)
+            {
+                this._ModifyPriceDialogWin = new XamDialogWindow()
+                {
+                    Width = 250,
+                    Height = 150,
+                    Header = caption,
+                    StartupPosition = Infragistics.Controls.Interactions.StartupPosition.Center,
+                    IsModal = true,
+                    CloseButtonVisibility = Visibility.Collapsed,
+                    MinimizeButtonVisibility = Visibility.Collapsed,
+                    MaximizeButtonVisibility = Visibility.Collapsed,
+                };
+            }
+            this._HandleAction = action;
+            this._OrderTask = orderTask;
+            TextBlock ModifyPriceLable = new TextBlock()
+            {
+                Name = "ModifyPriceLable",
+                Foreground = new SolidColorBrush(Colors.Blue),
+                Text = "Input new Price:",
+                Margin = new Thickness(5),
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Left
+            };
+
+            TextBox NewPriceText = new TextBox()
+            {
+                Name = "NewPriceText",
+                Width = 100,
+                Foreground = new SolidColorBrush(Colors.Blue),
+                Text = orderTask.SetPrice,
+                Margin = new Thickness(5),
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                TextAlignment = TextAlignment.Right
+            };
+            this._NewPriceElement = NewPriceText;
+
+            StackPanel ModifyPricePanle = new StackPanel() { Name = "captionPanel", Orientation = Orientation.Horizontal };
+            ModifyPricePanle.Margin = new Thickness(15, 0, 0, 0);
+            ModifyPricePanle.HorizontalAlignment = HorizontalAlignment.Left;
+            ModifyPricePanle.VerticalAlignment = VerticalAlignment.Center;
+            ModifyPricePanle.Children.Add(ModifyPriceLable);
+            ModifyPricePanle.Children.Add(NewPriceText);
+
+            Grid.SetRow(ModifyPricePanle, 0);
+
+            //按钮
+            Button ModifyPriceOk = new Button() { Name = "ModifyPriceOkBtn", Content = "OK", Width = 60, Height = 24, TabIndex = 1, Margin = new Thickness(25, 0, 0, 0) };
+            Button ModifyPriceCancel = new Button() { Name = "ModifyPriceCancelBtn", Content = "Cancel", Width = 60, Height = 24, Margin = new Thickness(25, 0, 0, 0) };
+            ModifyPriceOk.Click += new RoutedEventHandler(ModifyPriceOkBtn_Click);
+            ModifyPriceCancel.Click += new RoutedEventHandler(ModifyPriceCancelBtn_Click);
+
+            StackPanel panel = new StackPanel();
+            panel.Orientation = Orientation.Horizontal;
+            panel.Children.Add(ModifyPriceOk);
+            panel.Children.Add(ModifyPriceCancel);
+            panel.VerticalAlignment = VerticalAlignment.Bottom;
+            panel.HorizontalAlignment = HorizontalAlignment.Center;
+            panel.Margin = new Thickness(5);
+            Grid.SetRow(panel, 1);
+
+            Grid layoutGrid = new Grid();
+
+            LinearGradientBrush brush = new LinearGradientBrush();
+            brush.StartPoint = new Point(0.5, 0);
+            brush.EndPoint = new Point(0.5, 1);
+            GradientStop stop = new GradientStop();
+
+            layoutGrid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(40) });
+            layoutGrid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(40) });
+            layoutGrid.Children.Add(ModifyPricePanle);
+            layoutGrid.Children.Add(panel);
+
+            this._ModifyPriceDialogWin.Content = layoutGrid;
+            int columnSpan = this._LayoutContainer.ColumnDefinitions.Count;
+            int rowSpan = this._LayoutContainer.RowDefinitions.Count;
+            if (columnSpan > 0) Grid.SetColumnSpan(this._ModifyPriceDialogWin, columnSpan);
+            if (rowSpan > 0) Grid.SetRowSpan(this._ModifyPriceDialogWin, rowSpan);
+
+            if (!this._LayoutContainer.Children.Contains(this._ModifyPriceDialogWin))
+            {
+                this._LayoutContainer.Children.Add(this._ModifyPriceDialogWin);
+            }
+
+            this._ModifyPriceDialogWin.Show();
+
+        }
+
+
+        //Account Information
+        public void ShowDialogWin(AccountInfor accountInfor, string caption, OrderTask orderTask, HandleAction action)
         {
             if (this._ConfirmOrderDialogWin == null)
             {
@@ -310,6 +414,7 @@ namespace ManagerConsole.Helper
                     MaximizeButtonVisibility = Visibility.Collapsed,
                 };
                 this._OrderTask = orderTask;
+                this._HandleAction = action;
             }
             else
             {
@@ -441,12 +546,13 @@ namespace ManagerConsole.Helper
 
 
             //Value Column
-            TextBlock BLText = new TextBlock()
+            CheckBox BLCheckBox = new CheckBox()
             {
                 Name = "BLText",
                 Foreground = new SolidColorBrush(Colors.White),
-                Text = message,
+                IsChecked = true,
                 Margin = new Thickness(8),
+                IsEnabled = true,
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Right
             };
@@ -454,7 +560,7 @@ namespace ManagerConsole.Helper
             {
                 Name = "BalanceText",
                 Foreground = new SolidColorBrush(Colors.White),
-                Text = message,
+                Text = accountInfor.Balance.ToString(),
                 Margin = new Thickness(8),
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Right
@@ -463,7 +569,7 @@ namespace ManagerConsole.Helper
             {
                 Name = "EquityText",
                 Foreground = new SolidColorBrush(Colors.White),
-                Text = message,
+                Text = accountInfor.Equity.ToString(),
                 Margin = new Thickness(8),
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Right
@@ -472,7 +578,7 @@ namespace ManagerConsole.Helper
             {
                 Name = "NecessaryText",
                 Foreground = new SolidColorBrush(Colors.White),
-                Text = message,
+                Text = accountInfor.Necessary.ToString(),
                 Margin = new Thickness(8),
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Right
@@ -481,7 +587,7 @@ namespace ManagerConsole.Helper
             {
                 Name = "UsableText",
                 Foreground = new SolidColorBrush(Colors.White),
-                Text = message,
+                Text = accountInfor.Usable.ToString(),
                 Margin = new Thickness(8),
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Right
@@ -490,7 +596,7 @@ namespace ManagerConsole.Helper
             {
                 Name = "TotalBuyText",
                 Foreground = new SolidColorBrush(Colors.White),
-                Text = message,
+                Text = accountInfor.BuyLotBalanceSum.ToString(),
                 Margin = new Thickness(8),
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Right
@@ -499,7 +605,7 @@ namespace ManagerConsole.Helper
             {
                 Name = "TotalSellText",
                 Foreground = new SolidColorBrush(Colors.White),
-                Text = message,
+                Text = accountInfor.SellLotBalanceSum.ToString(),
                 Margin = new Thickness(8),
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Right
@@ -508,7 +614,7 @@ namespace ManagerConsole.Helper
             {
                 Name = "NetText",
                 Foreground = new SolidColorBrush(Colors.White),
-                Text = message,
+                Text = (accountInfor.BuyLotBalanceSum - accountInfor.SellLotBalanceSum).ToString(),
                 Margin = new Thickness(8),
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Right
@@ -517,7 +623,7 @@ namespace ManagerConsole.Helper
             {
                 Name = "SetPriceText",
                 Foreground = new SolidColorBrush(Colors.White),
-                Text = message,
+                Text = orderTask.SetPrice,
                 Margin = new Thickness(8),
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Right
@@ -526,7 +632,7 @@ namespace ManagerConsole.Helper
             {
                 Name = "ExecutePriceText",
                 Foreground = new SolidColorBrush(Colors.White),
-                Text = message,
+                Text = orderTask.SetPrice,
                 Margin = new Thickness(8),
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Right
@@ -536,7 +642,7 @@ namespace ManagerConsole.Helper
                 Name = "LotText",
                 Width = 100,
                 Foreground = new SolidColorBrush(Colors.Blue),
-                Text = "1.580",
+                Text = orderTask.Lot.ToString(),
                 Margin = new Thickness(8),
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Right,
@@ -549,7 +655,7 @@ namespace ManagerConsole.Helper
             valuePanel.Margin = new Thickness(0, 10, 0, 0);
             valuePanel.HorizontalAlignment = HorizontalAlignment.Right;
             valuePanel.VerticalAlignment = VerticalAlignment.Center;
-            valuePanel.Children.Add(BLText);
+            valuePanel.Children.Add(BLCheckBox);
             valuePanel.Children.Add(BalanceText);
             valuePanel.Children.Add(EquityText);
             valuePanel.Children.Add(NecessaryText);
@@ -633,7 +739,7 @@ namespace ManagerConsole.Helper
             if (cancelBtn != null) cancelBtn.IsEnabled = false;
             if (this.OnConfirmDialogResult != null)
             {
-                this.OnConfirmDialogResult(false, this._ConfirmOptionElement,this._OrderTask);
+                this.OnConfirmDialogResult(false,this._OrderTask,this._HandleAction);
             }
             this.Close();
         }
@@ -645,16 +751,14 @@ namespace ManagerConsole.Helper
             if (okBtn != null) okBtn.IsEnabled = false;
             if (cancelBtn != null) cancelBtn.IsEnabled = false;
             TextBlock msgLabel = this._ConfirmOrderDialogWin.FindName("msgLabel") as TextBlock;
-            if (msgLabel != null)
-            {
-                msgLabel.Text = "Processing......";
-            }
 
             if (this.OnConfirmDialogResult != null)
             {
-                this.OnConfirmDialogResult(true, this._ConfirmOptionElement,this._OrderTask);
+                this.OnConfirmDialogResult(true,this._OrderTask,this._HandleAction);
             }
+            this.Close();
         }
+
         public void Close()
         {
             if (this._ConfirmOrderDialogWin != null)
@@ -663,6 +767,42 @@ namespace ManagerConsole.Helper
                 this._ConfirmOrderDialogWin.Close();
                 this._ConfirmOrderDialogWin = null;
             }
+            if (this._ModifyPriceDialogWin != null)
+            {
+                this._LayoutContainer.Children.Remove(this._ModifyPriceDialogWin);
+                this._ModifyPriceDialogWin.Close();
+                this._ModifyPriceDialogWin = null;
+            }
+        }
+
+        //
+        void ModifyPriceCancelBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Button cancelBtn = sender as Button;
+            Button okBtn = this._ModifyPriceDialogWin.FindName("ModifyPriceOkBtn") as Button;
+            if (okBtn != null) okBtn.IsEnabled = false;
+            if (cancelBtn != null) cancelBtn.IsEnabled = false;
+            if (this.OnModifyPriceDialogResult != null)
+            {
+                this.OnModifyPriceDialogResult(false, "",null, this._HandleAction);
+            }
+            this.Close();
+        }
+
+        void ModifyPriceOkBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Button okBtn = sender as Button;
+            Button cancelBtn = this._ModifyPriceDialogWin.FindName("ModifyPriceCancel") as Button;
+            if (okBtn != null) okBtn.IsEnabled = false;
+            if (cancelBtn != null) cancelBtn.IsEnabled = false;
+            TextBox priceText = this._ModifyPriceDialogWin.FindName("NewPriceText") as TextBox;
+            var newPrice = this._NewPriceElement.Text;
+
+            if (this.OnModifyPriceDialogResult != null)
+            {
+                this.OnModifyPriceDialogResult(true, newPrice,this._OrderTask, this._HandleAction);
+            }
+            this.Close();
         }
 
     }

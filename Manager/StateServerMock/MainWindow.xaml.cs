@@ -190,8 +190,11 @@ namespace WCFServiceTest
             ManagerClient.AddCommand(placeCommand);
         }
         //PlaceCommand /Order Task For Lmt/Stop Order
+
+        int LMTIndex = 0;
         private void LMTCommandBtn_Click(object sender, RoutedEventArgs e)
         {
+            if (LMTIndex > 7) return;
             string xmlPath = string.Empty;
             ComboBoxItem item = (ComboBoxItem)this.LmtComboBox.SelectedItem;
             string seletName = item.Content.ToString();
@@ -212,10 +215,10 @@ namespace WCFServiceTest
             }
             XmlDocument doc = new XmlDocument();
             doc.Load(xmlPath);
-            XmlNode xmlTran = doc.ChildNodes[1].ChildNodes[0];
+            XmlNode xmlTran = doc.ChildNodes[1].ChildNodes[LMTIndex];
 
             PlaceCommand placeCommand;
-            placeCommand = new PlaceCommand(1);
+            placeCommand = new PlaceCommand(LMTIndex);
             placeCommand.InstrumentID = XmlConvert.ToGuid(xmlTran.Attributes["InstrumentID"].Value);
             placeCommand.AccountID = XmlConvert.ToGuid(xmlTran.Attributes["AccountID"].Value);
 
@@ -227,6 +230,32 @@ namespace WCFServiceTest
             content.AppendChild(xmlDoc.ImportNode(xmlTran, true));
 
             ManagerClient.AddCommand(placeCommand);
+            LMTIndex++;
+        }
+
+        //Hit Command
+        int HitIndex = 0;
+        private void HitCommandBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (HitIndex > 7) return;
+            string xmlPath = this.GetCommandXmlPath("HitCommand");
+
+            XmlDocument doc = new XmlDocument();
+            doc.Load(xmlPath);
+            XmlNode xmlTran = doc.ChildNodes[1].ChildNodes[HitIndex];
+
+            HitCommand hitCommand;
+            hitCommand = new HitCommand(HitIndex);
+
+            XmlDocument xmlDoc = new XmlDocument();
+            XmlNode content = xmlDoc.CreateElement("Hit");
+            xmlDoc.AppendChild(content);
+            hitCommand.Content = content;
+
+            content.AppendChild(xmlDoc.ImportNode(xmlTran, true));
+
+            ManagerClient.AddCommand(hitCommand);
+            HitIndex++;
         }
     }
 }

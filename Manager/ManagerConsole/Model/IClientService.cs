@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
 using System.Text;
+using System.Xml;
 
 namespace ManagerConsole.Model
 {
@@ -80,6 +81,16 @@ namespace ManagerConsole.Model
         IAsyncResult BeginCancelPlace(Guid transactionId, CancelReason cancelReason, AsyncCallback callback, object asyncState);
         TransactionError EndCancelPlace(IAsyncResult result);
 
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginExecute(Guid transactionId, string buyPrice, string sellPrice, decimal lot, Guid orderId, out XmlNode xmlNode, AsyncCallback callback, object asyncState);
+        TransactionError EndExecute(IAsyncResult result);
+
+        [OperationContract(IsInitiating = false)]
+        void ResetHit(Guid[] orderIds);
+
+        [OperationContract(IsInitiating = false)]
+        AccountInformation GetAcountInfo(Guid transactionId);
+        
         #endregion
 
         

@@ -31,6 +31,7 @@ namespace ManagerConsole
         public CommonDialogWin CommonDialogWin;
         public ConfirmDialogWin ConfirmDialogWin;
         public ConfirmOrderDialogWin ConfirmOrderDialogWin;
+        public OrderHandle OrderHandle;
 
         public MainWindow()
         {
@@ -39,6 +40,7 @@ namespace ManagerConsole
             this.CommonDialogWin = new CommonDialogWin(this.MainFrame);
             this.ConfirmDialogWin = new ConfirmDialogWin(this.MainFrame);
             this.ConfirmOrderDialogWin = new ConfirmOrderDialogWin(this.MainFrame);
+            this.OrderHandle = new OrderHandle();
         }
 
         private void treeViewItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -71,50 +73,57 @@ namespace ManagerConsole
         {
             try
             {
-
-                // initialize layout
-                FunctionTree functionTree = ConsoleClient.Instance.GetFunctionTree();
-                for (int i = 0; i < functionTree.Modules.Count; i++)
-                {
-                    this._Modules.Add((int)functionTree.Modules[i].Type, functionTree.Modules[i]);
-                }
-                if (result.DockLayout != null)
-                {
-                    XDocument xdocument = XDocument.Parse(result.DockLayout);
-                    var panes = xdocument.Element("xamDockManager").Element("contentPanes").Elements("contentPane").Where(p => p.Attribute("name").Value != "FunctionTreePane");
-                    foreach (XElement pane in panes)
-                    {
-                        int moduleType = MainWindowHelper.GetModuleType(pane.Attribute("name").Value);
-                        if (this._Modules.ContainsKey(moduleType))
-                        {
-                            this.AddContentPane(moduleType);
-                        }
-                    }
-                    this.DockManager.LoadLayout(result.DockLayout);
-                }
-
-                // initialize function tree
-                Dictionary<ModuleCategoryType, TreeViewItem> typeTreeViewItems = new Dictionary<ModuleCategoryType, TreeViewItem>();
-                foreach (Module module in this._Modules.Values)
-                {
-                    TreeViewItem catalogNode;
-                    if (!typeTreeViewItems.TryGetValue(module.Category, out catalogNode))
-                    {
-                        catalogNode = new TreeViewItem() { Header = functionTree.Categories.Single<Category>(c => c.CategoryType == module.Category).CategoryDescription };
-                        this.FunctionTree.Items.Add(catalogNode);
-                        typeTreeViewItems.Add(module.Category, catalogNode);
-                    }
-                    TreeViewItem functionNode = new TreeViewItem() { Header = module.ModuleDescription, Tag = module.Type };
-                    functionNode.MouseDoubleClick += treeViewItem_MouseDoubleClick;
-                    catalogNode.Items.Add(functionNode);
-                }
-
+                this.InitializeLayout(result);
+                //InitializeData
                 this.AttachEvent();
+                SettingSet settingSet = new SettingSet();
+                Manager.Common.SystemParameter parametere = new Manager.Common.SystemParameter();
+                settingSet.SystemParameter = parametere;
+                this.InitDataManager.SettingsManager.Initialize(settingSet);
             }
             catch (Exception ex)
             {
                 Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "HandleSuccessLogin.\r\n{0}", ex.ToString());
+            }
+        }
 
+        private void InitializeLayout(LoginResult result)
+        {
+            // initialize layout
+            FunctionTree functionTree = ConsoleClient.Instance.GetFunctionTree();
+            for (int i = 0; i < functionTree.Modules.Count; i++)
+            {
+                this._Modules.Add((int)functionTree.Modules[i].Type, functionTree.Modules[i]);
+            }
+            if (result.DockLayout != null)
+            {
+                XDocument xdocument = XDocument.Parse(result.DockLayout);
+                var panes = xdocument.Element("xamDockManager").Element("contentPanes").Elements("contentPane").Where(p => p.Attribute("name").Value != "FunctionTreePane");
+                foreach (XElement pane in panes)
+                {
+                    int moduleType = MainWindowHelper.GetModuleType(pane.Attribute("name").Value);
+                    if (this._Modules.ContainsKey(moduleType))
+                    {
+                        this.AddContentPane(moduleType);
+                    }
+                }
+                this.DockManager.LoadLayout(result.DockLayout);
+            }
+
+            // initialize function tree
+            Dictionary<ModuleCategoryType, TreeViewItem> typeTreeViewItems = new Dictionary<ModuleCategoryType, TreeViewItem>();
+            foreach (Module module in this._Modules.Values)
+            {
+                TreeViewItem catalogNode;
+                if (!typeTreeViewItems.TryGetValue(module.Category, out catalogNode))
+                {
+                    catalogNode = new TreeViewItem() { Header = functionTree.Categories.Single<Category>(c => c.CategoryType == module.Category).CategoryDescription };
+                    this.FunctionTree.Items.Add(catalogNode);
+                    typeTreeViewItems.Add(module.Category, catalogNode);
+                }
+                TreeViewItem functionNode = new TreeViewItem() { Header = module.ModuleDescription, Tag = module.Type };
+                functionNode.MouseDoubleClick += treeViewItem_MouseDoubleClick;
+                catalogNode.Items.Add(functionNode);
             }
         }
 
@@ -160,6 +169,7 @@ namespace ManagerConsole
         private void AttachEvent()
         {
             ConsoleClient.Instance.MessageClient.QuoteOrderToDealerEvent += this.MessageClient_QuoteOrderReceived;
+            ConsoleClient.Instance.MessageClient.HitPriceEvent += this.MessageClient_HitPriceReceived;
         }
         #endregion
         #region Notify Dealing
@@ -181,6 +191,14 @@ namespace ManagerConsole
                 }
 
             }, placeMessage);
+        }
+
+        void MessageClient_HitPriceReceived(HitMessage hitMessage)
+        {
+            this.Dispatcher.BeginInvoke((Action<HitMessage>)delegate(HitMessage message)
+            {
+                this.InitDataManager.AddHitMessage(message);
+            }, hitMessage);
         }
         
         #endregion

@@ -7,6 +7,7 @@ using Manager.Common;
 using ManagerService.DataAccess;
 using ManagerService.Exchange;
 using System.Diagnostics;
+using System.Xml;
 
 namespace ManagerService.Console
 {
@@ -325,6 +326,57 @@ namespace ManagerService.Console
                 Logger.AddEvent(TraceEventType.Error, "ClientService.CancelPlace error:\r\n{0}", ex.ToString());
             }
             return transactionError;
+        }
+
+        public TransactionError Execute(Guid transactionId, string buyPrice, string sellPrice, decimal lot, Guid orderId, out XmlNode xmlNode)
+        {
+            TransactionError transactionError = TransactionError.OK;
+            string exchangeCode = "WF01";
+            try
+            {
+                ExchangeSystem exchangeSystem = Manager.ExchangeManager.GetExchangeSystem(exchangeCode);
+                transactionError = exchangeSystem.Execute(transactionId, buyPrice,sellPrice,lot,orderId,out xmlNode);
+            }
+            catch (Exception ex)
+            {
+                xmlNode = null;
+                Logger.AddEvent(TraceEventType.Error, "ClientService.Execute error:\r\n{0}", ex.ToString());
+            }
+            return transactionError;
+        }
+
+        public void ResetHit(Guid[] orderIds)
+        {
+            try
+            {
+                //this.StateServer.ResetHit(token, orderIDs);
+            }
+            catch (Exception ex)
+            {
+                Logger.AddEvent(TraceEventType.Error, "ClientService.ResetHit error:\r\n{0}", ex.ToString());
+            }
+        }
+
+        public AccountInformation GetAcountInfo(Guid transactionId)
+        {
+            AccountInformation accountInfor = new AccountInformation();
+            try
+            {
+                //just test data
+                accountInfor.AccountId = new Guid("9538eb6e-57b1-45fa-8595-58df7aabcfc9");
+                accountInfor.InstrumentId = new Guid("66adc06c-c5fe-4428-867f-be97650eb3b1");
+                accountInfor.Balance = 88888888;
+                accountInfor.Equity = 10000000;
+                accountInfor.Necessary = 99999999;
+                accountInfor.BuyLotBalanceSum = 100;
+                accountInfor.SellLotBalanceSum = 200;
+                accountInfor.Usable = accountInfor.Equity - accountInfor.Necessary;
+            }
+            catch(Exception ex)
+            {
+                Logger.AddEvent(TraceEventType.Error, "ClientService.GetAcountInfo error:\r\n{0}", ex.ToString());
+            }
+            return accountInfor;
         }
         #endregion
 

@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using CommonOrder = Manager.Common.Order;
+using OrderType = Manager.Common.OrderType;
 
 namespace ManagerConsole.Model
 {
@@ -71,6 +72,12 @@ namespace ManagerConsole.Model
             }
         }
 
+        public string ExchangeCode
+        {
+            get;
+            set;
+        }
+
         public TradeOption TradeOption
         {
             get;
@@ -119,6 +126,34 @@ namespace ManagerConsole.Model
                 {
                     this._SetPrice = value;
                     this.OnPropertyChanged("SetPrice");
+                }
+            }
+        }
+
+        private string _BestPrice;
+        public string BestPrice
+        {
+            get { return this._BestPrice; }
+            set
+            {
+                if (this._BestPrice != value)
+                {
+                    this._BestPrice = value;
+                    this.OnPropertyChanged("BestPrice");
+                }
+            }
+        }
+
+        private DateTime _BestTime;
+        public DateTime BestTime
+        {
+            get { return this._BestTime; }
+            set
+            {
+                if (this._BestTime != value)
+                {
+                    this._BestTime = value;
+                    this.OnPropertyChanged("BestTime");
                 }
             }
         }
@@ -223,10 +258,18 @@ namespace ManagerConsole.Model
             }
         }
 
+        private int _HitCount;
         public int HitCount
         {
-            get;
-            set;
+            get { return this._HitCount; }
+            set
+            {
+                if (this._HitCount != value)
+                {
+                    this._HitCount = value;
+                    this.OnPropertyChanged("HitCount");
+                }
+            }
         }
 
         public int DQMaxMove
@@ -264,7 +307,6 @@ namespace ManagerConsole.Model
         }
 
 
-
         public string OpenPrice
         {
             get;
@@ -290,6 +332,7 @@ namespace ManagerConsole.Model
         {
             this.Id = commonOrder.Id;
 
+            this.ExchangeCode = commonOrder.ExchangeCode;
             this.Code = commonOrder.Code;
             this.DQMaxMove = commonOrder.DQMaxMove;
             this.BuySell = commonOrder.IsBuy ? BuySell.Buy : BuySell.Sell;
@@ -298,21 +341,99 @@ namespace ManagerConsole.Model
             this.SetPrice = string.IsNullOrEmpty(commonOrder.SetPrice) ? commonOrder.SetPrice : commonOrder.SetPrice.Replace(".", NumberFormatInfo.CurrentInfo.NumberDecimalSeparator);
             this.ExecutePrice = string.IsNullOrEmpty(commonOrder.ExecutePrice) ? commonOrder.ExecutePrice : commonOrder.ExecutePrice.Replace(".", NumberFormatInfo.CurrentInfo.NumberDecimalSeparator);
             this.TradeOption = commonOrder.TradeOption;
+            this._HitCount = commonOrder.HitCount;
+            this._BestPrice = commonOrder.BestPrice;
+            this._BestTime = commonOrder.BestTime;
         }
 
+        internal void HitUpdate(CommonOrder commonOrder)
+        {
+            InstrumentClient instrument = this.Transaction.Instrument;
+            this.HitCount = commonOrder.HitCount;
+            this.BestPrice = commonOrder.BestPrice;
+            this.BestTime = commonOrder.BestTime;
+
+            Price bestPrice = new Price(this.BestPrice, instrument.NumeratorUnit.Value, instrument.Denominator.Value);
+
+            if (this.Transaction.OrderType == OrderType.Market)
+            {
+                this.SetPrice = this.BestPrice;
+            }
+            else if (this.IsNeedDQMaxMove())
+            {
+                Price newPrice = this.GetDQMaxMovePrice(instrument);
+                if (instrument.IsNormal == (this.BuySell == ManagerConsole.BuySell.Buy))
+                {
+                    this.ExecutePrice = (bestPrice > newPrice) ? newPrice.ToString() : bestPrice.ToString();
+                }
+                else
+                {
+                    this.ExecutePrice = (bestPrice < newPrice) ? newPrice.ToString() : bestPrice.ToString();
+                }
+            }
+
+            //Hit2
+            if (this.Transaction.OrderType == OrderType.Limit || this.Transaction.OrderType == OrderType.Market)
+            {
+                if (this.Transaction.OrderType == OrderType.Market && this.Transaction != null)
+                {
+                    this.ChangeStatus(OrderStatus.WaitOutLotLMT);
+                }
+
+                Price setPrice = new Price(this.SetPrice, instrument.NumeratorUnit.Value, instrument.Denominator.Value);
+                if (this.BestPrice == null || this.SetPrice == null) return;
+                if (this.HitCount > 0
+                    || (this.Transaction.OrderType == OrderType.Limit 
+                    && !instrument.Mit && instrument.PenetrationPoint >= 0
+                    && Math.Abs(Price.Subtract(bestPrice, setPrice)) >= instrument.PenetrationPoint))
+                {
+                    this.ChangeStatus(OrderStatus.WaitOutLotLMT);
+                    //this.mainWindow.oDealingConsole.PlaySound(SoundOption.LimitDealerIntervene);
+                }
+            }
+            else if (this.IsNeedDQMaxMove())
+            {
+                var isExceed = true;// = this.IsPriceExceedMaxMin(this.tran.executePrice);
+                if (isExceed == true)
+                {
+                    //Waiting for Dealer Accept/Reject
+                    this.ChangeStatus(OrderStatus.WaitOutPriceDQ);
+                }
+                else
+                {
+                    //Waiting for Dealer Confirm/Reject
+                    this.ChangeStatus(OrderStatus.WaitOutLotDQ);
+                }
+            }
+        }
 
         #region Change Order Status
-        private void ChangeStatus(OrderStatus orderStatus)
+        public void ChangeStatus(OrderStatus newStatus)
         {
-           // this.OrderStatus = OrderStatus.WaitNextPrice;
+            this.Status = newStatus;
         }
-        public void DoAcceptPlace()
+
+        private bool IsNeedDQMaxMove()
         {
-            //if (this.OrderStatus == OrderStatus.WaitAcceptRejectPlace)
-            //{
-            //    this.ChangeStatus(OrderStatus.WaitServerResponse);
-            //}
+            return (this.Transaction.OrderType == OrderType.SpotTrade && this.DQMaxMove > 0);
         }
+
+        private Price GetDQMaxMovePrice(InstrumentClient instrument)
+        {
+            Price setPrice = Price.CreateInstance(double.Parse(this.SetPrice), instrument.NumeratorUnit.Value, instrument.Denominator.Value);
+            bool isBuy = this.BuySell == ManagerConsole.BuySell.Buy;
+            if (instrument.IsNormal == isBuy)
+            {
+                
+                return (setPrice + this.DQMaxMove);
+            }
+            else
+            {
+                return (setPrice - this.DQMaxMove);
+            }
+        }
+
+
         #endregion
     }
 }

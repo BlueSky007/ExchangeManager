@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Xml;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 using iExchange.Common;
 using Manager.Common;
-using System.Diagnostics;
-using System.Xml;
+using Manager.Common.QuotationEntities;
 using CommonTransactionError = Manager.Common.TransactionError;
 using CommonCancelReason = Manager.Common.CancelReason;
 
@@ -118,6 +119,15 @@ namespace ManagerService.Exchange
             CommonTransactionError errorCode = CommonTransactionError.OK;
 
             //errorCode = this._StateServer.AcceptPlace(transactionId);
+            return errorCode;
+        }
+
+        public CommonTransactionError Execute(Guid transactionId, string buyPrice, string sellPrice, decimal lot, Guid orderId, out XmlNode xmlNode)
+        {
+            CommonTransactionError errorCode = CommonTransactionError.OK;
+
+            //errorCode = this._StateServer.AcceptPlace(transactionId);
+            xmlNode = null;
             return errorCode;
         }
         

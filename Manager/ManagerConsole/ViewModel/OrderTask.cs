@@ -18,22 +18,7 @@ namespace ManagerConsole.ViewModel
         }
         public OrderTask(Order order)
         {
-            this._OrderId = order.Id;
-            this._Phase = order.Phase;
-            this._OrderStatus = order.Status;
-            this._IsBuy = order.BuySell;
-            this._IsOPen = order.OpenClose;
-            this._Lot = order.Lot;
-            this._OrderType = order.Transaction.OrderType;
-            this._SetPrice = order.SetPrice;
-            this._SubmitDateTime = order.Transaction.SubmitTime;
-            this._ExpireTime = order.Transaction.SubmitTime;
-            this._Account = order.Transaction.Account;
-            this._Transaction = order.Transaction;
-            this._Instrument = order.Transaction.Instrument;
-            this._MooMocOrderTasks = new ObservableCollection<OrderTaskDetail>();
-
-            this.SetOrderStatus();
+            this.Update(order);
         }
 
         private ObservableCollection<OrderTaskDetail> _MooMocOrderTasks;
@@ -46,10 +31,11 @@ namespace ManagerConsole.ViewModel
 
         #region Private Property
         private bool _IsSelected = true;
+        private string _ExchangeCode;
         private Account _Account;
         private Transaction _Transaction;
         private InstrumentClient _Instrument;
-        private Guid? _OrderId;
+        private Guid _OrderId;
         private ManagerCommon.Phase _Phase;
         private OrderStatus _OrderStatus = OrderStatus.Placing;
         private string _OrderStatuString;
@@ -86,6 +72,12 @@ namespace ManagerConsole.ViewModel
             set { this._IsSelected = value; this.OnPropertyChanged("IsSelected"); }
         }
 
+        public string ExchangeCode
+        {
+            get { return this._ExchangeCode; }
+            set { this._ExchangeCode = value; }
+        }
+
         public Account Account
         {
             get { return this._Account; }
@@ -95,7 +87,7 @@ namespace ManagerConsole.ViewModel
         {
             get { return this._Transaction; }
         }
-        public Guid? OrderId
+        public Guid OrderId
         {
             get { return this._OrderId; }
             set { this._OrderId = value; }
@@ -246,7 +238,7 @@ namespace ManagerConsole.ViewModel
             set
             {
                 this._SetPrice = value;
-                this.OnPropertyChanged("Price");
+                this.OnPropertyChanged("SetPrice");
             }
         }
 
@@ -354,22 +346,22 @@ namespace ManagerConsole.ViewModel
         public CellDataDefine CellDataDefine1
         {
             get { return this._CellDataDefine1; }
-            set { this._CellDataDefine1 = value; }
+            set { this._CellDataDefine1 = value; this.OnPropertyChanged("CellDataDefine1"); }
         }
         public CellDataDefine CellDataDefine2
         {
             get { return this._CellDataDefine2; }
-            set { this._CellDataDefine2 = value; }
+            set { this._CellDataDefine2 = value; this.OnPropertyChanged("CellDataDefine2"); }
         }
         public CellDataDefine CellDataDefine3
         {
             get { return this._CellDataDefine3; }
-            set { this._CellDataDefine3 = value; }
+            set { this._CellDataDefine3 = value; this.OnPropertyChanged("CellDataDefine3"); }
         }
         public CellDataDefine CellDataDefine4
         {
             get { return this._CellDataDefine4; }
-            set { this._CellDataDefine4 = value; }
+            set { this._CellDataDefine4 = value; this.OnPropertyChanged("CellDataDefine4"); }
         }
         #endregion
 
@@ -403,7 +395,7 @@ namespace ManagerConsole.ViewModel
                 }
             }
         }
-        private void SetCellDataDefine(OrderStatus orderStatus)
+        public void SetCellDataDefine(OrderStatus orderStatus)
         {
             this._DQCellDataDefine1.IsVisibility = Visibility.Collapsed;
             this._DQCellDataDefine2.IsVisibility = Visibility.Collapsed;
@@ -467,25 +459,26 @@ namespace ManagerConsole.ViewModel
                     bool btnModifyIsEnable = (this.OrderStatus == OrderStatus.WaitOutLotLMT) ? true : false;
                     this._CellDataDefine1.ColumnWidth = 60;
                     this._CellDataDefine1.Action = HandleAction.OnOrderUpdate;
-                    this._CellDataDefine1.Caption = "Update";
-                    this._CellDataDefine1.IsEnable = false;
+                    this._CellDataDefine1.Caption = "uPdate";
+                    this._CellDataDefine1.IsEnable = btnUpdateIsEnable;
                     this._CellDataDefine1.IsVisibility = Visibility.Visible;
 
                     this._CellDataDefine2.ColumnWidth = 60;
                     this._CellDataDefine2.Action = HandleAction.OnOrderModify;
-                    this._CellDataDefine2.Caption = "Modify";
+                    this._CellDataDefine2.Caption = "modiFy";
                     this._CellDataDefine2.IsEnable = btnModifyIsEnable;
                     this._CellDataDefine2.IsVisibility = Visibility.Visible;
 
                     this._CellDataDefine3.ColumnWidth = 60;
                     this._CellDataDefine3.Action = HandleAction.OnOrderWait;
-                    this._CellDataDefine3.Caption = "Cancel";
-                    this._CellDataDefine3.IsEnable = btnModifyIsEnable;
+                    this._CellDataDefine3.Caption = "waIt";
+                    this._CellDataDefine3.IsEnable = true;
                     this._CellDataDefine3.IsVisibility = Visibility.Visible;
 
                     this._CellDataDefine4.ColumnWidth = 60;
                     this._CellDataDefine4.Action = HandleAction.OnOrderExecute;
-                    this._CellDataDefine4.Caption = "Excute";
+                    this._CellDataDefine4.Caption = "Execute";
+                    this._CellDataDefine3.IsEnable = true;
                     this._CellDataDefine4.IsVisibility = Visibility.Visible;
 
                 }
@@ -512,9 +505,13 @@ namespace ManagerConsole.ViewModel
         }
 
         #region Handle Action
-        private void ChangeStatus(OrderStatus orderStatus)
+        public void ResetHit()
         {
-            this.OrderStatus = OrderStatus.WaitNextPrice;
+            this._HitCount = 0;
+        }
+        public void ChangeStatus(OrderStatus orderStatus)
+        {
+            this.OrderStatus = orderStatus;
             this.SetCellDataDefine(this.OrderStatus);
         }
         public void DoAcceptPlace()
@@ -538,6 +535,30 @@ namespace ManagerConsole.ViewModel
         }
         #endregion
         #endregion
+
+        internal void Update(Order order)
+        {
+            this._ExchangeCode = order.ExchangeCode;
+            this._OrderId = order.Id;
+            this._Phase = order.Phase;
+            this._OrderStatus = order.Status;
+            this._IsBuy = order.BuySell;
+            this._IsOPen = order.OpenClose;
+            this._Lot = order.Lot;
+            this._OrderType = order.Transaction.OrderType;
+            this._SetPrice = order.SetPrice;
+            this._SubmitDateTime = order.Transaction.SubmitTime;
+            this._ExpireTime = order.Transaction.SubmitTime;
+            this._Account = order.Transaction.Account;
+            this._Transaction = order.Transaction;
+            this._Instrument = order.Transaction.Instrument;
+            this._HitCount = order.HitCount;
+            this._BestPrice = order.BestPrice;
+            this._BestTime = order.BestTime;
+            this._MooMocOrderTasks = new ObservableCollection<OrderTaskDetail>();
+            this.ChangeStatus(this._OrderStatus);
+        }
+
     }
 
     public class OrderTaskDetail : PropertyChangedNotifier

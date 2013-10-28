@@ -23,6 +23,11 @@ namespace ManagerConsole.Model
         private int? _Spread;
         private int? _MaxSpread;
         private int? _AcceptDQVariation;
+        private bool _IsNormal;
+        private bool _Mit;
+        private int _PenetrationPoint;
+        private int _DailyMaxMove;
+        private string _PreviousClosePrice;
         #endregion
         public Guid Id
         {
@@ -184,6 +189,39 @@ namespace ManagerConsole.Model
             set{this._AcceptDQVariation = value;}
         }
 
+        public bool IsNormal
+        {
+            get { return this._IsNormal; }
+            set { this._IsNormal = value; }
+        }
+
+        public bool Mit
+        {
+            get { return this._Mit; }
+            set { this._Mit = value; }
+        }
+
+        public int PenetrationPoint
+        {
+            get { return this._PenetrationPoint; }
+            set { this._PenetrationPoint = value; }
+        }
+
+        public int DailyMaxMove
+        {
+            get { return this._DailyMaxMove; }
+            set { this._DailyMaxMove = value; }
+        }
+
+        public string PreviousClosePrice
+        {
+            get { return this._PreviousClosePrice; }
+            set { this._PreviousClosePrice = value; }
+        }
+
+
+
+        //
         public bool CheckVariation(decimal variation)
         {
             if (variation < 0 && variation < (0 - this.AcceptDQVariation))

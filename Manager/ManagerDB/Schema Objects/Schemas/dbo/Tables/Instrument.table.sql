@@ -8,5 +8,8 @@
 	InactiveTime INT NOT NULL,
 	UseWeightedPrice BIT NOT NULL,
 	Multiplier DECIMAL(18,9),
-	IsDerivative BIT NOT NULL
+	IsDerivative BIT NOT NULL,
+	IsSwitchUseAgio BIT NOT NULL,
+	AgioSeconds INT NULL,
+	LeastTicks INT NULL  -- 计算价差时在 AgioSeconds 秒内至少要收到的价格数。
 )

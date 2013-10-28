@@ -1,11 +1,12 @@
-﻿using Manager.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Description;
 using System.Text;
+using Manager.Common;
+using Manager.Common.QuotationEntities;
 
 namespace ManagerService.Exchange
 {

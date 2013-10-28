@@ -26,7 +26,8 @@
     </UserControl.Resources>
     <Grid x:Name="LayRootGrid">
         <Border Margin="0 0 5 0" BorderBrush="Black" Grid.Row="0">
-            <igGrid:XamGrid x:Name="OrderTaskGrid" AutoGenerateColumns="False" Background="#FF808080" ColumnWidth="Auto" CellStyle="{StaticResource CellStyle}" Foreground="{Binding IsBuyBrush}">
+            <igGrid:XamGrid x:Name="OrderTaskGrid" AutoGenerateColumns="False" RowHeight="32" ColumnWidth="Auto" CellStyle="{StaticResource CellStyle}" Foreground="{Binding IsBuyBrush}"
+                            InitializeRow="OrderTaskGrid_InitializeRow">
                 <igGrid:XamGrid.EditingSettings>
                     <igGrid:EditingSettings AllowEditing="None" IsEnterKeyEditingEnabled="True" IsF2EditingEnabled="True"/>
                 </igGrid:XamGrid.EditingSettings>
@@ -39,45 +40,89 @@
 
                 <!--Column Setting-->
                 <igGrid:XamGrid.Columns>
-                    <igGrid:ColumnLayout Key="MooMocOrderTasks" HeaderVisibility="false">
+                    <igGrid:ColumnLayout Key="OrderTasks" HeaderVisibility="false">
                         <igGrid:ColumnLayout.Columns>
-                            <igGrid:UnboundColumn Key="Handle" IsFixed="Left">
-                                <igGrid:UnboundColumn.ItemTemplate>
+                            <igGrid:TemplateColumn Key="LMTHandle" IsFixed="Left" HeaderText="Action">
+                                <igGrid:TemplateColumn.ItemTemplate>
                                     <DataTemplate>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Button x:Name="AbandonBtn2" Width="65" Height="25" Content="Abandon" />
+                                        <StackPanel Orientation="Horizontal" Width="240" Margin="0">
+                                            <Button x:Name="UpdateBtn" Margin="0" Background="#FFADD8E6" Width="{Binding CellDataDefine1.ColumnWidth}"   Content="{Binding CellDataDefine1.Caption}"  Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine1.IsVisibility}" IsEnabled="{Binding CellDataDefine1.IsEnable}"/>
+                                            <Button x:Name="ModiFyBtn" Margin="0" Background="#FFADD8E6" Width="{Binding CellDataDefine2.ColumnWidth}"   Content="{Binding CellDataDefine2.Caption}" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine2.IsVisibility}" IsEnabled="{Binding CellDataDefine1.IsEnable}" />
+                                            <Button x:Name="CancelBtn" Margin="0" Background="#FFADD8E6" Width="{Binding CellDataDefine3.ColumnWidth}"   Content="{Binding CellDataDefine3.Caption}"  Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine3.IsVisibility}"/>
+                                            <Button x:Name="ExcuteBtn" Margin="0" Background="#FFADD8E6" Width="{Binding CellDataDefine4.ColumnWidth}"   Content="{Binding CellDataDefine4.Caption}"  Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine4.IsVisibility}"/>
                                         </StackPanel>
                                     </DataTemplate>
-                                </igGrid:UnboundColumn.ItemTemplate>
-                            </igGrid:UnboundColumn>
-                            <igGrid:TextColumn Key="AccountCode" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="A/C" />
-                            <igGrid:TextColumn Key="SubmitDateTime" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Order Data" />
-                            <igGrid:TextColumn Key="OpenClose" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="O/C" />
-                            <igGrid:TextColumn Key="BuyLot" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Buy Lot" />
-                            <igGrid:TextColumn Key="SellLot" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Sell Lot" />
-                            <igGrid:TextColumn Key="QuotePolicyCode" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Quote Policy" />
+                                </igGrid:TemplateColumn.ItemTemplate>
+                            </igGrid:TemplateColumn>
+                            <igGrid:TemplateColumn Key="OrderStatus" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Order Status">
+                                <igGrid:TemplateColumn.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding OrderStatus}" Foreground="{Binding RowBrush}"/>
+                                    </DataTemplate>
+                                </igGrid:TemplateColumn.ItemTemplate>
+                            </igGrid:TemplateColumn>
+                            <igGrid:TemplateColumn Key="ExchangeCode"  Width="85" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Exchange Code" >
+                                <igGrid:TemplateColumn.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding ExchangeCode}" Foreground="Gold" FontWeight="Bold"/>
+                                    </DataTemplate>
+                                </igGrid:TemplateColumn.ItemTemplate>
+                            </igGrid:TemplateColumn>
+                            <igGrid:TemplateColumn Key="InstrumentCode" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Item">
+                                <igGrid:TemplateColumn.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding InstrumentCode}" Foreground="{Binding RowBrush}"/>
+                                    </DataTemplate>
+                                </igGrid:TemplateColumn.ItemTemplate>
+                            </igGrid:TemplateColumn>
+                            <igGrid:TextColumn Key="TimeStamp" FormatString="{}{0:HH:mm:ss}" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="App Time" />
+                            <igGrid:TextColumn Key="SubmitDateTime" FormatString="{}{0:HH:mm:ss}" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Submit time"  IsSorted="Descending" />
+                            <igGrid:TextColumn Key="AccountCode" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Account" />
+                            <igGrid:TemplateColumn Key="IsBuyString" Width="60" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="B/S">
+                                <igGrid:TemplateColumn.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding IsBuyString}" Foreground="{Binding IsBuyBrush}"/>
+                                    </DataTemplate>
+                                </igGrid:TemplateColumn.ItemTemplate>
+                            </igGrid:TemplateColumn>
+                            <igGrid:TextColumn Key="Lot" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Lot" />
+                            <igGrid:TemplateColumn Key="IsOpenString" HeaderText="N/C" Width="60" HorizontalContentAlignment="Center" IsReadOnly="True">
+                                <igGrid:TemplateColumn.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding IsOpenString}" Foreground="{Binding IsOpenBrush}" />
+                                    </DataTemplate>
+                                </igGrid:TemplateColumn.ItemTemplate>
+                            </igGrid:TemplateColumn>
+                            <igGrid:TemplateColumn Key="TradeOption" HorizontalContentAlignment="Center" HeaderText="Option" IsReadOnly="True"/>
+                            <igGrid:TemplateColumn Key="QuotePolicyCode" HorizontalContentAlignment="Center" HeaderText="Quote Policy" IsReadOnly="True"/>
+                            <igGrid:TextColumn Key="SetPrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Set Price" />
+                            <igGrid:TextColumn Key="BestPrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Best Price" />
+                            <igGrid:TextColumn Key="ReferencePrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Ref. Price"  />
+                            <igGrid:TextColumn Key="DiffPrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Price Dif"  />
+                            <igGrid:TextColumn Key="DQMaxMove" Width="80" HeaderText="DQ MaxMove" HorizontalContentAlignment="Center" IsReadOnly="True" />
+                            <igGrid:TextColumn Key="HitCount" Width="80" CellStyle="{StaticResource TimesCellStyle}"  HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Hit count" />
+                            <igGrid:TextColumn Key="BestTime" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Best Time" />
+                            <igGrid:TextColumn Key="TransactionCode" Width="100" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Tran Code" />
+                            <igGrid:TextColumn Key="ContractSize" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Size"  />
+                            <igGrid:TextColumn Key="OrderType" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True"  HeaderText="Type"/>
+                            <igGrid:TextColumn Key="ExpireTime" Width="150" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Expire time"  />
+                            <igGrid:TextColumn Key="OpenPrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="OpenPrice" />
                         </igGrid:ColumnLayout.Columns>
                     </igGrid:ColumnLayout>
-                    
-                    <igGrid:TemplateColumn Key="LMTHandle" IsFixed="Left" HeaderText="Action">
+
+
+                    <!--Column Setting-->
+                    <igGrid:TemplateColumn Key="DQHandle" HeaderText="Action" IsFixed="Left">
                         <igGrid:TemplateColumn.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal" Width="240">
-                                    <Button x:Name="UpdateBtn" Background="#FFADD8E6" Width="{Binding CellDataDefine1.ColumnWidth}"  Height="25" Content="{Binding CellDataDefine1.Caption}"  Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine1.IsVisibility}" IsEnabled="{Binding CellDataDefine1.IsEnable}"/>
-                                    <Button x:Name="ModiFyBtn" Background="#FFADD8E6" Width="{Binding CellDataDefine2.ColumnWidth}"  Height="25" Content="{Binding CellDataDefine2.Caption}" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine2.IsVisibility}" IsEnabled="{Binding CellDataDefine1.IsEnable}" Foreground="{Binding _CellDataDefine2.FontColor}"/>
-                                    <Button x:Name="CancelBtn" Background="#FFADD8E6" Width="{Binding CellDataDefine3.ColumnWidth}"  Height="25" Content="{Binding CellDataDefine3.Caption}"  Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine3.IsVisibility}"/>
-                                    <Button x:Name="ExcuteBtn" Background="#FFADD8E6" Width="{Binding CellDataDefine4.ColumnWidth}" Height="25" Content="{Binding CellDataDefine4.Caption}"  Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine4.IsVisibility}"/>
+                                <StackPanel Orientation="Horizontal" Width="120">
+                                    <Button x:Name="DQAcceptBtn" Width="60"  Content="Apply" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine1.IsVisibility}" IsEnabled="{Binding DQCellDataDefine1.IsEnable}"/>
+                                    <Button x:Name="DQRejecBtn"  Width="60"  Content="Execute" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine2.IsVisibility}" IsEnabled="{Binding DQCellDataDefine2.IsEnable}"/>
                                 </StackPanel>
                             </DataTemplate>
                         </igGrid:TemplateColumn.ItemTemplate>
                     </igGrid:TemplateColumn>
-                    <igGrid:TemplateColumn Key="OrderStatus" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Order Status">
-                        <igGrid:TemplateColumn.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding OrderStatus}" Foreground="{Binding RowBrush}"/>
-                            </DataTemplate>
-                        </igGrid:TemplateColumn.ItemTemplate>
-                    </igGrid:TemplateColumn>
+                    
                     <igGrid:TemplateColumn Key="InstrumentCode" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Item">
                         <igGrid:TemplateColumn.ItemTemplate>
                             <DataTemplate>
@@ -85,38 +130,20 @@
                             </DataTemplate>
                         </igGrid:TemplateColumn.ItemTemplate>
                     </igGrid:TemplateColumn>
-                    <igGrid:TextColumn Key="TimeStamp" FormatString="{}{0:HH:mm:ss}" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="App Time" />
-                    <igGrid:TextColumn Key="SubmitDateTime" FormatString="{}{0:HH:mm:ss}" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Submit time"  IsSorted="Descending" />
-                    <igGrid:TextColumn Key="AccountCode" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Account" />
-                    <igGrid:TemplateColumn Key="IsBuyString" Width="60" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="B/S">
+
+                    <igGrid:TemplateColumn Key="Origin" Width="80" HorizontalContentAlignment="Center"  HeaderText="Origin">
                         <igGrid:TemplateColumn.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding IsBuyString}" Foreground="{Binding IsBuyBrush}"/>
+                                <TextBlock Text="{Binding Origin}" Foreground="{Binding IsBuyBrush}"/>
                             </DataTemplate>
                         </igGrid:TemplateColumn.ItemTemplate>
                     </igGrid:TemplateColumn>
-                    <igGrid:TextColumn Key="Lot" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Lot" />
-                    <igGrid:TemplateColumn Key="IsOpenString" HeaderText="N/C" Width="60" HorizontalContentAlignment="Center" IsReadOnly="True">
-                        <igGrid:TemplateColumn.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding IsOpenString}" Foreground="{Binding IsOpenBrush}" />
-                            </DataTemplate>
-                        </igGrid:TemplateColumn.ItemTemplate>
-                    </igGrid:TemplateColumn>
-                    <igGrid:TemplateColumn Key="TradeOption" HorizontalContentAlignment="Center" HeaderText="Option" IsReadOnly="True"/>
-                    <igGrid:TemplateColumn Key="QuotePolicyCode" HorizontalContentAlignment="Center" HeaderText="Quote Policy" IsReadOnly="True"/>
-                    <igGrid:TextColumn Key="SetPrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Set Price" />
-                    <igGrid:TextColumn Key="BestPrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Best Price" />
-                    <igGrid:TextColumn Key="ReferencePrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Ref. Price"  />
-                    <igGrid:TextColumn Key="DiffPrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Price Dif"  />
-                    <igGrid:TextColumn Key="DQMaxMove" Width="80" HeaderText="DQ MaxMove" HorizontalContentAlignment="Center" IsReadOnly="True" />
-                    <igGrid:TextColumn Key="HitCount" Width="80" CellStyle="{StaticResource TimesCellStyle}"  HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Hit count" />
-                    <igGrid:TextColumn Key="BestTime" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Best Time" />
-                    <igGrid:TextColumn Key="TransactionCode" Width="100" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Tran Code" />
-                    <igGrid:TextColumn Key="ContractSize" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Size"  />
-                    <igGrid:TextColumn Key="OrderType" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True"  HeaderText="Type"/>
-                    <igGrid:TextColumn Key="ExpireTime" Width="150" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Expire time"  />
-                    <igGrid:TextColumn Key="OpenPrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="OpenPrice" />
+
+                    <igGrid:TextColumn Key="SumSellLot"  Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Total Sell" />
+                    <igGrid:TextColumn Key="SumBuyLot" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Total Buy" />
+                    <igGrid:TextColumn Key="Instrument.Ask"  Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Ask Price" />
+                    <igGrid:TextColumn Key="Instrument.Bid" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Bid Price" />
+
                 </igGrid:XamGrid.Columns>
             </igGrid:XamGrid>
         </Border>

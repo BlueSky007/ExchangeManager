@@ -1,8 +1,9 @@
-﻿using Manager.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Manager.Common;
+using Manager.Common.QuotationEntities;
 
 namespace ManagerService.Quotation
 {
@@ -10,12 +11,14 @@ namespace ManagerService.Quotation
     {
         private QuotationReceiver _QuotationReceiver;
         private ConfigMetadata _ConfigMetadata;
+        private SourceController _SourceController;
         private AbnormalQuotationProcessor _AbnormalQuotationProcessor;
         private DerivativeController _DerivativeController;
 
         public QuotationManager()
         {
             this._ConfigMetadata = new ConfigMetadata();
+            this._SourceController = new SourceController();
             this._AbnormalQuotationProcessor = new AbnormalQuotationProcessor(this._ConfigMetadata);
         }
 
@@ -24,6 +27,8 @@ namespace ManagerService.Quotation
             this._QuotationReceiver = new QuotationReceiver(quotationListenPort);
             this._QuotationReceiver.Start(this);
         }
+
+        public ConfigMetadata ConfigMetadata { get { return this._ConfigMetadata; } }
 
         public bool AuthenticateSource(string sourceName, string loginName, string password)
         {
@@ -37,28 +42,33 @@ namespace ManagerService.Quotation
 
         public void ProcessQuotation(PrimitiveQuotation primitiveQuotation)
         {
-            Manager.ClientManager.Dispatch(new PrimitiveQuotationMessage() { Quotation = primitiveQuotation });
-
-            if (this._ConfigMetadata.IsFromActiveSource(primitiveQuotation))
+            int instrumentId, sourceId;
+            if (this._ConfigMetadata.IsKnownQuotation(primitiveQuotation, out instrumentId, out sourceId))
             {
-                Quotation quotation = Quotation.Create(primitiveQuotation, this._ConfigMetadata);
+                Manager.ClientManager.Dispatch(new PrimitiveQuotationMessage() { Quotation = primitiveQuotation });
 
-                this._ConfigMetadata.Adjust(quotation);
-                if (this._AbnormalQuotationProcessor.IsWaitForPreOutOfRangeConfirmed(primitiveQuotation))
+                if (this._ConfigMetadata.IsFromActiveSource(instrumentId, sourceId))
                 {
-                    this._AbnormalQuotationProcessor.AddAndWait(primitiveQuotation);
-                }
-                else
-                {
-                    if (this._AbnormalQuotationProcessor.IsNormalPrice(primitiveQuotation))
+                    Quotation quotation = Quotation.Create(instrumentId, sourceId, primitiveQuotation);
+                    this._SourceController.QuotationArrived(quotation);
+
+                    this._ConfigMetadata.Adjust(quotation);
+                    if (this._AbnormalQuotationProcessor.IsWaitForPreOutOfRangeConfirmed(primitiveQuotation))
                     {
-                        this.EnablePrice(primitiveQuotation.InstrumentCode);
-                        List<PrimitiveQuotation> quotations = this._DerivativeController.Derive(primitiveQuotation);
-                        Manager.ExchangeManager.ProcessQuotation(quotations);
+                        this._AbnormalQuotationProcessor.AddAndWait(primitiveQuotation);
                     }
                     else
                     {
-                        this._AbnormalQuotationProcessor.StartProcessAbnormalQuotation(primitiveQuotation);
+                        if (this._AbnormalQuotationProcessor.IsNormalPrice(primitiveQuotation))
+                        {
+                            this.EnablePrice(primitiveQuotation.InstrumentCode);
+                            List<PrimitiveQuotation> quotations = this._DerivativeController.Derive(primitiveQuotation);
+                            Manager.ExchangeManager.ProcessQuotation(quotations);
+                        }
+                        else
+                        {
+                            this._AbnormalQuotationProcessor.StartProcessAbnormalQuotation(primitiveQuotation);
+                        }
                     }
                 }
             }

@@ -8,7 +8,9 @@ using System.Text;
 using CommonTransaction = Manager.Common.Transaction;
 using CommonOrder = Manager.Common.Order;
 using PlaceMessage = Manager.Common.PlaceMessage;
+using HitMessage = Manager.Common.HitMessage;
 using CommonParameter = Manager.Common.SystemParameter;
+using ManagerConsole.Helper;
 
 namespace ManagerConsole
 {
@@ -21,6 +23,7 @@ namespace ManagerConsole
         private Dictionary<Guid, Order> _Orders = new Dictionary<Guid, Order>();
 
         private ObservableCollection<OrderTask> _OrderTaskEntities = new ObservableCollection<OrderTask>();
+        private LmtOrderTaskForInstrumentModel _LmtOrderTaskForInstrumentModel = new LmtOrderTaskForInstrumentModel();
         private DQOrderTaskForInstrumentModel _DQOrderTaskForInstrumentModel = new DQOrderTaskForInstrumentModel();
         private MooMocOrderForInstrumentModel _MooMocOrderForInstrumentModel = new MooMocOrderForInstrumentModel();
 
@@ -58,6 +61,12 @@ namespace ManagerConsole
             set { this._DQOrderTaskForInstrumentModel = value; }
         }
 
+        public LmtOrderTaskForInstrumentModel LmtOrderTaskForInstrumentModel
+        {
+            get { return this._LmtOrderTaskForInstrumentModel; }
+            set { this._LmtOrderTaskForInstrumentModel = value; }
+        }
+
         public MooMocOrderForInstrumentModel MooMocOrderForInstrumentModel
         {
             get { return this._MooMocOrderForInstrumentModel; }
@@ -89,6 +98,7 @@ namespace ManagerConsole
                 instrument.Spread = 5;
                 instrument.AutoPoint = 10;
                 instrument.Origin = "1.555";
+                instrument.IsNormal = true;
                 this._Instruments.Add(instrument.Id, instrument);
             }
 
@@ -123,7 +133,61 @@ namespace ManagerConsole
             }
             foreach (CommonOrder commonOrder in placeMessage.Orders)
             {
+                commonOrder.ExchangeCode = placeMessage.ExchangeCode;
                 this.Process(commonOrder,false);
+            }
+            //Change Order status
+            foreach (CommonTransaction commonTransaction in placeMessage.Transactions)
+            {
+                Transaction tran = this._Transactions[commonTransaction.Id];
+                Guid accountId = tran.Account.Id;
+                bool existAccount = this._Accounts.ContainsKey(accountId);
+                TranPhaseManager.SetOrderStatus(tran, existAccount);
+
+                foreach (Order order in tran.Orders)
+                {
+                    this.AddOrderTaskEntity(order);
+                }
+            }
+        }
+
+        public void AddHitMessage(HitMessage hitMessage)
+        {
+            foreach (CommonOrder commonOrder in hitMessage.Orders)
+            {
+                commonOrder.ExchangeCode = hitMessage.ExchangeCode;
+                if (this._Orders.ContainsKey(commonOrder.Id))
+                {
+                    this._Orders[commonOrder.Id].HitUpdate(commonOrder);
+
+                    this.UpdateOrderTask(this._Orders[commonOrder.Id]);
+                }
+            } 
+        }
+
+        private void UpdateOrderTask(Order newOrder)
+        {
+            //Update DQ Order
+            foreach (DQOrderTaskForInstrument entity in this._DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments)
+            {
+                foreach (OrderTask orderTask in entity.OrderTasks)
+                {
+                    if (orderTask.OrderId == newOrder.Id)
+                    {
+                        orderTask.Update(newOrder);
+                    }
+                }
+            }
+            //Update Lmt/Stop Order
+            foreach (LmtOrderTaskForInstrument entity in this._LmtOrderTaskForInstrumentModel.LmtOrderTaskForInstruments)
+            {
+                foreach (OrderTask orderTask in entity.OrderTasks)
+                {
+                    if (orderTask.OrderId == newOrder.Id)
+                    {
+                        orderTask.Update(newOrder);
+                    }
+                }
             }
         }
 
@@ -173,7 +237,7 @@ namespace ManagerConsole
                 transaction.Add(order);
 
                 //Add Binding Entity
-                this.AddOrderTaskEntity(order);
+               // this.AddOrderTaskEntity(order);
             }
             else
             {
@@ -195,7 +259,6 @@ namespace ManagerConsole
             if (order.Transaction.OrderType == Manager.Common.OrderType.SpotTrade)
             {
                 OrderTask orderTask = new OrderTask(order);
-                orderTask.OrderStatus = OrderStatus.Placing;
 
                 DQOrderTaskForInstrument dQOrderTaskForInstrument = null;
                 dQOrderTaskForInstrument = this._DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments.SingleOrDefault(P => P.Instrument.Id == order.Transaction.Instrument.Id);
@@ -209,12 +272,13 @@ namespace ManagerConsole
 
                     this._DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments.Add(dQOrderTaskForInstrument);
                 }
+                dQOrderTaskForInstrument.OnEmptyDQOrderTask += new DQOrderTaskForInstrument.EmptyDQOrderHandle(DQOrderTaskForInstrument_OnEmptyDQOrderTask);
                 dQOrderTaskForInstrument.OrderTasks.Add(orderTask);
             }
             else if (order.Transaction.OrderType == Manager.Common.OrderType.MarketOnOpen || order.Transaction.OrderType == Manager.Common.OrderType.MarketOnClose)
             {
                 OrderTask orderTask = new OrderTask(order);
-                orderTask.OrderStatus = OrderStatus.Placing;
+                orderTask.OrderStatus = OrderStatus.TimeArrived;
                 MooMocOrderForInstrument mooMocOrderForInstrument = null;
                 mooMocOrderForInstrument = this._MooMocOrderForInstrumentModel.MooMocOrderForInstruments.SingleOrDefault(P => P.Instrument.Id == order.Transaction.Instrument.Id);
                 if (mooMocOrderForInstrument == null)
@@ -240,9 +304,35 @@ namespace ManagerConsole
             else
             {
                 OrderTask orderTask = new OrderTask(order);
-                orderTask.OrderStatus = OrderStatus.TimeArrived;
-                this._OrderTaskEntities.Add(orderTask);
+
+                LmtOrderTaskForInstrument lmtOrderTaskForInstrument = null;
+                lmtOrderTaskForInstrument = this._LmtOrderTaskForInstrumentModel.LmtOrderTaskForInstruments.SingleOrDefault(P => P.Instrument.Code == order.Transaction.Instrument.Code);
+                if (lmtOrderTaskForInstrument == null)
+                {
+                    lmtOrderTaskForInstrument = new LmtOrderTaskForInstrument();
+                    InstrumentClient instrument = order.Transaction.Instrument;
+                    lmtOrderTaskForInstrument.Instrument = instrument;
+                    lmtOrderTaskForInstrument.Origin = instrument.Origin;
+
+                    this._LmtOrderTaskForInstrumentModel.LmtOrderTaskForInstruments.Add(lmtOrderTaskForInstrument);
+                }
+                orderTask.SetCellDataDefine(orderTask.OrderStatus);
+                lmtOrderTaskForInstrument.OrderTasks.Add(orderTask);
+
+
+
+
+                //OrderTask orderTask = new OrderTask(order);
+                //orderTask.SetCellDataDefine(orderTask.OrderStatus);
+                //this._OrderTaskEntities.Add(orderTask);
             }
+        }
+        #endregion
+
+        #region Empty OrderTask Event
+        void DQOrderTaskForInstrument_OnEmptyDQOrderTask(DQOrderTaskForInstrument dQOrderTaskForInstrument)
+        {
+            this._DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments.Remove(dQOrderTaskForInstrument);
         }
         #endregion
     }

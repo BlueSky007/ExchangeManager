@@ -1,11 +1,12 @@
-﻿using Manager.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Diagnostics;
+using Manager.Common;
+using Manager.Common.QuotationEntities;
 
 namespace ManagerService.Quotation
 {
@@ -13,6 +14,7 @@ namespace ManagerService.Quotation
     {
         private static Dictionary<string, QuotationClient> _Sources = new Dictionary<string, QuotationClient>();
 
+        // Map for SourceName - [InstrumentCode -  PrimitiveQuotation]
         private Dictionary<string, Dictionary<string, PrimitiveQuotation>> _LastPriceData = new Dictionary<string, Dictionary<string, PrimitiveQuotation>>();
         private object _PacketLock = new object();
         private AutoResetEvent _PacketArrivedEvent = new AutoResetEvent(false);
@@ -109,9 +111,10 @@ namespace ManagerService.Quotation
 
             PrimitiveQuotation quotation;
 
+            // TODO: It should not use the same object to carry the data!
             if (this._LastPriceData[sourceName].TryGetValue(instrumentCode, out quotation))
             {
-                if (quotation.Ask != ask || quotation.Bid != bid || quotation.Last != last || quotation.High != high || quotation.Low != low || quotation.Timestamp != timestamp)
+                if (quotation.Timestamp != timestamp || quotation.Bid != bid || quotation.Last != last || quotation.High != high || quotation.Low != low || quotation.Ask != ask)
                 {
                     quotation.Ask = ask;
                     quotation.Bid = bid;

@@ -916,6 +916,16 @@ namespace ManagerService.Exchange
                     order.ExecutePrice = nodeValue;
                     continue;
                 }
+                else if (nodeName.Equals("BestPrice"))
+                {
+                    order.BestPrice = nodeValue;
+                    continue;
+                }
+                else if (nodeName.Equals("BestTime"))
+                {
+                    order.BestTime = DateTime.Parse(nodeValue);
+                    continue;
+                }
                 else if (nodeName.Equals("TradeOption"))
                 {
                     order.TradeOption = (ManagerCommon.TradeOption)(int.Parse(nodeValue));
@@ -924,6 +934,11 @@ namespace ManagerService.Exchange
                 else if (nodeName.Equals("DQMaxMove"))
                 {
                     order.DQMaxMove = int.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName.Equals("HitCount"))
+                {
+                    order.HitCount = int.Parse(nodeValue);
                     continue;
                 }
             }

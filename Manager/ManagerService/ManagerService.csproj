@@ -102,6 +102,7 @@
     <Compile Include="Quotation\ConfigMetadata.cs" />
     <Compile Include="Quotation\QuotationManager.cs" />
     <Compile Include="Quotation\QuotationReceiver.cs" />
+    <Compile Include="Quotation\SourceController.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Audit\" />

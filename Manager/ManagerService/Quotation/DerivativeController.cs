@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Manager.Common;
+using Manager.Common.QuotationEntities;
 
 namespace ManagerService.Quotation
 {

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
 using System.Text;
+using System.Xml;
 
 namespace ManagerService.Console
 {
@@ -59,6 +60,15 @@ namespace ManagerService.Console
 
         [OperationContract(IsInitiating = false)]
         TransactionError CancelPlace(Guid transactionId, CancelReason cancelReason);
+
+        [OperationContract(IsInitiating = false)]
+        TransactionError Execute(Guid transactionId, string buyPrice, string sellPrice, decimal lot, Guid orderId, out XmlNode xmlNode);
+
+        [OperationContract(IsInitiating = false)]
+        void ResetHit(Guid[] orderIds);
+
+        [OperationContract(IsInitiating = false)]
+        AccountInformation GetAcountInfo(Guid transactionId);
     }
 
     [ServiceContract]
