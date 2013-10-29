@@ -304,6 +304,7 @@ namespace ManagerConsole
             else
             {
                 OrderTask orderTask = new OrderTask(order);
+                orderTask.BaseOrder = order;
 
                 LmtOrderTaskForInstrument lmtOrderTaskForInstrument = null;
                 lmtOrderTaskForInstrument = this._LmtOrderTaskForInstrumentModel.LmtOrderTaskForInstruments.SingleOrDefault(P => P.Instrument.Code == order.Transaction.Instrument.Code);

@@ -18,6 +18,7 @@ namespace ManagerConsole.ViewModel
         }
         public OrderTask(Order order)
         {
+            this._BaseOrder = order;
             this.Update(order);
         }
 
@@ -30,6 +31,7 @@ namespace ManagerConsole.ViewModel
 
 
         #region Private Property
+        private Order _BaseOrder;
         private bool _IsSelected = true;
         private string _ExchangeCode;
         private Account _Account;
@@ -66,6 +68,22 @@ namespace ManagerConsole.ViewModel
         #endregion
 
         #region Public Property
+        public Order BaseOrder
+        {
+            get { return this._BaseOrder; }
+            set 
+            { 
+                this._BaseOrder = value;
+                this.OnPropertyChanged("BaseOrder");
+                this._BaseOrder.OnOrderStatusChangedHandler += new Order.OrderStatusChangedHandler(Order_OnOrderStatusChangedHandler);
+            }
+        }
+
+        void Order_OnOrderStatusChangedHandler(OrderStatus newOrderStatus)
+        {
+            this.ChangeOrderStatus(newOrderStatus);
+        }
+
         public bool IsSelected
         {
             get { return this._IsSelected; }

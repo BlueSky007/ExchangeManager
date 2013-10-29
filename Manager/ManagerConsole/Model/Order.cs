@@ -29,6 +29,9 @@ namespace ManagerConsole.Model
 
     public class Order : PropertyChangedNotifier
     {
+        public delegate void OrderStatusChangedHandler(OrderStatus orderStatus);
+        public event OrderStatusChangedHandler OnOrderStatusChangedHandler;
+
         public event OrderPhaseChangedEventHandler OnOrderPhaseChanged;
 
         public Order(Transaction transaction,CommonOrder commonOrder)
@@ -288,6 +291,10 @@ namespace ManagerConsole.Model
                 {
                     this._Status = value;
                     this.OnPropertyChanged("Status");
+                    if (this.OnOrderStatusChangedHandler != null)
+                    {
+                        this.OnOrderStatusChangedHandler(value);
+                    }
                 }
             }
         }

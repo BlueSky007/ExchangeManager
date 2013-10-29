@@ -19,7 +19,7 @@ BEGIN
 	)
 	
 	DECLARE @IsAdmin BIT = 0
-	IF((SELECT r.RoleName FROM dbo.UserInRole ui INNER JOIN dbo.Roles r ON r.Id = ui.RoleId WHERE ui.UserId=@userId)='admin')
+	IF(EXISTS(SELECT r.RoleName FROM dbo.UserInRole ui INNER JOIN dbo.Roles r ON r.Id = ui.RoleId WHERE ui.UserId=@userId AND r.RoleName='admin'))
 	SET @IsAdmin=1
 	
 	IF(@IsAdmin=0)
@@ -51,6 +51,6 @@ BEGIN
 			INNER JOIN @categorys c ON c.Id=f.ParentId
 	END
 		
-	SELECT * FROM @categorys
-	SELECT Id,[Decription],parentId FROM @modules
+	SELECT DISTINCT Id, [Description] FROM @categorys
+	SELECT DISTINCT Id,[Description],parentId FROM @modules
 END

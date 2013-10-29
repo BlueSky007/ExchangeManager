@@ -104,12 +104,13 @@ namespace ManagerConsole.UI
                     //OnOrderDetail(row);
                     break;
                 case HandleAction.OnOrderAcceptPlace:
-                    Transaction tran = orderTask.Transaction;
-                    foreach (Order orderEntity in tran.Orders)
-                    {
-                        orderEntity.Phase = ManagerCommon.Phase.Placed;
-                    }
-                    orderTask.DoAcceptPlace();
+                    //Transaction tran = orderTask.Transaction;
+                    //foreach (Order orderEntity in tran.Orders)
+                    //{
+                    //    orderEntity.Phase = ManagerCommon.Phase.Placed;
+                    //}
+                    //orderTask.DoAcceptPlace();
+                    this.OrderHandle.OnOrderAcceptPlace(orderTask);
                     break;
                 case HandleAction.OnOrderRejectPlace:
                     this.OrderHandle.OnOrderRejectPlace(orderTask);

@@ -24,7 +24,6 @@ namespace ManagerConsole
         private ConfirmOrderDialogWin ConfirmOrderDialogWin;
         private ManagerConsole.MainWindow _App;
         private Transaction _RejectTran;
-       // private Message _Message = new Message();
 
         public OrderHandle()
         {
@@ -39,27 +38,25 @@ namespace ManagerConsole
 
         #region Order Action
 
-        public void OnOrderAccept(OrderTask order)
+        public void OnOrderAccept(OrderTask orderTask)
         {
             SystemParameter systemParameter = this._App.InitDataManager.SettingsManager.SystemParameter;
             systemParameter.CanDealerViewAccountInfo = true;
-            bool isOK = OrderTaskManager.CheckDQOrder(order, systemParameter);
+            bool isOK = OrderTaskManager.CheckDQOrder(orderTask, systemParameter);
             isOK = true;
 
             if (isOK)
             {
                 if (systemParameter.CanDealerViewAccountInfo)
                 {
-                    //just test data
-                    AccountInfor accountInfor = ConsoleClient.Instance.GetAcountInfo(Guid.Empty);
-                    this.ConfirmOrderDialogWin.ShowDialogWin(accountInfor, "Confrim", order, HandleAction.OnOrderAccept);
+                    this.ShowConfirmOrderFrm(systemParameter.CanDealerViewAccountInfo, orderTask, HandleAction.OnOrderAccept);
                     return;
                 }
                 else
                 {
                     if (MessageBox.Show("Accept the order?", "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                     {
-                        this.AcceptDQPlace(order);
+                        this.AcceptDQPlace(orderTask);
                     }
                 }
             }
@@ -198,7 +195,7 @@ namespace ManagerConsole
 
                 this._RejectTran = orderTask.Transaction;
 
-                ConsoleClient.Instance.CancelPlace(orderTask.Transaction.Id, Manager.Common.CancelReason.DealerCanceled, RejectPlaceCallback);
+                ConsoleClient.Instance.CancelPlace(orderTask.Transaction.Id, Manager.Common.CancelReason.DealerCanceled, CancelTransactionCallback);
             }
             else
             {
@@ -208,6 +205,17 @@ namespace ManagerConsole
         }
 
         //Accept/Reject Lmt Order
+        public void OnOrderAcceptPlace(OrderTask orderTask)
+        {
+            if (orderTask.OrderStatus == OrderStatus.WaitAcceptRejectPlace)
+            {
+                foreach (Order order in orderTask.Transaction.Orders)
+                {
+                    order.ChangeStatus(OrderStatus.WaitServerResponse);
+                }
+            }
+        }
+
         public void OnOrderRejectPlace(OrderTask orderTask)
         {
             if (orderTask.OrderStatus == OrderStatus.WaitAcceptRejectPlace)
@@ -220,17 +228,36 @@ namespace ManagerConsole
         #endregion
 
         #region 辅助方法
+        private void GetAccountInforCaption(HandleAction action,out string message, out string title)
+        {
+            message = string.Empty;
+            title = string.Empty;
+            switch (action)
+            {
+                case HandleAction.OnOrderAccept:
+                    message = "Accept the order?";
+                    title = "Confirm";
+                    break;
+                case HandleAction.OnOrderExecute:
+                    message = "Execute the order?";
+                    title = "Execute";
+                    break;
+            }
+        }
         private void ShowConfirmOrderFrm(bool canDealerViewAccountInfo, OrderTask orderTask,HandleAction action)
         {
+            string message = string.Empty;
+            string title = string.Empty;
+            this.GetAccountInforCaption(action,out message,out title);
             if (canDealerViewAccountInfo)
             {
                 //just test data
                 Manager.Common.AccountInformation accountInfor = ConsoleClient.Instance.GetAcountInfo(Guid.Empty);
-                this._App.ConfirmOrderDialogWin.ShowDialogWin(accountInfor, "Execute", orderTask, action);
+                this._App.ConfirmOrderDialogWin.ShowDialogWin(accountInfor, title, orderTask, action);
             }
             else
             {
-                if (MessageBox.Show("Execute the order?", "Execute", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                if (MessageBox.Show(message, title, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                 {
                     this.Commit(orderTask, string.Empty, (decimal)orderTask.Lot);
                 }
@@ -407,6 +434,17 @@ namespace ManagerConsole
             {
                 if (result == TransactionError.OK)
                 {
+                    this._CommonDialogWin.ShowDialogWin("Reject Place Succeed", "Infromation");
+                }
+            }, transactionError);
+        }
+
+        private void CancelTransactionCallback(TransactionError transactionError)
+        {
+            this.Dispatcher.BeginInvoke((Action<TransactionError>)delegate(TransactionError result)
+            {
+                if (result == TransactionError.OK)
+                {
                     foreach (Order order in this._RejectTran.Orders)
                     {
                         order.ChangeStatus(OrderStatus.Canceled);
@@ -423,13 +461,12 @@ namespace ManagerConsole
                 else
                 {
                     bool oDisablePopup = true;  //配置参数
-                    if(oDisablePopup)
+                    if (oDisablePopup)
                     {
                         string sMsg = "";// this._Message.GetMessageForOrder("DealerCanceled");
                         this._CommonDialogWin.ShowDialogWin(sMsg, "Alert", 300, 200);
                     }
                 }
-
             }, transactionError);
         }
 

@@ -1,4 +1,4 @@
-﻿CREATE PROCEDURE dbo.UpdateRolePermission
+﻿	CREATE PROCEDURE dbo.UpdateRolePermission
 (
 	@roleId INT,
 	@roleName	NVARCHAR(255) = NULL,

@@ -71,17 +71,20 @@ namespace Manager.Common
 
                     if (this._Stop) break;
 
-                    T item = this._Buffer.First.Value;
-                    if (this._RelayFunc(item))
+                    if (this._Buffer.Count > 0)
                     {
-                        lock (this)
+                        T item = this._Buffer.First.Value;
+                        if (this._RelayFunc(item))
                         {
-                            this._Buffer.RemoveFirst();
+                            lock (this)
+                            {
+                                this._Buffer.RemoveFirst();
+                            }
                         }
-                    }
-                    else
-                    {
-                        this.Suspend();
+                        else
+                        {
+                            this.Suspend();
+                        }
                     }
                 }
             }
