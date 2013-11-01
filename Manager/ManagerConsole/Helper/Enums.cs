@@ -25,6 +25,7 @@ namespace ManagerConsole
         OnOrderWait = 9,
         OnOrderExecute = 10,
         OnOrderCancel = 11,
+        OnLMTExecute = 12,
     }
     public enum OrderStatus
     {

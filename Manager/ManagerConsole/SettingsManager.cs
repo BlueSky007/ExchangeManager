@@ -218,6 +218,10 @@ namespace ManagerConsole
         {
             return new List<Account>(this._Accounts.Values);
         }
+        internal TradePolicyDetail GetTradePolicyDetail(Guid tradePolicyId, Guid instrumentId)
+        {
+            return this._TradePolicyDetails.ContainsKey(tradePolicyId) && this._TradePolicyDetails[tradePolicyId].ContainsKey(instrumentId) ? this._TradePolicyDetails[tradePolicyId][instrumentId] : null;
+        }
         #endregion
     }
 }

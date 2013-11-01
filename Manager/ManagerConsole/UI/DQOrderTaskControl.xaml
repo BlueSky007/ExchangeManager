@@ -66,10 +66,10 @@
                                     </DataTemplate>
                                 </igGrid:TemplateColumn.ItemTemplate>
                             </igGrid:TemplateColumn>
-                            <igGrid:TemplateColumn Key="OrderStatus" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Order Status">
+                            <igGrid:TemplateColumn Key="OrderStatusString" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Order Status">
                                 <igGrid:TemplateColumn.ItemTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding OrderStatus}" Foreground="{Binding RowBrush}"/>
+                                        <TextBlock Text="{Binding OrderStatusString}" Foreground="{Binding RowBrush}" FontWeight="SemiBold"/>
                                     </DataTemplate>
                                 </igGrid:TemplateColumn.ItemTemplate>
                             </igGrid:TemplateColumn>

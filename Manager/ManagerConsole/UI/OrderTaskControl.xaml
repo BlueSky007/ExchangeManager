@@ -25,124 +25,174 @@
         </Style>
     </UserControl.Resources>
     <Grid x:Name="LayRootGrid">
-        <Border Margin="0 0 5 0" BorderBrush="Black" Grid.Row="0">
-            <igGrid:XamGrid x:Name="OrderTaskGrid" AutoGenerateColumns="False" RowHeight="32" ColumnWidth="Auto" CellStyle="{StaticResource CellStyle}" Foreground="{Binding IsBuyBrush}"
-                            InitializeRow="OrderTaskGrid_InitializeRow">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="500*"/>
+        </Grid.RowDefinitions>
+        <Border Margin="0" Grid.Row="0">
+            <Border.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="#FF9D9FA9" Offset="0"/>
+                    <GradientStop Color="#FFBDC1D0" Offset="1"/>
+                    <GradientStop Color="#FF4F5570" Offset="0.263"/>
+                </LinearGradientBrush>
+            </Border.Background>
+
+            <StackPanel Orientation="Horizontal" Margin="0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Top" x:Name="_TopToolBar" HorizontalAlignment="Left" FlowDirection="LeftToRight">
+                    <Button Width="25" Height="25" x:Name="_UpdateBtn" Margin="5,1,1,1" Click="ToolBar_Click">
+                        <Button.Content>
+                            <Image Source="{Binding UpdateImg}" x:Name="_UpdateImge" ToolTipService.ToolTip="Update Price"  Margin="1"/>
+                        </Button.Content>
+                    </Button>
+                    <Button Width="25" Height="25" x:Name="_ModifyBtn" Margin="1" Click="ToolBar_Click">
+                        <Button.Content>
+                            <Image Source="{Binding ModifyImg}" x:Name="_ModifyImg" ToolTipService.ToolTip="Modify Price"  Margin="1"/>
+                        </Button.Content>
+                    </Button>
+                    <Button Width="25" Height="25" x:Name="_CancelBtn" Margin="1" Click="ToolBar_Click">
+                        <Button.Content>
+                            <Image Source="{Binding CancelImg}" x:Name="_CancelImg" ToolTipService.ToolTip="Cancel Order"  Margin="1"/>
+                        </Button.Content>
+                    </Button>
+                    <Button Width="25" Height="25" x:Name="_ExecuteBtn" Margin="1" Click="ToolBar_Click">
+                        <Button.Content>
+                            <Image Source="{Binding ExecuteImg}" x:Name="_ExecuteImg" ToolTipService.ToolTip="Execute Order"  Margin="1"/>
+                        </Button.Content>
+                    </Button>
+                    <Rectangle x:Name="Divid2" Style="{StaticResource DividerStyle}"/>
+
+                    <ComboBox x:Name="_InstrumentCombo" Margin="10,1,1,1" Height="23"  Width="85" SelectionChanged="InstrumentCombo_SelectionChanged" />
+                    <ComboBox x:Name="_BuySellCombo" SelectedIndex="0"  Margin="10,1,1,1" Height="23" Width="50" Foreground="Blue" SelectionChanged="BuySellCombo_SelectionChanged">
+                        <ComboBoxItem Content="All"/>
+                        <ComboBoxItem Content="Buy"/>
+                        <ComboBoxItem Content="Sell"/>
+                    </ComboBox>
+                    <ComboBox x:Name="_OpenCloseCombo"  SelectedIndex="0" Margin="10,1,1,1" Height="23" Foreground="Blue"  Width="50" SelectionChanged="IsOPenCombo_SelectionChanged" >
+                        <ComboBoxItem Content="All"/>
+                        <ComboBoxItem Content="Open"/>
+                        <ComboBoxItem Content="Close"/>
+                    </ComboBox>
+                    <Button x:Name="QueryBtn" Content="Go" Height="23" Width="23" Click="QueryOrder_Click"/>
+
+                    <Border Background="LightGray" Width="80" BorderBrush="#FF314D34" BorderThickness="1" Margin="5,3,1,1">
+                        <TextBlock VerticalAlignment="Top" Margin="1,2,1,1"  Foreground="Blue" Text="1.588" TextAlignment="Center"  FontWeight="Bold" FontSize="15" x:Name="_OriginLable" Height="25"/>
+                    </Border>
+
+                    <TextBlock Text="Variation" VerticalAlignment="Center"  Foreground="White" FontWeight="Bold" Margin="15,1,1,1"/>
+                    <TextBox x:Name="_VariationText" Margin="10,1,1,1" KeyDown="VariationText_KeyDown" Text="{Binding Variation,Mode=TwoWay}" Height="23" Width="80" LostFocus="AdjustVariationText_LostFocus"/>
+                    <Button x:Name="UpButton" Content="+" Background="#FFE16941" Height="23" Width="23" Click="AdjustVariation_Click"/>
+                    <Button x:Name="DownButton" Content="-" Background="#FF314D34" Height="23" Width="23" Click="AdjustVariation_Click"/>
+                    <Button x:Name="ExecuteAllBtn"  Height="23" Width="65" Margin="10,1,1,1" Content="Execute All" Click="ExecuteAllBtn_Click" />
+
+                    <Button Width="25" Height="25" x:Name="_ShowGroupPanelBtn" Margin="50,1,1,1" Click="ToolBar_Click" HorizontalAlignment="Right">
+                        <Button.Content>
+                            <Image Source="{Binding ExecuteImg}" x:Name="_ShowGroupPanelImg" ToolTipService.ToolTip="Show Group Panel"  Margin="1"/>
+                        </Button.Content>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+        <Border Margin="0 0 5 0" BorderBrush="Black" Grid.Row="1">
+            <igGrid:XamGrid x:Name="_OrderTaskGrid" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto" CellStyle="{StaticResource CellStyle}" Foreground="{Binding IsBuyBrush}"
+                            InitializeRow="OrderTaskGrid_InitializeRow" DataContext="{Binding OrderTasks}" CellControlAttached="OrderTaskGrid_CellControlAttached">
                 <igGrid:XamGrid.EditingSettings>
-                    <igGrid:EditingSettings AllowEditing="None" IsEnterKeyEditingEnabled="True" IsF2EditingEnabled="True"/>
+                    <igGrid:EditingSettings IsEnterKeyEditingEnabled="True" IsF2EditingEnabled="True"/>
                 </igGrid:XamGrid.EditingSettings>
                 <igGrid:XamGrid.FixedColumnSettings>
                     <igGrid:FixedColumnSettings AllowFixedColumns="DropArea"/>
                 </igGrid:XamGrid.FixedColumnSettings>
-                <igGrid:XamGrid.GroupBySettings>
-                    <igGrid:GroupBySettings AllowGroupByArea="Top" IsGroupable="True" EmptyGroupByAreaContent="限价单操作     拖动列标题栏在此分组"/>
-                </igGrid:XamGrid.GroupBySettings>
+                <!--<igGrid:XamGrid.GroupBySettings>
+                    <igGrid:GroupBySettings AllowGroupByArea="Top" IsGroupable="False" EmptyGroupByAreaContent="限价单操作     拖动列标题栏在此分组"/>
+                </igGrid:XamGrid.GroupBySettings>-->
+                <igGrid:XamGrid.FilteringSettings>
+                    <igGrid:FilteringSettings AllowFiltering="FilterMenu" FilteringScope="ColumnLayout" />
+                </igGrid:XamGrid.FilteringSettings>
+                <igGrid:XamGrid.ColumnMovingSettings>
+                    <igGrid:ColumnMovingSettings AllowColumnMoving="Indicator"/>
+                </igGrid:XamGrid.ColumnMovingSettings>
 
                 <!--Column Setting-->
                 <igGrid:XamGrid.Columns>
-                    <igGrid:ColumnLayout Key="OrderTasks" HeaderVisibility="false">
-                        <igGrid:ColumnLayout.Columns>
-                            <igGrid:TemplateColumn Key="LMTHandle" IsFixed="Left" HeaderText="Action">
-                                <igGrid:TemplateColumn.ItemTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Orientation="Horizontal" Width="240" Margin="0">
-                                            <Button x:Name="UpdateBtn" Margin="0" Background="#FFADD8E6" Width="{Binding CellDataDefine1.ColumnWidth}"   Content="{Binding CellDataDefine1.Caption}"  Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine1.IsVisibility}" IsEnabled="{Binding CellDataDefine1.IsEnable}"/>
-                                            <Button x:Name="ModiFyBtn" Margin="0" Background="#FFADD8E6" Width="{Binding CellDataDefine2.ColumnWidth}"   Content="{Binding CellDataDefine2.Caption}" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine2.IsVisibility}" IsEnabled="{Binding CellDataDefine1.IsEnable}" />
-                                            <Button x:Name="CancelBtn" Margin="0" Background="#FFADD8E6" Width="{Binding CellDataDefine3.ColumnWidth}"   Content="{Binding CellDataDefine3.Caption}"  Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine3.IsVisibility}"/>
-                                            <Button x:Name="ExcuteBtn" Margin="0" Background="#FFADD8E6" Width="{Binding CellDataDefine4.ColumnWidth}"   Content="{Binding CellDataDefine4.Caption}"  Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine4.IsVisibility}"/>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </igGrid:TemplateColumn.ItemTemplate>
-                            </igGrid:TemplateColumn>
-                            <igGrid:TemplateColumn Key="OrderStatus" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Order Status">
-                                <igGrid:TemplateColumn.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding OrderStatus}" Foreground="{Binding RowBrush}"/>
-                                    </DataTemplate>
-                                </igGrid:TemplateColumn.ItemTemplate>
-                            </igGrid:TemplateColumn>
-                            <igGrid:TemplateColumn Key="ExchangeCode"  Width="85" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Exchange Code" >
-                                <igGrid:TemplateColumn.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding ExchangeCode}" Foreground="Gold" FontWeight="Bold"/>
-                                    </DataTemplate>
-                                </igGrid:TemplateColumn.ItemTemplate>
-                            </igGrid:TemplateColumn>
-                            <igGrid:TemplateColumn Key="InstrumentCode" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Item">
-                                <igGrid:TemplateColumn.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding InstrumentCode}" Foreground="{Binding RowBrush}"/>
-                                    </DataTemplate>
-                                </igGrid:TemplateColumn.ItemTemplate>
-                            </igGrid:TemplateColumn>
-                            <igGrid:TextColumn Key="TimeStamp" FormatString="{}{0:HH:mm:ss}" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="App Time" />
-                            <igGrid:TextColumn Key="SubmitDateTime" FormatString="{}{0:HH:mm:ss}" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Submit time"  IsSorted="Descending" />
-                            <igGrid:TextColumn Key="AccountCode" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Account" />
-                            <igGrid:TemplateColumn Key="IsBuyString" Width="60" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="B/S">
-                                <igGrid:TemplateColumn.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding IsBuyString}" Foreground="{Binding IsBuyBrush}"/>
-                                    </DataTemplate>
-                                </igGrid:TemplateColumn.ItemTemplate>
-                            </igGrid:TemplateColumn>
-                            <igGrid:TextColumn Key="Lot" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Lot" />
-                            <igGrid:TemplateColumn Key="IsOpenString" HeaderText="N/C" Width="60" HorizontalContentAlignment="Center" IsReadOnly="True">
-                                <igGrid:TemplateColumn.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding IsOpenString}" Foreground="{Binding IsOpenBrush}" />
-                                    </DataTemplate>
-                                </igGrid:TemplateColumn.ItemTemplate>
-                            </igGrid:TemplateColumn>
-                            <igGrid:TemplateColumn Key="TradeOption" HorizontalContentAlignment="Center" HeaderText="Option" IsReadOnly="True"/>
-                            <igGrid:TemplateColumn Key="QuotePolicyCode" HorizontalContentAlignment="Center" HeaderText="Quote Policy" IsReadOnly="True"/>
-                            <igGrid:TextColumn Key="SetPrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Set Price" />
-                            <igGrid:TextColumn Key="BestPrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Best Price" />
-                            <igGrid:TextColumn Key="ReferencePrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Ref. Price"  />
-                            <igGrid:TextColumn Key="DiffPrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Price Dif"  />
-                            <igGrid:TextColumn Key="DQMaxMove" Width="80" HeaderText="DQ MaxMove" HorizontalContentAlignment="Center" IsReadOnly="True" />
-                            <igGrid:TextColumn Key="HitCount" Width="80" CellStyle="{StaticResource TimesCellStyle}"  HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Hit count" />
-                            <igGrid:TextColumn Key="BestTime" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Best Time" />
-                            <igGrid:TextColumn Key="TransactionCode" Width="100" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Tran Code" />
-                            <igGrid:TextColumn Key="ContractSize" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Size"  />
-                            <igGrid:TextColumn Key="OrderType" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True"  HeaderText="Type"/>
-                            <igGrid:TextColumn Key="ExpireTime" Width="150" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Expire time"  />
-                            <igGrid:TextColumn Key="OpenPrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="OpenPrice" />
-                        </igGrid:ColumnLayout.Columns>
-                    </igGrid:ColumnLayout>
-
-
-                    <!--Column Setting-->
-                    <igGrid:TemplateColumn Key="DQHandle" HeaderText="Action" IsFixed="Left">
+                    <igGrid:TemplateColumn Key="DQHandle" IsFixed="Left" HeaderText="DQ Action" IsFilterable="False" IsMovable="False">
                         <igGrid:TemplateColumn.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal" Width="120">
-                                    <Button x:Name="DQAcceptBtn" Width="60"  Content="Apply" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine1.IsVisibility}" IsEnabled="{Binding DQCellDataDefine1.IsEnable}"/>
-                                    <Button x:Name="DQRejecBtn"  Width="60"  Content="Execute" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine2.IsVisibility}" IsEnabled="{Binding DQCellDataDefine2.IsEnable}"/>
+                                <StackPanel Orientation="Horizontal" Width="120" Margin="-5">
+                                    <Button x:Name="DQAcceptBtn" Margin="0" Background="#FFADD8E6" Width="{Binding DQCellDataDefine1.ColumnWidth}"   Content="{Binding DQCellDataDefine1.Caption}"  Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine1.IsVisibility}" IsEnabled="{Binding DQCellDataDefine1.IsEnable}"/>
+                                    <Button x:Name="DQRejectBtn" Margin="0" Background="#FFADD8E6" Width="{Binding DQCellDataDefine2.ColumnWidth}"   Content="{Binding DQCellDataDefine2.Caption}" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine2.IsVisibility}" IsEnabled="{Binding DQCellDataDefine2.IsEnable}" />
                                 </StackPanel>
                             </DataTemplate>
                         </igGrid:TemplateColumn.ItemTemplate>
                     </igGrid:TemplateColumn>
-                    
-                    <igGrid:TemplateColumn Key="InstrumentCode" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Item">
+
+                    <igGrid:TemplateColumn Key="LMTHandle" IsFixed="Left" HeaderText="Action" IsFilterable="False" IsMovable="False">
+                        <igGrid:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Width="240" Margin="-5">
+                                    <Button x:Name="UpdateBtn" Margin="0" Background="#FFADD8E6" Width="{Binding CellDataDefine1.ColumnWidth}"   Content="{Binding CellDataDefine1.Caption}"  Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine1.IsVisibility}" IsEnabled="{Binding CellDataDefine1.IsEnable}"/>
+                                    <Button x:Name="ModiFyBtn" Margin="0" Background="#FFADD8E6" Width="{Binding CellDataDefine2.ColumnWidth}"   Content="{Binding CellDataDefine2.Caption}" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine2.IsVisibility}" IsEnabled="{Binding CellDataDefine1.IsEnable}" />
+                                    <Button x:Name="CancelBtn" Margin="0" Background="#FFADD8E6" Width="{Binding CellDataDefine3.ColumnWidth}"   Content="{Binding CellDataDefine3.Caption}"  Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine3.IsVisibility}"/>
+                                    <Button x:Name="ExcuteBtn" Margin="0" Background="#FFADD8E6" Width="{Binding CellDataDefine4.ColumnWidth}"   Content="{Binding CellDataDefine4.Caption}"  Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine4.IsVisibility}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </igGrid:TemplateColumn.ItemTemplate>
+                    </igGrid:TemplateColumn>
+
+
+                    <igGrid:TemplateColumn Key="OrderStatusString" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Order Status" IsFilterable="False">
+                        <igGrid:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding OrderStatusString}" Foreground="{Binding RowBrush}" FontWeight="SemiBold"/>
+                            </DataTemplate>
+                        </igGrid:TemplateColumn.ItemTemplate>
+                    </igGrid:TemplateColumn>
+                    <igGrid:TemplateColumn Key="ExchangeCode"  Width="70" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Exchange Code"  IsFilterable="True">
+                        <igGrid:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding ExchangeCode}" Foreground="Gold" FontWeight="Bold"/>
+                            </DataTemplate>
+                        </igGrid:TemplateColumn.ItemTemplate>
+                    </igGrid:TemplateColumn>
+                    <igGrid:TemplateColumn Key="InstrumentCode" Width="70" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Item" IsFilterable="True">
                         <igGrid:TemplateColumn.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding InstrumentCode}" Foreground="{Binding RowBrush}"/>
                             </DataTemplate>
                         </igGrid:TemplateColumn.ItemTemplate>
                     </igGrid:TemplateColumn>
-
-                    <igGrid:TemplateColumn Key="Origin" Width="80" HorizontalContentAlignment="Center"  HeaderText="Origin">
+                    <igGrid:TextColumn Key="Lot" Width="60" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Lot" IsFilterable="False"/>
+                    <igGrid:TemplateColumn Key="QuotePolicyCode" HorizontalContentAlignment="Center" HeaderText="Quote Policy" IsReadOnly="True" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="OrderType" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True"  HeaderText="Type" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="SetPrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Set Price" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="BestPrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Best Price" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="ReferencePrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Ref. Price"  IsFilterable="False"/>
+                    <igGrid:TextColumn Key="DiffPrice" Width="70" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Price Dif"  IsFilterable="False"/>
+                    <igGrid:TextColumn Key="TimeStamp" FormatString="{}{0:HH:mm:ss}" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="App Time" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="SubmitDateTime" FormatString="{}{0:HH:mm:ss}" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Submit time"  IsSorted="Descending" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="AccountCode" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Account" />
+                    <igGrid:TemplateColumn Key="IsBuyString" Width="60" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="B/S" IsFilterable="False">
                         <igGrid:TemplateColumn.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Origin}" Foreground="{Binding IsBuyBrush}"/>
+                                <TextBlock Text="{Binding IsBuyString}" Foreground="{Binding IsBuyBrush}"/>
                             </DataTemplate>
                         </igGrid:TemplateColumn.ItemTemplate>
                     </igGrid:TemplateColumn>
 
-                    <igGrid:TextColumn Key="SumSellLot"  Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Total Sell" />
-                    <igGrid:TextColumn Key="SumBuyLot" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Total Buy" />
-                    <igGrid:TextColumn Key="Instrument.Ask"  Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Ask Price" />
-                    <igGrid:TextColumn Key="Instrument.Bid" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Bid Price" />
+                    <igGrid:TemplateColumn Key="IsOpenString" HeaderText="N/C" Width="60" HorizontalContentAlignment="Center" IsReadOnly="True" IsFilterable="False">
+                        <igGrid:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding IsOpenString}" Foreground="{Binding IsOpenBrush}" />
+                            </DataTemplate>
+                        </igGrid:TemplateColumn.ItemTemplate>
+                    </igGrid:TemplateColumn>
+                    <igGrid:TemplateColumn Key="TradeOption" HorizontalContentAlignment="Center" HeaderText="Option" IsReadOnly="True" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="DQMaxMove" Width="80" HeaderText="DQ MaxMove" HorizontalContentAlignment="Center" IsReadOnly="True" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="HitCount" Width="80" CellStyle="{StaticResource TimesCellStyle}"  HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Hit count" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="BestTime" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Best Time" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="TransactionCode" Width="100" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Tran Code" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="ContractSize" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Size"  IsFilterable="False"/>
+                    <igGrid:TextColumn Key="ExpireTime" Width="150" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Expire time"  IsFilterable="False"/>
+                    <igGrid:TextColumn Key="OpenPrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="False" HeaderText="OpenPrice" IsFilterable="False"/>
 
                 </igGrid:XamGrid.Columns>
             </igGrid:XamGrid>

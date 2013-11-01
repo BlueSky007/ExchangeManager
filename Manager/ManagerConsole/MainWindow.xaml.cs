@@ -17,6 +17,7 @@ using Manager.Common;
 using Infragistics.Windows.DockManager;
 using ManagerConsole.Model;
 using ManagerConsole.Helper;
+using ManagerConsole.UI;
 
 namespace ManagerConsole
 {
@@ -32,6 +33,8 @@ namespace ManagerConsole
         public ConfirmDialogWin ConfirmDialogWin;
         public ConfirmOrderDialogWin ConfirmOrderDialogWin;
         public OrderHandle OrderHandle;
+        private OrderTaskControl _OrderTaskControl;
+        private LMTProcess _LMTProcess;
 
         public MainWindow()
         {
@@ -206,11 +209,36 @@ namespace ManagerConsole
             }, placeMessage);
         }
 
+        
         void MessageClient_HitPriceReceived(HitMessage hitMessage)
         {
             this.Dispatcher.BeginInvoke((Action<HitMessage>)delegate(HitMessage message)
             {
                 this.InitDataManager.AddHitMessage(message);
+
+                ContentPane contentPane = this.DockManager.ActivePane;
+                TreeViewItem moduleNode = (TreeViewItem)this.FunctionTree.SelectedItem;
+                if (moduleNode == null || moduleNode.Tag == null) return;
+                int moduleId = (int)moduleNode.Tag;
+
+                if (moduleId == 15)
+                {
+                    this._LMTProcess = (LMTProcess)MainWindowHelper.GetControl(ModuleType.LMTOrderTask);
+                    this._LMTProcess.RefreshUI();
+                }
+             
+                //foreach (ContentPane panel in this.DockManager.Panes[3].Panes)
+                //{
+                //    if (panel.Name == "module13")
+                //    {
+                //        this._OrderTaskControl = (OrderTaskControl)(panel.Content);
+                //        this._OrderTaskControl.RefreshUI();
+                //    }
+                //}
+
+                //this._OrderTaskControl = (OrderTaskControl)MainWindowHelper.GetControl(ModuleType.OrderTask);
+                //this._OrderTaskControl.RefreshUI();
+
             }, hitMessage);
         }
         

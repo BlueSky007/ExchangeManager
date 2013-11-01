@@ -1,6 +1,9 @@
-﻿using ManagerConsole.Helper;
+﻿using Infragistics.Controls.Grids;
+using ManagerConsole.Helper;
+using ManagerConsole.ViewModel;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -12,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Logger = Manager.Common.Logger;
 
 namespace ManagerConsole.UI
 {
@@ -25,6 +29,7 @@ namespace ManagerConsole.UI
         private ConfirmOrderDialogWin _ConfirmOrderDialogWin;
         private ManagerConsole.MainWindow _App;
         private ExcuteOrderConfirm _AccountInfoConfirm = null;
+        private OrderHandle OrderHandle;
         public MooMocOrderTask()
         {
             InitializeComponent();
@@ -35,6 +40,7 @@ namespace ManagerConsole.UI
             this._CommonDialogWin = this._App.CommonDialogWin;
             this._ConfirmDialogWin = this._App.ConfirmDialogWin;
             this._ConfirmOrderDialogWin = this._App.ConfirmOrderDialogWin;
+            OrderHandle = new OrderHandle();
             //this._ConfirmOrderDialogWin.OnConfirmDialogResult += new ConfirmOrderDialogWin.ConfirmDialogResultHandle(ExcuteOrder);
             this.BindGridData();
         }
@@ -47,7 +53,36 @@ namespace ManagerConsole.UI
 
         #region Action Event
         void OrderHandlerBtn_Click(object sender, RoutedEventArgs e)
-        { 
+        {
+            try
+            {
+                Button btn = sender as Button;
+                MooMocOrderForInstrument mooMocOrderForInstrument;
+                OrderTask orderTask;
+                switch (btn.Name)
+                {
+                    case "AcceptBtn":
+                        mooMocOrderForInstrument = ((UnboundColumnDataContext)btn.DataContext).RowData as MooMocOrderForInstrument;
+                        //this.OrderHandle.OnLMTApply();
+                        break;
+                    case "RejectBtn":
+                        MessageBox.Show("Reject");
+                        break;
+                    case "ApplyBtn":
+                        MessageBox.Show("ApplyBtn");
+                        break;
+                    case "ExcuteBtn":
+                        MessageBox.Show("ExcuteBtn");
+                        break;
+                    case "CancelBtn":
+                        MessageBox.Show("CancelBtn");
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "MooMocOrderTask.OrderHandlerBtn_Click error:\r\n{0}", ex.ToString());
+            }
         }
         #endregion
     }

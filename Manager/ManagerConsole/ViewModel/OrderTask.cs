@@ -22,17 +22,10 @@ namespace ManagerConsole.ViewModel
             this.Update(order);
         }
 
-        private ObservableCollection<OrderTaskDetail> _MooMocOrderTasks;
-        public ObservableCollection<OrderTaskDetail> MooMocOrderTasks
-        {
-            get { return this._MooMocOrderTasks; }
-            set { this._MooMocOrderTasks = value; }
-        }
-
 
         #region Private Property
         private Order _BaseOrder;
-        private bool _IsSelected = true;
+        private bool _IsSelected = false;
         private string _ExchangeCode;
         private Account _Account;
         private Transaction _Transaction;
@@ -57,6 +50,7 @@ namespace ManagerConsole.ViewModel
         private ManagerCommon.OrderType _OrderType;
         private DateTime? _ExpireTime;
         private string _OpenPrice;
+        private bool _IsExecutedStatus = false;
 
         private CellDataDefine _DQCellDataDefine1 = new CellDataDefine();
         private CellDataDefine _DQCellDataDefine2 = new CellDataDefine();
@@ -127,22 +121,36 @@ namespace ManagerConsole.ViewModel
             get { return this._OrderStatus; }
             set
             {
-                this._OrderStatus = value;
-                this.SetCellDataDefine(value);
-                this.OnPropertyChanged("OrderStatus");
-                this.OnPropertyChanged("DQCellDataDefine1");
-                this.OnPropertyChanged("DQCellDataDefine2");
-                this.OnPropertyChanged("CellDataDefine1");
-                this.OnPropertyChanged("CellDataDefine2");
-                this.OnPropertyChanged("CellDataDefine3");
-                this.OnPropertyChanged("CellDataDefine4");
+                if (this._OrderStatus != value)
+                {
+                    this._OrderStatus = value;
+                    this.SetCellDataDefine(value);
+                    this.OnPropertyChanged("OrderStatus");
+                    this.OnPropertyChanged("OrderStatusString");
+                    this.OnPropertyChanged("IsExecutedStatus");
+                    if (this.OrderType == Manager.Common.OrderType.Limit && !this._IsExecutedStatus)
+                    {
+                        this.IsSelected = false;
+                        this.OnPropertyChanged("IsSelected");
+                    }
+                    this.OnPropertyChanged("DQCellDataDefine1");
+                    this.OnPropertyChanged("DQCellDataDefine1");
+                    this.OnPropertyChanged("CellDataDefine1");
+                    this.OnPropertyChanged("CellDataDefine2");
+                    this.OnPropertyChanged("CellDataDefine3");
+                    this.OnPropertyChanged("CellDataDefine4");
+                }
             }
         }
 
-        public string OrderStatuString
+        public string OrderStatusString
         {
             get { return this._OrderStatuString; }
-            set { this._OrderStatuString = value; }
+            set 
+            {
+                this._OrderStatuString = value; 
+                this.OnPropertyChanged("OrderStatuString");
+            }
         }
         public InstrumentClient Instrument
         {
@@ -290,6 +298,7 @@ namespace ManagerConsole.ViewModel
                 this._HitCount = value;
                 this.OnPropertyChanged("HitCount");
                 this.OnPropertyChanged("OrderStatus");
+                this.OnPropertyChanged("IsExecutedStatus");
                 this.SetCellDataDefine(this._OrderStatus);
                 this.OnPropertyChanged("DQCellDataDefine1");
                 this.OnPropertyChanged("DQCellDataDefine2");
@@ -335,6 +344,22 @@ namespace ManagerConsole.ViewModel
             set { this._OpenPrice = value; this.OnPropertyChanged("OpenPrice"); }
         }
 
+        public bool IsExecutedStatus
+        {
+            get
+            {
+                this._IsExecutedStatus =  (this.OrderType == Manager.Common.OrderType.Limit) &&
+                    (this.OrderStatus == OrderStatus.WaitOutPriceLMT
+                    || this.OrderStatus == OrderStatus.WaitOutLotLMT
+                    || this.OrderStatus == OrderStatus.WaitOutLotLMTOrigin);
+                return this._IsExecutedStatus;
+            }
+            set
+            {
+                this._IsExecutedStatus = value; 
+                this.OnPropertyChanged("IsExecutedStatus");
+            }
+        }
 
         //Handle Action
         public object DQHandle
@@ -349,17 +374,17 @@ namespace ManagerConsole.ViewModel
             set;
         }
 
-        public CellDataDefine DQCellDataDefine1
-        {
-            get { return this._DQCellDataDefine1; }
-            set { this._DQCellDataDefine1 = value; }
-        }
+        //public CellDataDefine DQCellDataDefine1
+        //{
+        //    get { return this._DQCellDataDefine1; }
+        //    set { this._DQCellDataDefine1 = value; }
+        //}
 
-        public CellDataDefine DQCellDataDefine2
-        {
-            get { return this._DQCellDataDefine2; }
-            set { this._DQCellDataDefine2 = value; }
-        }
+        //public CellDataDefine DQCellDataDefine2
+        //{
+        //    get { return this._DQCellDataDefine2; }
+        //    set { this._DQCellDataDefine2 = value; }
+        //}
 
         public CellDataDefine CellDataDefine1
         {
@@ -380,6 +405,16 @@ namespace ManagerConsole.ViewModel
         {
             get { return this._CellDataDefine4; }
             set { this._CellDataDefine4 = value; this.OnPropertyChanged("CellDataDefine4"); }
+        }
+        public CellDataDefine DQCellDataDefine1
+        {
+            get { return this._DQCellDataDefine1; }
+            set { this._DQCellDataDefine1 = value; this.OnPropertyChanged("DQCellDataDefine1"); }
+        }
+        public CellDataDefine DQCellDataDefine2
+        {
+            get { return this._DQCellDataDefine2; }
+            set { this._DQCellDataDefine2 = value; this.OnPropertyChanged("DQCellDataDefine2"); }
         }
         #endregion
 
@@ -415,8 +450,7 @@ namespace ManagerConsole.ViewModel
         }
         public void SetCellDataDefine(OrderStatus orderStatus)
         {
-            this._DQCellDataDefine1.IsVisibility = Visibility.Collapsed;
-            this._DQCellDataDefine2.IsVisibility = Visibility.Collapsed;
+            this._OrderStatuString = OrderStatusHelper.GetOrderStatusString(orderStatus);
             this._CellDataDefine1.IsVisibility = Visibility.Collapsed;
             this._CellDataDefine2.IsVisibility = Visibility.Collapsed;
             this._CellDataDefine3.IsVisibility = Visibility.Collapsed;
@@ -425,9 +459,13 @@ namespace ManagerConsole.ViewModel
             {
                 if (this.OrderType ==ManagerCommon.OrderType.SpotTrade)
                 {
-                    this._DQCellDataDefine1.Action = HandleAction.OnOrderAcceptPlace;
+                    this._DQCellDataDefine1.ColumnWidth = 60;
+                    this._DQCellDataDefine1.Action = HandleAction.OnOrderAccept;
+                    this._DQCellDataDefine1.Caption = "Accept";
                     this._DQCellDataDefine1.IsVisibility = Visibility.Visible;
-                    this._DQCellDataDefine2.Action = HandleAction.OnOrderRejectPlace;
+                    this._DQCellDataDefine2.ColumnWidth = 60;
+                    this._DQCellDataDefine2.Action = HandleAction.OnOrderReject;
+                    this._DQCellDataDefine2.Caption = "Reject";
                     this._DQCellDataDefine2.IsVisibility = Visibility.Visible;
                 }
                 else
@@ -451,10 +489,14 @@ namespace ManagerConsole.ViewModel
             {
                 var btnAcceptIsEnable = (this.OrderStatus == OrderStatus.WaitAutoExecuteDQ) ? false : true;
                 var btnRejectIsEnable = (this.OrderStatus == OrderStatus.WaitAutoExecuteDQ) ? false : true;
+                this._DQCellDataDefine1.ColumnWidth = 60;
                 this._DQCellDataDefine1.Action = HandleAction.OnOrderAccept;
-                this._DQCellDataDefine1.IsVisibility = Visibility.Visible;
+                this._DQCellDataDefine1.Caption = "Accept";
                 this._DQCellDataDefine1.IsEnable = btnAcceptIsEnable;
+                this._DQCellDataDefine1.IsVisibility = Visibility.Visible;
+                this._DQCellDataDefine2.ColumnWidth = 60;
                 this._DQCellDataDefine2.Action = HandleAction.OnOrderReject;
+                this._DQCellDataDefine2.Caption = "Reject";
                 this._DQCellDataDefine2.IsVisibility = Visibility.Visible;
                 this._DQCellDataDefine2.IsEnable = btnRejectIsEnable;
             }
@@ -515,9 +557,9 @@ namespace ManagerConsole.ViewModel
             }
             else if (this.OrderType == ManagerCommon.OrderType.MarketOnOpen || this.OrderType == ManagerCommon.OrderType.MarketOnClose)
             {
-                this._CellDataDefine4.ColumnWidth = 240;
+                this._CellDataDefine4.ColumnWidth = 48;
                 this._CellDataDefine4.Action = HandleAction.OnOrderDetail;
-                this._CellDataDefine4.Caption = "Detail";
+                this._CellDataDefine4.Caption = "Execute";
                 this._CellDataDefine4.IsVisibility = Visibility.Visible;
             }
         }
@@ -573,87 +615,9 @@ namespace ManagerConsole.ViewModel
             this._HitCount = order.HitCount;
             this._BestPrice = order.BestPrice;
             this._BestTime = order.BestTime;
-            this._MooMocOrderTasks = new ObservableCollection<OrderTaskDetail>();
             this.ChangeStatus(this._OrderStatus);
         }
 
-    }
-
-    public class OrderTaskDetail : PropertyChangedNotifier
-    {
-        public OrderTaskDetail(Order order)
-        {
-            this._AccountCode = order.Transaction.Account.Code;
-            this._InstrumentClient = order.Transaction.Instrument;
-            this._SubmitDateTime = order.Transaction.SubmitTime;
-            this._OpenClose = order.OpenClose;
-            this._BuyLot = order.BuySell == BuySell.Buy ? order.Lot : 0;
-            this._SellLot = order.BuySell == BuySell.Sell ? order.Lot : 0;
-        }
-        #region Private Property
-        private Guid? _AccountId;
-        private string _AccountCode;
-        private DateTime? _SubmitDateTime;
-        private OpenClose _OpenClose;
-        private InstrumentClient _InstrumentClient;
-        private decimal? _BuyLot;
-        private decimal? _SellLot;
-        private string _QuotePolicyCode;
-
-        #endregion
-
-        #region Public Property
-        public Guid? AccountId
-        {
-            get { return this._AccountId; }
-            set { this._AccountId = value; }
-        }
-        public string AccountCode
-        {
-            get { return this._AccountCode; }
-            set { this._AccountCode = value; this.OnPropertyChanged("AccountCode"); }
-        }
-
-        public Guid? InstrumentId
-        {
-            get { return this._InstrumentClient.Id; }
-        }
-        public string InstrumentCode
-        {
-            get { return this._InstrumentClient.Code; }
-        }
-
-        public DateTime? SubmitDateTime
-        {
-            get { return this._SubmitDateTime; }
-            set { this._SubmitDateTime = value; this.OnPropertyChanged("SubmitDateTime"); }
-        }
-
-        public OpenClose OpenClose
-        {
-            get { return this._OpenClose; }
-            set { this._OpenClose = value; }
-        }
-
-        public decimal? BuyLot
-        {
-            get { return this._BuyLot; }
-            set { this._BuyLot = value; this.OnPropertyChanged("BuyLot"); }
-        }
-
-        public decimal? SellLot
-        {
-            get { return this._SellLot; }
-            set { this._SellLot = value; this.OnPropertyChanged("SellLot"); }
-        }
-
-        public string QuotePolicyCode
-        {
-            get { return this._QuotePolicyCode; }
-            set { this._QuotePolicyCode = value; }
-        }
-       
-        #endregion
     }
 
     public class CellDataDefine
@@ -671,5 +635,77 @@ namespace ManagerConsole.ViewModel
         public bool IsEnable { get; set; }
         public Visibility IsVisibility { get; set; }
         public HandleAction Action { get; set; }
+    }
+
+    public static class OrderStatusHelper
+    {
+        public static string GetOrderStatusString(this OrderStatus orderStatus)
+        {
+            var statusStr = "";
+            switch (orderStatus)
+            {
+                case OrderStatus.Placing:
+                    statusStr = "Placing";
+                    break;
+                case OrderStatus.Placed:
+                    statusStr = "Pending";
+                    break;
+                case OrderStatus.Canceled:
+                    statusStr = "Canceled";
+                    break;
+                case OrderStatus.Executed:
+                    statusStr = "Executed";
+                    break;
+                case OrderStatus.Completed:
+                    statusStr = "Completed";
+                    break;
+                case OrderStatus.Deleted:
+                    statusStr = "Deleted";
+                    break;
+                case OrderStatus.WaitServerResponse:
+                    statusStr = "Wait server response";
+                    break;
+                case OrderStatus.Deleting:
+                    statusStr = "Deleting";
+                    break;
+                case OrderStatus.WaitOutPriceDQ:
+                    statusStr = "Out of HiLo, Accept or Reject?";
+                    break;
+                case OrderStatus.WaitOutLotDQ:
+                    statusStr = "Accept or Reject?";
+                    break;
+                case OrderStatus.WaitOutPriceLMT:
+                    statusStr = "Out of HiLo, Wait or Execute?";
+                    break;
+                case OrderStatus.WaitOutLotLMTOrigin:
+                    statusStr = "Update, Wait or Execute?";
+                    break;
+                case OrderStatus.WaitOutLotLMT:
+                    statusStr = "Update, Modify, Wait or Execute?";
+                    break;
+                case OrderStatus.SendFailed:
+                    statusStr = "Send failed.";
+                    break;
+                case OrderStatus.WaitNextPrice:
+                    statusStr = "Wait for price.";
+                    break;
+                case OrderStatus.WaitTime:
+                    statusStr = "Wait time arrive.";
+                    break;
+                case OrderStatus.TimeArrived:
+                    statusStr = "Time arrived, wait response.";
+                    break;
+                case OrderStatus.WaitAcceptRejectPlace:
+                    statusStr = "Accept or Reject Place?";
+                    break;
+                case OrderStatus.WaitAcceptRejectCancel:
+                    statusStr = "Accept or Reject Cancel?";
+                    break;
+                case OrderStatus.WaitAutoExecuteDQ:
+                    statusStr = "Wait for price.";
+                    break;
+            }
+            return statusStr;
+        }
     }
 }

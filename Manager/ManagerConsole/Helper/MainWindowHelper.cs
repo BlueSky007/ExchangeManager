@@ -42,8 +42,10 @@ namespace ManagerConsole
                     return new QutePriceControl();
                 case ModuleType.DQOrderTask:
                     return new DQOrderTaskControl();
-                case ModuleType.LMTOrderTask:
+                case ModuleType.OrderTask:
                     return new OrderTaskControl();
+                case ModuleType.LMTOrderTask:
+                    return new LMTProcess();
                 case ModuleType.MooMocTask:
                     return new MooMocOrderTask();
                 default:

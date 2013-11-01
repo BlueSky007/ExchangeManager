@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Phase = Manager.Common.Phase;
+using OrderType = Manager.Common.OrderType;
 
 namespace ManagerConsole.Helper
 {
@@ -26,6 +27,14 @@ namespace ManagerConsole.Helper
                         }
                         break;
                     case Phase.Placed:
+                        if (existAccount)
+                        {
+                            //order.mainWindow.oPendingOrders.Item(order.id) = order;
+                            CheckWhenOrderArrive(true,order);
+                            if (order.Status == OrderStatus.WaitServerResponse)
+                                return;
+                        }
+
                         CheckWhenOrderArrive(true, order);
                         break;
                     case Phase.Executed:
@@ -60,10 +69,9 @@ namespace ManagerConsole.Helper
                     order.Status = OrderStatus.WaitOutLotDQ;
                 }
             }
-            else if (order.Transaction.OrderType == Manager.Common.OrderType.Limit
-                || order.Transaction.OrderType == Manager.Common.OrderType.Stop)
+            else if (order.Transaction.OrderType == Manager.Common.OrderType.Limit)
             {
-                order.Status = OrderStatus.WaitServerResponse;
+                order.Status = OrderStatus.WaitNextPrice;
             }
         }
 
@@ -74,4 +82,5 @@ namespace ManagerConsole.Helper
         }
 
     }
+
 }

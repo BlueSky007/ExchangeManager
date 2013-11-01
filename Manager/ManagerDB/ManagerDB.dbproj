@@ -155,10 +155,7 @@
     <Build Include="Schema Objects\Schemas\dbo\Tables\Roles.table.sql">
       <SubType>Code</SubType>
     </Build>
-    <Build Include="Schema Objects\Schemas\dbo\Tables\RoleFunctionPermission.table.sql">
-      <SubType>Code</SubType>
-    </Build>
-    <Build Include="Schema Objects\Schemas\dbo\Tables\RoleDataPermission.table.sql">
+    <Build Include="Schema Objects\Schemas\dbo\Tables\RolePermission.table.sql">
       <SubType>Code</SubType>
     </Build>
     <Build Include="Schema Objects\Schemas\dbo\Tables\Keys\PK_UserInRole.pkey.sql">
@@ -257,13 +254,10 @@
     <Build Include="Schema Objects\Schemas\dbo\Programmability\Stored Procedures\FunctionTree_GetData.proc.sql">
       <SubType>Code</SubType>
     </Build>
-    <Build Include="Schema Objects\Schemas\dbo\Tables\Function.table.sql">
+    <Build Include="Schema Objects\Schemas\dbo\Tables\FunctionDescription.table.sql">
       <SubType>Code</SubType>
     </Build>
     <Build Include="Schema Objects\Schemas\dbo\Tables\Keys\Function.PK_Function.pkey.sql">
-      <SubType>Code</SubType>
-    </Build>
-    <Build Include="Schema Objects\Schemas\dbo\Tables\Keys\RoleDataPermission.PK_RoleDataPermission.pkey.sql">
       <SubType>Code</SubType>
     </Build>
     <Build Include="Schema Objects\Schemas\dbo\Tables\Keys\RoleFunctionPermission.PK_RoleFunctionPermission.pkey.sql">
@@ -275,7 +269,7 @@
     <Build Include="Schema Objects\Schemas\dbo\Tables\LastQuotation.table.sql">
       <SubType>Code</SubType>
     </Build>
-    <Build Include="Schema Objects\Schemas\dbo\Tables\Keys\LastQuotation.PK_LastQuotation.pkey.sql">
+    <Build Include="Schema Objects\Schemas\dbo\Tables\Keys\PK_LastQuotation.pkey.sql">
       <SubType>Code</SubType>
     </Build>
     <Build Include="Schema Objects\Schemas\dbo\Programmability\Stored Procedures\Users_Update.proc.sql">
@@ -297,6 +291,21 @@
       <SubType>Code</SubType>
     </Build>
     <Build Include="Schema Objects\Schemas\dbo\Programmability\Stored Procedures\GetAllRoleData_1.proc.sql">
+      <SubType>Code</SubType>
+    </Build>
+    <Build Include="Schema Objects\Schemas\dbo\Tables\PermissionTarget.table.sql">
+      <SubType>Code</SubType>
+    </Build>
+    <Build Include="Schema Objects\Schemas\dbo\Tables\Keys\PK_RolePermission.pkey.sql">
+      <SubType>Code</SubType>
+    </Build>
+    <Build Include="Schema Objects\Schemas\dbo\Tables\Keys\FK_RolePermission_PermissionStructure.fkey.sql">
+      <SubType>Code</SubType>
+    </Build>
+    <Build Include="Schema Objects\Schemas\dbo\Tables\Keys\FunctionDescription.PK_FunctionDescription.pkey.sql">
+      <SubType>Code</SubType>
+    </Build>
+    <Build Include="Schema Objects\Schemas\dbo\Tables\Keys\PermissionStructure.PK_PermissionStructure.pkey.sql">
       <SubType>Code</SubType>
     </Build>
   </ItemGroup>

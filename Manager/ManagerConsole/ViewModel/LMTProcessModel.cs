@@ -8,22 +8,19 @@ using System.Text;
 
 namespace ManagerConsole.ViewModel
 {
-    public class LmtOrderTaskForInstrumentModel
+    public class LMTProcessModel
     {
-        public ObservableCollection<LmtOrderTaskForInstrument> LmtOrderTaskForInstruments { get; set; }
+        public ObservableCollection<LMTProcessForInstrument> LMTProcessForInstruments { get; set; }
 
-        public LmtOrderTaskForInstrumentModel()
+        public LMTProcessModel()
         {
-            this.LmtOrderTaskForInstruments = new ObservableCollection<LmtOrderTaskForInstrument>();
+            this.LMTProcessForInstruments = new ObservableCollection<LMTProcessForInstrument>();
         }
     }
 
-    public class LmtOrderTaskForInstrument : PropertyChangedNotifier
+    public class LMTProcessForInstrument : PropertyChangedNotifier
     {
-        public delegate void EmptyLmtOrderHandle(LmtOrderTaskForInstrument lmtOrderTaskForInstrument);
-        public event EmptyLmtOrderHandle OnEmptyLmtOrderTask;
-
-        public LmtOrderTaskForInstrument()
+        public LMTProcessForInstrument()
         {
             this._OrderTasks = new ObservableCollection<OrderTask>();
         }
@@ -36,7 +33,7 @@ namespace ManagerConsole.ViewModel
         private decimal _SumBuyLot;
         private string _AskPrice;
         private string _BidPrice;
-        
+
         #endregion
 
         #region Public Property
@@ -86,7 +83,7 @@ namespace ManagerConsole.ViewModel
             set { this._BidPrice = value; }
         }
 
-        
+
         public object DQHandle
         {
             get;
@@ -98,14 +95,14 @@ namespace ManagerConsole.ViewModel
         public void RemoveLmtOrderTask(OrderTask orderTask)
         {
             this.OrderTasks.Remove(orderTask);
-            if (this._OrderTasks.Count == 0)
-            {
-                this.OnEmptyLmtOrderTask(this);
-            }
+            //if (this._OrderTasks.Count == 0)
+            //{
+            //    this.OnEmptyLmtOrderTask(this);
+            //}
         }
 
         //Apply Price
-        public void ApplyPrice(string newAsk,string newBid)
+        public void ApplyPrice(string newAsk, string newBid)
         {
             foreach (OrderTask order in this._OrderTasks)
             {

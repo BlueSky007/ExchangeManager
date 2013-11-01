@@ -16,6 +16,8 @@ namespace ManagerConsole
 {
     public class InitDataManager
     {
+        public delegate void HitPriceReceivedRefreshUIEventHandler(int hitOrderCount);
+        public event HitPriceReceivedRefreshUIEventHandler OnHitPriceReceivedRefreshUIEvent;
         private CommonParameter _SystemParameter = new CommonParameter();
         private Dictionary<Guid, Account> _Accounts = new Dictionary<Guid, Account>();
         private Dictionary<Guid, InstrumentClient> _Instruments = new Dictionary<Guid, InstrumentClient>();
@@ -26,6 +28,8 @@ namespace ManagerConsole
         private LmtOrderTaskForInstrumentModel _LmtOrderTaskForInstrumentModel = new LmtOrderTaskForInstrumentModel();
         private DQOrderTaskForInstrumentModel _DQOrderTaskForInstrumentModel = new DQOrderTaskForInstrumentModel();
         private MooMocOrderForInstrumentModel _MooMocOrderForInstrumentModel = new MooMocOrderForInstrumentModel();
+        private OrderTaskModel _OrderTaskModel = new OrderTaskModel();
+        private LMTProcessModel _LMTProcessModel = new LMTProcessModel();
 
         #region Public Property
         public SettingsManager SettingsManager
@@ -49,10 +53,16 @@ namespace ManagerConsole
             get { return this._Orders.Values; }
         }
 
-        public ObservableCollection<OrderTask> OrderTaskEntities
+        public LMTProcessModel LMTProcessModel
         {
-            get { return this._OrderTaskEntities; }
-            set { this._OrderTaskEntities = value; }
+            get { return this._LMTProcessModel; }
+            set { this._LMTProcessModel = value; }
+        }
+
+        public OrderTaskModel OrderTaskModel
+        {
+            get { return this._OrderTaskModel; }
+            set { this._OrderTaskModel = value; }
         }
 
         public DQOrderTaskForInstrumentModel DQOrderTaskForInstrumentModel
@@ -95,6 +105,7 @@ namespace ManagerConsole
                 instrument.NumeratorUnit = 2;
                 instrument.MaxSpread = 100;
                 instrument.MaxAutoPoint = 100;
+                instrument.AcceptDQVariation = 10;
                 instrument.Spread = 5;
                 instrument.AutoPoint = 10;
                 instrument.Origin = "1.555";
@@ -136,6 +147,8 @@ namespace ManagerConsole
                 commonOrder.ExchangeCode = placeMessage.ExchangeCode;
                 this.Process(commonOrder,false);
             }
+
+
             //Change Order status
             foreach (CommonTransaction commonTransaction in placeMessage.Transactions)
             {
@@ -167,6 +180,26 @@ namespace ManagerConsole
 
         private void UpdateOrderTask(Order newOrder)
         {
+            ObservableCollection<OrderTask> hitOrders = new ObservableCollection<OrderTask>();
+            foreach (OrderTask orderTask in this._OrderTaskModel.OrderTasks)
+            {
+                if (orderTask.OrderId == newOrder.Id)
+                {
+                    orderTask.Update(newOrder);
+                    hitOrders.Add(orderTask);
+                }
+            }
+            foreach (OrderTask entity in hitOrders)
+            {
+                this._OrderTaskModel.RemoveOrderTask(entity);
+                this._OrderTaskModel.OrderTasks.Insert(0, entity);
+            }
+
+            if (this.OnHitPriceReceivedRefreshUIEvent != null)
+            {
+                int hitOrdersCount = hitOrders.Count;
+                this.OnHitPriceReceivedRefreshUIEvent(hitOrdersCount);
+            }
             //Update DQ Order
             foreach (DQOrderTaskForInstrument entity in this._DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments)
             {
@@ -206,6 +239,15 @@ namespace ManagerConsole
                 InstrumentClient instrument = this._Instruments[commonTransaction.InstrumentId];
                 Transaction transaction = new Transaction(commonTransaction, account, instrument);
 
+                //Set Transaction.ContractSize
+                if (transaction.ContractSize == null)
+                {
+                    TradePolicyDetail tradePolicyDetail = null;// this.SettingsManager.GetTradePolicyDetail(account.TradePolicyId, instrument.Id);
+                    if (tradePolicyDetail != null)
+                    {
+                        transaction.ContractSize = tradePolicyDetail.ContractSize;
+                    }
+                }
                 this._Transactions.Add(transaction.Id, transaction);
             }
             else
@@ -256,28 +298,30 @@ namespace ManagerConsole
 
         private void AddOrderTaskEntity(Order order)
         {
-            if (order.Transaction.OrderType == Manager.Common.OrderType.SpotTrade)
+            //if (order.Transaction.OrderType == Manager.Common.OrderType.SpotTrade)
+            //{
+            //    OrderTask orderTask = new OrderTask(order);
+            //    orderTask.BaseOrder = order;
+
+            //    DQOrderTaskForInstrument orderTaskForInstrument = null;
+            //    orderTaskForInstrument = this._DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments.SingleOrDefault(P => P.Instrument.Id == order.Transaction.Instrument.Id);
+            //    if (orderTaskForInstrument == null)
+            //    {
+            //        orderTaskForInstrument = new DQOrderTaskForInstrument();
+            //        InstrumentClient instrument = order.Transaction.Instrument;
+            //        orderTaskForInstrument.Instrument = instrument;
+            //        orderTaskForInstrument.Origin = instrument.Origin;
+            //        orderTaskForInstrument.Variation = 0;
+
+            //        this._DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments.Add(orderTaskForInstrument);
+            //    }
+            //    orderTaskForInstrument.OnEmptyDQOrderTask += new DQOrderTaskForInstrument.EmptyDQOrderHandle(DQOrderTaskForInstrument_OnEmptyDQOrderTask);
+            //    orderTaskForInstrument.OrderTasks.Add(orderTask);
+            //}
+            if (order.Transaction.OrderType == Manager.Common.OrderType.MarketOnOpen || order.Transaction.OrderType == Manager.Common.OrderType.MarketOnClose)
             {
                 OrderTask orderTask = new OrderTask(order);
-
-                DQOrderTaskForInstrument dQOrderTaskForInstrument = null;
-                dQOrderTaskForInstrument = this._DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments.SingleOrDefault(P => P.Instrument.Id == order.Transaction.Instrument.Id);
-                if (dQOrderTaskForInstrument == null)
-                {
-                    dQOrderTaskForInstrument = new DQOrderTaskForInstrument();
-                    InstrumentClient instrument = order.Transaction.Instrument;
-                    dQOrderTaskForInstrument.Instrument = instrument;
-                    dQOrderTaskForInstrument.Origin = instrument.Origin;
-                    dQOrderTaskForInstrument.Variation = 0;
-
-                    this._DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments.Add(dQOrderTaskForInstrument);
-                }
-                dQOrderTaskForInstrument.OnEmptyDQOrderTask += new DQOrderTaskForInstrument.EmptyDQOrderHandle(DQOrderTaskForInstrument_OnEmptyDQOrderTask);
-                dQOrderTaskForInstrument.OrderTasks.Add(orderTask);
-            }
-            else if (order.Transaction.OrderType == Manager.Common.OrderType.MarketOnOpen || order.Transaction.OrderType == Manager.Common.OrderType.MarketOnClose)
-            {
-                OrderTask orderTask = new OrderTask(order);
+                orderTask.BaseOrder = order;
                 orderTask.OrderStatus = OrderStatus.TimeArrived;
                 MooMocOrderForInstrument mooMocOrderForInstrument = null;
                 mooMocOrderForInstrument = this._MooMocOrderForInstrumentModel.MooMocOrderForInstruments.SingleOrDefault(P => P.Instrument.Id == order.Transaction.Instrument.Id);
@@ -306,40 +350,27 @@ namespace ManagerConsole
                 OrderTask orderTask = new OrderTask(order);
                 orderTask.BaseOrder = order;
 
-                LmtOrderTaskForInstrument lmtOrderTaskForInstrument = null;
-                lmtOrderTaskForInstrument = this._LmtOrderTaskForInstrumentModel.LmtOrderTaskForInstruments.SingleOrDefault(P => P.Instrument.Code == order.Transaction.Instrument.Code);
-                if (lmtOrderTaskForInstrument == null)
-                {
-                    lmtOrderTaskForInstrument = new LmtOrderTaskForInstrument();
-                    InstrumentClient instrument = order.Transaction.Instrument;
-                    lmtOrderTaskForInstrument.Instrument = instrument;
-                    lmtOrderTaskForInstrument.Origin = instrument.Origin;
-
-                    this._LmtOrderTaskForInstrumentModel.LmtOrderTaskForInstruments.Add(lmtOrderTaskForInstrument);
-                }
-                lmtOrderTaskForInstrument.OnEmptyLmtOrderTask += new LmtOrderTaskForInstrument.EmptyLmtOrderHandle(LmtOrderTaskForInstrument_OnEmptyLmtOrderTask);
+                this._OrderTaskModel.OrderTasks.Add(orderTask);
                 orderTask.SetCellDataDefine(orderTask.OrderStatus);
-                lmtOrderTaskForInstrument.OrderTasks.Add(orderTask);
-
-
-
-
-                //OrderTask orderTask = new OrderTask(order);
-                //orderTask.SetCellDataDefine(orderTask.OrderStatus);
-                //this._OrderTaskEntities.Add(orderTask);
             }
         }
         #endregion
 
+        internal ICollection<Order> GetOrders()
+        {
+            return new List<Order>(this._Orders.Values);
+        }
+
+        internal ICollection<InstrumentClient> GetInstruments()
+        {
+            return new List<InstrumentClient>(this._Instruments.Values);
+        }
         #region Empty OrderTask Event
-        void DQOrderTaskForInstrument_OnEmptyDQOrderTask(DQOrderTaskForInstrument dQOrderTaskForInstrument)
+        void DQOrderTaskForInstrument_OnEmptyDQOrderTask(DQOrderTaskForInstrument orderTaskForInstrument)
         {
-            this._DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments.Remove(dQOrderTaskForInstrument);
+            this._DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments.Remove(orderTaskForInstrument);
         }
-        void LmtOrderTaskForInstrument_OnEmptyLmtOrderTask(LmtOrderTaskForInstrument lmtOrderTaskForInstrument)
-        {
-            this._LmtOrderTaskForInstrumentModel.LmtOrderTaskForInstruments.Remove(lmtOrderTaskForInstrument);
-        }
+
         #endregion
     }
 }

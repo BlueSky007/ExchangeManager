@@ -89,20 +89,24 @@ namespace ManagerConsole
                         string sMsg = "The order is canceled or executed already";
                         this._CommonDialogWin.ShowDialogWin(sMsg, "Alert");
                     }
-                    ObservableCollection<DQOrderTaskForInstrument> dQOrderTaskForInstruments = this._App.InitDataManager.DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments;
-                    DQOrderTaskForInstrument dQOrderTaskForInstrument = dQOrderTaskForInstruments.SingleOrDefault(P => P.Instrument.Id == order.Instrument.Id);
-                    dQOrderTaskForInstrument.RemoveDQOrderTask(order);
+                    ObservableCollection<DQOrderTaskForInstrument> orderTaskForInstruments = this._App.InitDataManager.DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments;
+                    DQOrderTaskForInstrument orderTaskForInstrument = orderTaskForInstruments.SingleOrDefault(P => P.Instrument.Id == order.Instrument.Id);
+                    orderTaskForInstrument.RemoveDQOrderTask(order);
                 }
             }
         }
 
         private void AcceptDQPlace(OrderTask order)
         {
-            ConsoleClient.Instance.AcceptPlace(order.Transaction.Id, AcceptPlaceCallback);
+            ConsoleClient.Instance.AcceptPlace(order.Transaction, AcceptPlaceCallback);
 
-            ObservableCollection<DQOrderTaskForInstrument> dQOrderTaskForInstruments = this._App.InitDataManager.DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments;
-            DQOrderTaskForInstrument dQOrderTaskForInstrument = dQOrderTaskForInstruments.SingleOrDefault(P => P.Instrument.Id == order.Instrument.Id);
-            dQOrderTaskForInstrument.RemoveDQOrderTask(order);
+            this._App.InitDataManager.OrderTaskModel.RemoveOrderTask(order);
+        }
+
+        //接受限价单下单
+        private void AcceptLmtPlace(OrderTask order)
+        {
+            ConsoleClient.Instance.AcceptPlace(order.Transaction, AcceptPlaceCallback);
         }
 
         private void RejectPlace(Guid transactionId)
@@ -200,11 +204,11 @@ namespace ManagerConsole
             else
             {
                 var sMsg = "The order is canceled or executed already";
-                this._CommonDialogWin.ShowDialogWin(sMsg, "Alert", 300, 200);
+                this._CommonDialogWin.ShowDialogWin(sMsg, "Alert", 300, 180);
             }
         }
 
-        //Accept/Reject Lmt Order
+        //Accept or Reject Lmt Order
         public void OnOrderAcceptPlace(OrderTask orderTask)
         {
             if (orderTask.OrderStatus == OrderStatus.WaitAcceptRejectPlace)
@@ -214,6 +218,7 @@ namespace ManagerConsole
                     order.ChangeStatus(OrderStatus.WaitServerResponse);
                 }
             }
+            this.AcceptLmtPlace(orderTask);
         }
 
         public void OnOrderRejectPlace(OrderTask orderTask)
@@ -225,6 +230,51 @@ namespace ManagerConsole
                 this.ConfirmOrderDialogWin.ShowRejectOrderWin(rejectOrderMsg, orderTask,HandleAction.OnOrderRejectPlace);
             }
         }
+
+        #region 批量成交单
+        //public void OnLMTApply(LmtOrderTaskForInstrument lmtOrderForInstrument)
+        //{
+        //    string newAskPrice = lmtOrderForInstrument.AskPrice;
+        //    string newBidPrice = lmtOrderForInstrument.BidPrice;
+        //    foreach (OrderTask orderTask in lmtOrderForInstrument.OrderTasks)
+        //    {
+        //        if (orderTask.IsBuy == BuySell.Buy)
+        //        {
+        //            orderTask.SetPrice = newAskPrice;
+        //        }
+        //        else
+        //        {
+        //            orderTask.SetPrice = newBidPrice;
+        //        }
+        //    }
+        //}
+
+        public void OnLMTExecute(LmtOrderTaskForInstrument lmtOrderForInstrument)
+        {
+            foreach (OrderTask orderTask in lmtOrderForInstrument.OrderTasks)
+            {
+                if (orderTask.IsSelected)
+                {
+                    bool? isValidPrice = OrderTaskManager.IsValidPrice(orderTask.Instrument, decimal.Parse(orderTask.SetPrice));
+                    if (isValidPrice.HasValue)
+                    {
+                        if (isValidPrice.Value)
+                        {
+                            //合法
+                            string executePrice = orderTask.IsBuy == BuySell.Buy ? lmtOrderForInstrument.Instrument.Ask : lmtOrderForInstrument.Instrument.Bid;
+                            this.Commit(orderTask, executePrice, (decimal)orderTask.Lot);
+                        }
+                    }
+                    else
+                    {
+                        string msg = "Out of Range,Accept or Reject?";
+                        this.ConfirmOrderDialogWin.ShowRejectOrderWin(msg, orderTask, HandleAction.OnLMTExecute);
+                    }
+                }
+            }
+        }
+        #endregion
+
         #endregion
 
         #region 辅助方法
@@ -244,6 +294,7 @@ namespace ManagerConsole
                     break;
             }
         }
+
         private void ShowConfirmOrderFrm(bool canDealerViewAccountInfo, OrderTask orderTask,HandleAction action)
         {
             string message = string.Empty;
@@ -333,9 +384,6 @@ namespace ManagerConsole
             //if (!order.id) alert("The order is not valid!");
             XmlNode xmlNode = null;
             ConsoleClient.Instance.Execute(order.Transaction.Id, buyPrice, sellPrice, (decimal)order.Lot, order.OrderId, out xmlNode, ExecuteCallback);
-	    
-	    //order.mainWindow.oIOProxy.ExecuteTransaction(this, order, buyPrice, sellPrice, lot);
-
         }
 
         private void ChangeOrderStatus(OrderTask order,OrderStatus newStatus)
@@ -410,6 +458,10 @@ namespace ManagerConsole
                     case HandleAction.OnOrderCancel:
                         this.CancelTransaction(orderTask);
                         break;
+                    case HandleAction.OnLMTExecute:
+                        var s = "";
+                        this.Commit(orderTask, string.Empty, (decimal)orderTask.Lot);
+                        break;
                 }
             }
         }
@@ -417,13 +469,14 @@ namespace ManagerConsole
 
         #region 批单回调事件
         //Call Back Event
-        private void AcceptPlaceCallback(TransactionError transactionError)
+        private void AcceptPlaceCallback(Transaction tran, TransactionError transactionError)
         {
             this.Dispatcher.BeginInvoke((Action<TransactionError>)delegate(TransactionError result)
             {
                 if (result == TransactionError.OK)
                 {
-                    this._CommonDialogWin.ShowDialogWin("Accept Place Succeed", "Infromation");
+                    tran.Phase = Manager.Common.Phase.Placed;
+                    TranPhaseManager.SetOrderStatus(tran,true);
                 }
             }, transactionError);
         }

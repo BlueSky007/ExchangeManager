@@ -89,6 +89,7 @@
     <Compile Include="Helper\OrderTaskManager.cs" />
     <Compile Include="Helper\PropertyChangedNotifier.cs" />
     <Compile Include="Helper\Toolkit.cs" />
+    <Compile Include="Helper\TopToolBarImages.cs" />
     <Compile Include="InitDataManager.cs" />
     <Compile Include="LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
@@ -121,6 +122,7 @@
     <Compile Include="UI\ExcuteOrderConfirm.xaml.cs">
       <DependentUpon>ExcuteOrderConfirm.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\LMTProcess.xaml.cs" />
     <Compile Include="UI\MooMocOrderTask.xaml.cs">
       <DependentUpon>MooMocOrderTask.xaml</DependentUpon>
     </Compile>
@@ -144,11 +146,17 @@
     </Compile>
     <Compile Include="ViewModel\DQOrderTaskForInstrument.cs" />
     <Compile Include="ViewModel\LmtOrderTaskForInstrument.cs" />
+    <Compile Include="ViewModel\LMTProcessModel.cs" />
     <Compile Include="ViewModel\Login.cs" />
     <Compile Include="ViewModel\MooMocOrderForInstrument.cs" />
     <Compile Include="ViewModel\OrderTask.cs" />
+    <Compile Include="ViewModel\OrderTaskForInstrument.cs" />
     <Compile Include="ViewModel\QuotePriceForInstrument.cs" />
     <Compile Include="ViewModel\UserModel.cs" />
+    <Page Include="Asset\Styles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ChangePassword.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -177,6 +185,10 @@
     <Page Include="UI\ExcuteOrderConfirm.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\LMTProcess.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="UI\MooMocOrderTask.xaml">
       <SubType>Designer</SubType>
@@ -245,8 +257,12 @@
       <Name>Manager.Common</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Asset\" />
+    <Resource Include="Images\TopToolBar\CancelOrder.png" />
+    <Resource Include="Images\TopToolBar\Execute.png" />
+    <Resource Include="Images\TopToolBar\Modify.png" />
+    <Resource Include="Images\TopToolBar\Update.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

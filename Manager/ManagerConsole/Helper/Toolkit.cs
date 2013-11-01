@@ -21,5 +21,18 @@ namespace ManagerConsole
                 return OrderTypeCategory.Pending;
             }
         }
+
+        public static bool IsValidNumber(string value)
+        {
+            try
+            {
+                int.Parse(value);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
     }
 }

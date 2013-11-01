@@ -208,13 +208,13 @@ namespace ManagerConsole.UI
                     case "DQAcceptSigleBtn":
                         orderTask = btn.DataContext as OrderTask;
                         if (!orderTask.IsSelected) return;
-                        currentCellData = orderTask.DQCellDataDefine1;
+                        currentCellData = null;// orderTask.DQCellDataDefine1;
                         this.ProcessPendingOrder(orderTask, currentCellData);
                         break;
                     case "DQRejectSigleBtn":
                         orderTask = btn.DataContext as OrderTask;
                         if (!orderTask.IsSelected) return;
-                        currentCellData = orderTask.DQCellDataDefine2;
+                        currentCellData =null;// orderTask.DQCellDataDefine2;
                         this.ProcessPendingOrder(orderTask, currentCellData);
                         break;
                 }
