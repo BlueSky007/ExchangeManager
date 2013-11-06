@@ -135,9 +135,6 @@
     <Compile Include="UI\RoleManagerControl.xaml.cs">
       <DependentUpon>RoleManagerControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\RoleTileControl.xaml.cs">
-      <DependentUpon>RoleTileControl.xaml</DependentUpon>
-    </Compile>
     <Compile Include="UI\UserManagerControl.xaml.cs">
       <DependentUpon>UserManagerControl.xaml</DependentUpon>
     </Compile>
@@ -203,10 +200,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="UI\RoleManagerControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI\RoleTileControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -8,9 +8,22 @@ namespace ManagerService.Quotation
 {
     public class DerivativeController
     {
-        public List<PrimitiveQuotation> Derive(PrimitiveQuotation quotation)
+        private Dictionary<int, DerivativeRelation> _DerivativeRelations;
+
+        public DerivativeController(Dictionary<int, DerivativeRelation> derivativeRelations)
         {
-            throw new NotImplementedException();
+            this._DerivativeRelations = derivativeRelations;
+        }
+
+        public List<Quotation> Derive(Quotation quotation)
+        {
+            List<Quotation> quotations = new List<Quotation>();
+            quotations.Add(quotation);
+
+            
+
+
+            return quotations;
         }
     }
 }

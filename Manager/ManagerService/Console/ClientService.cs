@@ -9,6 +9,7 @@ using ManagerService.Exchange;
 using System.Diagnostics;
 using System.IO;
 using System.Xml;
+using System.Data;
 
 namespace ManagerService.Console
 {
@@ -38,24 +39,13 @@ namespace ManagerService.Console
                         {
                             return data.ExchangeSystemCode == item.Code;
                         });
-                        if (systemPermissions.Count>0)
+                        if (systemPermissions.Count > 0)
                         {
-                            foreach (DataPermission permission in systemPermissions)
-                            {
-                                List<Guid> memberIds = new List<Guid>();
-                                memberIds.AddRange(ExchangeData.GetMemberIds(permission.ExchangeSystemCode, permission.DataObjectId));
-                                if (permission.DataObjectType == DataObjectType.Account)
-                                {
-                                    accountMemberIds.AddRange(memberIds);
-                                }
-                                else if(permission.DataObjectType == DataObjectType.Instrument)
-                                {
-                                    instrumentMemberIds.AddRange(memberIds);
-                                }
-                            }
-                            accountPermissions.Add(item.Code, accountMemberIds);
-                            instrumentPermissions.Add(item.Code, instrumentMemberIds);
+                            accountMemberIds.AddRange(ExchangeData.GetMemberIds(item.Code, systemPermissions, DataObjectType.Account));
+                            instrumentMemberIds.AddRange(ExchangeData.GetMemberIds(item.Code, systemPermissions, DataObjectType.Instrument));
                         }
+                        accountPermissions.Add(item.Code, accountMemberIds);
+                        instrumentPermissions.Add(item.Code, instrumentMemberIds);
                     }
                     string sessionId = OperationContext.Current.SessionId;
                     IClientProxy clientProxy = OperationContext.Current.GetCallbackChannel<IClientProxy>();
@@ -64,6 +54,11 @@ namespace ManagerService.Console
                     OperationContext.Current.Channel.Faulted += this._Client.Channel_Broken;
                     OperationContext.Current.Channel.Closed += this._Client.Channel_Broken;
                     loginResult.SessionId = sessionId;
+
+                    if (loginResult.Succeeded)
+                    {
+                        //loginResult.InitializeData = ExchangeData.GetInitData(user.UserId,null,null,"WF01");
+                    }
                 }
                 else
                 {
@@ -101,25 +96,26 @@ namespace ManagerService.Console
             }
         }
 
-        public bool SaveLayout(string layout, string content)
+        public void SaveLayout(string layout, string content)
         {
-            bool isSuccess = false;
-            string path = string.Format("./{0}",this._Client.userId);
-            string layoutPath = string.Format("./{0}/layout.xml",this._Client.userId);
-            string contentPath = string.Format("./{0}/content.xml", this._Client.userId);
-            if (!Directory.Exists(path))
+            if (this._Client != null && this._Client.userId != null && this._Client.userId != Guid.Empty)
             {
-                Directory.CreateDirectory(path);
+                string path = string.Format("./{0}", this._Client.userId);
+                string layoutPath = string.Format("./{0}/layout.xml", this._Client.userId);
+                string contentPath = string.Format("./{0}/content.xml", this._Client.userId);
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                using (var stream = new StreamWriter(layoutPath))
+                {
+                    stream.Write(layout);
+                }
+                using (var stream = new StreamWriter(contentPath))
+                {
+                    stream.Write(content);
+                }
             }
-            using (var stream = new StreamWriter(layoutPath))
-            {
-                stream.Write(layout);
-            }
-            using (var stream = new StreamWriter(contentPath))
-            {
-                stream.Write(content);
-            }
-            return isSuccess;
         }
         #endregion
 
@@ -222,16 +218,30 @@ namespace ManagerService.Console
             }
         }
 
-        public RoleData GetAllPermission()
+        public List<RoleFunctonPermission> GetAllFunctionPermission()
         {
             try
             {
-                RoleData data = UserDataAccess.GetAllPermissions(Manager.ManagerSettings.ExchangeSystems, this._Client.language.ToString());
+                List<RoleFunctonPermission> data = UserDataAccess.GetAllFunctionPermissions(this._Client.language.ToString());
                 return data;
             }
             catch (Exception ex)
             {
                 Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerService.Console.ClientService/GetAllPermission.\r\n{0}", ex.ToString());
+                return null;
+            }
+        }
+
+        public List<RoleDataPermission> GetAllDataPermission()
+        {
+            try
+            {
+                List<RoleDataPermission> allData = UserDataAccess.GetAllDataPermissions(Manager.ManagerSettings.ExchangeSystems, this._Client.language.ToString());
+                return allData;
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "GetAllDataPermissions.\r\n{0}", ex.ToString());
                 return null;
             }
         }
@@ -248,6 +258,54 @@ namespace ManagerService.Console
                 else
                 {
                     isSuccess = UserDataAccess.EditRole(role);
+                }
+                if (this._Client.user.IsInRole(role.RoleId)&&isSuccess)
+                {
+                    List<DataPermission> dataPermissions = new List<DataPermission>();
+                    Dictionary<string, List<Guid>> accountPermissions = new Dictionary<string, List<Guid>>();
+                    Dictionary<string, List<Guid>> instrumentPermissions = new Dictionary<string, List<Guid>>();
+                    foreach (ExchangeSystemSetting item in Manager.ManagerSettings.ExchangeSystems)
+                    {
+                        bool deafultStatus = false;
+                        List<Guid> accountMemberIds = new List<Guid>();
+                        List<Guid> instrumentMemberIds = new List<Guid>();
+                        List<RoleDataPermission> systemPermissions = role.DataPermissions.FindAll(delegate(RoleDataPermission data)
+                        {
+                            return data.IExchangeCode == item.Code;
+                        });
+                        RoleDataPermission account = systemPermissions.SingleOrDefault(r => r.Type == DataObjectType.Account && r.Level == 2);
+                        if (account!=null)
+                        {
+                            deafultStatus = account.IsAllow;
+                        }
+                        else
+                        {
+                            RoleDataPermission exchange = systemPermissions.SingleOrDefault(r => r.Level == 1);
+                            if (exchange!=null)
+                            {
+                                deafultStatus = exchange.IsAllow;
+                            }
+                        }
+                        accountMemberIds.AddRange(ExchangeData.GetNewMemberIds(item.Code, deafultStatus, systemPermissions, DataObjectType.Account));
+                        RoleDataPermission instrument = systemPermissions.SingleOrDefault(r => r.Type == DataObjectType.Instrument && r.Level == 2);
+                        if (instrument != null)
+                        {
+                            deafultStatus = instrument.IsAllow;
+                        }
+                        else
+                        {
+                            RoleDataPermission exchange = systemPermissions.SingleOrDefault(r => r.Level == 1);
+                            if (exchange != null)
+                            {
+                                deafultStatus = exchange.IsAllow;
+                            }
+                        }
+                        instrumentMemberIds.AddRange(ExchangeData.GetNewMemberIds(item.Code, deafultStatus, systemPermissions, DataObjectType.Instrument));
+                        accountPermissions.Add(item.Code, accountMemberIds);
+                        instrumentPermissions.Add(item.Code, instrumentMemberIds);
+                    }
+
+                    this._Client.UpdatePermission(accountPermissions, instrumentPermissions);
                 }
                 return isSuccess;
                 
@@ -282,6 +340,7 @@ namespace ManagerService.Console
         #endregion
 
         #region DealingConsole
+
         public void AbandonQuote(List<Answer> abandQuotations)
         {
             try

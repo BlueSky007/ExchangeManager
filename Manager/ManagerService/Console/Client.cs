@@ -42,6 +42,12 @@ namespace ManagerService.Console
             this._MessageRelayEngine.Resume();
         }
 
+        public void UpdatePermission(Dictionary<string, List<Guid>> accountPermissions, Dictionary<string, List<Guid>> instrumentPermission)
+        {
+            this._AccountPermission = accountPermissions;
+            this._InstrumentPermission = instrumentPermission;
+        }
+
         public void InitPermissionData(List<DataPermission> dataPermission)
         {
 

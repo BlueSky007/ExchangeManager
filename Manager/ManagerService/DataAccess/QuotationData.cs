@@ -43,7 +43,6 @@ namespace ManagerService.DataAccess
                     instrument.Inverted = (bool)reader["Inverted"];
                     instrument.InactiveTime = (int)reader["InactiveTime"];
                     instrument.UseWeightedPrice = (bool)reader["UseWeightedPrice"];
-                    instrument.Multiplier = reader["Multiplier"] == DBNull.Value ? null : (decimal?)reader["Multiplier"];
                     instrument.IsDerivative = (bool)reader["IsDerivative"];
                     instrument.IsSwitchUseAgio = (bool)reader["IsSwitchUseAgio"];
                     instrument.AgioSeconds = reader["AgioSeconds"] == DBNull.Value ? null : (int?)reader["AgioSeconds"];
@@ -60,8 +59,8 @@ namespace ManagerService.DataAccess
                     relation.IsDefault = (bool)reader["IsDefault"];
                     relation.Priority = (int)reader["Priority"];
                     relation.SwitchTimeout = (int)reader["SwitchTimeout"];
-                    relation.AdjustPoints = (decimal)reader["AdjustPoints"];
-                    relation.AdjustIncrement = (decimal)reader["AdjustIncrement"];
+                    relation.AdjustPoints = (double)reader["AdjustPoints"];
+                    relation.AdjustIncrement = (double)reader["AdjustIncrement"];
                     //instrumentSourceRelations.Add(new SourceInstrumentKey(instrumentSourceRelation.SourceId, instrumentSourceRelation.InstrumentId), instrumentSourceRelation);
                     Dictionary<int, InstrumentSourceRelation> sources;
                     if (!instrumentSourceRelations.TryGetValue(relation.InstrumentId, out sources))
@@ -104,7 +103,7 @@ namespace ManagerService.DataAccess
                     PriceRangeCheckRule priceRangeCheckRule = new PriceRangeCheckRule();
                     priceRangeCheckRule.InstrumentId = (int)reader["InstrumentId"];
                     priceRangeCheckRule.DiscardOutOfRangePrice = (bool)reader["DiscardOutOfRangePrice"];
-                    priceRangeCheckRule.OutOfRangeType = (byte)reader["OutOfRangeType"];
+                    priceRangeCheckRule.OutOfRangeType = (OutOfRangeType)(byte)reader["OutOfRangeType"];
                     priceRangeCheckRule.ValidVariation = (int)reader["ValidVariation"];
                     priceRangeCheckRule.OutOfRangeWaitTime = (int)reader["OutOfRangeWaitTime"];
                     priceRangeCheckRule.OutOfRangeCount = (int)reader["OutOfRangeCount"];
@@ -115,6 +114,7 @@ namespace ManagerService.DataAccess
                 {
                     WeightedPriceRule weightedPriceRule = new WeightedPriceRule();
                     weightedPriceRule.InstrumentId = (int)reader["InstrumentId"];
+                    weightedPriceRule.Multiplier = (decimal)reader["Multiplier"];
                     weightedPriceRule.AskAskWeight = (int)reader["AskAskWeight"];
                     weightedPriceRule.AskBidWeight = (int)reader["AskBidWeight"];
                     weightedPriceRule.AskLastWeight = (int)reader["AskLastWeight"];
@@ -147,6 +147,19 @@ namespace ManagerService.DataAccess
                     lastQuotations.Add(new SourceInstrumentKey(lastQuotation.SourceId, lastQuotation.InstrumentId), lastQuotation);
                 }
             });
+        }
+
+        internal static void SaveLastQuotation(PrimitiveQuotation quotation)
+        {
+            DataAccess.GetInstance().ExecuteNonQuery("dbo.LastQuotation_Set", CommandType.StoredProcedure,
+                new SqlParameter("@sourceId", quotation.SourceId),
+                new SqlParameter("@instrumentId", quotation.InstrumentId),
+                new SqlParameter("@timestamp", quotation.Timestamp),
+                new SqlParameter("@ask", quotation.Ask),
+                new SqlParameter("@bid", quotation.Bid),
+                new SqlParameter("@last", quotation.Last),
+                new SqlParameter("@high", quotation.High),
+                new SqlParameter("@low", quotation.Low));
         }
     }
 }

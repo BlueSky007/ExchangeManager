@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CommonQuotePolicyDetail = Manager.Common.QuotePolicyDetail;
+using PriceType = Manager.Common.PriceType;
 
 namespace ManagerConsole.Model
 {
@@ -29,6 +30,24 @@ namespace ManagerConsole.Model
         {
             get;
             private set;
+        }
+
+        public PriceType PriceType
+        {
+            get;
+            set;
+        }
+
+        public int AutoAdjustPoints
+        {
+            get;
+            set;
+        }
+
+        public int SpreadPoints
+        {
+            get;
+            set;
         }
 
 

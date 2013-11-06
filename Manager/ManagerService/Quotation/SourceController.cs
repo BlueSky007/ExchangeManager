@@ -111,7 +111,6 @@ namespace ManagerService.Quotation
     public class SourceInstrument
     {
         private Instrument _Instrument;
-
         private double _Agio = 0;
 
         // Map for: SourceId - InstrumentSourceRelation
@@ -124,6 +123,7 @@ namespace ManagerService.Quotation
         public SourceInstrument(KeyValuePair<int, Dictionary<int, InstrumentSourceRelation>> pair)
         {
             this._Sources = pair.Value;
+            
             int activeSourceId = this._Sources.Values.Single(s => s.IsActive).SourceId;
             TimeSpan timeoutTimeSpan = TimeSpan.FromSeconds(this._Sources[activeSourceId].SwitchTimeout);
             this._ActiveSource = new ActiveSource()
@@ -134,7 +134,7 @@ namespace ManagerService.Quotation
                 TimeoutTime = DateTime.MaxValue
             };
 
-            this._Instrument = Manager.QuotationManager.ConfigMetadata.Instruments.Single(i => i.Id == pair.Key);
+            this._Instrument = Manager.QuotationManager.ConfigMetadata.Instruments.Values.Single(i => i.Id == pair.Key);
             this._AgioCalculator = new AgioCalculator(this._Instrument.AgioSeconds.Value, this._Instrument.LeastTicks.Value, pair.Value.Keys);
         }
 
@@ -154,7 +154,7 @@ namespace ManagerService.Quotation
             }
         }
 
-        public void QuotationArrived(Quotation quotation)
+        public bool QuotationArrived(Quotation quotation)
         {
             if (this._Instrument.IsSwitchUseAgio)
             {
@@ -179,10 +179,23 @@ namespace ManagerService.Quotation
                 }
             }
 
-            // TODO: adjust here.
             if (quotation.SourceId == this._ActiveSource.Id)
             {
-                //quotation.Ask
+                // TODO: adjust here.
+                if (this._Instrument.UseWeightedPrice)
+                {
+                    // TODO: 考虑是否将Last加入加权处理
+                    WeightedPriceRule rule = Manager.QuotationManager.ConfigMetadata.WeightedPriceRules[this._Instrument.Id];
+                    quotation.Ask = (quotation.Ask * rule.AskAskWeight + quotation.Bid * rule.BidAskWeight + (quotation.Ask + quotation.Bid) / 2 * rule.AskAvarageWeight + (double)rule.AskAdjust) * (double)rule.Multiplier;
+                    quotation.Bid = (quotation.Ask * rule.BidAskWeight + quotation.Bid * rule.BidBidWeight + (quotation.Ask + quotation.Bid) / 2 * rule.BidAvarageWeight + (double)rule.BidAdjust) * (double)rule.Multiplier;
+                }
+                quotation.Ask += this._Agio + this._Sources[quotation.InstrumentId].AdjustPoints;
+                quotation.Bid += this._Agio + this._Sources[quotation.InstrumentId].AdjustPoints;
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
@@ -231,9 +244,9 @@ namespace ManagerService.Quotation
             this._Timer = new Timer(this.TimerCallback, null, minTimeSpan, SourceController.Infinite);
         }
 
-        public void QuotationArrived(Quotation quotation)
+        public bool QuotationArrived(Quotation quotation)
         {
-            this._SourceInstruments[quotation.InstrumentId].QuotationArrived(quotation);
+            return this._SourceInstruments[quotation.InstrumentId].QuotationArrived(quotation);
         }
 
         private void TimerCallback(object state)

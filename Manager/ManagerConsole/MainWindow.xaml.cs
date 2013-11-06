@@ -28,7 +28,6 @@ namespace ManagerConsole
     {
         private Dictionary<int, Module> _Modules = new Dictionary<int, Module>();
         private ConsoleClient _ConsoleClient = new ConsoleClient();
-        public InitDataManager InitDataManager = new InitDataManager(new SettingsManager());
         public CommonDialogWin CommonDialogWin;
         public ConfirmDialogWin ConfirmDialogWin;
         public ConfirmOrderDialogWin ConfirmOrderDialogWin;
@@ -39,11 +38,18 @@ namespace ManagerConsole
         public MainWindow()
         {
             InitializeComponent();
-           
+
+            this.InitDataManager = new InitDataManager();
             this.CommonDialogWin = new CommonDialogWin(this.MainFrame);
             this.ConfirmDialogWin = new ConfirmDialogWin(this.MainFrame);
             this.ConfirmOrderDialogWin = new ConfirmOrderDialogWin(this.MainFrame);
             this.OrderHandle = new OrderHandle();
+        }
+
+        public InitDataManager InitDataManager
+        {
+            get;
+            private set;
         }
 
         private void treeViewItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -82,7 +88,7 @@ namespace ManagerConsole
                 SettingSet settingSet = new SettingSet();
                 Manager.Common.SystemParameter parametere = new Manager.Common.SystemParameter();
                 settingSet.SystemParameter = parametere;
-                this.InitDataManager.SettingsManager.Initialize(settingSet);
+                this.InitDataManager.Initialize(result.InitializeData.SettingSet);
             }
             catch (Exception ex)
             {
@@ -159,6 +165,7 @@ namespace ManagerConsole
                 contentBld.Append("</Content>");
                 string content = contentBld.ToString();
                 Logger.TraceEvent(System.Diagnostics.TraceEventType.Information, layout);
+                ConsoleClient.Instance.SaveLayout(layout, content);
                 File.WriteAllText("Layout.xml", layout);
             }
             catch (Exception ex)

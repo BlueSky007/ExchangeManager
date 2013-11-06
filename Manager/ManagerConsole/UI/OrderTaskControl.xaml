@@ -83,7 +83,7 @@
                     <TextBox x:Name="_VariationText" Margin="10,1,1,1" KeyDown="VariationText_KeyDown" Text="{Binding Variation,Mode=TwoWay}" Height="23" Width="80" LostFocus="AdjustVariationText_LostFocus"/>
                     <Button x:Name="UpButton" Content="+" Background="#FFE16941" Height="23" Width="23" Click="AdjustVariation_Click"/>
                     <Button x:Name="DownButton" Content="-" Background="#FF314D34" Height="23" Width="23" Click="AdjustVariation_Click"/>
-                    <Button x:Name="ExecuteAllBtn"  Height="23" Width="65" Margin="10,1,1,1" Content="Execute All" Click="ExecuteAllBtn_Click" />
+                    <Button x:Name="ExecuteAllBtn"  Height="23" Width="65" Margin="10,1,1,1" IsEnabled="True" Content="Execute All" Click="ExecuteAllBtn_Click" />
 
                     <Button Width="25" Height="25" x:Name="_ShowGroupPanelBtn" Margin="50,1,1,1" Click="ToolBar_Click" HorizontalAlignment="Right">
                         <Button.Content>
@@ -111,6 +111,10 @@
                 <igGrid:XamGrid.ColumnMovingSettings>
                     <igGrid:ColumnMovingSettings AllowColumnMoving="Indicator"/>
                 </igGrid:XamGrid.ColumnMovingSettings>
+                <igGrid:XamGrid.ColumnChooserSettings>
+                    <igGrid:ColumnChooserSettings AllowHideColumnIcon="True" AllowHiddenColumnIndicator="True" HiddenColumnIndicatorToolTipText="Click to display hidden columns" 
+                                              ColumnChooserDisplayText="Hide Column"/>
+                </igGrid:XamGrid.ColumnChooserSettings>
 
                 <!--Column Setting-->
                 <igGrid:XamGrid.Columns>

@@ -65,7 +65,6 @@ namespace ManagerConsole
         public void OnOrderReject(OrderTask order)
         {
             SystemParameter systemParameter = this._App.InitDataManager.SettingsManager.SystemParameter;
-
             systemParameter.ConfirmRejectDQOrder = true;//test Data from WebConfig
 
             if (systemParameter.ConfirmRejectDQOrder)
@@ -89,9 +88,7 @@ namespace ManagerConsole
                         string sMsg = "The order is canceled or executed already";
                         this._CommonDialogWin.ShowDialogWin(sMsg, "Alert");
                     }
-                    ObservableCollection<DQOrderTaskForInstrument> orderTaskForInstruments = this._App.InitDataManager.DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments;
-                    DQOrderTaskForInstrument orderTaskForInstrument = orderTaskForInstruments.SingleOrDefault(P => P.Instrument.Id == order.Instrument.Id);
-                    orderTaskForInstrument.RemoveDQOrderTask(order);
+                    this._App.InitDataManager.OrderTaskModel.RemoveOrderTask(order);
                 }
             }
         }
@@ -504,10 +501,8 @@ namespace ManagerConsole
 
                         if (order.Transaction.OrderType == OrderType.Limit)
                         {
-                            ObservableCollection<LmtOrderTaskForInstrument> lmtOrderTaskForInstruments = this._App.InitDataManager.LmtOrderTaskForInstrumentModel.LmtOrderTaskForInstruments;
-                            LmtOrderTaskForInstrument lmtOrderTaskForInstrument = lmtOrderTaskForInstruments.SingleOrDefault(P => P.Instrument.Id == order.Transaction.Instrument.Id);
-                            OrderTask orderTask = lmtOrderTaskForInstrument.OrderTasks.SingleOrDefault(P => P.OrderId == order.Id);
-                            lmtOrderTaskForInstrument.RemoveLmtOrderTask(orderTask);
+                            OrderTask orderTask = this._App.InitDataManager.OrderTaskModel.OrderTasks.SingleOrDefault(P => P.OrderId == order.Id);
+                            this._App.InitDataManager.OrderTaskModel.RemoveOrderTask(orderTask);
                         }
                     }
                 }

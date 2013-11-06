@@ -7,7 +7,6 @@
 	Inverted BIT NOT NULL,
 	InactiveTime INT NOT NULL,
 	UseWeightedPrice BIT NOT NULL,
-	Multiplier DECIMAL(18,9),
 	IsDerivative BIT NOT NULL,
 	IsSwitchUseAgio BIT NOT NULL,
 	AgioSeconds INT NULL,

@@ -1,6 +1,7 @@
 ﻿CREATE TABLE [dbo].[WeightedPriceRule]
 (
 	InstrumentId INT NOT NULL, 
+	Multiplier DECIMAL(18,9) NOT NULL,
 	AskAskWeight INT NOT NULL,
 	AskBidWeight INT NOT NULL,
 	AskLastWeight INT NOT NULL,

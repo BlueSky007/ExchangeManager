@@ -6,6 +6,7 @@ using ManagerConsole.Model;
 using ManagerConsole.ViewModel;
 using OrderType = Manager.Common.OrderType;
 using Price = Manager.Common.Price;
+using PriceType = Manager.Common.PriceType;
 using System.Text.RegularExpressions;
 namespace ManagerConsole.Helper
 {
@@ -102,6 +103,50 @@ namespace ManagerConsole.Helper
         private static bool IsNeedDQMaxMove(OrderTask orderTask)
         {
             return (orderTask.Transaction.OrderType == Manager.Common.OrderType.SpotTrade && orderTask.DQMaxMove > 0);
+        }
+
+        public static bool AllowAccept(OrderTask orderTask,QuotePolicyDetail quotePolicyDetail,string origin,int acceptDQVariation)
+        {
+            //Allow: (isNormal = IsBuy), SetPrice >= Calculated.Quotepolicy.Ask, SetPrice <= Calculated.Quotepolicy.Bid
+            InstrumentClient instrument = orderTask.Transaction.Instrument;
+            Price ask = null;
+            Price bid = null;
+            Price marketOriginPrice = new Price(origin, instrument.NumeratorUnit.Value, instrument.Denominator.Value);
+            marketOriginPrice = marketOriginPrice + acceptDQVariation;
+            if (quotePolicyDetail.PriceType == PriceType.WatchOnly)
+            {
+                int diffValue = instrument.GetSourceAskBidDiffValue();
+                bid = marketOriginPrice;
+                ask = bid + diffValue;
+            }
+            else if (quotePolicyDetail.PriceType == PriceType.OriginEnable)
+            {
+                bid = marketOriginPrice + quotePolicyDetail.AutoAdjustPoints + (0 - quotePolicyDetail.SpreadPoints);
+                var diffValue = instrument.GetSourceAskBidDiffValue();
+                ask = bid + (Math.Abs(diffValue)) + (quotePolicyDetail.SpreadPoints);
+            }
+            else
+            {
+                bid = marketOriginPrice + (quotePolicyDetail.AutoAdjustPoints);
+                ask = bid + (quotePolicyDetail.SpreadPoints);
+            }
+
+            Price setPrice = new Price(orderTask.SetPrice, instrument.NumeratorUnit.Value, instrument.Denominator.Value);
+            if(instrument.IsNormal == (orderTask.IsBuy == BuySell.Buy))
+            {
+                if (ask != null)
+                {
+                    return setPrice > ask;
+                }
+            }
+            else
+            {
+                if (bid != null)
+                {
+                    return setPrice < bid;
+                }
+            }
+            return false;
         }
     }
 }

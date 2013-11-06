@@ -8,6 +8,7 @@ using System.Xml;
 using System.Collections;
 using ManagerCommon = Manager.Common;
 using ManagerTran = Manager.Common.Transactions;
+using PriceType = Manager.Common.PriceType;
 
 namespace ManagerService.Exchange
 {
@@ -724,7 +725,7 @@ namespace ManagerService.Exchange
                 }
                 else if (nodeName == "PriceType")
                 {
-                    quotePolicyDetail.PriceType = int.Parse(nodeValue);
+                    quotePolicyDetail.PriceType = (int.Parse(nodeValue)).ConvertToEnumValue<PriceType>();
                     continue;
                 }
                 else if (nodeName == "AutoAdjustPoints")

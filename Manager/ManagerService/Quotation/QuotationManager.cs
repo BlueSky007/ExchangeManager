@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Manager.Common;
 using Manager.Common.QuotationEntities;
+using System.Diagnostics;
 
 namespace ManagerService.Quotation
 {
@@ -12,14 +13,17 @@ namespace ManagerService.Quotation
         private QuotationReceiver _QuotationReceiver;
         private ConfigMetadata _ConfigMetadata;
         private SourceController _SourceController;
-        private AbnormalQuotationProcessor _AbnormalQuotationProcessor;
+        private LastQuotationManager _LastQuotationManager;
+        private AbnormalQuotationManager _AbnormalQuotationManager;
         private DerivativeController _DerivativeController;
 
         public QuotationManager()
         {
             this._ConfigMetadata = new ConfigMetadata();
             this._SourceController = new SourceController();
-            this._AbnormalQuotationProcessor = new AbnormalQuotationProcessor(this._ConfigMetadata);
+            this._LastQuotationManager = new LastQuotationManager();
+            this._AbnormalQuotationManager = new AbnormalQuotationManager(this._ConfigMetadata.RangeCheckRules, this._LastQuotationManager);
+            this._DerivativeController = new DerivativeController(this._ConfigMetadata.DerivativeRelations);
         }
 
         public void Start(int quotationListenPort)
@@ -42,38 +46,49 @@ namespace ManagerService.Quotation
 
         public void ProcessQuotation(PrimitiveQuotation primitiveQuotation)
         {
-            int instrumentId, sourceId;
-            if (this._ConfigMetadata.IsKnownQuotation(primitiveQuotation, out instrumentId, out sourceId))
+            if (this._ConfigMetadata.EnsureIsKnownQuotation(primitiveQuotation))
             {
-                Manager.ClientManager.Dispatch(new PrimitiveQuotationMessage() { Quotation = primitiveQuotation });
-
-                if (this._ConfigMetadata.IsFromActiveSource(instrumentId, sourceId))
+                double ask, bid;
+                if (this._LastQuotationManager.LastReceived.Fix(primitiveQuotation, out ask, out bid))
                 {
-                    Quotation quotation = Quotation.Create(instrumentId, sourceId, primitiveQuotation);
-                    this._SourceController.QuotationArrived(quotation);
+                    if (this._LastQuotationManager.LastReceived.IsNotSame(primitiveQuotation))
+                    {
+                        Manager.ClientManager.Dispatch(new PrimitiveQuotationMessage() { Quotation = primitiveQuotation });
 
-                    this._ConfigMetadata.Adjust(quotation);
-                    if (this._AbnormalQuotationProcessor.IsWaitForPreOutOfRangeConfirmed(primitiveQuotation))
-                    {
-                        this._AbnormalQuotationProcessor.AddAndWait(primitiveQuotation);
-                    }
-                    else
-                    {
-                        if (this._AbnormalQuotationProcessor.IsNormalPrice(primitiveQuotation))
+                        Quotation quotation = new Quotation(primitiveQuotation, ask, bid);
+                        bool quotationAccepted = true;
+                        if (this._SourceController.QuotationArrived(quotation))
                         {
-                            this.EnablePrice(primitiveQuotation.InstrumentCode);
-                            List<PrimitiveQuotation> quotations = this._DerivativeController.Derive(primitiveQuotation);
-                            Manager.ExchangeManager.ProcessQuotation(quotations);
+                            // quotation come from Active Source
+                            if (this._AbnormalQuotationManager.SetQuotation(quotation))
+                            {
+                                // quotation is normal
+                                this.ProcessNormalQuotation(quotation);
+                            }
+                            else
+                            {
+                                quotationAccepted = false;
+                            }
                         }
-                        else
-                        {
-                            this._AbnormalQuotationProcessor.StartProcessAbnormalQuotation(primitiveQuotation);
-                        }
+                        this._LastQuotationManager.Update(quotation, quotationAccepted);
                     }
                 }
             }
+            else
+            {
+                Logger.AddEvent(TraceEventType.Warning, "Discarded price:[ask={0}, bid={1}] got for {2} from {3}",
+                    primitiveQuotation.Ask, primitiveQuotation.Bid, primitiveQuotation.InstrumentCode, primitiveQuotation.SourceName);
+            }
         }
 
+        public void ProcessNormalQuotation(Quotation quotation)
+        {
+            this.EnablePrice(quotation.PrimitiveQuotation.InstrumentCode);
+            List<Quotation> quotations = this._DerivativeController.Derive(quotation);
+            Manager.ExchangeManager.SetQuotation(quotations);
+            this._LastQuotationManager.Update(quotation, true);
+        }
+   
         private void EnablePrice(string instrumentCode)
         {
             throw new NotImplementedException();

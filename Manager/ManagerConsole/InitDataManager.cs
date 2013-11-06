@@ -11,6 +11,7 @@ using PlaceMessage = Manager.Common.PlaceMessage;
 using HitMessage = Manager.Common.HitMessage;
 using CommonParameter = Manager.Common.SystemParameter;
 using ManagerConsole.Helper;
+using SettingSet = Manager.Common.SettingSet;
 
 namespace ManagerConsole
 {
@@ -84,10 +85,9 @@ namespace ManagerConsole
         }
         #endregion
 
-        public InitDataManager(SettingsManager settingsManager)
+        public InitDataManager()
         {
-            //just test
-            this.SettingsManager = settingsManager;
+            this.SettingsManager = new SettingsManager();
             this.GetInitializeTestData();
         }
 
@@ -126,6 +126,13 @@ namespace ManagerConsole
             this._Accounts.Add(account2.Id, account2);
             this._Accounts.Add(account3.Id, account3);
         }
+
+        #region Initialize Data
+        public void Initialize(SettingSet settingSet)
+        {
+            this.SettingsManager.Initialize(settingSet);
+        }
+        #endregion
 
         public InitDataManager(List<CommonOrder> orders)
         {

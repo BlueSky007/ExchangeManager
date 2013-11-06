@@ -34,6 +34,12 @@ namespace ManagerConsole
             set;
         }
 
+        public Customer Customer
+        {
+            get;
+            private set;
+        }
+
         public SystemParameter SystemParameter
         {
             get;
@@ -76,6 +82,7 @@ namespace ManagerConsole
             if (action == UpdateAction.Initialize)
             {
                 this.SystemParameter = new SystemParameter(settingSet.SystemParameter);
+                this.Customer = new Customer(settingSet.Customer);
             }
             if (settingSet.SystemParameter != null)
             {
@@ -221,6 +228,26 @@ namespace ManagerConsole
         internal TradePolicyDetail GetTradePolicyDetail(Guid tradePolicyId, Guid instrumentId)
         {
             return this._TradePolicyDetails.ContainsKey(tradePolicyId) && this._TradePolicyDetails[tradePolicyId].ContainsKey(instrumentId) ? this._TradePolicyDetails[tradePolicyId][instrumentId] : null;
+        }
+        internal QuotePolicyDetail GetQuotePolicyDetail(Guid instrumentId)
+        {
+            QuotePolicyDetail quotePolicyDetail = null;
+            Dictionary<Guid, QuotePolicyDetail> quotePolicyDetails;
+
+            if (this._QuotePolicyDetails.TryGetValue(this.Customer.PrivateQuotePolicyId, out quotePolicyDetails)
+                && quotePolicyDetails.TryGetValue(instrumentId, out quotePolicyDetail))
+            {
+                return quotePolicyDetail;
+            }
+            else if (this._QuotePolicyDetails.TryGetValue(this.Customer.PublicQuotePolicyId, out quotePolicyDetails)
+                && quotePolicyDetails.TryGetValue(instrumentId, out quotePolicyDetail))
+            {
+                return quotePolicyDetail;
+            }
+            else
+            {
+                return null;
+            }
         }
         #endregion
     }

@@ -53,7 +53,7 @@ namespace ManagerService.Exchange
             this._CommandRelayEngine.AddItem(command);
         }
 
-        public void ProcessQuotation(List<PrimitiveQuotation> quotations)
+        public void ProcessQuotation(List<Quotation.Quotation> quotations)
         {
             // Override Quotation here.
             throw new NotImplementedException();

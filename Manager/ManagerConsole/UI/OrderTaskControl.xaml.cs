@@ -70,8 +70,9 @@ namespace ManagerConsole.UI
             this._InstrumentList.Insert(0, allInstrument);
             this._InstrumentCombo.ItemsSource = this._InstrumentList;
             this._InstrumentCombo.DisplayMemberPath = "Code";
-            this._InstrumentCombo.SelectedIndex = 1;
+            this._InstrumentCombo.SelectedIndex = 0;
             this._InstrumentCombo.SelectedValuePath = "Id";
+            this._InstrumentCombo.SelectedItem = allInstrument;
         }
 
         private void BindGridData()
@@ -93,20 +94,24 @@ namespace ManagerConsole.UI
         private void ToolBar_Click(object sender, RoutedEventArgs e)
         {
             Button clickImg = (Button)sender;
+            OrderTask orderTask = this._OrderTaskGrid.Rows[0].Data as OrderTask;
             switch (clickImg.Name)
             {
                 case "_UpdateBtn":
-                    //orderTask = btn.DataContext as OrderTask;
-                    //currentCellData = orderTask.CellDataDefine1;
+                    if (orderTask == null || orderTask.OrderType != ManagerCommon.OrderType.Limit) return;
+                    this.OrderHandle.OnOrderUpdate(orderTask);
                     break;
                 case "_ModifyBtn":
-                    MessageBox.Show("mody");
+                    if (orderTask == null || orderTask.OrderType != ManagerCommon.OrderType.Limit) return;
+                    this.OrderHandle.OnOrderModify(orderTask);
                     break;
                 case "_CancelBtn":
-                    MessageBox.Show("cace");
+                    if (orderTask == null || orderTask.OrderType != ManagerCommon.OrderType.Limit) return;
+                    this.OrderHandle.OnOrderWait(orderTask);
                     break;
                 case "_ExecuteBtn":
-                    MessageBox.Show("exe");
+                    if (orderTask == null || orderTask.OrderType != ManagerCommon.OrderType.Limit) return;
+                    this.OrderHandle.OnOrderExecute(orderTask);
                     break;
                 case "_ShowGroupPanelBtn":
                     this.ShowGroupPanel();
@@ -125,14 +130,14 @@ namespace ManagerConsole.UI
             {
                 case "DQAcceptBtn":
                     orderTask = btn.DataContext as OrderTask;
-                    currentCellData = orderTask.CellDataDefine1;
+                    currentCellData = orderTask.DQCellDataDefine1;
                     this.ProcessPendingOrder(orderTask, currentCellData);
                     break;
                 case "DQRejectBtn":
                      orderTask = btn.DataContext as OrderTask;
-                     currentCellData = orderTask.CellDataDefine2;
-                        this.ProcessPendingOrder(orderTask, currentCellData);
-                    break;
+                     currentCellData = orderTask.DQCellDataDefine2;
+                     this.ProcessPendingOrder(orderTask, currentCellData);
+                     break;
                 case "ExecuteAllBtn":
                     lmtOrderForInstrument = ((UnboundColumnDataContext)btn.DataContext).RowData as LmtOrderTaskForInstrument;
                     this.OrderHandle.OnLMTExecute(lmtOrderForInstrument);
@@ -147,7 +152,7 @@ namespace ManagerConsole.UI
                     break;
                 case "CancelBtn":
                     orderTask = btn.DataContext as OrderTask;
-                    currentCellData = orderTask.CellDataDefine3;
+                    currentCellData = orderTask.DQCellDataDefine1;
                     break;
                 case "ExcuteBtn":
                     orderTask = btn.DataContext as OrderTask;
@@ -318,19 +323,7 @@ namespace ManagerConsole.UI
 
         void AdjustVariationText_LostFocus(object sender, RoutedEventArgs e)
         {
-            TextBox variationText = sender as TextBox;
-            InstrumentClient instrument = (InstrumentClient)this._InstrumentCombo.SelectedItem;
-            if (instrument.Id == Guid.Empty) return;
-            int acceptDQVariation = int.Parse(this._VariationText.Text);
-
-            if (instrument.CheckVariation(acceptDQVariation))
-            {
-                this._VariationText.Text = acceptDQVariation.ToString();
-            }
-            else
-            {
-                this._VariationText.Text = (0 - instrument.AcceptDQVariation).ToString();
-            }
+            this.CheckDQAcceptVariation();
         }
 
         void AdjustVariation_Click(object sender, RoutedEventArgs e)
@@ -419,6 +412,9 @@ namespace ManagerConsole.UI
 
         private void InstrumentCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            InstrumentClient instrument = (InstrumentClient)this._InstrumentCombo.SelectedItem;
+            if (instrument == null) return;
+            this._ExecuteBtn.IsEnabled = true;
             this._VariationText.Text = "0";
             this.FilterInstantOrder();
         }
@@ -528,7 +524,27 @@ namespace ManagerConsole.UI
         //批量成交单
         private void ExecuteAllBtn_Click(object sender, RoutedEventArgs e)
         {
-            
+            string origin = this._OriginLable.Text;
+            if (string.IsNullOrEmpty(origin))
+            {
+                this._CommonDialogWin.ShowDialogWin("Origin is not available!", "Alert!");
+                return;
+            }
+            this.CheckDQAcceptVariation();
+
+            for (int i = 0; i < this._OrderTaskGrid.Rows.Count; i++)
+            {
+                OrderTask order = this._OrderTaskGrid.Rows[i].Data as OrderTask;
+                QuotePolicyDetail quotePolicyDetail = this._App.InitDataManager.SettingsManager.GetQuotePolicyDetail(order.InstrumentId.Value);
+                if (OrderTaskManager.AllowAccept(order, quotePolicyDetail, origin, int.Parse(this._VariationText.Text)))
+                {
+                    this.OrderHandle.OnOrderAccept(order);
+                }
+                else
+                {
+                    this.OrderHandle.OnOrderReject(order);
+                }
+            }
         }
 
         public void RefreshUI(int hitOrdersCount)
@@ -539,6 +555,24 @@ namespace ManagerConsole.UI
             for (int i = 0; i < hitOrdersCount; i++)
             {
                 this._OrderTaskGrid.Rows[i].CellStyle = this._ExecuteStatusStyle;
+            }
+
+            this.FilterInstantOrder();
+        }
+
+        private void CheckDQAcceptVariation()
+        {
+            InstrumentClient instrument = (InstrumentClient)this._InstrumentCombo.SelectedItem;
+            if (instrument.Id == Guid.Empty) return;
+            int acceptDQVariation = int.Parse(this._VariationText.Text);
+
+            if (instrument.CheckVariation(acceptDQVariation))
+            {
+                this._VariationText.Text = acceptDQVariation.ToString();
+            }
+            else
+            {
+                this._VariationText.Text = (0 - instrument.AcceptDQVariation).ToString();
             }
         }
 

@@ -13,7 +13,7 @@
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Padding" Value="10 5"/>
-            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontSize" Value="11" />
             <Setter Property="BorderThickness" Value="2" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -52,7 +52,7 @@
     </UserControl.Resources>
     <Grid x:Name="UseManagerFrame">
         <Border Margin="0 0 5 0" BorderBrush="Black" Grid.Row="0">
-        <ig:XamGrid x:Name="UserManager" Loaded="UserControl_Loaded">
+        <ig:XamGrid x:Name="UserManager" RowHeight="30" Loaded="UserControl_Loaded">
                     <ig:XamGrid.PagerSettings>
                     <ig:PagerSettings AllowPaging="Top" PageSize="30" DisplayPagerWhenOnlyOnePage="True">
                     </ig:PagerSettings>
@@ -61,14 +61,14 @@
                     <ig:TemplateColumn Key="UserId">
                         <ig:TemplateColumn.HeaderTemplate>
                             <DataTemplate>
-                                <Button x:Name="New" Style="{StaticResource MetroButton}" Content="AddNew" Click="AddUser_Click"></Button>
+                                <Button x:Name="New" Style="{StaticResource MetroButton}" Height="25" Content="AddNew" Click="AddUser_Click"></Button>
                             </DataTemplate>
                         </ig:TemplateColumn.HeaderTemplate>
                         <ig:TemplateColumn.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal">
-                                    <Button x:Name="Edit" Content="Edit" Tag="{Binding UserId}" Style="{StaticResource MetroButton}"  Click="Button_Click"></Button>
-                                    <Button x:Name="Delete" Content="Delete" Tag="{Binding UserId}" Style="{StaticResource MetroButton}"  Click="Button_Click"></Button>
+                                    <Button x:Name="Edit" Height="25" Content="Edit" Tag="{Binding UserId}" Style="{StaticResource MetroButton}"  Click="Button_Click"></Button>
+                                    <Button x:Name="Delete" Height="25" Content="Delete" Tag="{Binding UserId}" Style="{StaticResource MetroButton}"  Click="Button_Click"></Button>
                                 </StackPanel>
                             </DataTemplate>
                         </ig:TemplateColumn.ItemTemplate>

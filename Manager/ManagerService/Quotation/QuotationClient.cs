@@ -14,8 +14,6 @@ namespace ManagerService.Quotation
     {
         private static Dictionary<string, QuotationClient> _Sources = new Dictionary<string, QuotationClient>();
 
-        // Map for SourceName - [InstrumentCode -  PrimitiveQuotation]
-        private Dictionary<string, Dictionary<string, PrimitiveQuotation>> _LastPriceData = new Dictionary<string, Dictionary<string, PrimitiveQuotation>>();
         private object _PacketLock = new object();
         private AutoResetEvent _PacketArrivedEvent = new AutoResetEvent(false);
 
@@ -34,6 +32,8 @@ namespace ManagerService.Quotation
 
         public void Start()
         {
+            this._QuotationRelayEngine = new RelayEngine<string>(this.ProcessQuotation, delegate(Exception ex) { });
+
             this._NetworkStream = this._TcpClient.GetStream();
             Thread receiveDataThread = new Thread(delegate()
             {
@@ -70,8 +70,6 @@ namespace ManagerService.Quotation
             });
             receiveDataThread.IsBackground = true;
             receiveDataThread.Start();
-
-            this._QuotationRelayEngine = new RelayEngine<string>(this.ProcessQuotation, delegate(Exception ex) { });
         }
 
         private void Process(byte[] buffer)
@@ -99,43 +97,28 @@ namespace ManagerService.Quotation
 
         private bool ProcessQuotation(string packet)
         {
-            string[] priceData = packet.Split('\t');
-            string sourceName = priceData[0];
-            string instrumentCode = priceData[1];
-            DateTime timestamp = DateTime.Parse(priceData[2]);
-            string bid = priceData[3];
-            string ask = priceData[4];
-            string last = priceData[5];
-            string high = priceData[6];
-            string low = priceData[7];
-
-            PrimitiveQuotation quotation;
-
-            // TODO: It should not use the same object to carry the data!
-            if (this._LastPriceData[sourceName].TryGetValue(instrumentCode, out quotation))
+            try
             {
-                if (quotation.Timestamp != timestamp || quotation.Bid != bid || quotation.Last != last || quotation.High != high || quotation.Low != low || quotation.Ask != ask)
+                string[] priceData = packet.Split('\t');
+                PrimitiveQuotation quotation = new PrimitiveQuotation
                 {
-                    quotation.Ask = ask;
-                    quotation.Bid = bid;
-                    quotation.Last = last;
-                    quotation.High = high;
-                    quotation.Low = low;
-                    quotation.Timestamp = timestamp;
-                }
-                else
-                {
-                    return true;
-                }
-            }
-            else
-            {
-                quotation = new PrimitiveQuotation { SourceName = sourceName, InstrumentCode = instrumentCode, Ask = ask, Bid = bid, Last = last, High = high, Low = low, Timestamp = timestamp };
-                this._LastPriceData[sourceName].Add(instrumentCode, quotation);
-            }
+                    SourceName = priceData[0],
+                    InstrumentCode = priceData[1],
+                    Ask = priceData[4],
+                    Bid = priceData[3],
+                    Last = priceData[5],
+                    High = priceData[6],
+                    Low = priceData[7],
+                    Timestamp = DateTime.Parse(priceData[2])   // TODO: check Parse format: DateTime.Parse 只精确到秒级，对应于Feeder发送时精度也是到秒
+                };
 
-            this._QuotationManager.ProcessQuotation(quotation);
-            return true;
+                this._QuotationManager.ProcessQuotation(quotation);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "QuotationClient.ProcessQuotation packet:\r\n{0}\r\n{1})", packet, ex.ToString());
+            }
+            return true;  // Note: return false will suspend the RelayEngine, always return true will keep RelayEngine running.
         }
 
         private void ProcessAuthentication(string packet)
@@ -162,11 +145,6 @@ namespace ManagerService.Quotation
                 this._TcpClient.GetStream().WriteByte(1);
                 QuotationClient._Sources.Add(sourceName, this);
                 this._QuotationManager.QuotationSourceStatusChanged(sourceName, ConnectionState.Connected);
-
-                if (!this._LastPriceData.ContainsKey(sourceName))
-                {
-                    this._LastPriceData[sourceName] = new Dictionary<string, PrimitiveQuotation>();
-                }
             }
             else
             {

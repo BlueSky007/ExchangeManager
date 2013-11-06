@@ -21,7 +21,7 @@ namespace ManagerService.Console
         FunctionTree GetFunctionTree();
         
         [OperationContract(IsInitiating = false)]
-        bool SaveLayout(string layout, string content);
+        void SaveLayout(string layout, string content);
 
         #region UserManager
         [OperationContract(IsInitiating = false)]
@@ -37,7 +37,10 @@ namespace ManagerService.Console
         List<RoleData> GetRoles();
 
         [OperationContract(IsInitiating = false)]
-        RoleData GetAllPermission();
+        List<RoleFunctonPermission> GetAllFunctionPermission();
+
+        [OperationContract(IsInitiating = false)]
+        List<RoleDataPermission> GetAllDataPermission();
 
         [OperationContract(IsInitiating = false)]
         bool UpdateUsers(UserData user, string password, bool isNewUser);

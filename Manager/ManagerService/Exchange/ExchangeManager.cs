@@ -53,7 +53,7 @@ namespace ManagerService.Exchange
             return exchangeSystem != null;
         }
 
-        public void ProcessQuotation(List<PrimitiveQuotation> quotations)
+        public void SetQuotation(List<Quotation.Quotation> quotations)
         {
             foreach (ExchangeSystem exchangeSystem in this._ExchangeSystems.Values)
             {

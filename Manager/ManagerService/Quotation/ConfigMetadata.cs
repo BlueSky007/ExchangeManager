@@ -43,47 +43,28 @@ namespace ManagerService.Quotation
         }
 
         public Dictionary<int, Dictionary<int, InstrumentSourceRelation>> InstrumentSourceRelations { get { return this._InstrumentSourceRelations; } }
-
-        public ICollection<Instrument> Instruments { get { return this._Instruments.Values; } }
+        public Dictionary<string, Instrument> Instruments { get { return this._Instruments; } }
+        public Dictionary<int, PriceRangeCheckRule> RangeCheckRules { get { return this._PriceRangeCheckRules; } }
+        public Dictionary<int, WeightedPriceRule> WeightedPriceRules { get { return this._WeightedPriceRules; } }
+        public Dictionary<int, DerivativeRelation> DerivativeRelations { get { return this._DerivativeRelations; } }
 
         public bool AuthenticateSource(string sourceName, string loginName, string password)
         {
             return this._QuotationSources.Values.Any(s => s.Name == sourceName && s.AuthName == loginName && s.Password == password);
         }
 
-        public bool IsKnownQuotation(PrimitiveQuotation quotation, out int instrumentId, out int sourceId)
+        public bool EnsureIsKnownQuotation(PrimitiveQuotation quotation)
         {
-            instrumentId = sourceId = 0;
             Instrument instrument;
             QuotationSource quotationSource;
             if (this._Instruments.TryGetValue(quotation.InstrumentCode, out instrument) &&
                 this._QuotationSources.TryGetValue(quotation.SourceName, out quotationSource))
             {
-                instrumentId = instrument.Id;
-                sourceId = quotationSource.Id;
+                quotation.SourceId = quotationSource.Id;
+                quotation.InstrumentId = instrument.Id;
                 return true;
             }
             return false;
-        }
-
-        public bool IsFromActiveSource(int instrumentId, int sourceId)
-        {
-            return this._InstrumentSourceRelations[instrumentId][sourceId].IsActive;
-        }
-
-        public void Adjust(Quotation quotation)
-        {
-            throw new NotImplementedException();
-        }
-
-        public int GetSourceId(string sourceCode)
-        {
-            return this._QuotationSources[sourceCode].Id;
-        }
-
-        public int GetInstrumentId(string instrumentCode)
-        {
-            return this._Instruments[instrumentCode].Id;
         }
     }
 }

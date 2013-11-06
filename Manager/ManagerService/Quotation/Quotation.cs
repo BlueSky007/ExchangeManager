@@ -10,44 +10,30 @@ namespace ManagerService.Quotation
     public class Quotation
     {
         private PrimitiveQuotation _PrimitiveQuotation;
-        private SourceInstrumentKey _Key;
+        //private double _Ask;
+        //private double _Bid;
 
-
-        public int SourceId { get; private set; }
-        public int InstrumentId { get; private set; }
-
-        public double? Ask { get; private set; }
-        public double? Bid { get; private set; }
-        public double? Last { get; private set; }
-        public double? High { get; private set; }
-        public double? Low { get; private set; }
-
-        public DateTime Timestamp { get { return this._PrimitiveQuotation.Timestamp; } }
-
-        public SourceInstrumentKey Key
-        {
-            get
-            {
-                if (this._Key == null)
-                {
-                    this._Key = new SourceInstrumentKey(this.SourceId, this.InstrumentId);
-                }
-                return this._Key;
-            }
-        }
-
-        private Quotation(PrimitiveQuotation primitiveQuotation)
+        public Quotation(PrimitiveQuotation primitiveQuotation, double ask, double bid)
         {
             this._PrimitiveQuotation = primitiveQuotation;
-
+            this.Ask = ask;
+            this.Bid = bid;
         }
 
-        public static Quotation Create(int instrumentId, int sourceId, PrimitiveQuotation primitiveQuotation)
-        {
-            Quotation quotation = new Quotation(primitiveQuotation);
-            quotation.InstrumentId = instrumentId;
-            quotation.SourceId = sourceId;
-            return quotation;
-        }
+        public int SourceId { get { return this._PrimitiveQuotation.SourceId; } }
+        public int InstrumentId { get { return this._PrimitiveQuotation.InstrumentId; } }
+        public PrimitiveQuotation PrimitiveQuotation { get { return this._PrimitiveQuotation; } }
+        //public double Ask { get { return this._Ask; } }
+        //public double Bid { get { return this._Bid; } }
+        public double Ask { get; set; }
+        public double Bid { get; set; }
+        public DateTime Timestamp { get { return this._PrimitiveQuotation.Timestamp; } }
+
+        public bool IsAbnormal { get; set; }
+        public string OutOfRangeType { get; set; }
+        public int DiffPoints { get; set; }
+        public int ConfirmId { get; set; }
+        public int WaitSeconds { get; set; }
+        public DateTime WaitEndTime { get; set; }
     }
 }

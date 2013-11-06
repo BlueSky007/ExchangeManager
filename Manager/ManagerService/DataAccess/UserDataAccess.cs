@@ -44,24 +44,25 @@ namespace ManagerService.DataAccess
                             if (reader.NextResult())
                             {
                                 while (reader.Read())
-                        {
+                                {
                                     int roleId = (int)reader["Id"];
                                     string roleName = reader["RoleName"].ToString();
                                     user.Roles.Add(roleId, roleName);
                                 }
-                        }
+                            }
                             if (reader.NextResult())
-                        {
-                            while (reader.Read())
                             {
-                                DataPermission permission = new DataPermission();
-                                permission.ExchangeSystemCode = reader["IExchangeCode"].ToString();
-                                    permission.DataObjectType = (DataObjectType)(int.Parse(reader["DataObjectType"].ToString()));
-                                permission.DataObjectId = (Guid)reader["DataObjectId"];
-                                dataPermissions.Add(permission);
+                                while (reader.Read())
+                                {
+                                    DataPermission permission = new DataPermission();
+                                    permission.ExchangeSystemCode = reader["IExchangeCode"].ToString();
+                                    permission.DataObjectType = reader["DataType"] is DBNull? DataObjectType.None: (DataObjectType)Enum.Parse(typeof(DataObjectType), reader["DataType"].ToString());
+                                    permission.DataObjectId = reader["DataObjectId"] is DBNull ? Guid.Empty : (Guid)reader["DataObjectId"];
+                                    permission.IsAllow = (bool)reader["Status"];
+                                    dataPermissions.Add(permission);
+                                }
                             }
                         }
-                    }
                     }
                     return user;
                 }
@@ -157,17 +158,17 @@ namespace ManagerService.DataAccess
                 while (reader.Read())
                 {
                     Category category = new Category();
-                    category.CategoryType = (ModuleCategoryType)reader.GetValue(0);
-                    category.CategoryDescription = reader.GetValue(1).ToString();
+                    category.CategoryType = (ModuleCategoryType)Enum.Parse(typeof(ModuleCategoryType),reader["CategoryCode"].ToString());
+                    category.CategoryDescription = reader["Description"].ToString();
                     tree.Categories.Add(category);
                 }
                 reader.NextResult();
                 while (reader.Read())
                 {
                     Module module = new Module();
-                    module.Type = (ModuleType)reader.GetValue(0);
-                    module.ModuleDescription = reader.GetValue(1).ToString();
-                    module.Category = (ModuleCategoryType)reader.GetValue(2);
+                    module.Type = (ModuleType)Enum.Parse(typeof(ModuleType), reader["ModuleCode"].ToString());
+                    module.ModuleDescription = reader["Description"].ToString();
+                    module.Category = (ModuleCategoryType)Enum.Parse(typeof(ModuleCategoryType), reader["parentCode"].ToString());
                     tree.Modules.Add(module);
                 }
             }
@@ -215,27 +216,44 @@ namespace ManagerService.DataAccess
                     role.RoleName = reader.GetValue(1).ToString();
                     roles.Add(role);
                 }
-                reader.NextResult();
-                while (reader.Read())
+                if (reader.NextResult())
                 {
-                    AccessPermission access = new AccessPermission();
-                    access.CategotyType = (ModuleCategoryType)reader["CategoryId"];
-                    access.ModuleType = (ModuleType)reader["ModuleId"];
-                    access.OperationId = (int)reader["OperationId"];
-                    access.OperationName = reader["OperationName"].ToString();
-                    int id = (int)reader["RoleId"];
-                    roles.SingleOrDefault(r => r.RoleId == id).AccessPermissions.Add(access);
+                    while (reader.Read())
+                    {
+                        RoleFunctonPermission functionPermission = new RoleFunctonPermission();
+                        functionPermission.FunctionId = (int)reader["FunctionId"];
+                        functionPermission.Code = reader["Code"].ToString();
+                        if (!(reader["ParentId"] is DBNull))
+                        {
+                            functionPermission.ParentId = (int)reader["ParentId"];
+                        }
+                        functionPermission.Level = (int)reader["Level"];
+                        functionPermission.Description = reader["Description"].ToString();
+                        functionPermission.IsAllow = (bool)reader["IsAllow"];
+                        int id = (int)reader["RoleId"];
+                        roles.SingleOrDefault(r => r.RoleId == id).FunctionPermissions.Add(functionPermission);
+                    }
                 }
-                reader.NextResult();
-                while (reader.Read())
+                if (reader.NextResult())
                 {
-                    DataPermission data = new DataPermission();
-                    int id = (int)reader["RoleId"];
-                    data.ExchangeSystemCode = reader["IExchangeCode"].ToString();
-                    data.DataObjectType = (DataObjectType)(int.Parse(reader["DataObjectType"].ToString()));
-                    data.DataObjectId = (Guid)reader["DataObjectId"];
-                    data.DataObjectDescription = reader["DataObjectDescription"].ToString();
-                    roles.SingleOrDefault(r => r.RoleId == id).DataPermissions.Add(data);
+                    while (reader.Read())
+                    {
+                        RoleDataPermission dataPermission = new RoleDataPermission();
+                        dataPermission.PermissionId = (int)reader["TargetId"];
+                        dataPermission.Code = reader["Code"].ToString();
+                        if (!(reader["ParentId"] is DBNull))
+                        {
+                            dataPermission.ParentId = (int)reader["ParentId"];
+                        }
+                        if (!(reader["DataObjectId"] is DBNull))
+                        {
+                            dataPermission.DataObjectId = (Guid)reader["DataObjectId"];
+                        }
+                        dataPermission.IsAllow = (bool)reader["IsAllow"];
+                        dataPermission.IExchangeCode = reader["IExchangeCode"].ToString();
+                        int id = (int)reader["RoleId"];
+                        roles.SingleOrDefault(r => r.RoleId == id).DataPermissions.Add(dataPermission);
+                    }
                 }
             }, new SqlParameter("@language", language));
             return roles;
@@ -257,7 +275,7 @@ namespace ManagerService.DataAccess
                 {
                     using (SqlCommand command = sqlConnection.CreateCommand())
                     {
-                        command.CommandText = "[dbo].[User_AddNew]";
+                        command.CommandText = "[dbo].[User_AddNew]"; 
                         command.Transaction = transaction;
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.Parameters.Add(new SqlParameter("@userId", user.UserId));
@@ -331,74 +349,91 @@ namespace ManagerService.DataAccess
             return true;
         }
 
-        public static RoleData GetAllPermissions(ExchangeSystemSetting[] ExchangeSystems,string language)
+        public static List<RoleFunctonPermission> GetAllFunctionPermissions(string language)
         {
-            RoleData data = new RoleData();
+            List<RoleFunctonPermission> allFunction = new List<RoleFunctonPermission>();
             using (SqlConnection con = DataAccess.GetInstance().GetSqlConnection())
             {
                 using (SqlCommand command = con.CreateCommand())
                 {
-                    command.CommandText = "SELECT f3.Id AS CategoryId,f2.Id AS ModuleId,f.Id AS OperationId,(CASE WHEN @language='CHT' THEN f.NameCHT ELSE (CASE WHEN @language='CHS' THEN f.NameCHS ELSE f.NameENG END) END) AS OperationName FROM  dbo.[Function] f INNER JOIN dbo.[Function] f2 ON f2.Id=f.ParentId INNER JOIN dbo.[Function] f3 ON f3.Id=f2.ParentId WHERE f3.ParentId=0";
+                    command.CommandText = "SELECT pt.Id, pt.ParentId, pt.[Level], pt.Code,(CASE @language WHEN 'CHT' THEN fd.NameCHT WHEN 'CHS' THEN fd.NameCHS ELSE fd.NameENG END) AS [Description] FROM dbo.PermissionTarget pt	INNER JOIN dbo.FunctionDescription fd ON fd.FunctionId = pt.Id WHERE pt.TargetType = 1";
                     command.CommandType = CommandType.Text;
                     command.Parameters.Add(new SqlParameter("@language", language));
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            AccessPermission access = new AccessPermission();
-                            access.CategotyType = (ModuleCategoryType)reader["CategoryId"];
-                            access.ModuleType = (ModuleType)reader["ModuleId"];
-                            access.OperationId = (int)reader["OperationId"];
-                            access.OperationName = reader["OperationName"].ToString();
-                            data.AccessPermissions.Add(access);
+                            RoleFunctonPermission function = new RoleFunctonPermission();
+                            function.FunctionId = (int)reader["Id"];
+                            function.ParentId = (int)reader["ParentId"];
+                            function.Level = int.Parse(reader["Level"].ToString());
+                            function.Description = reader["Description"].ToString();
+                            allFunction.Add(function);
                         }
                     }
                 }
             }
+            return allFunction;
+        }
+
+        public static List<RoleDataPermission> GetAllDataPermissions(ExchangeSystemSetting[] ExchangeSystems, string language)
+        {
+            List<RoleDataPermission> allData = new List<RoleDataPermission>();
             foreach (ExchangeSystemSetting system in ExchangeSystems)
             {
-                List<DataPermission> dataPermissions = ExchangeData.GetAllDataPermissions(system.Code);
-                data.DataPermissions.AddRange(dataPermissions);
+                List<RoleDataPermission> dataPermissions = ExchangeData.GetAllDataPermissions(system.Code);
+                allData.AddRange(dataPermissions);
             }
-            return data;
+            return allData;
         }
 
         public static bool AddNewRole(RoleData role)
         {
             bool isSuccess = false;
-            string functionStr = string.Empty;
-            foreach (AccessPermission item in role.AccessPermissions)
+            DataTable permission = new DataTable();
+            permission.Columns.Add("Id", typeof(int));
+            permission.Columns.Add("ParentId",typeof(int));
+            permission.Columns.Add("Level",typeof(int));
+            permission.Columns.Add("Code",typeof(string));
+            permission.Columns.Add("TargetType",typeof(int));
+            permission.Columns.Add("DataObjectId",typeof(Guid));
+            permission.Columns.Add("Status", typeof(bool));
+            foreach (RoleFunctonPermission item in role.FunctionPermissions)
             {
-                functionStr += (item.OperationId + ",");
+                DataRow row = permission.NewRow();
+                row["Id"] = item.FunctionId;
+                row["ParentId"] = item.ParentId;
+                row["Level"] = item.Level;
+                row["Code"] = item.Code;
+                row["TargetType"] = 1;
+                row["Status"] = item.IsAllow;
+                permission.Rows.Add(row);
             }
-            DataTable dataPermissionTable = new DataTable();
-            dataPermissionTable.Columns.Add("ExchangeCode", typeof(string));
-            dataPermissionTable.Columns.Add("DataObjectType", typeof(int));
-            dataPermissionTable.Columns.Add("DataObjectId", typeof(Guid));
-            dataPermissionTable.Columns.Add("DataObjectDescription", typeof(string));
-            foreach (DataPermission item in role.DataPermissions)
+            foreach (RoleDataPermission item in role.DataPermissions)
             {
-                DataRow row = dataPermissionTable.NewRow();
-                row["ExchangeCode"] = item.ExchangeSystemCode;
-                row["DataObjectType"] = item.DataObjectType;
+                DataRow row = permission.NewRow();
+                row["Id"] = item.PermissionId;
+                row["ParentId"] = item.ParentId;
+                row["Level"] = item.Level;
+                row["Code"] = item.Code;
+                row["TargetType"] = 2;
                 row["DataObjectId"] = item.DataObjectId;
-                row["DataObjectDescription"] = item.DataObjectDescription;
-                dataPermissionTable.Rows.Add(row);
+                row["Status"] = item.IsAllow;
             }
-            using (SqlConnection sqlConnection = DataAccess.GetInstance().GetSqlConnection())
+            using (SqlConnection con = DataAccess.GetInstance().GetSqlConnection())
             {
-                using (SqlTransaction transaction = sqlConnection.BeginTransaction())
+                using (SqlTransaction transaction = con.BeginTransaction())
                 {
-                    using (SqlCommand command = sqlConnection.CreateCommand())
+                    using (SqlCommand command = con.CreateCommand())
                     {
                         command.CommandText = "[dbo].[Roles_AddNew]";
                         command.Transaction = transaction;
-                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.CommandType = CommandType.StoredProcedure;
                         command.Parameters.Add(new SqlParameter("@roleName", role.RoleName));
-                        command.Parameters.Add(new SqlParameter("@functionPermssions", functionStr));
-                        SqlParameter parameter = command.Parameters.AddWithValue("@dataPermissions", dataPermissionTable);
+                        command.Parameters.Add(new SqlParameter("@roleId", SqlDbType.Int) { Direction = ParameterDirection.Output });
+                        SqlParameter parameter = command.Parameters.AddWithValue("@permissionTarget", permission);
                         parameter.SqlDbType = SqlDbType.Structured;
-                        parameter.TypeName = "dbo.DataPermissionsTableType";
+                        parameter.TypeName = "dbo.PermissionTargetType";
                         command.Parameters.Add(new SqlParameter("@RETURN_VALUE", SqlDbType.Int) { Direction = ParameterDirection.ReturnValue });
                         command.ExecuteNonQuery();
                         int returnValue = (int)command.Parameters["@RETURN_VALUE"].Value;
@@ -416,19 +451,35 @@ namespace ManagerService.DataAccess
         public static bool EditRole(RoleData role)
         {
             bool isSuccess = false;
-            DataTable dataPermissionTable = new DataTable();
-            dataPermissionTable.Columns.Add("ExchangeCode", typeof(string));
-            dataPermissionTable.Columns.Add("DataObjectType", typeof(int));
-            dataPermissionTable.Columns.Add("DataObjectId", typeof(Guid));
-            dataPermissionTable.Columns.Add("DataObjectDescription", typeof(string));
-            foreach (DataPermission item in role.DataPermissions)
+            DataTable permission = new DataTable();
+            permission.Columns.Add("Id", typeof(int));
+            permission.Columns.Add("ParentId", typeof(int));
+            permission.Columns.Add("Level", typeof(int));
+            permission.Columns.Add("Code", typeof(string));
+            permission.Columns.Add("TargetType", typeof(int));
+            permission.Columns.Add("DataObjectId", typeof(Guid));
+            permission.Columns.Add("Status", typeof(bool));
+            foreach (RoleFunctonPermission item in role.FunctionPermissions)
             {
-                DataRow row = dataPermissionTable.NewRow();
-                row["ExchangeCode"] = item.ExchangeSystemCode;
-                row["DataObjectType"] = item.DataObjectType;
+                DataRow row = permission.NewRow();
+                row["Id"] = item.FunctionId;
+                row["ParentId"] = item.ParentId;
+                row["Level"] = item.Level;
+                row["Code"] = item.Code;
+                row["TargetType"] = 1;
+                row["Status"] = item.IsAllow;
+                permission.Rows.Add(row);
+            }
+            foreach (RoleDataPermission item in role.DataPermissions)
+            {
+                DataRow row = permission.NewRow();
+                row["Id"] = item.PermissionId;
+                row["ParentId"] = item.ParentId;
+                row["Level"] = item.Level;
+                row["Code"] = item.Code;
+                row["TargetType"] = 2;
                 row["DataObjectId"] = item.DataObjectId;
-                row["DataObjectDescription"] = item.DataObjectDescription;
-                dataPermissionTable.Rows.Add(row);
+                row["Status"] = item.IsAllow;
             }
             using (SqlConnection con = DataAccess.GetInstance().GetSqlConnection())
             {
@@ -440,22 +491,10 @@ namespace ManagerService.DataAccess
                         command.Transaction = transaction;
                         command.CommandType = CommandType.StoredProcedure;
                         command.Parameters.Add(new SqlParameter("@roleId", role.RoleId));
-                        if (string.IsNullOrEmpty(role.RoleName))
-                        {
-                            command.Parameters.Add(new SqlParameter("@roleName", role.RoleName));
-                        }
-                        if (role.AccessPermissions.Count != 0)
-                        {
-                            string functionStr = string.Empty;
-                            foreach (AccessPermission item in role.AccessPermissions)
-                            {
-                                functionStr += (item.OperationId + ",");
-                            }
-                            command.Parameters.Add(new SqlParameter("@functionPermssions", functionStr));
-                        }
-                        SqlParameter parameter = command.Parameters.AddWithValue("@dataPermissions", dataPermissionTable);
+                        command.Parameters.Add(new SqlParameter("@roleName", role.RoleName));
+                        SqlParameter parameter = command.Parameters.AddWithValue("@permissionTarget", permission);
                         parameter.SqlDbType = SqlDbType.Structured;
-                        parameter.TypeName = "dbo.DataPermissionsTableType";
+                        parameter.TypeName = "dbo.PermissionTargetType";
                         command.Parameters.Add(new SqlParameter("@RETURN_VALUE", SqlDbType.Int) { Direction = ParameterDirection.ReturnValue });
                         command.ExecuteNonQuery();
                         int returnValue = (int)command.Parameters["@RETURN_VALUE"].Value;

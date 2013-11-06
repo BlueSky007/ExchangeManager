@@ -544,11 +544,11 @@ namespace ManagerConsole.ViewModel
                 }
                 else if (this.OrderType == ManagerCommon.OrderType.Limit)
                 {
-                    this._CellDataDefine3.ColumnWidth = 240;
-                    this._CellDataDefine3.Action = HandleAction.OnOrderCancel;
-                    this._CellDataDefine3.Caption = "Cancel";
-                    this._CellDataDefine3.IsEnable = true;
-                    this._CellDataDefine3.IsVisibility = Visibility.Visible;
+                    this._DQCellDataDefine1.ColumnWidth = 120;
+                    this._DQCellDataDefine1.Action = HandleAction.OnOrderCancel;
+                    this._DQCellDataDefine1.Caption = "Cancel";
+                    this._DQCellDataDefine1.IsEnable = true;
+                    this._DQCellDataDefine1.IsVisibility = Visibility.Visible;
                 }
                 else if (this.OrderType == ManagerCommon.OrderType.Market)
                 {

@@ -22,6 +22,7 @@ using Logger = Manager.Common.Logger;
 using QuoteMessage = Manager.Common.QuoteMessage;
 using Answer = Manager.Common.Answer;
 
+
 namespace ManagerConsole
 {
     /// <summary>
