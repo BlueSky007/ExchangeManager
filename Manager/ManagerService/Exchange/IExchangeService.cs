@@ -26,7 +26,7 @@ namespace ManagerService.Exchange
         void SetQuotation(string price);
 
         [OperationContract]
-        void GetInitData();
+        bool SwitchPriceState(List<Tuple<Guid, bool?, bool?>> tuples);  // Tuple: InstrumentId,IsPriceEnabled,IsAutoEnablePrice
 
         //[OperationContract]
         //void Answer(QuoteQuotation quotation);

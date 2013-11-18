@@ -32,22 +32,27 @@ namespace ManagerConsole
                     return new RoleManagerControl();
                 case ModuleType.InstrumentManager:
                     break;
-                case ModuleType.QuoationSource:
-                    break;
                 case ModuleType.QuotePolicy:
+                    break;
+                case ModuleType.QuotationSource:
+                    return new QuotationSourceControl();
+                    break;
+                case ModuleType.SourceQuotation:
+                    return new SourceQuotationControl();
+                case ModuleType.QuotationMonitor:
                     break;
                 case ModuleType.AbnormalQuotation:
                     break;
                 case ModuleType.Quote:
                     return new QutePriceControl();
-                case ModuleType.DQOrderTask:
-                    return new DQOrderTaskControl();
-                case ModuleType.OrderTask:
+                case ModuleType.OrderProcess:
                     return new OrderTaskControl();
-                case ModuleType.LMTOrderTask:
+                case ModuleType.LimitBatchProcess:
                     return new LMTProcess();
-                case ModuleType.MooMocTask:
+                case ModuleType.MooMocProcess:
                     return new MooMocOrderTask();
+                case ModuleType.LogAuditQuery:
+                    return new LogAuditControl();
                 default:
                     break;
             }

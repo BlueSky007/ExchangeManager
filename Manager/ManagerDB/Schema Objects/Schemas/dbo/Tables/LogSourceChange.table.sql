@@ -2,7 +2,7 @@
 (
 	[Id]                  UNIQUEIDENTIFIER   NOT NULL,
 	[IsDefault]           BIT                NOT NULL,
-	[FromSourceId]        UNIQUEIDENTIFIER   NOT NULL,
-	[ToSourceId]          UNIQUEIDENTIFIER   NOT NULL,
-	[Priority]            INT                NULL
+	[FromSourceId]        INT                NOT NULL,
+	[ToSourceId]          INT                NOT NULL,
+	[Priority]            TINYINT                NULL
 )

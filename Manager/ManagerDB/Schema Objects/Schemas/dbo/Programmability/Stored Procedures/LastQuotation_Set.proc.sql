@@ -1,35 +1,36 @@
 ﻿CREATE PROCEDURE dbo.LastQuotation_Set
-	@sourceId INT, 
 	@instrumentId INT,
+	@sourceId INT,
 	@timestamp DATETIME2(3),
-	@ask VARCHAR(10),
-	@bid VARCHAR(10),
-	@last VARCHAR(10),
-	@high VARCHAR(10),
-	@low VARCHAR(10)
+	@ask FLOAT,
+	@bid FLOAT,
+	@last FLOAT,
+	@high FLOAT,
+	@low FLOAT
 AS
 BEGIN
-	IF EXISTS(SELECT lq.SourceId FROM LastQuotation lq WHERE lq.SourceId=@sourceId AND lq.InstrumentId=@instrumentId)
+	IF EXISTS(SELECT lq.InstrumentId FROM LastQuotation lq WHERE lq.InstrumentId=@instrumentId)
 	BEGIN
 		UPDATE LastQuotation
 		SET
+		    SourceId = @sourceId,
 			[Timestamp] = @timestamp,
 			Ask = @ask,
 			Bid = @bid,
 			[Last] = @last,
 			[High] = @high,
 			[Low] = @low
-		WHERE SourceId=@sourceId AND InstrumentId=@instrumentId
+		WHERE InstrumentId=@instrumentId
 	END
 	ELSE
 	BEGIN
 		INSERT INTO LastQuotation
 		(
-			SourceId,InstrumentId,[Timestamp],Ask,Bid,[Last],[High],[Low]
+			InstrumentId,SourceId,[Timestamp],Ask,Bid,[Last],[High],[Low]
 		)
 		VALUES
 		(
-			@sourceId,@instrumentId,@timestamp,@ask,@bid,@last,@high,@low
+			@instrumentId,@sourceId,@timestamp,@ask,@bid,@last,@high,@low
 		)		
 	END
 END

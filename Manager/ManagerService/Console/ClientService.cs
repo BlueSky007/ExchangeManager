@@ -10,6 +10,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Xml;
 using System.Data;
+using System.Threading;
+using System.Net;
+using Manager.Common.QuotationEntities;
 
 namespace ManagerService.Console
 {
@@ -35,17 +38,30 @@ namespace ManagerService.Console
                     {
                         List<Guid> accountMemberIds = new List<Guid>();
                         List<Guid> instrumentMemberIds = new List<Guid>();
+                        bool accountDeafultStatus;
+                        bool instrumentDeafultStatus;
+                        
                         List<DataPermission> systemPermissions = dataPermissions.FindAll(delegate(DataPermission data)
                         {
                             return data.ExchangeSystemCode == item.Code;
                         });
-                        if (systemPermissions.Count > 0)
+                        UserDataAccess.GetGroupDeafultStatus(item.Code, systemPermissions, out accountDeafultStatus, out instrumentDeafultStatus);
+                        if (user.IsInRole(1))
                         {
-                            accountMemberIds.AddRange(ExchangeData.GetMemberIds(item.Code, systemPermissions, DataObjectType.Account));
-                            instrumentMemberIds.AddRange(ExchangeData.GetMemberIds(item.Code, systemPermissions, DataObjectType.Instrument));
+                            accountDeafultStatus = true;
+                            instrumentDeafultStatus = true;
+                            systemPermissions.Clear();
                         }
+                        InitializeData initializeData = ExchangeData.GetInitData(item.Code, user.UserId, systemPermissions, accountDeafultStatus, instrumentDeafultStatus);
+                        initializeData.SettingParameters.Add(item.Code, ExchangeData.GetSettingParameters(item));
+
+                        initializeData.ValidAccounts.TryGetValue(item.Code, out accountMemberIds);
+                        initializeData.ValidInstruments.TryGetValue(item.Code, out instrumentMemberIds);
+
                         accountPermissions.Add(item.Code, accountMemberIds);
                         instrumentPermissions.Add(item.Code, instrumentMemberIds);
+
+                        loginResult.InitializeDatas.Add(initializeData);
                     }
                     string sessionId = OperationContext.Current.SessionId;
                     IClientProxy clientProxy = OperationContext.Current.GetCallbackChannel<IClientProxy>();
@@ -54,11 +70,12 @@ namespace ManagerService.Console
                     OperationContext.Current.Channel.Faulted += this._Client.Channel_Broken;
                     OperationContext.Current.Channel.Closed += this._Client.Channel_Broken;
                     loginResult.SessionId = sessionId;
-
-                    if (loginResult.Succeeded)
-                    {
-                        //loginResult.InitializeData = ExchangeData.GetInitData(user.UserId,null,null,"WF01");
-                    }
+                    loginResult.LayoutNames = UserDataAccess.GetAllLayoutName(userName);
+                    string docklayout = string.Empty;
+                    string content = string.Empty;
+                    UserDataAccess.LoadLayout(userName, "LastClosed", out docklayout, out content);
+                    loginResult.DockLayout = docklayout;
+                    loginResult.ContentLayout = content;
                 }
                 else
                 {
@@ -84,257 +101,69 @@ namespace ManagerService.Console
 
         public FunctionTree GetFunctionTree()
         {
-            try
-            {
-                FunctionTree tree = UserDataAccess.BuildFunctionTree(this._Client.userId, this._Client.language);
-                return tree;
-            }
-            catch (Exception ex)
-            {
-                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerService.Console.ClientService/GetFunctionTree.\r\n{0}", ex.ToString());
-                return new FunctionTree();
-            }
+            return this._Client.GetFunctionTree();
         }
 
-        public void SaveLayout(string layout, string content)
+        public void SaveLayout(string layout, string content,string layoutName)
         {
-            if (this._Client != null && this._Client.userId != null && this._Client.userId != Guid.Empty)
-            {
-                string path = string.Format("./{0}", this._Client.userId);
-                string layoutPath = string.Format("./{0}/layout.xml", this._Client.userId);
-                string contentPath = string.Format("./{0}/content.xml", this._Client.userId);
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
-                using (var stream = new StreamWriter(layoutPath))
-                {
-                    stream.Write(layout);
-                }
-                using (var stream = new StreamWriter(contentPath))
-                {
-                    stream.Write(content);
-                }
-            }
+            this._Client.SaveLayout(layout, content, layoutName);
+        }
+
+        public List<string> LoadLayout(string layoutName)
+        {
+            return this._Client.LoadLayout(layoutName);
         }
         #endregion
 
         #region UserAndRoleManager
         public bool ChangePassword(string currentPassword, string newPassword)
         {
-            try
-            {
-                bool isSuccess = UserDataAccess.ChangePassword(this._Client.userId, currentPassword, newPassword);
-                return isSuccess;
-            }
-            catch (Exception ex)
-            {
-                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerService.Console.ClientService/ChangePassword.\r\n{0}", ex.ToString());
-                return false;
-            }
+            return this._Client.ChangePassword(currentPassword, newPassword);
         }
 
-        public List<AccessPermission> GetAccessPermissions()
+        public Dictionary<string,string> GetAccessPermissions()
         {
-            try
-            {
-                List<AccessPermission> permissions = UserDataAccess.GetAccessPermissions(this._Client.userId, this._Client.language);
-                return permissions;
-            }
-            catch (Exception ex)
-            {
-                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerService.Console.ClientService/GetAccessPermission.\r\n{0}", ex.ToString());
-                return null;
-            }
+            return this._Client.GetAccessPermissions();
         }
 
         public List<UserData> GetUserData()
         {
-            try
-            {
-                List<UserData> data = UserDataAccess.GetUserData();
-                return data;
-            }
-            catch (Exception ex)
-            {
-                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerService.Console.ClientService/GetUserData.\r\n{0}", ex.ToString());
-                return null;
-            }
+            return this._Client.GetUserData();
         }
 
         public List<RoleData> GetRoles()
         {
-            try
-            {
-                List<RoleData> roles = UserDataAccess.GetRoles(this._Client.language.ToString());
-                return roles;
-            }
-            catch (Exception ex)
-            {
-                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerService.Console.ClientService/GetRoles.\r\n{0}", ex.ToString());
-                return null;
-            }
+            return this._Client.GetRoles();
         }
 
         public bool UpdateUsers(UserData user, string password, bool isNewUser)
         {
-            try
-            {
-                if (isNewUser)
-                {
-                    UserDataAccess.AddNewUser(user, password);
-                    return true;
-                }
-                else
-                {
-                    UserDataAccess.EditUser(user, password);
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerService.Console.ClientService/UpdateUsers.\r\n{0}", ex.ToString());
-                return false;
-            }
+            return this._Client.UpdateUsers(user, password, isNewUser);
         }
 
         public bool DeleteUser(Guid userId)
         {
-            try
-            {
-                if (userId == this._Client.userId)
-                {
-                    return false;
-                }
-                else
-                {
-                    return UserDataAccess.DeleteUser(userId);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerService.Console.ClientService/DeleteUser.\r\n{0}", ex.ToString());
-                return false;
-            }
+            return this._Client.DeleteUser(userId);
         }
 
         public List<RoleFunctonPermission> GetAllFunctionPermission()
         {
-            try
-            {
-                List<RoleFunctonPermission> data = UserDataAccess.GetAllFunctionPermissions(this._Client.language.ToString());
-                return data;
-            }
-            catch (Exception ex)
-            {
-                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerService.Console.ClientService/GetAllPermission.\r\n{0}", ex.ToString());
-                return null;
-            }
+            return this._Client.GetAllFunctionPermission();
         }
 
         public List<RoleDataPermission> GetAllDataPermission()
         {
-            try
-            {
-                List<RoleDataPermission> allData = UserDataAccess.GetAllDataPermissions(Manager.ManagerSettings.ExchangeSystems, this._Client.language.ToString());
-                return allData;
-            }
-            catch (Exception ex)
-            {
-                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "GetAllDataPermissions.\r\n{0}", ex.ToString());
-                return null;
-            }
+            return this._Client.GetAllDataPermission();
         }
 
         public bool UpdateRole(RoleData role, bool isNewRole)
         {
-            try
-            {
-                bool isSuccess = false;
-                if (isNewRole)
-                {
-                    isSuccess = UserDataAccess.AddNewRole(role);
-                }
-                else
-                {
-                    isSuccess = UserDataAccess.EditRole(role);
-                }
-                if (this._Client.user.IsInRole(role.RoleId)&&isSuccess)
-                {
-                    List<DataPermission> dataPermissions = new List<DataPermission>();
-                    Dictionary<string, List<Guid>> accountPermissions = new Dictionary<string, List<Guid>>();
-                    Dictionary<string, List<Guid>> instrumentPermissions = new Dictionary<string, List<Guid>>();
-                    foreach (ExchangeSystemSetting item in Manager.ManagerSettings.ExchangeSystems)
-                    {
-                        bool deafultStatus = false;
-                        List<Guid> accountMemberIds = new List<Guid>();
-                        List<Guid> instrumentMemberIds = new List<Guid>();
-                        List<RoleDataPermission> systemPermissions = role.DataPermissions.FindAll(delegate(RoleDataPermission data)
-                        {
-                            return data.IExchangeCode == item.Code;
-                        });
-                        RoleDataPermission account = systemPermissions.SingleOrDefault(r => r.Type == DataObjectType.Account && r.Level == 2);
-                        if (account!=null)
-                        {
-                            deafultStatus = account.IsAllow;
-                        }
-                        else
-                        {
-                            RoleDataPermission exchange = systemPermissions.SingleOrDefault(r => r.Level == 1);
-                            if (exchange!=null)
-                            {
-                                deafultStatus = exchange.IsAllow;
-                            }
-                        }
-                        accountMemberIds.AddRange(ExchangeData.GetNewMemberIds(item.Code, deafultStatus, systemPermissions, DataObjectType.Account));
-                        RoleDataPermission instrument = systemPermissions.SingleOrDefault(r => r.Type == DataObjectType.Instrument && r.Level == 2);
-                        if (instrument != null)
-                        {
-                            deafultStatus = instrument.IsAllow;
-                        }
-                        else
-                        {
-                            RoleDataPermission exchange = systemPermissions.SingleOrDefault(r => r.Level == 1);
-                            if (exchange != null)
-                            {
-                                deafultStatus = exchange.IsAllow;
-                            }
-                        }
-                        instrumentMemberIds.AddRange(ExchangeData.GetNewMemberIds(item.Code, deafultStatus, systemPermissions, DataObjectType.Instrument));
-                        accountPermissions.Add(item.Code, accountMemberIds);
-                        instrumentPermissions.Add(item.Code, instrumentMemberIds);
-                    }
-
-                    this._Client.UpdatePermission(accountPermissions, instrumentPermissions);
-                }
-                return isSuccess;
-                
-            }
-            catch (Exception ex)
-            {
-                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerService.Console.ClientService/UpdateRole.\r\n{0}", ex.ToString());
-                return false;
-            }
+            return this._Client.UpdateRole(role, isNewRole);
         }
 
         public bool DeleteRole(int roleId)
         {
-            try
-            {
-                if (this._Client.user.IsInRole(roleId))
-                {
-                    return false;
-                }
-                else
-                {
-                    return UserDataAccess.DeleteRole(roleId, this._Client.userId);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerService.Console.ClientService/DeleteRole.\r\n{0}", ex.ToString());
-                return false;
-            }
+            return this._Client.DeleteRole(roleId);
         }
 
         #endregion
@@ -343,127 +172,86 @@ namespace ManagerService.Console
 
         public void AbandonQuote(List<Answer> abandQuotations)
         {
-            try
-            {
-                IEnumerable<IGrouping<string, Answer>> query = abandQuotations.GroupBy(P => P.ExchangeCode, P => P);
-                foreach (IGrouping<string, Answer> group in query)
-                {
-                    List<Answer> newAbandQuotations = group.ToList<Answer>();
-                    ExchangeSystem exchangeSystem = Manager.ExchangeManager.GetExchangeSystem(newAbandQuotations[0].ExchangeCode);
-                    exchangeSystem.AbandonQuote(newAbandQuotations);
+            this._Client.AbandonQuote(abandQuotations);
             }
-            }
-            catch (Exception ex)
-            {
-                Logger.AddEvent(TraceEventType.Error, "ClientService.DealerAbandonQuoteBack error:\r\n{0}", ex.ToString());
-            }
-        }
 
         public void SendQuotePrice(List<Answer> sendQuotations)
         {
-            try
-            {
-                IEnumerable<IGrouping<string, Answer>> query = sendQuotations.GroupBy(P => P.ExchangeCode, P => P);
-                foreach (IGrouping<string, Answer> group in query)
-                {
-                    List<Answer> newSendQuotations = group.ToList<Answer>();
-                    ExchangeSystem exchangeSystem = Manager.ExchangeManager.GetExchangeSystem(newSendQuotations[0].ExchangeCode);
-                    exchangeSystem.Answer(newSendQuotations);
-                }
+            this._Client.SendQuotePrice(sendQuotations);
             }
-            catch (Exception ex)
-            {
-                Logger.AddEvent(TraceEventType.Error, "ClientService.DealerConfirmedQuoteBack error:\r\n{0}", ex.ToString());
-            }
-        }
 
-        public TransactionError AcceptPlace(Guid transactionId)
+        public TransactionError AcceptPlace(Guid transactionId, LogOrder logEntity)
         {
-            TransactionError transactionError = TransactionError.OK;
-            string exchangeCode = "WF01";
-            try
-            {
-                ExchangeSystem exchangeSystem = Manager.ExchangeManager.GetExchangeSystem(exchangeCode);
-                transactionError = exchangeSystem.AcceptPlace(transactionId);
-
-                //string objectIDs = "AcceptPlace";
-                //Write Log
+            return this._Client.AcceptPlace(transactionId, logEntity);
             }
-            catch (Exception ex)
-            {
-                Logger.AddEvent(TraceEventType.Error, "ClientService.AcceptPlace error:\r\n{0}", ex.ToString());
-            }
-            return transactionError;
-        }
 
         public TransactionError CancelPlace(Guid transactionId, CancelReason cancelReason)
         {
-            TransactionError transactionError = TransactionError.OK;
-            string exchangeCode = "WF01";
-            try
-            {
-                ExchangeSystem exchangeSystem = Manager.ExchangeManager.GetExchangeSystem(exchangeCode);
-                transactionError = exchangeSystem.CancelPlace(transactionId,cancelReason);
+            return this._Client.CancelPlace(transactionId, cancelReason);
             }
-            catch (Exception ex)
-            {
-                Logger.AddEvent(TraceEventType.Error, "ClientService.CancelPlace error:\r\n{0}", ex.ToString());
-            }
-            return transactionError;
-        }
 
-        public TransactionError Execute(Guid transactionId, string buyPrice, string sellPrice, decimal lot, Guid orderId, out XmlNode xmlNode)
+        public TransactionError Execute(Guid transactionId, string buyPrice, string sellPrice, decimal lot, Guid orderId, LogOrder logEntity)
         {
-            TransactionError transactionError = TransactionError.OK;
-            string exchangeCode = "WF01";
-            try
-            {
-                ExchangeSystem exchangeSystem = Manager.ExchangeManager.GetExchangeSystem(exchangeCode);
-                transactionError = exchangeSystem.Execute(transactionId, buyPrice,sellPrice,lot,orderId,out xmlNode);
+            return this._Client.Execute(transactionId,buyPrice,sellPrice,lot,orderId,logEntity);
             }
-            catch (Exception ex)
-            {
-                xmlNode = null;
-                Logger.AddEvent(TraceEventType.Error, "ClientService.Execute error:\r\n{0}", ex.ToString());
-            }
-            return transactionError;
+
+        public TransactionError Cancel(Guid transactionId, CancelReason cancelReason, LogOrder logEntity)
+        {
+            return this._Client.Cancel(transactionId, cancelReason, logEntity);
         }
 
         public void ResetHit(Guid[] orderIds)
         {
-            try
-            {
-                //this.StateServer.ResetHit(token, orderIDs);
+            this._Client.ResetHit(orderIds);
             }
-            catch (Exception ex)
-            {
-                Logger.AddEvent(TraceEventType.Error, "ClientService.ResetHit error:\r\n{0}", ex.ToString());
-            }
-        }
 
         public AccountInformation GetAcountInfo(Guid transactionId)
         {
-            AccountInformation accountInfor = new AccountInformation();
-            try
-            {
-                //just test data
-                accountInfor.AccountId = new Guid("9538eb6e-57b1-45fa-8595-58df7aabcfc9");
-                accountInfor.InstrumentId = new Guid("66adc06c-c5fe-4428-867f-be97650eb3b1");
-                accountInfor.Balance = 88888888;
-                accountInfor.Equity = 10000000;
-                accountInfor.Necessary = 99999999;
-                accountInfor.BuyLotBalanceSum = 100;
-                accountInfor.SellLotBalanceSum = 200;
-                accountInfor.Usable = accountInfor.Equity - accountInfor.Necessary;
-            }
-            catch(Exception ex)
-            {
-                Logger.AddEvent(TraceEventType.Error, "ClientService.GetAcountInfo error:\r\n{0}", ex.ToString());
-            }
-            return accountInfor;
+            return this._Client.GetAcountInfo(transactionId);
+        }
+        #endregion
+
+        #region Log Audit
+
+        public List<LogQuote> GetQuoteLogData(DateTime fromDate, DateTime toDate, LogType logType)
+        {
+            return this._Client.GetQuoteLogData(fromDate,toDate,logType);
+        }
+
+        public List<LogOrder> GetLogOrderData(DateTime fromDate, DateTime toDate, LogType logType)
+        {
+            return this._Client.GetLogOrderData(fromDate, toDate, logType);
+        }
+
+        public List<LogPrice> GetLogPriceData(DateTime fromDate, DateTime toDate, LogType logType)
+        {
+            return this._Client.GetLogPriceData(fromDate,toDate,logType);
+        }
+
+        public List<LogSourceChange> GetLogSourceChangeData(DateTime fromDate, DateTime toDate, LogType logType)
+        {
+            return this._Client.GetLogSourceChangeData(fromDate, toDate, logType);
         }
         #endregion
 
 
+
+
+        public ConfigMetadata GetConfigMetadata()
+        {
+            return this._Client.GetConfigMetadata();
+        }
+
+
+        public List<LogQuote> GetQuoteLogData(DateTime fromDate, DateTime toDate)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public bool AddQuotationSource(QuotationSource quotationSource)
+        {
+            return this._Client.AddQuotationSource(quotationSource);
+        }
     }
 }

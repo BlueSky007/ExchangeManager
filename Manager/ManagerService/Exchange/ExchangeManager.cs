@@ -53,11 +53,11 @@ namespace ManagerService.Exchange
             return exchangeSystem != null;
         }
 
-        public void SetQuotation(List<Quotation.Quotation> quotations)
+        public void SetQuotation(List<GeneralQuotation> quotations)
         {
             foreach (ExchangeSystem exchangeSystem in this._ExchangeSystems.Values)
             {
-                exchangeSystem.ProcessQuotation(quotations);
+                exchangeSystem.SetQuotation(quotations);
             }
         }
         public ExchangeSystem GetExchangeSystem(string exchangeCode)
@@ -70,6 +70,14 @@ namespace ManagerService.Exchange
             else
             {
                 return null;
+            }
+        }
+
+        public void SwitchPriceEnableState(string instrumentCode, bool enable)
+        {
+            foreach (ExchangeSystem exchangeSystem in this._ExchangeSystems.Values)
+            {
+                exchangeSystem.SwitchPriceState(instrumentCode, enable);
             }
         }
     }

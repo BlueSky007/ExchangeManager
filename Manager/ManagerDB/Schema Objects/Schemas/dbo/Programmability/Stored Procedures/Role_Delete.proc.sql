@@ -13,11 +13,7 @@ BEGIN
 	ELSE
 		SAVE TRAN Tran1
 	
-	DELETE FROM dbo.RoleDataPermission WHERE RoleId=@roleId
-	SET @error=@@ERROR
-	IF	@error<>0 GOTO P_Falied
-	
-	DELETE FROM dbo.RoleFunctionPermission WHERE RoleId=@roleId
+	DELETE FROM dbo.RolePermission WHERE RoleId=@roleId
 	SET @error=@@ERROR
 	IF	@error<>0 GOTO P_Falied
 	

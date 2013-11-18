@@ -88,15 +88,15 @@ namespace ManagerService.DataAccess
         {
             customer.Id = (Guid)dr["ID"];
             customer.Code = (string)dr["Code"];
-            if (dr["PrivateQuotePolicyID"] != null)
+            if (dr["PrivateQuotePolicyID"] != DBNull.Value)
             {
                 customer.PrivateQuotePolicyId = (Guid)dr["PrivateQuotePolicyID"];
             }
-            if (dr["PublicQuotePolicyID"] != null)
+            if (dr["PublicQuotePolicyID"] != DBNull.Value)
             {
                 customer.PublicQuotePolicyId = (Guid)dr["PublicQuotePolicyID"];
             }
-            if (dr["DealingPolicyID"] != null)
+            if (dr["DealingPolicyID"] != DBNull.Value)
             {
                 customer.DealingPolicyId = (Guid)dr["DealingPolicyID"];
             }
@@ -213,7 +213,7 @@ namespace ManagerService.DataAccess
             instrument.DailyMaxMove = (int)dr["DailyMaxMove"];
             instrument.LastAcceptTimeSpan = TimeSpan.FromMinutes((int)dr["LastAcceptTimeSpan"]);
             instrument.OrderTypeMask = (int)dr["OrderTypeMask"];
-            instrument.PreviousClosePrice = (string)dr["Close"];
+            instrument.PreviousClosePrice = dr.GetItemValue<string>("Close", string.Empty); 
             instrument.AutoCancelMaxLot = dr.GetItemValue<decimal>("AutoCancelMaxLot", 0);
             instrument.AutoAcceptMaxLot = dr.GetItemValue<decimal>("AutoAcceptMaxLot", 0);
             instrument.AllowedNewTradeSides = Convert.ToInt16(dr["AllowedNewTradeSides"]);

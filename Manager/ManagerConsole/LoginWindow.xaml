@@ -32,7 +32,7 @@
         <TextBox x:Name="UserNameTextBox" Text="Admin" Grid.Column="1" HorizontalAlignment="Left" Margin="59,10,0,6" Grid.Row="3" Width="202" />
         <Label Content="Password:" HorizontalAlignment="Left" Margin="55,10,0,0" VerticalAlignment="Top" Width="66" Grid.Row="4" Height="23" Grid.ColumnSpan="2" />
         <PasswordBox x:Name="PasswordTextBox" Password="12345678" Grid.Column="1" HorizontalAlignment="Left" Margin="59,7,0,0" Grid.Row="4" VerticalAlignment="Top" Width="202" Height="23"/>
-        <TextBlock x:Name="HintMessage" Grid.Column="1" Grid.Row="5" Height="22" VerticalAlignment="Top" Foreground="Red" Margin="0,10,0,0" />
+        <TextBlock x:Name="HintMessage" Grid.Column="1" Grid.Row="5" Height="Auto"  VerticalAlignment="Top" Foreground="Red" Margin="0,10,0,0"  Width="330" TextWrapping="Wrap" />
         <Button x:Name="LoginButton" Content="Login" HorizontalAlignment="Left" Width="80" Margin="59,54,0,21" Grid.Row="5" Grid.Column="1" Click="Login_Click"/>
         <Button Content="Cancel" Grid.Column="1" HorizontalAlignment="Left" Margin="181,54,0,21" Grid.Row="5" Width="80" Click="Cancel_Click"/>
         <Label Content="Language:" HorizontalAlignment="Left" Margin="54,7,0,0" VerticalAlignment="Top" Width="66" Height="23" Grid.Row="1" />

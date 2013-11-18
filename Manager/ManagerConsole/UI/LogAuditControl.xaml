@@ -1,0 +1,106 @@
+﻿<UserControl x:Class="ManagerConsole.UI.LogAuditControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:ig="http://infragistics.com/Editors"
+             xmlns:igdp="http://schemas.infragistics.com/xaml"
+             xmlns:igRibbon="http://infragistics.com/Ribbon"
+              xmlns:igThemes="http://infragistics.com/Themes"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Border Margin="0 0 0 0" MinWidth="800" Grid.Row="0">
+            <igRibbon:XamRibbon x:Name="_LogRibbon"  Theme="Black">
+                <igRibbon:XamRibbon.ApplicationMenu>
+                    <igRibbon:ApplicationMenu Visibility="Hidden">
+                        <igRibbon:ApplicationMenu.Items>
+                            <igRibbon:ButtonTool Caption="Open" Id="btnOpen" />
+                        </igRibbon:ApplicationMenu.Items>
+                        <igRibbon:ApplicationMenu.FooterToolbar>
+                            <igRibbon:ApplicationMenuFooterToolbar>
+                                <igRibbon:ButtonTool Caption="Exit" Id="btnExit" />
+                            </igRibbon:ApplicationMenuFooterToolbar>
+                        </igRibbon:ApplicationMenu.FooterToolbar>
+                    </igRibbon:ApplicationMenu>
+                </igRibbon:XamRibbon.ApplicationMenu>
+                <igRibbon:XamRibbon.QuickAccessToolbar>
+                    <igRibbon:QuickAccessToolbar>
+                        <igRibbon:QatPlaceholderTool TargetId="_QuotePriceLog"/>
+                    </igRibbon:QuickAccessToolbar>
+                </igRibbon:XamRibbon.QuickAccessToolbar>
+                <igRibbon:XamRibbon.Tabs >
+                    <igRibbon:RibbonTabItem  Height="25" x:Name="_DealingLog" KeyTip="Quo" Header="交易日志">
+                        <igRibbon:RibbonGroup>
+                            <igRibbon:ToolHorizontalWrapPanel >
+                                <igRibbon:ButtonTool  Caption="询价日志" Id="_QuotePriceLog" Click="ButtonTool_Click">
+                                    <igRibbon:ButtonTool.ToolTip>
+                                        <igRibbon:XamRibbonScreenTip 
+                                        Header="询价日志" 
+                                        Footer="Manager" 
+                                        Content="查询所有询价信息" 
+                                        FooterSeparatorVisibility="Visible" 
+                                        HeaderSeparatorVisibility="Visible" />
+                                    </igRibbon:ButtonTool.ToolTip>
+                                </igRibbon:ButtonTool>
+                                <igRibbon:ButtonTool Caption="批单日志" Id="_QuoteOrderLog" Click="ButtonTool_Click" />
+                            </igRibbon:ToolHorizontalWrapPanel>
+                        </igRibbon:RibbonGroup>
+                    </igRibbon:RibbonTabItem>
+                    <igRibbon:RibbonTabItem  Height="25" x:Name="_PriceLog" KeyTip="P" Header="价格日志">
+                        <igRibbon:RibbonGroup>
+                            <igRibbon:ToolHorizontalWrapPanel >
+                                <igRibbon:ButtonTool  Caption="价格调整日志" Id="_AdjustPriceLog" Click="ButtonTool_Click">
+                                    <igRibbon:ButtonTool.ToolTip>
+                                        <igRibbon:XamRibbonScreenTip 
+                                        Header="价格日志" 
+                                        Footer="Manager" 
+                                        Content="查询所有价格信息" 
+                                        FooterSeparatorVisibility="Visible" 
+                                        HeaderSeparatorVisibility="Visible" />
+                                    </igRibbon:ButtonTool.ToolTip>
+                                </igRibbon:ButtonTool>
+                                <igRibbon:ButtonTool Caption="源价格切换日志" Id="_SourceChangeLog" Click="ButtonTool_Click" />
+                            </igRibbon:ToolHorizontalWrapPanel>
+                        </igRibbon:RibbonGroup>
+                    </igRibbon:RibbonTabItem>
+                    <igRibbon:RibbonTabItem x:Name="Permisstion" Header="权限日志">
+                        <igRibbon:RibbonGroup>
+                            <igRibbon:ButtonTool Caption="新增用户日志" Id="id004" Click="ButtonTool_Click" />
+                            <igRibbon:ButtonTool Caption="修改用户日志" Id="id005" Click="ButtonTool_Click" />
+                            <igRibbon:ButtonTool Caption="删除用户日志" Id="id006" Click="ButtonTool_Click" />
+                        </igRibbon:RibbonGroup>
+                    </igRibbon:RibbonTabItem>
+                    <igRibbon:RibbonTabItem x:Name="ReportLog" Header="报表日志">
+                        <igRibbon:RibbonGroup>
+                            <igRibbon:ButtonTool Caption="Bold" Id="id0010" Click="ButtonTool_Click" />
+                            <igRibbon:ButtonTool Caption="Italic" Id="id0011" Click="ButtonTool_Click" />
+                            <igRibbon:ButtonTool Caption="Underline" Id="id0012" Click="ButtonTool_Click" />
+                        </igRibbon:RibbonGroup>
+                    </igRibbon:RibbonTabItem>
+                    <igRibbon:RibbonTabItem x:Name="RiskLog" Header="风险控制日志">
+                        <igRibbon:RibbonGroup>
+                            <igRibbon:ButtonTool Caption="Bold" Id="id0013" />
+                            <igRibbon:ButtonTool Caption="Italic" Id="id0014" />
+                            <igRibbon:ButtonTool Caption="Underline" Id="id0015" />
+                            <igRibbon:GalleryItemGroup Title="Risk">
+                                <igRibbon:GalleryItemGroup.ItemKeys>
+                                    <sys:String>Medium Red</sys:String>
+                                    <sys:String>Boldly Blue</sys:String>
+                                    <sys:String>Italicized Indigo</sys:String>
+                                </igRibbon:GalleryItemGroup.ItemKeys>
+                            </igRibbon:GalleryItemGroup>
+                        </igRibbon:RibbonGroup>
+                    </igRibbon:RibbonTabItem> 
+
+                </igRibbon:XamRibbon.Tabs>
+            </igRibbon:XamRibbon>
+        </Border>
+        <Frame NavigationUIVisibility="Hidden" x:Name="LogContentFrame" Width="Auto" Grid.Row="1"/>
+    </Grid>
+</UserControl>

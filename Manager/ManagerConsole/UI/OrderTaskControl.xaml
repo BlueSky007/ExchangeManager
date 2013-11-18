@@ -23,69 +23,79 @@
         <Style x:Key="ButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="#FF86CEF3"/>
         </Style>
+        <Style x:Key="TextBlockStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Height" Value="18"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="8,3,0,0"/>
+            <Setter Property="Opacity" Value="0.6"/>
+        </Style>
+
     </UserControl.Resources>
     <Grid x:Name="LayRootGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
             <RowDefinition Height="500*"/>
         </Grid.RowDefinitions>
-        <Border Margin="0" Grid.Row="0">
+        <Border Margin="0" Grid.Row="0" BorderBrush="Black" CornerRadius="5">
             <Border.Background>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <GradientStop Color="#FF9D9FA9" Offset="0"/>
                     <GradientStop Color="#FFBDC1D0" Offset="1"/>
-                    <GradientStop Color="#FF4F5570" Offset="0.263"/>
+                    <GradientStop Color="#FF4F5570" Offset="0"/>
                 </LinearGradientBrush>
             </Border.Background>
 
             <StackPanel Orientation="Horizontal" Margin="0">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Top" x:Name="_TopToolBar" HorizontalAlignment="Left" FlowDirection="LeftToRight">
-                    <Button Width="25" Height="25" x:Name="_UpdateBtn" Margin="5,1,1,1" Click="ToolBar_Click">
+                    <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Width="25" Height="25" x:Name="_UpdateBtn" Margin="5,1,1,1" Click="ToolBar_Click">
                         <Button.Content>
                             <Image Source="{Binding UpdateImg}" x:Name="_UpdateImge" ToolTipService.ToolTip="Update Price"  Margin="1"/>
                         </Button.Content>
                     </Button>
-                    <Button Width="25" Height="25" x:Name="_ModifyBtn" Margin="1" Click="ToolBar_Click">
+                    <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Width="25" Height="25" x:Name="_ModifyBtn" Margin="1" Click="ToolBar_Click">
                         <Button.Content>
                             <Image Source="{Binding ModifyImg}" x:Name="_ModifyImg" ToolTipService.ToolTip="Modify Price"  Margin="1"/>
                         </Button.Content>
                     </Button>
-                    <Button Width="25" Height="25" x:Name="_CancelBtn" Margin="1" Click="ToolBar_Click">
+                    <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Width="25" Height="25"  x:Name="_CancelBtn" Margin="1" Click="ToolBar_Click">
                         <Button.Content>
                             <Image Source="{Binding CancelImg}" x:Name="_CancelImg" ToolTipService.ToolTip="Cancel Order"  Margin="1"/>
                         </Button.Content>
                     </Button>
-                    <Button Width="25" Height="25" x:Name="_ExecuteBtn" Margin="1" Click="ToolBar_Click">
+                    <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Width="25" Height="25" x:Name="_ExecuteBtn" Margin="1" Click="ToolBar_Click">
                         <Button.Content>
                             <Image Source="{Binding ExecuteImg}" x:Name="_ExecuteImg" ToolTipService.ToolTip="Execute Order"  Margin="1"/>
                         </Button.Content>
                     </Button>
                     <Rectangle x:Name="Divid2" Style="{StaticResource DividerStyle}"/>
 
-                    <ComboBox x:Name="_InstrumentCombo" Margin="10,1,1,1" Height="23"  Width="85" SelectionChanged="InstrumentCombo_SelectionChanged" />
-                    <ComboBox x:Name="_BuySellCombo" SelectedIndex="0"  Margin="10,1,1,1" Height="23" Width="50" Foreground="Blue" SelectionChanged="BuySellCombo_SelectionChanged">
+                    <ComboBox Style="{StaticResource ComboBoxStyle}" x:Name="_InstrumentCombo" Margin="10,1,1,1" Height="23"  Width="110" SelectionChanged="InstrumentCombo_SelectionChanged" />
+                    <ComboBox Style="{StaticResource ComboBoxStyle}" x:Name="_BuySellCombo" SelectedIndex="0"  Margin="3,1,1,1" Height="23" Width="60"  SelectionChanged="BuySellCombo_SelectionChanged">
                         <ComboBoxItem Content="All"/>
                         <ComboBoxItem Content="Buy"/>
                         <ComboBoxItem Content="Sell"/>
                     </ComboBox>
-                    <ComboBox x:Name="_OpenCloseCombo"  SelectedIndex="0" Margin="10,1,1,1" Height="23" Foreground="Blue"  Width="50" SelectionChanged="IsOPenCombo_SelectionChanged" >
+                    <ComboBox  Style="{StaticResource ComboBoxStyle}" x:Name="_OpenCloseCombo"  SelectedIndex="0" Margin="3,1,1,1" Height="23"  Width="60" SelectionChanged="IsOPenCombo_SelectionChanged" >
                         <ComboBoxItem Content="All"/>
                         <ComboBoxItem Content="Open"/>
                         <ComboBoxItem Content="Close"/>
                     </ComboBox>
-                    <Button x:Name="QueryBtn" Content="Go" Height="23" Width="23" Click="QueryOrder_Click"/>
+                    <Button BorderBrush="Black" Background="LightGray"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="QueryBtn" Content="Go" Height="23" Width="23" Click="QueryOrder_Click"/>
 
-                    <Border Background="LightGray" Width="80" BorderBrush="#FF314D34" BorderThickness="1" Margin="5,3,1,1">
-                        <TextBlock VerticalAlignment="Top" Margin="1,2,1,1"  Foreground="Blue" Text="1.588" TextAlignment="Center"  FontWeight="Bold" FontSize="15" x:Name="_OriginLable" Height="25"/>
+                    <Border Background="LightGray" Width="80" Height="24" BorderBrush="#FF314D34" BorderThickness="1" Margin="5,3,1,1">
+                        <TextBlock Background="{x:Null}" VerticalAlignment="Top" Margin="1,2,1,1"  Foreground="Blue" Text="1.588" TextAlignment="Center"  FontWeight="Bold" FontSize="15" x:Name="_OriginLable" Height="25"/>
                     </Border>
 
-                    <TextBlock Text="Variation" VerticalAlignment="Center"  Foreground="White" FontWeight="Bold" Margin="15,1,1,1"/>
-                    <TextBox x:Name="_VariationText" Margin="10,1,1,1" KeyDown="VariationText_KeyDown" Text="{Binding Variation,Mode=TwoWay}" Height="23" Width="80" LostFocus="AdjustVariationText_LostFocus"/>
-                    <Button x:Name="UpButton" Content="+" Background="#FFE16941" Height="23" Width="23" Click="AdjustVariation_Click"/>
-                    <Button x:Name="DownButton" Content="-" Background="#FF314D34" Height="23" Width="23" Click="AdjustVariation_Click"/>
-                    <Button x:Name="ExecuteAllBtn"  Height="23" Width="65" Margin="10,1,1,1" IsEnabled="True" Content="Execute All" Click="ExecuteAllBtn_Click" />
+                    <TextBlock Text="Variation" FontWeight="Bold" FontSize="12" Margin="5,0,0,0" VerticalAlignment="Center" />
+                    <TextBox Style="{StaticResource TextBoxStyle}" Margin="5,0,0,0" x:Name="_VariationText"  KeyDown="VariationText_KeyDown" Text="{Binding Variation,Mode=TwoWay}" Height="23" Width="80" LostFocus="AdjustVariationText_LostFocus"/>
+                   
+                    <Button BorderBrush="Black" Foreground="White" Margin="1,0,0,0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="UpButton" Content="+" Background="#FFE16941" Height="23" Width="23" Click="AdjustVariation_Click"/>
+                    <Button BorderBrush="Black" Foreground="White" Margin="1,0,0,0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="DownButton" Content="-" Background="#FF314D34" Height="23" Width="23" Click="AdjustVariation_Click"/>
+                    <Button BorderBrush="Black" Background="LightGray" x:Name="ExecuteAllBtn" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Height="23" Width="65" Margin="3,1,1,1" IsEnabled="True" Content="Execute All" Click="ExecuteAllBtn_Click" />
 
-                    <Button Width="25" Height="25" x:Name="_ShowGroupPanelBtn" Margin="50,1,1,1" Click="ToolBar_Click" HorizontalAlignment="Right">
+                    <Button Width="25" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Height="25" x:Name="_ShowGroupPanelBtn" Margin="50,1,1,1" Click="ToolBar_Click" HorizontalAlignment="Right">
                         <Button.Content>
                             <Image Source="{Binding ExecuteImg}" x:Name="_ShowGroupPanelImg" ToolTipService.ToolTip="Show Group Panel"  Margin="1"/>
                         </Button.Content>
@@ -94,8 +104,7 @@
             </StackPanel>
         </Border>
         <Border Margin="0 0 5 0" BorderBrush="Black" Grid.Row="1">
-            <igGrid:XamGrid x:Name="_OrderTaskGrid" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto" CellStyle="{StaticResource CellStyle}" Foreground="{Binding IsBuyBrush}"
-                            InitializeRow="OrderTaskGrid_InitializeRow" DataContext="{Binding OrderTasks}" CellControlAttached="OrderTaskGrid_CellControlAttached">
+            <igGrid:XamGrid Margin="0" x:Name="_OrderTaskGrid" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto"  Foreground="{Binding IsBuyBrush}"  ><!--CellControlAttached="OrderTaskGrid_CellControlAttached"-->
                 <igGrid:XamGrid.EditingSettings>
                     <igGrid:EditingSettings IsEnterKeyEditingEnabled="True" IsF2EditingEnabled="True"/>
                 </igGrid:XamGrid.EditingSettings>
@@ -118,25 +127,25 @@
 
                 <!--Column Setting-->
                 <igGrid:XamGrid.Columns>
-                    <igGrid:TemplateColumn Key="DQHandle" IsFixed="Left" HeaderText="DQ Action" IsFilterable="False" IsMovable="False">
+                    <igGrid:TemplateColumn Key="DQHandle" IsFixed="Left" HeaderText="DQ Action" IsFilterable="False" IsMovable="False" IsHideable="False">
                         <igGrid:TemplateColumn.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal" Width="120" Margin="-5">
-                                    <Button x:Name="DQAcceptBtn" Margin="0" Background="#FFADD8E6" Width="{Binding DQCellDataDefine1.ColumnWidth}"   Content="{Binding DQCellDataDefine1.Caption}"  Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine1.IsVisibility}" IsEnabled="{Binding DQCellDataDefine1.IsEnable}"/>
-                                    <Button x:Name="DQRejectBtn" Margin="0" Background="#FFADD8E6" Width="{Binding DQCellDataDefine2.ColumnWidth}"   Content="{Binding DQCellDataDefine2.Caption}" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine2.IsVisibility}" IsEnabled="{Binding DQCellDataDefine2.IsEnable}" />
+                                <StackPanel Orientation="Horizontal" Width="122" Margin="-6">
+                                    <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" BorderBrush="Black" x:Name="DQAcceptBtn" Margin="0" Background="#FF92D3F4" Width="{Binding DQCellDataDefine1.ColumnWidth}"   Content="{Binding DQCellDataDefine1.Caption}"  Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine1.IsVisibility}" IsEnabled="{Binding DQCellDataDefine1.IsEnable}"/>
+                                    <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Margin="1,0,0,0" BorderBrush="Black" x:Name="DQRejectBtn"  Background="#FF92D3F4" Width="{Binding DQCellDataDefine2.ColumnWidth}"   Content="{Binding DQCellDataDefine2.Caption}" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine2.IsVisibility}" IsEnabled="{Binding DQCellDataDefine2.IsEnable}" Foreground="{Binding DQCellDataDefine2.FontColor}"/>
                                 </StackPanel>
                             </DataTemplate>
                         </igGrid:TemplateColumn.ItemTemplate>
                     </igGrid:TemplateColumn>
 
-                    <igGrid:TemplateColumn Key="LMTHandle" IsFixed="Left" HeaderText="Action" IsFilterable="False" IsMovable="False">
+                    <igGrid:TemplateColumn Key="LMTHandle" IsFixed="Left" HeaderText="Action" IsFilterable="False" IsMovable="False" IsHideable="False">
                         <igGrid:TemplateColumn.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" Width="240" Margin="-5">
-                                    <Button x:Name="UpdateBtn" Margin="0" Background="#FFADD8E6" Width="{Binding CellDataDefine1.ColumnWidth}"   Content="{Binding CellDataDefine1.Caption}"  Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine1.IsVisibility}" IsEnabled="{Binding CellDataDefine1.IsEnable}"/>
-                                    <Button x:Name="ModiFyBtn" Margin="0" Background="#FFADD8E6" Width="{Binding CellDataDefine2.ColumnWidth}"   Content="{Binding CellDataDefine2.Caption}" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine2.IsVisibility}" IsEnabled="{Binding CellDataDefine1.IsEnable}" />
-                                    <Button x:Name="CancelBtn" Margin="0" Background="#FFADD8E6" Width="{Binding CellDataDefine3.ColumnWidth}"   Content="{Binding CellDataDefine3.Caption}"  Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine3.IsVisibility}"/>
-                                    <Button x:Name="ExcuteBtn" Margin="0" Background="#FFADD8E6" Width="{Binding CellDataDefine4.ColumnWidth}"   Content="{Binding CellDataDefine4.Caption}"  Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine4.IsVisibility}"/>
+                                    <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" BorderBrush="Black" x:Name="UpdateBtn" Margin="0"  Width="{Binding CellDataDefine1.ColumnWidth}" Background="#FF92D3F4"  Content="{Binding CellDataDefine1.Caption}"  Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine1.IsVisibility}" IsEnabled="{Binding CellDataDefine1.IsEnable}"/>
+                                    <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" BorderBrush="Black" x:Name="ModiFyBtn" Margin="0"  Width="{Binding CellDataDefine2.ColumnWidth}" Background="#FF92D3F4"  Content="{Binding CellDataDefine2.Caption}" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine2.IsVisibility}" IsEnabled="{Binding CellDataDefine1.IsEnable}" />
+                                    <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" BorderBrush="Black" x:Name="CancelBtn" Margin="0" Background="#FF92D3F4" Width="{Binding CellDataDefine3.ColumnWidth}"   Content="{Binding CellDataDefine3.Caption}"  Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine3.IsVisibility}"/>
+                                    <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" BorderBrush="Black" x:Name="ExcuteBtn" Margin="0"  Width="{Binding CellDataDefine4.ColumnWidth}" Background="#FF92D3F4"  Content="{Binding CellDataDefine4.Caption}"  Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine4.IsVisibility}"/>
                                 </StackPanel>
                             </DataTemplate>
                         </igGrid:TemplateColumn.ItemTemplate>
@@ -150,14 +159,14 @@
                             </DataTemplate>
                         </igGrid:TemplateColumn.ItemTemplate>
                     </igGrid:TemplateColumn>
-                    <igGrid:TemplateColumn Key="ExchangeCode"  Width="70" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Exchange Code"  IsFilterable="True">
+                    <igGrid:TemplateColumn CellStyle="{StaticResource WaiteSatusCellStyle}" Key="ExchangeCode"  Width="70" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Exchange Code"  IsFilterable="True" IsHideable="False">
                         <igGrid:TemplateColumn.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding ExchangeCode}" Foreground="Gold" FontWeight="Bold"/>
+                                <TextBlock Text="{Binding ExchangeCode}" FontWeight="Bold"/>
                             </DataTemplate>
                         </igGrid:TemplateColumn.ItemTemplate>
                     </igGrid:TemplateColumn>
-                    <igGrid:TemplateColumn Key="InstrumentCode" Width="70" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Item" IsFilterable="True">
+                    <igGrid:TemplateColumn Key="InstrumentCode" Width="70" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Item" IsFilterable="True" IsHideable="False">
                         <igGrid:TemplateColumn.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding InstrumentCode}" Foreground="{Binding RowBrush}"/>

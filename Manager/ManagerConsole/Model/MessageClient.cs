@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Manager.Common;
+using ManagerConsole.ViewModel;
 
 namespace ManagerConsole.Model
 {
@@ -21,6 +22,8 @@ namespace ManagerConsole.Model
 
         private RelayEngine<Message> _MessageRelayEngine;
 
+        private QuotationMessageProcessor _QuotationMessageProcessor = QuotationMessageProcessor.Instance;
+
         public MessageClient()
         {
             this._MessageRelayEngine = new RelayEngine<Message>(this.ProcessMessage, this.HandleException);
@@ -33,85 +36,82 @@ namespace ManagerConsole.Model
 
         private bool ProcessMessage(Message message)
         {
-            return this.Process((dynamic)message);
-        }
-
-        private bool Process(PriceMessage priceMessage)
-        {
+            this.Process((dynamic)message);
             return true;
         }
 
-        private bool Process(PrimitiveQuotationMessage primitiveQuotationMessage)
+        private void Process(MetadataUpdateMessage priceMessage)
         {
-            return true;
         }
 
-        private bool Process(QuoteMessage quoteMessage)
+        private void Process(PrimitiveQuotationMessage primitiveQuotationMessage)
+        {
+            this._QuotationMessageProcessor.Process(primitiveQuotationMessage);
+        }
+
+        private void Process(AbnormalQuotationMessage abnormalQuotationMessage)
+        {
+            this._QuotationMessageProcessor.Process(abnormalQuotationMessage);
+        }
+
+        private void Process(QuoteMessage quoteMessage)
         {
             if (quoteMessage != null)
             {
                 try
                 {
                     this.QuotePriceToDealerEvent(quoteMessage);
-                    return true;
                 }
                 catch (Exception ex)
                 {
                     this.HandleException(ex);
                 }
             }
-            return true;
         }
 
-        private bool Process(PlaceMessage placeMessage)
+        private void Process(PlaceMessage placeMessage)
         {
             if (placeMessage != null)
             {
                 try
                 {
                     this.QuoteOrderToDealerEvent(placeMessage);
-                    return true;
                 }
                 catch (Exception ex)
                 {
                     this.HandleException(ex);
                 }
             }
-            return true;
         }
 
-        private bool Process(HitMessage hitMessage)
+        private void Process(HitMessage hitMessage)
         {
             if (hitMessage != null)
             {
                 try
                 {
                     this.HitPriceEvent(hitMessage);
-                    return true;
                 }
                 catch (Exception ex)
                 {
                     this.HandleException(ex);
                 }
             }
-            return true;
         }
 
-        private bool Process(UpdateMessage updateMessage)
+        private void Process(UpdateMessage updateMessage)
         {
             if (updateMessage != null)
             {
                 try
                 {
                     //this.QuotePriceToDealerEvent(updateMessage);
-                    return true;
                 }
                 catch (Exception ex)
                 {
                     this.HandleException(ex);
                 }
             }
-            return true;
         }
 
         private void HandleException(Exception exception)

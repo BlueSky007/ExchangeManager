@@ -53,10 +53,31 @@ namespace ManagerService.Exchange
             this._CommandRelayEngine.AddItem(command);
         }
 
-        public void ProcessQuotation(List<Quotation.Quotation> quotations)
+        public void SetQuotation(List<GeneralQuotation> quotations)
         {
-            // Override Quotation here.
-            throw new NotImplementedException();
+            // TODO: Override Quotation here.
+            return;
+        }
+
+        public void SwitchPriceState(string instrumentCode, bool enable)
+        {
+            // Enable/Disable Instrument price state
+            List<Tuple<Guid, bool?, bool?>> updatedStates = new List<Tuple<Guid, bool?, bool?>>();
+            List<Tuple<Guid, bool, bool>> states = DataAccess.ExchangeData.GetInstrumentPriceEnableStates(this.ExchangeCode, instrumentCode);
+            foreach (var state in states)
+            {
+                if (state.Item2 != enable || state.Item3 != enable)
+                {
+                    updatedStates.Add(new Tuple<Guid, bool?, bool?>(state.Item1, state.Item2 == enable ? null : (bool?)enable, state.Item3 == enable ? null : (bool?)enable));
+                }
+            }
+            if (updatedStates.Count > 0)
+            {
+                if (this._StateServer.SwitchPriceState(updatedStates))
+                {
+                    // TODO: Write Audit Log here.
+                }
+            }
         }
 
         private bool Dispatch(Command command)
@@ -122,12 +143,19 @@ namespace ManagerService.Exchange
             return errorCode;
         }
 
-        public CommonTransactionError Execute(Guid transactionId, string buyPrice, string sellPrice, decimal lot, Guid orderId, out XmlNode xmlNode)
+        public CommonTransactionError Cancel(Guid transactionId, CommonCancelReason cancelReason)
+        {
+            CommonTransactionError errorCode = CommonTransactionError.OK;
+
+            //TransactionError transactionError = this.StateServer.Cancel(token, tranGuid, cancelReason);
+            return errorCode;
+        }
+
+        public CommonTransactionError Execute(Guid transactionId, string buyPrice, string sellPrice, decimal lot, Guid orderId)
         {
             CommonTransactionError errorCode = CommonTransactionError.OK;
 
             //errorCode = this._StateServer.AcceptPlace(transactionId);
-            xmlNode = null;
             return errorCode;
         }
         

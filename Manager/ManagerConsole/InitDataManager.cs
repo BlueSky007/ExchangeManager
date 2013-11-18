@@ -12,6 +12,8 @@ using HitMessage = Manager.Common.HitMessage;
 using CommonParameter = Manager.Common.SystemParameter;
 using ManagerConsole.Helper;
 using SettingSet = Manager.Common.SettingSet;
+using InitializeData = Manager.Common.InitializeData;
+using SettingParameters = Manager.Common.SettingParameters;
 
 namespace ManagerConsole
 {
@@ -19,11 +21,13 @@ namespace ManagerConsole
     {
         public delegate void HitPriceReceivedRefreshUIEventHandler(int hitOrderCount);
         public event HitPriceReceivedRefreshUIEventHandler OnHitPriceReceivedRefreshUIEvent;
+
         private CommonParameter _SystemParameter = new CommonParameter();
         private Dictionary<Guid, Account> _Accounts = new Dictionary<Guid, Account>();
         private Dictionary<Guid, InstrumentClient> _Instruments = new Dictionary<Guid, InstrumentClient>();
         private Dictionary<Guid, Transaction> _Transactions = new Dictionary<Guid, Transaction>();
         private Dictionary<Guid, Order> _Orders = new Dictionary<Guid, Order>();
+        private Dictionary<string, SettingParameters> _SettingParameters = new Dictionary<string, SettingParameters>();
 
         private ObservableCollection<OrderTask> _OrderTaskEntities = new ObservableCollection<OrderTask>();
         private LmtOrderTaskForInstrumentModel _LmtOrderTaskForInstrumentModel = new LmtOrderTaskForInstrumentModel();
@@ -37,6 +41,11 @@ namespace ManagerConsole
         {
             get;
             set;
+        }
+
+        public Dictionary<string, SettingParameters> SettingParameters
+        {
+            get { return this._SettingParameters; }
         }
 
         public IEnumerable<Account> Accounts
@@ -128,9 +137,13 @@ namespace ManagerConsole
         }
 
         #region Initialize Data
-        public void Initialize(SettingSet settingSet)
+        public void Initialize(ObservableCollection<InitializeData> initializeDatas)
         {
-            this.SettingsManager.Initialize(settingSet);
+            foreach (InitializeData initializeData in initializeDatas)
+            {
+                this.SettingsManager.Initialize(initializeData.SettingSet);
+                this._SettingParameters = initializeData.SettingParameters;
+            }
         }
         #endregion
 
@@ -185,28 +198,34 @@ namespace ManagerConsole
             } 
         }
 
-        private void UpdateOrderTask(Order newOrder)
+        //Move Hit Order To the First Row
+        private void MoveHitOrder(Order newOrder)
         {
-            ObservableCollection<OrderTask> hitOrders = new ObservableCollection<OrderTask>();
-            foreach (OrderTask orderTask in this._OrderTaskModel.OrderTasks)
+            List<OrderTask> hitOrders = new List<OrderTask>();
+            IEnumerable<OrderTask> orders = this._OrderTaskModel.OrderTasks.Where(P => P.OrderId == newOrder.Id);
+
+            foreach (OrderTask entity in orders)
             {
-                if (orderTask.OrderId == newOrder.Id)
-                {
-                    orderTask.Update(newOrder);
-                    hitOrders.Add(orderTask);
-                }
+                hitOrders.Add(entity);
             }
             foreach (OrderTask entity in hitOrders)
             {
                 this._OrderTaskModel.RemoveOrderTask(entity);
-                this._OrderTaskModel.OrderTasks.Insert(0, entity);
+                OrderTask orderTask = new OrderTask(newOrder);
+                orderTask.BaseOrder = newOrder;
+                this._OrderTaskModel.OrderTasks.Insert(0, orderTask);
             }
 
             if (this.OnHitPriceReceivedRefreshUIEvent != null)
             {
-                int hitOrdersCount = hitOrders.Count;
+                int hitOrdersCount = hitOrders.Count();
                 this.OnHitPriceReceivedRefreshUIEvent(hitOrdersCount);
             }
+        }
+
+        private void UpdateOrderTask(Order newOrder)
+        {
+            this.MoveHitOrder(newOrder);
             //Update DQ Order
             foreach (DQOrderTaskForInstrument entity in this._DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments)
             {
@@ -305,26 +324,6 @@ namespace ManagerConsole
 
         private void AddOrderTaskEntity(Order order)
         {
-            //if (order.Transaction.OrderType == Manager.Common.OrderType.SpotTrade)
-            //{
-            //    OrderTask orderTask = new OrderTask(order);
-            //    orderTask.BaseOrder = order;
-
-            //    DQOrderTaskForInstrument orderTaskForInstrument = null;
-            //    orderTaskForInstrument = this._DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments.SingleOrDefault(P => P.Instrument.Id == order.Transaction.Instrument.Id);
-            //    if (orderTaskForInstrument == null)
-            //    {
-            //        orderTaskForInstrument = new DQOrderTaskForInstrument();
-            //        InstrumentClient instrument = order.Transaction.Instrument;
-            //        orderTaskForInstrument.Instrument = instrument;
-            //        orderTaskForInstrument.Origin = instrument.Origin;
-            //        orderTaskForInstrument.Variation = 0;
-
-            //        this._DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments.Add(orderTaskForInstrument);
-            //    }
-            //    orderTaskForInstrument.OnEmptyDQOrderTask += new DQOrderTaskForInstrument.EmptyDQOrderHandle(DQOrderTaskForInstrument_OnEmptyDQOrderTask);
-            //    orderTaskForInstrument.OrderTasks.Add(orderTask);
-            //}
             if (order.Transaction.OrderType == Manager.Common.OrderType.MarketOnOpen || order.Transaction.OrderType == Manager.Common.OrderType.MarketOnClose)
             {
                 OrderTask orderTask = new OrderTask(order);

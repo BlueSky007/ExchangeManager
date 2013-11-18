@@ -18,6 +18,8 @@ using Infragistics.Windows.DockManager;
 using ManagerConsole.Model;
 using ManagerConsole.Helper;
 using ManagerConsole.UI;
+using Infragistics.Controls.Menus;
+using System.Collections.ObjectModel;
 
 namespace ManagerConsole
 {
@@ -34,6 +36,7 @@ namespace ManagerConsole
         public OrderHandle OrderHandle;
         private OrderTaskControl _OrderTaskControl;
         private LMTProcess _LMTProcess;
+        private ObservableCollection<string> _Layouts;
 
         public MainWindow()
         {
@@ -83,12 +86,8 @@ namespace ManagerConsole
             try
             {
                 this.InitializeLayout(result);
-                //InitializeData
                 this.AttachEvent();
-                SettingSet settingSet = new SettingSet();
-                Manager.Common.SystemParameter parametere = new Manager.Common.SystemParameter();
-                settingSet.SystemParameter = parametere;
-                this.InitDataManager.Initialize(result.InitializeData.SettingSet);
+                this.InitDataManager.Initialize(result.InitializeDatas);
             }
             catch (Exception ex)
             {
@@ -99,6 +98,14 @@ namespace ManagerConsole
         private void InitializeLayout(LoginResult result)
         {
             // initialize layout
+            this._Layouts = new ObservableCollection<string>(result.LayoutNames);
+            foreach (string layoutName in result.LayoutNames)
+            {
+                XamMenuItem item = new XamMenuItem();
+                item.Header = layoutName;
+                item.Click += Layout_Click;
+                this.layout.Items.Add(item);
+            }
             FunctionTree functionTree = ConsoleClient.Instance.GetFunctionTree();
             for (int i = 0; i < functionTree.Modules.Count; i++)
             {
@@ -165,7 +172,7 @@ namespace ManagerConsole
                 contentBld.Append("</Content>");
                 string content = contentBld.ToString();
                 Logger.TraceEvent(System.Diagnostics.TraceEventType.Information, layout);
-                ConsoleClient.Instance.SaveLayout(layout, content);
+                ConsoleClient.Instance.SaveLayout(layout, content,"LastClosed");
                 File.WriteAllText("Layout.xml", layout);
             }
             catch (Exception ex)
@@ -186,6 +193,72 @@ namespace ManagerConsole
             changePasswordWindow.IsModal = true;
             changePasswordWindow.Show();
             changePasswordWindow.BringToFront();
+        }
+
+        private void SaveLayout(string layoutName,Action Close)
+        {
+            try
+            {
+                if (!this._Layouts.Contains(layoutName))
+                {
+                    XamMenuItem item = new XamMenuItem();
+                    item.Header = layoutName;
+                    item.Click += Layout_Click;
+                    this.layout.Items.Add(item);
+                    this._Layouts.Add(layoutName);
+                }
+                string layout = this.DockManager.SaveLayout();
+                StringBuilder contentBld = new StringBuilder();
+                contentBld.Append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+                contentBld.Append("<Content>");
+                var array = this.DockManager.GetPanes(PaneNavigationOrder.VisibleOrder);
+                foreach (ContentPane item in array)
+                {
+                    if (item.Name.ToLower() != "leftedgedock" && item.Name.ToLower() != "rightedgedock")
+                    {
+                        contentBld.AppendFormat("<ContentPane Name=\"{0}\"/>", item.Name);
+                    }
+                }
+                contentBld.Append("</Content>");
+                string content = contentBld.ToString();
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Information, layout);
+                ConsoleClient.Instance.SaveLayout(layout, content, layoutName);
+                Close();
+                MessageBox.Show("存储成功");
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "SaveLayout.\r\n{0}", ex.ToString());
+            }
+        }
+
+        private void Layout_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                XamMenuItem item = sender as XamMenuItem;
+                string layoutName = item.Header.ToString();
+                ConsoleClient.Instance.LoadLayout(layoutName, EndLoadLayout);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "Layout_Click.\r\n{0}", ex.ToString());
+            }
+        }
+
+        private void EndLoadLayout(List<string> layouts)
+        {
+            try
+            {
+                string layout = layouts[0];
+                string content = layouts[1];
+                this.LoadLayout(layout, content);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "EndLoadLayout.\r\n{0}", ex.ToString());
+            }
+
         }
 
         #region Event
@@ -230,7 +303,7 @@ namespace ManagerConsole
 
                 if (moduleId == 15)
                 {
-                    this._LMTProcess = (LMTProcess)MainWindowHelper.GetControl(ModuleType.LMTOrderTask);
+                    this._LMTProcess = (LMTProcess)MainWindowHelper.GetControl(ModuleType.LimitBatchProcess);
                     this._LMTProcess.RefreshUI();
                 }
              
@@ -250,5 +323,65 @@ namespace ManagerConsole
         }
         
         #endregion
+
+        private void SaveLayout_Click(object sender, EventArgs e)
+        {
+            SaveLayoutWindow saveLayout = new SaveLayoutWindow(this._Layouts,this.SaveLayout);
+            this.MainFrame.Children.Add(saveLayout);
+            saveLayout.IsModal = true;
+            saveLayout.Show();
+            saveLayout.BringToFront();
+        }
+
+        private void Reset_Click(object sender, EventArgs e)
+        {
+            foreach (var menuitem in this.layout.Items)
+            {
+                if (menuitem.GetType() == typeof(XamMenuItem))
+                {
+                    if (((XamMenuItem)menuitem).Icon != null)
+                    {
+                        ((CheckBox)((XamMenuItem)menuitem).Icon).IsChecked = false;
+                    }
+                }
+            }
+            ConsoleClient.Instance.LoadLayout("LastClosed", this.EndLoadLayout);
+        }
+
+        private void LoadLayout(string dockLayout, string contentLayout)
+        {
+            if (dockLayout != null)
+            {
+                this.Dispatcher.BeginInvoke((Action<string>)delegate(string layout)
+                {
+                    XDocument xdocument = XDocument.Parse(dockLayout);
+                    var panes = xdocument.Element("xamDockManager").Element("contentPanes").Elements("contentPane").Where(p => p.Attribute("name").Value != "FunctionTreePane");
+                    foreach (XElement pane in panes)
+                    {
+                        int moduleType = MainWindowHelper.GetModuleType(pane.Attribute("name").Value);
+                        if (this._Modules.ContainsKey(moduleType))
+                        {
+                            bool isAdd = false;
+                            string paneName = MainWindowHelper.GetPaneName(moduleType);
+                            ContentPane contentPane = this.DockManager.GetPanes(PaneNavigationOrder.ActivationOrder).Where(p => p.Name == paneName).SingleOrDefault();
+                            if (contentPane == null)
+                            {
+                                isAdd = true;
+                            }
+                            if (isAdd)
+                            {
+                                this.AddContentPane(moduleType);
+                            }
+                        }
+                    }
+                    this.DockManager.LoadLayout(dockLayout);
+                }, dockLayout);
+            }
+        }
+
+        private void XamMenuItem_Click_1(object sender, EventArgs e)
+        {
+            this._ConsoleClient.MessageClient.SendMessage(new Message());
+        }
     }
 }

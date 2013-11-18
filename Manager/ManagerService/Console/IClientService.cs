@@ -1,4 +1,5 @@
 ﻿using Manager.Common;
+using Manager.Common.QuotationEntities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,14 +22,17 @@ namespace ManagerService.Console
         FunctionTree GetFunctionTree();
         
         [OperationContract(IsInitiating = false)]
-        void SaveLayout(string layout, string content);
+        void SaveLayout(string layout, string content,string layoutName);
+
+        [OperationContract(IsInitiating = false)]
+        List<string> LoadLayout(string layoutName);
 
         #region UserManager
         [OperationContract(IsInitiating = false)]
         bool ChangePassword(string currentPassword, string newPassword);
 
         [OperationContract(IsInitiating = false)]
-        List<AccessPermission> GetAccessPermissions();
+        Dictionary<string, string> GetAccessPermissions();
 
         [OperationContract(IsInitiating = false)]
         List<UserData> GetUserData();
@@ -62,19 +66,44 @@ namespace ManagerService.Console
         void SendQuotePrice(List<Answer> sendQuotePrices);
 
         [OperationContract(IsInitiating = true)]
-        TransactionError AcceptPlace(Guid transactionId);
+        TransactionError AcceptPlace(Guid transactionId, LogOrder logEntity);
 
         [OperationContract(IsInitiating = false)]
         TransactionError CancelPlace(Guid transactionId, CancelReason cancelReason);
 
         [OperationContract(IsInitiating = false)]
-        TransactionError Execute(Guid transactionId, string buyPrice, string sellPrice, decimal lot, Guid orderId, out XmlNode xmlNode);
+        TransactionError Execute(Guid transactionId, string buyPrice, string sellPrice, decimal lot, Guid orderId, LogOrder logEntity);
+
+        [OperationContract(IsInitiating = false)]
+        TransactionError Cancel(Guid transactionId,CancelReason cancelReason,LogOrder logEntity);
 
         [OperationContract(IsInitiating = false)]
         void ResetHit(Guid[] orderIds);
 
         [OperationContract(IsInitiating = false)]
         AccountInformation GetAcountInfo(Guid transactionId);
+
+        [OperationContract(IsInitiating = false)]
+        List<LogQuote> GetQuoteLogData(DateTime fromDate, DateTime toDate, LogType logType);
+
+        [OperationContract(IsInitiating = false)]
+        List<LogOrder> GetLogOrderData(DateTime fromDate, DateTime toDate, LogType logType);
+
+        [OperationContract(IsInitiating = false)]
+        List<LogPrice> GetLogPriceData(DateTime fromDate, DateTime toDate, LogType logType);
+
+        [OperationContract(IsInitiating = false)]
+        List<LogSourceChange> GetLogSourceChangeData(DateTime fromDate, DateTime toDate, LogType logType);
+        
+
+        #region QuotationManager
+        [OperationContract(IsInitiating = false)]
+        ConfigMetadata GetConfigMetadata();
+
+        [OperationContract(IsInitiating = false)]
+        bool AddQuotationSource(QuotationSource quotationSource);
+
+        #endregion
     }
 
     [ServiceContract]

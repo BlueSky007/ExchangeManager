@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:ig="http://schemas.infragistics.com/xaml"
+             xmlns:igPrim="http://schemas.infragistics.com/xaml/primitives"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="600">
     <UserControl.Resources>
@@ -35,7 +36,7 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter Property="OpacityMask" Value="#AA888888"/>
-                                <Setter Property="Margin" Value="2 1" />
+                                <Setter Property="Margin" Value="0 0" />
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="BorderThickness" Value="0"/>
@@ -46,6 +47,75 @@
                                 <Setter Property="Foreground" Value="#ADADAD"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Name="CustomPager1" TargetType="igPrim:PagerCellControl" >
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="igPrim:PagerCellControl">
+                        <igPrim:PagerControl x:Name="PagerItemControl">
+                            <ig:Commanding.Commands>
+                                <ig:CommandSourceCollection>
+                                    <ig:XamGridPagingCommandSource  AllowEventHandling="True" EventName="FirstPage"  CommandType="FirstPage" >
+                                    </ig:XamGridPagingCommandSource>
+                                    <ig:XamGridPagingCommandSource AllowEventHandling="True" EventName="LastPage"  CommandType="LastPage" >
+                                    </ig:XamGridPagingCommandSource>
+                                    <ig:XamGridPagingCommandSource AllowEventHandling="True" EventName="PreviousPage"  CommandType="PreviousPage" >
+                                    </ig:XamGridPagingCommandSource>
+                                    <ig:XamGridPagingCommandSource  AllowEventHandling="True" EventName="NextPage"  CommandType="NextPage" >
+                                    </ig:XamGridPagingCommandSource>
+                                    <ig:XamGridPagingCommandSource  AllowEventHandling="True" EventName="GoToPage"  CommandType="GoToPage" >
+                                    </ig:XamGridPagingCommandSource>
+                                </ig:CommandSourceCollection>
+                            </ig:Commanding.Commands>
+                            <igPrim:PagerControl.Style>
+                                <Style TargetType="igPrim:PagerControl">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="igPrim:PagerControl">
+                                                <Grid Height="20" Background="{TemplateBinding Background}" Width="AUTO">
+                                                    <Button x:Name="AddNew" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="AddRole_Click" HorizontalAlignment="Left" Margin="5,0,0,0">
+                                                        <Button.Content>
+                                                            <Image Source="../Asset/Images/TopToolBar/add_user.png" ToolTipService.ToolTip="Add New Role"/>
+                                                        </Button.Content>
+                                                    </Button>
+                                                    <StackPanel Orientation="Horizontal" Background="{TemplateBinding Background}" HorizontalAlignment="Right">
+                                                        <Button x:Name="PreviouspageButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" >
+                                                            <Button.Content>
+                                                                <Image Source="../Asset/Images/TopToolBar/back.png" ToolTipService.ToolTip="Prev"/>
+                                                            </Button.Content>
+                                                            <ig:Commanding.Command>
+                                                                <ig:XamGridPagingControlsCommandSource EventName="Click" CommandType="PreviousPage"  ></ig:XamGridPagingControlsCommandSource>
+                                                            </ig:Commanding.Command>
+                                                        </Button>
+                                                        <ComboBox x:Name="PagerItems" >
+                                                            <ComboBox.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <TextBlock TextAlignment="Center" Text="{Binding}"></TextBlock>
+                                                                </DataTemplate>
+                                                            </ComboBox.ItemTemplate>
+                                                            <ig:Commanding.Command>
+                                                                <ig:XamGridPagingControlsCommandSource EventName="SelectionChanged" CommandType="GoToPage"  ></ig:XamGridPagingControlsCommandSource>
+                                                            </ig:Commanding.Command>
+                                                        </ComboBox>
+                                                        <Button x:Name="NextPageButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" >
+                                                            <Button.Content>
+                                                                <Image Source="../Asset/Images/TopToolBar/forward.png" ToolTipService.ToolTip="Next"/>
+                                                            </Button.Content>
+                                                            <ig:Commanding.Command>
+                                                                <ig:XamGridPagingControlsCommandSource EventName="Click" CommandType="NextPage"  ></ig:XamGridPagingControlsCommandSource>
+                                                            </ig:Commanding.Command>
+                                                        </Button>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </igPrim:PagerControl.Style>
+                        </igPrim:PagerControl>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -73,18 +143,16 @@
             </StackPanel>
             <StackPanel Orientation="Horizontal" Grid.Row="1">
                 <Label Content="RoleName" Width="AUTO"/>
-                <TextBox x:Name="RoleName" IsReadOnly="True" Width="200" Margin="30,0,0,0" />
+                <TextBox x:Name="RoleName" IsReadOnly="True" Width="200" Height="25" Margin="30,0,0,0" />
             </StackPanel>
             <Grid HorizontalAlignment="Stretch" Grid.Row="2" Margin="0,10,0,0">
                 <Label HorizontalAlignment="Left" Content="AccessPermission" ></Label>
-                <Button Style="{StaticResource MetroButton}" Content="ExpandAll" Click="AccessExpandAll_Click" HorizontalAlignment="Right" VerticalAlignment="Center"/>
             </Grid>
             <Grid HorizontalAlignment="Stretch" Grid.Row="3" Margin="0,10,0,0">
-                <ig:XamGrid x:Name="FunctionPermission" ColumnWidth="*" RowExitedEditMode="FunctionPermission_RowExitedEditMode" ScrollViewer.CanContentScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Visible" AutoGenerateColumns="False"  Margin="0,0,3,0"  Height="AUTO">
+                <ig:XamGrid x:Name="FunctionPermission" ColumnWidth="*" ScrollViewer.CanContentScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Visible" AutoGenerateColumns="False"  Margin="0,0,3,0"  Height="AUTO">
                     <ig:XamGrid.ColumnResizingSettings>
                         <ig:ColumnResizingSettings AllowCellAreaResizing="False" AllowColumnResizing="Disabled" AllowDoubleClickToSize="False" AllowMultipleColumnResize="False" />
                     </ig:XamGrid.ColumnResizingSettings>
-                    
                     <ig:XamGrid.Columns>
                         <ig:TemplateColumn Key="CategoryId" Visibility="Hidden"/>
                         <ig:TemplateColumn Key="CategoryName" HeaderText="Name" Width="400">
@@ -177,13 +245,15 @@
                 </ig:XamGrid>
             </Grid>
         </Grid>
-        <StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="1">
-            <Grid HorizontalAlignment="Stretch">
+        <Grid Grid.Row="1" Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="5*"/>
+                <RowDefinition Height="95*"/>
+            </Grid.RowDefinitions>
+            <Grid HorizontalAlignment="Stretch" Grid.Row="0">
                 <Label HorizontalAlignment="Left" Content="DataPermission"></Label>
-                <Button Style="{StaticResource MetroButton}" Content="ExpandAll" Click="DataExpandAll_Click" HorizontalAlignment="Right" HorizontalContentAlignment="Center" VerticalAlignment="Center"/>
             </Grid>
-
-            <Grid HorizontalAlignment="Stretch" Grid.Row="3" Margin="0,10,0,0">
+            <Grid HorizontalAlignment="Stretch" Grid.Row="1" Margin="0,10,0,0">
                 <ig:XamGrid x:Name="DataPermission" ColumnWidth="*" ScrollViewer.CanContentScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Visible" AutoGenerateColumns="False"  Margin="0,0,3,0"  Height="AUTO">
                     <ig:XamGrid.ColumnResizingSettings>
                         <ig:ColumnResizingSettings AllowCellAreaResizing="False" AllowColumnResizing="Disabled" AllowDoubleClickToSize="False" AllowMultipleColumnResize="False" />
@@ -280,7 +350,7 @@
                     </ig:XamGrid.Columns>
                 </ig:XamGrid>
             </Grid>
-        </StackPanel>
+        </Grid>
         <ig:XamGrid x:Name="RoleGrid" Grid.Column="0" Grid.RowSpan="2" CellClicked="RoleGrid_CellClicked" >
             <ig:XamGrid.SelectionSettings>
                 <ig:SelectionSettings CellClickAction="SelectRow" CellSelection="Single" ColumnSelection="Single" RowSelection="Single"></ig:SelectionSettings>
@@ -289,19 +359,27 @@
                 <ig:PagerSettings AllowPaging="Top" PageSize="30"/>
             </ig:XamGrid.PagerSettings>
             <ig:XamGrid.Columns>
-                <ig:TemplateColumn Key="RoleId">
-                    <ig:TemplateColumn.HeaderTemplate>
+                <ig:TemplateColumn Key="RoleId" HeaderText="Action">
+                    <!--<ig:TemplateColumn.HeaderTemplate>
                         <DataTemplate>
                             <StackPanel>
                                 <Button Content="Add New" Click="AddRole_Click" Visibility="{Binding IsAllowAdd, Converter={StaticResource BooleanToVisibility}}" Style="{StaticResource MetroButton}"></Button>
                             </StackPanel>
                         </DataTemplate>
-                    </ig:TemplateColumn.HeaderTemplate>
+                    </ig:TemplateColumn.HeaderTemplate>-->
                     <ig:TemplateColumn.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <Button Content="Edit" Tag="{Binding RoleId}" Visibility="{Binding IsAllowEdit, Converter={StaticResource BooleanToVisibility}}" Style="{StaticResource MetroButton}" Click="EditButton_Click"></Button>
-                                <Button Content="Delete" Tag="{Binding RoleId}" Visibility="{Binding IsAllowDelete, Converter={StaticResource BooleanToVisibility}}" Style="{StaticResource MetroButton}" Click="DeleteButton_Click"></Button>
+                                <Button Tag="{Binding RoleId}" Visibility="{Binding IsAllowEdit, Converter={StaticResource BooleanToVisibility}}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="EditButton_Click">
+                                    <Button.Content>
+                                        <Image Source="../Asset/Images/TopToolBar/edit_user.png" Width="20" Height="20" ToolTipService.ToolTip="Edit"/>
+                                    </Button.Content>
+                                </Button>
+                                <Button Tag="{Binding RoleId}" Visibility="{Binding IsAllowDelete, Converter={StaticResource BooleanToVisibility}}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="DeleteButton_Click">
+                                    <Button.Content>
+                                        <Image Source="../Asset/Images/TopToolBar/remove_user.png" Width="20" Height="20" ToolTipService.ToolTip="Delete"/>
+                                    </Button.Content>
+                                </Button>
                             </StackPanel>
                         </DataTemplate>
                     </ig:TemplateColumn.ItemTemplate>

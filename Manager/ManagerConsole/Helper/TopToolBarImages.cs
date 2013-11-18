@@ -39,10 +39,10 @@ namespace ManagerConsole.Helper
 
         public TopToolBarImages()
         {
-            this._UpdateImg = new BitmapImage(new Uri("../Images/TopToolBar/Update.png", UriKind.Relative));
-            this._ModifyImg = new BitmapImage(new Uri("../Images/TopToolBar/Modify.png", UriKind.Relative));
-            this._CancelImg = new BitmapImage(new Uri("../Images/TopToolBar/CancelOrder.png", UriKind.Relative));
-            this.ExecuteImg = new BitmapImage(new Uri("../Images/TopToolBar/Execute.png", UriKind.Relative));
+            this._UpdateImg = new BitmapImage(new Uri("../Asset/Images/TopToolBar/Update.png", UriKind.Relative));
+            this._ModifyImg = new BitmapImage(new Uri("../Asset/Images/TopToolBar/Modify.png", UriKind.Relative));
+            this._CancelImg = new BitmapImage(new Uri("../Asset/Images/TopToolBar/CancelOrder.png", UriKind.Relative));
+            this.ExecuteImg = new BitmapImage(new Uri("../Asset/Images/TopToolBar/Execute.png", UriKind.Relative));
         }
     }
 }

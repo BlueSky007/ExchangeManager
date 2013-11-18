@@ -31,6 +31,7 @@ namespace ManagerConsole.ViewModel
         private Transaction _Transaction;
         private InstrumentClient _Instrument;
         private Guid _OrderId;
+        private string _Code;
         private ManagerCommon.Phase _Phase;
         private OrderStatus _OrderStatus = OrderStatus.Placing;
         private string _OrderStatuString;
@@ -103,6 +104,11 @@ namespace ManagerConsole.ViewModel
         {
             get { return this._OrderId; }
             set { this._OrderId = value; }
+        }
+        public string Code
+        {
+            get { return this._Code; }
+            set { this._Code = value; }
         }
         public ManagerCommon.Phase Phase
         {
@@ -374,18 +380,6 @@ namespace ManagerConsole.ViewModel
             set;
         }
 
-        //public CellDataDefine DQCellDataDefine1
-        //{
-        //    get { return this._DQCellDataDefine1; }
-        //    set { this._DQCellDataDefine1 = value; }
-        //}
-
-        //public CellDataDefine DQCellDataDefine2
-        //{
-        //    get { return this._DQCellDataDefine2; }
-        //    set { this._DQCellDataDefine2 = value; }
-        //}
-
         public CellDataDefine CellDataDefine1
         {
             get { return this._CellDataDefine1; }
@@ -467,6 +461,7 @@ namespace ManagerConsole.ViewModel
                     this._DQCellDataDefine2.Action = HandleAction.OnOrderReject;
                     this._DQCellDataDefine2.Caption = "Reject";
                     this._DQCellDataDefine2.IsVisibility = Visibility.Visible;
+                    this._DQCellDataDefine2.FontColor = new SolidColorBrush(Colors.Red);
                 }
                 else
                 {
@@ -480,6 +475,16 @@ namespace ManagerConsole.ViewModel
                     this._CellDataDefine2.Caption = "Reject";
                     this._CellDataDefine2.FontColor = new SolidColorBrush(Colors.Red);
                     this._CellDataDefine2.IsVisibility = Visibility.Visible;
+
+                    this._DQCellDataDefine1.ColumnWidth = 60;
+                    this._DQCellDataDefine1.Action = HandleAction.OnOrderAcceptPlace;
+                    this._DQCellDataDefine1.Caption = "Accept";
+                    this._DQCellDataDefine1.IsVisibility = Visibility.Visible;
+                    this._DQCellDataDefine2.ColumnWidth = 60;
+                    this._DQCellDataDefine2.Action = HandleAction.OnOrderRejectPlace;
+                    this._DQCellDataDefine2.Caption = "Reject";
+                    this._DQCellDataDefine2.FontColor = new SolidColorBrush(Colors.Red);
+                    this._DQCellDataDefine2.IsVisibility = Visibility.Visible;
                 }
                 return;
             }
@@ -510,11 +515,11 @@ namespace ManagerConsole.ViewModel
                     this._CellDataDefine2.ColumnWidth = 120;
                     this._CellDataDefine2.IsVisibility = Visibility.Visible;
                 }
-                else if (this.OrderStatus == OrderStatus.WaitOutPriceLMT ||
-                            this.OrderStatus == OrderStatus.WaitOutLotLMTOrigin ||
-                            this.OrderStatus == OrderStatus.WaitOutLotLMT)//this.tran.subType == 3
+                else if (this.OrderStatus == OrderStatus.WaitOutPriceLMT 
+                        || this.OrderStatus == OrderStatus.WaitOutLotLMTOrigin 
+                        || this.OrderStatus == OrderStatus.WaitOutLotLMT 
+                        || this.Transaction.SubType == ManagerCommon.TransactionSubType.IfDone)
                 {
-
                     bool btnUpdateIsEnable = (this.OrderStatus == OrderStatus.WaitOutPriceLMT) ? false : true;
                     bool btnModifyIsEnable = (this.OrderStatus == OrderStatus.WaitOutLotLMT) ? true : false;
                     this._CellDataDefine1.ColumnWidth = 60;
@@ -600,6 +605,7 @@ namespace ManagerConsole.ViewModel
         {
             this._ExchangeCode = order.ExchangeCode;
             this._OrderId = order.Id;
+            this._Code = order.Code;
             this._Phase = order.Phase;
             this._OrderStatus = order.Status;
             this._IsBuy = order.BuySell;

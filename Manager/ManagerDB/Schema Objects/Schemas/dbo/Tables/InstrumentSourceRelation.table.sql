@@ -1,7 +1,8 @@
 ﻿CREATE TABLE [dbo].[InstrumentSourceRelation]
 (
-	InstrumentId INT NOT NULL, 
 	SourceId INT NOT NULL,
+	SourceSymbol VARCHAR(20) NOT NULL,
+	InstrumentId INT NOT NULL,
 	IsActive BIT NOT NULL,
 	IsDefault BIT NOT NULL,
 	Priority INT NOT NULL,

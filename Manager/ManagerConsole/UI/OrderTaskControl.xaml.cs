@@ -36,25 +36,35 @@ namespace ManagerConsole.UI
         private ManagerConsole.MainWindow _App;
         private OrderHandle OrderHandle;
         private ObservableCollection<InstrumentClient> _InstrumentList = new ObservableCollection<InstrumentClient>();
-        private Style _ExecuteStatusStyle; 
+        private Style _ExecuteStatusStyle;
+        private Style _NormalStyle;
         public OrderTaskControl()
         {
             InitializeComponent();
-
-            this._App = ((ManagerConsole.MainWindow)Application.Current.MainWindow);
-            this._CommonDialogWin = this._App.CommonDialogWin;
-            this._ConfirmDialogWin = this._App.ConfirmDialogWin;
-            this._ExecuteStatusStyle = App.Current.Resources["ExecuteSatusCellStyle"] as Style;
-            OrderHandle = new OrderHandle();
+            this.InitializeData();
             this.BindGridData();
             this.GetComboBoxData();
             this.AttachEvent();
         }
 
         #region Event
+        private void InitializeData()
+        {
+            this._App = ((ManagerConsole.MainWindow)Application.Current.MainWindow);
+            this._CommonDialogWin = this._App.CommonDialogWin;
+            this._ConfirmDialogWin = this._App.ConfirmDialogWin;
+
+            Color bgColor = Colors.Transparent;
+            Style style = new Style(typeof(Infragistics.Controls.Grids.CellControl));
+            style.Setters.Add(new Setter(BackgroundProperty, new SolidColorBrush(bgColor)));
+            this._NormalStyle = style;
+            this._ExecuteStatusStyle = App.Current.Resources["ExecuteSatusCellStyle"] as Style;
+            
+            OrderHandle = new OrderHandle();
+        }
         private void AttachEvent()
         {
-            this._App.InitDataManager.OnHitPriceReceivedRefreshUIEvent += new InitDataManager.HitPriceReceivedRefreshUIEventHandler(this.RefreshUI);
+            this._App.InitDataManager.OnHitPriceReceivedRefreshUIEvent += new InitDataManager.HitPriceReceivedRefreshUIEventHandler(this.ForwardHitOrder);
         }
         #endregion
 
@@ -94,6 +104,7 @@ namespace ManagerConsole.UI
         private void ToolBar_Click(object sender, RoutedEventArgs e)
         {
             Button clickImg = (Button)sender;
+            if (this._OrderTaskGrid.Rows.Count == 0) return;
             OrderTask orderTask = this._OrderTaskGrid.Rows[0].Data as OrderTask;
             switch (clickImg.Name)
             {
@@ -108,6 +119,7 @@ namespace ManagerConsole.UI
                 case "_CancelBtn":
                     if (orderTask == null || orderTask.OrderType != ManagerCommon.OrderType.Limit) return;
                     this.OrderHandle.OnOrderWait(orderTask);
+                    this.BackHitOrder(orderTask, 0);
                     break;
                 case "_ExecuteBtn":
                     if (orderTask == null || orderTask.OrderType != ManagerCommon.OrderType.Limit) return;
@@ -131,12 +143,10 @@ namespace ManagerConsole.UI
                 case "DQAcceptBtn":
                     orderTask = btn.DataContext as OrderTask;
                     currentCellData = orderTask.DQCellDataDefine1;
-                    this.ProcessPendingOrder(orderTask, currentCellData);
                     break;
                 case "DQRejectBtn":
                      orderTask = btn.DataContext as OrderTask;
                      currentCellData = orderTask.DQCellDataDefine2;
-                     this.ProcessPendingOrder(orderTask, currentCellData);
                      break;
                 case "ExecuteAllBtn":
                     lmtOrderForInstrument = ((UnboundColumnDataContext)btn.DataContext).RowData as LmtOrderTaskForInstrument;
@@ -152,7 +162,9 @@ namespace ManagerConsole.UI
                     break;
                 case "CancelBtn":
                     orderTask = btn.DataContext as OrderTask;
-                    currentCellData = orderTask.DQCellDataDefine1;
+                    currentCellData = orderTask.CellDataDefine3;
+                    int rowIndex = this._OrderTaskGrid.ActiveCell.Row.Index;
+                    this.BackHitOrder(orderTask, rowIndex);
                     break;
                 case "ExcuteBtn":
                     orderTask = btn.DataContext as OrderTask;
@@ -468,11 +480,10 @@ namespace ManagerConsole.UI
 
         private void OrderTaskGrid_InitializeRow(object sender, Infragistics.Controls.Grids.InitializeRowEventArgs e)
         {
-            Color bgColor = Colors.Transparent;
-            Style style = new Style(typeof(Infragistics.Controls.Grids.CellControl));
-            style.Setters.Add(new Setter(BackgroundProperty, new SolidColorBrush(bgColor)));
-
-            e.Row.CellStyle = style;
+            //Color bgColor = Colors.Transparent;
+            //Style style = new Style(typeof(Infragistics.Controls.Grids.CellControl));
+            //style.Setters.Add(new Setter(BackgroundProperty, new SolidColorBrush(bgColor)));
+            //e.Row.CellStyle = style;
         }
 
         void OrderTaskGrid_CellControlAttached(object sender, CellControlAttachedEventArgs e)
@@ -502,6 +513,8 @@ namespace ManagerConsole.UI
             if (orderTask != null)
             {
                 row.CellStyle = App.Current.Resources["ExecuteSatusCellStyle"] as Style;
+                this._OrderTaskGrid.Columns["DQHandle"].CellStyle = App.Current.Resources["OrangeColumnStyle"] as Style;
+                this._OrderTaskGrid.Columns["LMTHandle"].CellStyle = App.Current.Resources["OrangeColumnStyle"] as Style;
             }
         }
 
@@ -547,17 +560,25 @@ namespace ManagerConsole.UI
             }
         }
 
-        public void RefreshUI(int hitOrdersCount)
+        public void ForwardHitOrder(int hitOrdersCount)
         {
             this._OrderTaskGrid.ItemsSource = null;
-
             this._OrderTaskGrid.ItemsSource = this._App.InitDataManager.OrderTaskModel.OrderTasks;
+
             for (int i = 0; i < hitOrdersCount; i++)
             {
                 this._OrderTaskGrid.Rows[i].CellStyle = this._ExecuteStatusStyle;
             }
-
             this.FilterInstantOrder();
+        }
+
+        public void BackHitOrder(OrderTask orderTask,int rowIndex)
+        {
+            this._OrderTaskGrid.Rows[rowIndex].CellStyle = this._NormalStyle;
+            this._App.InitDataManager.OrderTaskModel.OrderTasks.Remove(orderTask);
+            int index = this._App.InitDataManager.OrderTaskModel.OrderTasks.Count - 1;
+            this._App.InitDataManager.OrderTaskModel.OrderTasks.Insert(index, orderTask);
+            this._OrderTaskGrid.ItemsSource = this._App.InitDataManager.OrderTaskModel.OrderTasks;
         }
 
         private void CheckDQAcceptVariation()

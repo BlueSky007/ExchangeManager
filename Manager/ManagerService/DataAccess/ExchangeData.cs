@@ -126,41 +126,68 @@ namespace ManagerService.DataAccess
             return dataPermissions;
         }
 
-        public static InitializeData GetInitData(Guid userId, XmlNode permittedKeys,XmlNode selector, string exchangeCode)
+        public static SettingParameters GetSettingParameters(ExchangeSystemSetting exchangeSystemSetting)
+        {
+            SettingParameters settings = new SettingParameters();
+            settings.AllowModifyOrderLot = exchangeSystemSetting.AllowModifyOrderLot;
+            settings.ConfirmRejectDQOrder = exchangeSystemSetting.ConfirmRejectDQOrder;
+            return settings;
+        }
+
+        public static InitializeData GetInitData(string exchangeCode,Guid userId, List<DataPermission> permissions, bool accountDeafultStatus, bool instrumentDeafuleStatus)
         {
             InitializeData initializeData = new InitializeData();
-            //XmlNode itemNode = GetPermissionItems();
-            //return this._StateServer.GetInitData();
-            string sql = "dbo.GetInitialDataForManager";
-            SqlParameter[] parameters = new SqlParameter[3];
-            //just test
-            SqlParameter userIdParameter = new SqlParameter("@userId", new Guid("D8DCAF50-5021-41F2-A848-80A540F980C1"));
-            SqlParameter instrumentKeyParameter;
-            SqlParameter instrumentSelectParameter;
-            if (permittedKeys != null)
+
+            DataTable groupPermission = new DataTable();
+            groupPermission.Columns.Add("GroupId", typeof(Guid));
+            groupPermission.Columns.Add("GroupType", typeof(string));
+            groupPermission.Columns.Add("Status", typeof(bool));
+            foreach (DataPermission item in permissions)
             {
-                instrumentKeyParameter = new SqlParameter("@permittedKeys", permittedKeys.OuterXml);
-            }
-            else
-            {
-                instrumentKeyParameter = new SqlParameter("@permittedKeys",null);
-            }
-            if (selector != null)
-            {
-                instrumentSelectParameter = new SqlParameter("@xmlInstruments", selector.OuterXml);
-            }
-            else
-            {
-                instrumentSelectParameter = new SqlParameter("@xmlInstruments", null);
+                if (item.DataObjectId != null)
+                {
+                    DataRow row = groupPermission.NewRow();
+                    row["GroupId"] = item.DataObjectId;
+                    row["GroupType"] = item.DataObjectType;
+                    row["Status"] = item.IsAllow;
+                    groupPermission.Rows.Add(row);
+                }
             }
 
+            string sql = "dbo.GetInitialDataForManager";
+            SqlParameter[] parameters = new SqlParameter[4];
+            //just test
+            SqlParameter userIdParameter = new SqlParameter("@userId", new Guid("D8DCAF50-5021-41F2-A848-80A540F980C1"));
+            SqlParameter accountParameter =  new SqlParameter("@accountDeafultStatus",accountDeafultStatus);
+            SqlParameter instrumentParameter = new SqlParameter("@instrumentDeafuleStatus", instrumentDeafuleStatus);
+            SqlParameter tableParameter = new SqlParameter("@dataPermissions", groupPermission);
+            tableParameter.SqlDbType = SqlDbType.Structured;
+            tableParameter.TypeName = "[dbo].[DataPermissions]";
+            
+
             parameters[0] = userIdParameter;
-            parameters[1] = instrumentKeyParameter;
-            parameters[2] = instrumentSelectParameter;
+            parameters[1] = accountParameter;
+            parameters[2] = instrumentParameter;
+            parameters[3] = tableParameter;
             DataAccess.GetInstance(exchangeCode).ExecuteReader(sql, CommandType.StoredProcedure, delegate(SqlDataReader reader)
             {
                 try
                 {
+                    List<Guid> accountMemberIds = new List<Guid>();
+                    List<Guid> instrumentMemberIds = new List<Guid>();
+                    while (reader.Read())
+                    { 
+                        accountMemberIds.Add((Guid)reader["ID"]); 
+                    }
+                    reader.NextResult();
+                    while (reader.Read())
+                    {
+                        instrumentMemberIds.Add((Guid)reader["ID"]);
+                    }
+                    reader.NextResult();
+                    initializeData.ValidAccounts.Add(exchangeCode, accountMemberIds);
+                    initializeData.ValidInstruments.Add(exchangeCode, instrumentMemberIds);
+
                     initializeData.SettingSet = new SettingSet();
                     initializeData.SettingSet.Initialize(reader);
                 }
@@ -170,6 +197,21 @@ namespace ManagerService.DataAccess
                 }
             }, parameters);
             return initializeData;
+        }
+
+        public static List<Tuple<Guid, bool, bool>> GetInstrumentPriceEnableStates(string exchangeCode, string instrumentCode)
+        {
+
+            List<Tuple<Guid, bool, bool>> result = new List<Tuple<Guid, bool, bool>>();
+            string sql = "SELECT ID,IsPriceEnabled,IsAutoEnablePrice FROM Instrument WHERE OriginCode=@originCode";
+            DataAccess.GetInstance(exchangeCode).ExecuteReader(sql, CommandType.Text, delegate(SqlDataReader reader)
+            {
+                while (reader.Read())
+                {
+                    result.Add(new Tuple<Guid, bool, bool>((Guid)reader["ID"], (bool)reader["IsPriceEnabled"], (bool)reader["IsAutoEnablePrice"]));
+                }
+            }, new SqlParameter("@originCode", instrumentCode));
+            return result;
         }
     }
 }

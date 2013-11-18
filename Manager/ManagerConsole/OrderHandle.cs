@@ -12,6 +12,9 @@ using CommonParameter = Manager.Common.SystemParameter;
 using OrderType = Manager.Common.OrderType;
 using TransactionType = Manager.Common.TransactionType;
 using AccountInfor = Manager.Common.AccountInformation;
+using LogOrder = Manager.Common.LogOrder;
+using OperationType = Manager.Common.OperationType;
+using SettingParameter = Manager.Common.SettingParameters;
 using System.Xml;
 using System.Collections.ObjectModel;
 
@@ -31,7 +34,7 @@ namespace ManagerConsole
             this._CommonDialogWin = this._App.CommonDialogWin;
             this._ConfirmDialogWin = this._App.ConfirmDialogWin;
             this.ConfirmOrderDialogWin = this._App.ConfirmOrderDialogWin;
-            this.ConfirmOrderDialogWin.OnConfirmDialogResult += new ConfirmOrderDialogWin.ConfirmDialogResultHandle(ProcessHandle);
+            this.ConfirmOrderDialogWin.OnConfirmDialogResult += new ConfirmOrderDialogWin.ConfirmDialogResultHandle(ExecuteOrderHandle);
             this.ConfirmOrderDialogWin.OnModifyPriceDialogResult += new ConfirmOrderDialogWin.ConfirmModifyPriceResultHandle(ModifyPriceHandle);
             this.ConfirmOrderDialogWin.OnRejectOrderDialogResult += new ConfirmOrderDialogWin.RejectOrderResultHandle(RejectOrderHandle);
         }
@@ -56,7 +59,7 @@ namespace ManagerConsole
                 {
                     if (MessageBox.Show("Accept the order?", "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                     {
-                        this.AcceptDQPlace(orderTask);
+                        this.Commit(orderTask, string.Empty, (decimal)orderTask.Lot);
                     }
                 }
             }
@@ -64,51 +67,53 @@ namespace ManagerConsole
 
         public void OnOrderReject(OrderTask order)
         {
-            SystemParameter systemParameter = this._App.InitDataManager.SettingsManager.SystemParameter;
-            systemParameter.ConfirmRejectDQOrder = true;//test Data from WebConfig
-
-            if (systemParameter.ConfirmRejectDQOrder)
+            SettingParameter parameter = new SettingParameter();
+            this._App.InitDataManager.SettingParameters.TryGetValue(order.ExchangeCode,out parameter);
+            if (order.OrderStatus == OrderStatus.WaitOutPriceDQ || order.OrderStatus == OrderStatus.WaitOutLotDQ)
             {
-                if (MessageBox.Show("Are you sure reject the order?", "Reject", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                if (parameter.ConfirmRejectDQOrder)
                 {
-                    if (order.OrderStatus == OrderStatus.WaitAcceptRejectPlace
-                        || order.OrderStatus == OrderStatus.WaitAcceptRejectCancel
-                        || order.OrderStatus == OrderStatus.WaitOutPriceDQ
-                        || order.OrderStatus == OrderStatus.WaitOutLotDQ
-                        || (order.OrderStatus == OrderStatus.WaitNextPrice && order.Transaction.OrderType == Manager.Common.OrderType.Limit))
+                    if (MessageBox.Show("Are you sure reject the order?", "Reject", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                     {
-                        foreach (Order orderEntity in order.Transaction.Orders)
+                        if (order.OrderStatus == OrderStatus.WaitAcceptRejectPlace
+                            || order.OrderStatus == OrderStatus.WaitAcceptRejectCancel
+                            || order.OrderStatus == OrderStatus.WaitOutPriceDQ
+                            || order.OrderStatus == OrderStatus.WaitOutLotDQ
+                            || (order.OrderStatus == OrderStatus.WaitNextPrice && order.Transaction.OrderType == OrderType.Limit))
                         {
-                            orderEntity.Status = OrderStatus.Deleting;
+                            foreach (Order orderEntity in order.Transaction.Orders)
+                            {
+                                orderEntity.Status = OrderStatus.Deleting;
+                            }
+                            this.CancelTransaction(order);
                         }
-                        this.RejectPlace(order.Transaction.Id);
+                        else
+                        {
+                            string sMsg = "The order is canceled or executed already";
+                            this._CommonDialogWin.ShowDialogWin(sMsg, "Alert");
+                        }
                     }
-                    else
-                    {
-                        string sMsg = "The order is canceled or executed already";
-                        this._CommonDialogWin.ShowDialogWin(sMsg, "Alert");
-                    }
-                    this._App.InitDataManager.OrderTaskModel.RemoveOrderTask(order);
                 }
             }
         }
 
-        private void AcceptDQPlace(OrderTask order)
-        {
-            ConsoleClient.Instance.AcceptPlace(order.Transaction, AcceptPlaceCallback);
-
-            this._App.InitDataManager.OrderTaskModel.RemoveOrderTask(order);
-        }
 
         //接受限价单下单
-        private void AcceptLmtPlace(OrderTask order)
+        private void AcceptLmtPlace(OrderTask orderTask)
         {
-            ConsoleClient.Instance.AcceptPlace(order.Transaction, AcceptPlaceCallback);
+            LogOrder logEntity = LogEntityConvert.GetLogOrderEntity(orderTask, OperationType.OnOrderAcceptPlace, "ExecuteOrder");
+            ConsoleClient.Instance.AcceptPlace(orderTask.Transaction, logEntity, AcceptPlaceCallback);
         }
 
-        private void RejectPlace(Guid transactionId)
+        private void CancelTransaction(OrderTask orderTask)
         {
-            ConsoleClient.Instance.CancelPlace(transactionId, Manager.Common.CancelReason.CustomerCanceled, RejectPlaceCallback);
+            LogOrder logEntity = LogEntityConvert.GetLogOrderEntity(orderTask, OperationType.OnOrderCancel, "RejectOrder");
+            ConsoleClient.Instance.Cancel(orderTask.Transaction, Manager.Common.CancelReason.DealerCanceled, logEntity, CancelTransactionCallback);
+        }
+
+        private void RejectPlace(Transaction transaction)
+        {
+            ConsoleClient.Instance.CancelPlace(transaction, Manager.Common.CancelReason.CustomerCanceled, RejectPlaceCallback);
         }
         
         public void OnOrderExecute(OrderTask orderTask)
@@ -179,31 +184,6 @@ namespace ManagerConsole
             }
         }
 
-        public void CancelTransaction(OrderTask orderTask)
-        {
-            if (orderTask.OrderStatus == OrderStatus.WaitAcceptRejectPlace
-                || orderTask.OrderStatus == OrderStatus.WaitAcceptRejectCancel
-
-                || orderTask.OrderStatus == OrderStatus.WaitOutPriceDQ
-                || orderTask.OrderStatus == OrderStatus.WaitOutLotDQ
-                || (orderTask.OrderStatus == OrderStatus.WaitNextPrice && orderTask.Transaction.OrderType == OrderType.Limit))
-            {
-                foreach(Order order in orderTask.Transaction.Orders)
-                {
-                    order.ChangeStatus(OrderStatus.Deleting);
-                }
-                orderTask.ChangeStatus(OrderStatus.Deleting);
-
-                this._RejectTran = orderTask.Transaction;
-
-                ConsoleClient.Instance.CancelPlace(orderTask.Transaction.Id, Manager.Common.CancelReason.DealerCanceled, CancelTransactionCallback);
-            }
-            else
-            {
-                var sMsg = "The order is canceled or executed already";
-                this._CommonDialogWin.ShowDialogWin(sMsg, "Alert", 300, 180);
-            }
-        }
 
         //Accept or Reject Lmt Order
         public void OnOrderAcceptPlace(OrderTask orderTask)
@@ -349,15 +329,16 @@ namespace ManagerConsole
             return account.Code + (isBuy ? " buy " : " sell ") + orderTask.Lot + " " + instrument.Code + " at " + orderTask.SetPrice;
         }
 
-        private void Commit(OrderTask order, string executePrice, decimal lot)
+        private void Commit(OrderTask orderTask, string executePrice, decimal lot)
         {
-            order.ChangeStatus(OrderStatus.WaitServerResponse);
+            orderTask.ChangeStatus(OrderStatus.WaitServerResponse);
+            orderTask.BaseOrder.ChangeStatus(OrderStatus.WaitServerResponse);
 
             string buyPrice = string.Empty;
             string sellPrice = string.Empty;
-            executePrice = string.IsNullOrEmpty(executePrice) ? order.SetPrice:executePrice;
+            executePrice = string.IsNullOrEmpty(executePrice) ? orderTask.SetPrice:executePrice;
 
-            if(order.IsBuy == BuySell.Buy)
+            if(orderTask.IsBuy == BuySell.Buy)
             {
                 buyPrice = executePrice;
             }
@@ -366,21 +347,43 @@ namespace ManagerConsole
                 sellPrice = executePrice;
             }
 
-            switch(order.Transaction.Type)
+            switch(orderTask.Transaction.Type)
             {
                 case TransactionType.Single:
-                    this.ChangeOrderStatus(order, OrderStatus.WaitServerResponse);
+                    foreach (Order order in orderTask.Transaction.Orders)
+                    {
+                        order.ChangeStatus(OrderStatus.WaitServerResponse);
+                    }
                     break;
                 case TransactionType.Pair:
-                    this.ChangeOrderStatus(order, OrderStatus.WaitServerResponse);
+                    foreach (Order orderTemp in orderTask.Transaction.Orders)
+                    {
+                        if (orderTemp.Id != orderTask.OrderId)
+                        {
+                            orderTemp.ChangeStatus(OrderStatus.WaitServerResponse);
+                            executePrice = orderTemp.SetPrice;
+
+                            if (orderTemp.BuySell == BuySell.Buy)
+                                buyPrice = (executePrice == null) ? "" : executePrice.ToString();
+                            else
+                                sellPrice = (executePrice == null) ? "" : executePrice.ToString();
+                            break;
+                        }
+                    }
                     break;
                 case TransactionType.OneCancelOther:
-                    this.ChangeOrderStatus(order, OrderStatus.Deleting);
+                    foreach (Order orderTemp in orderTask.Transaction.Orders)
+                    {
+                        if (orderTemp.Id != orderTask.OrderId)
+                        {
+                            orderTemp.ChangeStatus(OrderStatus.Deleting);
+                        }
+                    }
                     break;
             }
             //if (!order.id) alert("The order is not valid!");
-            XmlNode xmlNode = null;
-            ConsoleClient.Instance.Execute(order.Transaction.Id, buyPrice, sellPrice, (decimal)order.Lot, order.OrderId, out xmlNode, ExecuteCallback);
+            LogOrder logEntity = LogEntityConvert.GetLogOrderEntity(orderTask, OperationType.OnOrderExecute, "ExecuteOrder");
+            ConsoleClient.Instance.Execute(orderTask.Transaction, buyPrice, sellPrice, (decimal)orderTask.Lot, orderTask.OrderId, logEntity, ExecuteCallback);
         }
 
         private void ChangeOrderStatus(OrderTask order,OrderStatus newStatus)
@@ -394,7 +397,8 @@ namespace ManagerConsole
             }
         }
 
-        void ProcessHandle(bool yesOrNo,OrderTask orderTask,HandleAction action)
+        //成交单
+        void ExecuteOrderHandle(bool yesOrNo, OrderTask orderTask, HandleAction action)
         {
             if (yesOrNo)
             {
@@ -403,7 +407,7 @@ namespace ManagerConsole
                     case HandleAction.None:
                         break;
                     case HandleAction.OnOrderAccept:
-                        this.AcceptDQPlace(orderTask);
+                        this.Commit(orderTask, string.Empty, (decimal)orderTask.Lot);
                         break;
                     case HandleAction.OnOrderExecute:
                         this.Commit(orderTask, string.Empty, (decimal)orderTask.Lot);
@@ -478,7 +482,7 @@ namespace ManagerConsole
             }, transactionError);
         }
 
-        private void RejectPlaceCallback(TransactionError transactionError)
+        private void RejectPlaceCallback(Transaction tran,TransactionError transactionError)
         {
             this.Dispatcher.BeginInvoke((Action<TransactionError>)delegate(TransactionError result)
             {
@@ -489,22 +493,20 @@ namespace ManagerConsole
             }, transactionError);
         }
 
-        private void CancelTransactionCallback(TransactionError transactionError)
+        private void CancelTransactionCallback(Transaction tran,TransactionError transactionError)
         {
             this.Dispatcher.BeginInvoke((Action<TransactionError>)delegate(TransactionError result)
             {
                 if (result == TransactionError.OK)
                 {
-                    foreach (Order order in this._RejectTran.Orders)
+                    foreach (Order order in tran.Orders)
                     {
-                        order.ChangeStatus(OrderStatus.Canceled);
-
-                        if (order.Transaction.OrderType == OrderType.Limit)
+                        if (order.Status == OrderStatus.Deleting)
                         {
-                            OrderTask orderTask = this._App.InitDataManager.OrderTaskModel.OrderTasks.SingleOrDefault(P => P.OrderId == order.Id);
-                            this._App.InitDataManager.OrderTaskModel.RemoveOrderTask(orderTask);
+                            order.ChangeStatus(OrderStatus.Canceled);
                         }
                     }
+                    this.RemoveTransaction(tran);
                 }
                 else
                 {
@@ -518,13 +520,47 @@ namespace ManagerConsole
             }, transactionError);
         }
 
-        private void ExecuteCallback(TransactionError transactionError)
+        //Execute DQ Order/Lmt Order
+        private void ExecuteCallback(Transaction tran,TransactionError transactionError)
         {
-            if (transactionError == TransactionError.OK)
+            this.Dispatcher.BeginInvoke((Action<TransactionError>)delegate(TransactionError result)
             {
-                var ss = "";
-            }
+                if (result == TransactionError.OK)
+                {
+                    foreach (Order order in tran.Orders)
+                    {
+                        if (order.Status == OrderStatus.Deleting || order.Status == OrderStatus.Deleting)
+                        {
+                            order.ChangeStatus(OrderStatus.Deleted);
+                        }
+                    }
+                    this.RemoveTransaction(tran);
+                }
+            }, transactionError);
         }
         #endregion
+
+        private void RemoveTransaction(Transaction tran)
+        {
+            List<OrderTask> deleteOrders = new List<OrderTask>();
+            foreach (Order order in tran.Orders)
+            {
+                order.ChangeStatus(OrderStatus.Canceled);
+
+                foreach (OrderTask orderTask in this._App.InitDataManager.OrderTaskModel.OrderTasks)
+                {
+                    if (orderTask.OrderId == order.Id)
+                    {
+                        deleteOrders.Add(orderTask);
+                        continue;
+                    }
+                }
+            }
+
+            foreach (OrderTask orderTask in deleteOrders)
+            {
+                this._App.InitDataManager.OrderTaskModel.RemoveOrderTask(orderTask);
+            }
+        }
     }
 }

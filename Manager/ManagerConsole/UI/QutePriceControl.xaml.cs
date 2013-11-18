@@ -437,6 +437,7 @@ namespace ManagerConsole
                 {
                     if (quotePrice != null)
                     {
+                        quotePrice.InstrumentCode = quotePriceForInstrument.InstrumentClient.Code;
                         quoteQuotations.Add(quotePrice.ToSendQutoPrice());
                     }
                 }
@@ -466,6 +467,7 @@ namespace ManagerConsole
                 {
                     if (quotePrice != null)
                     {
+                        quotePrice.InstrumentCode = quotePriceForInstrument.InstrumentClient.Code;
                         ToSendQutoPrices.Add(quotePrice.ToSendQutoPrice());
                     }
                 }

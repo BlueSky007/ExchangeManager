@@ -157,6 +157,7 @@ namespace ManagerConsole.ViewModel
         }
     }
 
+    #region FunctionPermission
     public class FunctionGridData
     {
         public ObservableCollection<CategoryGridData> CategoryDatas { get; set; }
@@ -254,7 +255,7 @@ namespace ManagerConsole.ViewModel
                             }
                             else
                             {
-                                if (modulePermission !=null)
+                                if (modulePermission != null)
                                 {
                                     if (modulePermission.IsAllow)
                                     {
@@ -366,25 +367,18 @@ namespace ManagerConsole.ViewModel
     public class CategoryGridData : INotifyPropertyChanged
     {
         #region private
-        private bool? _isCategoryAllow;
-        private bool? _isCategoryDeny; 
+        private bool _isCategoryAllow;
+        private bool _isCategoryDeny;
         #endregion
 
         #region public
         public int CategoryId { get; set; }
         public string CategoryName { get; set; }
-        public bool? IsCategoryAllow
+        public bool IsCategoryAllow
         {
             get
             {
-                if (_isCategoryDeny == true)
-                {
-                    return !_isCategoryDeny;
-                }
-                else
-                {
-                    return _isCategoryAllow;
-                }
+                return _isCategoryAllow;
             }
             set
             {
@@ -406,18 +400,11 @@ namespace ManagerConsole.ViewModel
                 this.NotifyPropertyChanged("IsCategoryDeny");
             }
         }
-        public bool? IsCategoryDeny
+        public bool IsCategoryDeny
         {
             get
             {
-                if (_isCategoryAllow == true)
-                {
-                    return !_isCategoryAllow;
-                }
-                else
-                {
-                    return _isCategoryDeny;
-                }
+                return _isCategoryDeny;
             }
             set
             {
@@ -430,7 +417,8 @@ namespace ManagerConsole.ViewModel
                 else
                 {
                     _isCategoryDeny = value;
-                } if (_isCategoryAllow != true)
+                }
+                if (_isCategoryAllow != true)
                 {
                     this.SetChildIsDeny(value);
                 }
@@ -438,14 +426,14 @@ namespace ManagerConsole.ViewModel
                 this.NotifyPropertyChanged("IsCategoryDeny");
             }
         }
-        public ObservableCollection<ModuleData> ModuleDatas { get; set; } 
+        public ObservableCollection<ModuleData> ModuleDatas { get; set; }
         #endregion
 
         #region Constroctor
         public CategoryGridData()
         {
             ModuleDatas = new ObservableCollection<ModuleData>();
-        } 
+        }
         #endregion
 
         #region event
@@ -457,7 +445,7 @@ namespace ManagerConsole.ViewModel
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(info));
             }
-        } 
+        }
         #endregion
 
         #region method
@@ -469,8 +457,8 @@ namespace ManagerConsole.ViewModel
                 {
                     if (module.IsModuleAllow == null || module.IsModuleDeny == null || module.IsModuleDeny == module.IsModuleAllow)
                     {
-                        module.SetPermission(false, _isCategoryDeny);
                         module.SetDeafult(false, false);
+                        module.SetPermission(false, false);
                     }
                 }
             }
@@ -480,8 +468,8 @@ namespace ManagerConsole.ViewModel
                 {
                     if (module.IsModuleAllow == null || module.IsModuleDeny == null || module.IsModuleDeny == module.IsModuleAllow)
                     {
-                        module.SetPermission(null, false);
                         module.SetDeafult(null, false);
+                        module.SetPermission(null, false);
                     }
                 }
             }
@@ -495,8 +483,8 @@ namespace ManagerConsole.ViewModel
                 {
                     if (module.IsModuleAllow == null || module.IsModuleDeny == null || module.IsModuleDeny == module.IsModuleAllow)
                     {
-                        module.SetPermission(_isCategoryAllow, false);
                         module.SetDeafult(false, false);
+                        module.SetPermission(_isCategoryAllow, false);
                     }
                 }
             }
@@ -506,8 +494,8 @@ namespace ManagerConsole.ViewModel
                 {
                     if (module.IsModuleAllow == null || module.IsModuleDeny == null || module.IsModuleDeny == module.IsModuleAllow)
                     {
-                        module.SetPermission(false, null);
                         module.SetDeafult(false, null);
+                        module.SetPermission(false, null);
                     }
                 }
             }
@@ -548,10 +536,10 @@ namespace ManagerConsole.ViewModel
     public class ModuleData : INotifyPropertyChanged
     {
         #region private
-        private bool? _isModuleAllow;
-        private bool? _isModuleDeny;
-        private bool? _deafultAllow;
-        private bool? _deafultDeny; 
+        private bool? _isModuleAllow = false;
+        private bool? _isModuleDeny = false;
+        private bool? _deafultAllow = false;
+        private bool? _deafultDeny = false;
         #endregion
 
         #region public
@@ -561,66 +549,68 @@ namespace ManagerConsole.ViewModel
         {
             get
             {
-                if (_isModuleDeny == true)
-                {
-                    return !_isModuleDeny;
-                }
-                else
-                {
-                    return _isModuleAllow;
-                }
+                return _isModuleAllow;
             }
             set
             {
-                if (value == true)
+                if (_isModuleAllow != null)
                 {
-                    _isModuleAllow = value;
-                    _isModuleDeny = !value;
-                    this.SetChildDeafult(null, false);
+                    if (value == true)
+                    {
+                        _isModuleAllow = value;
+                        _isModuleDeny = !value;
+                        this.SetChildDeafult(null, false);
+                    }
+                    else
+                    {
+                        this.SetChildDeafult(_deafultAllow, _deafultDeny);
+                        _isModuleAllow = value;
+                    }
+                    if (_isModuleDeny == false)
+                    {
+                        this.SetChildIsAllow(value);
+                        if (_isModuleAllow == false)
+                        {
+                            _isModuleDeny = _deafultDeny;
+                        }
+                    }
+                    this.NotifyPropertyChanged("IsModuleAllow");
+                    this.NotifyPropertyChanged("IsModuleDeny");
                 }
-                else
-                {
-                    _isModuleAllow = value;
-                }
-                if (_isModuleDeny == false)
-                {
-                    this.SetChildIsAllow(value);
-                }
-                this.NotifyPropertyChanged("IsModuleAllow");
-                this.NotifyPropertyChanged("IsModuleDeny");
             }
         }
         public bool? IsModuleDeny
         {
             get
             {
-                if (_isModuleAllow == true)
-                {
-                    return !_isModuleAllow;
-                }
-                else
-                {
-                    return _isModuleDeny;
-                }
+                return _isModuleDeny;
             }
             set
             {
-                if (value == true)
+                if (_isModuleDeny != null)
                 {
-                    _isModuleDeny = value;
-                    _isModuleAllow = !value;
-                    this.SetChildDeafult(false, null);
+                    if (value == true)
+                    {
+                        _isModuleDeny = value;
+                        _isModuleAllow = !value;
+                        this.SetChildDeafult(false, null);
+                    }
+                    else
+                    {
+                        this.SetChildDeafult(_deafultAllow, _deafultDeny);
+                        _isModuleDeny = value;
+                    }
+                    if (_isModuleAllow == false)
+                    {
+                        this.SetChildIsDeny(value);
+                        if (_isModuleDeny == false)
+                        {
+                            _isModuleAllow = _deafultAllow;
+                        }
+                    }
+                    this.NotifyPropertyChanged("IsModuleAllow");
+                    this.NotifyPropertyChanged("IsModuleDeny");
                 }
-                else
-                {
-                    _isModuleDeny = value;
-                }
-                if (_isModuleAllow == false)
-                {
-                    this.SetChildIsDeny(value);
-                }
-                this.NotifyPropertyChanged("IsModuleAllow");
-                this.NotifyPropertyChanged("IsModuleDeny");
             }
         }
 
@@ -638,14 +628,14 @@ namespace ManagerConsole.ViewModel
                 PropertyChanged(this, new PropertyChangedEventArgs(info));
             }
         }
-        
+
         #endregion
 
         #region Constructor
         public ModuleData()
         {
             OperationDatas = new ObservableCollection<OperationData>();
-        } 
+        }
         #endregion
 
         #region method
@@ -703,8 +693,16 @@ namespace ManagerConsole.ViewModel
 
         public void SetPermission(bool? isModuleAllow, bool? isModuleDeny)
         {
-            this.IsModuleAllow = isModuleAllow;
-            this.IsModuleDeny = isModuleDeny;
+            this._isModuleAllow = isModuleAllow;
+            this._isModuleDeny = isModuleDeny;
+            if (_isModuleAllow !=isModuleAllow)
+            {
+                this.SetChildIsAllow(isModuleAllow);
+            }
+            if (_isModuleDeny == isModuleDeny)
+            {
+                this.SetChildIsDeny(isModuleDeny);
+            }
             this.NotifyPropertyChanged("IsModuleAllow");
             this.NotifyPropertyChanged("IsModuleDeny");
         }
@@ -721,7 +719,7 @@ namespace ManagerConsole.ViewModel
             {
                 operation.ResetDeafult(isallow, isDeny);
             }
-        } 
+        }
         #endregion
     }
 
@@ -731,7 +729,7 @@ namespace ManagerConsole.ViewModel
         private bool? _isAllow = false;
         private bool? _isDeny = false;
         private bool? _deafultAllow = false;
-        private bool? _deafultDeny = false; 
+        private bool? _deafultDeny = false;
         #endregion
 
         #region public
@@ -741,14 +739,7 @@ namespace ManagerConsole.ViewModel
         {
             get
             {
-                if (_isDeny == true)
-                {
-                    return !_isDeny;
-                }
-                else
-                {
-                    return _isAllow;
-                }
+                return _isAllow;
             }
             set
             {
@@ -788,14 +779,7 @@ namespace ManagerConsole.ViewModel
         {
             get
             {
-                if (_isAllow == true)
-                {
-                    return !_isAllow;
-                }
-                else
-                {
-                    return _isDeny;
-                }
+                return _isDeny;
             }
             set
             {
@@ -829,7 +813,7 @@ namespace ManagerConsole.ViewModel
                     this.NotifyPropertyChanged("IsDeny");
                 }
             }
-        } 
+        }
         #endregion
 
         #region event
@@ -841,7 +825,7 @@ namespace ManagerConsole.ViewModel
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(info));
             }
-        } 
+        }
         #endregion
 
         #region method
@@ -857,10 +841,12 @@ namespace ManagerConsole.ViewModel
         {
             this._deafultAllow = isAllow;
             this._deafultDeny = isDeny;
-        } 
+        }
         #endregion
-    }
+    } 
+    #endregion
 
+    #region DataPermission
     public class DataPermissionGridData
     {
         public ObservableCollection<IExchangeGridData> IExchangeCodes { get; set; }
@@ -880,7 +866,7 @@ namespace ManagerConsole.ViewModel
             return isValid;
         }
 
-        public void CastDataPermissionToGridData(List<RoleDataPermission> allDatas, List<RoleDataPermission> dataPermissions)
+        public void CastDataPermissionToGridData(List<RoleDataPermission> dataPermissions, List<RoleDataPermission> allDatas)
         {
             ObservableCollection<IExchangeGridData> data = new ObservableCollection<IExchangeGridData>();
             List<string> ExchangeCodes = new List<string>();
@@ -911,7 +897,7 @@ namespace ManagerConsole.ViewModel
                     exchange.IsIExchangeAllow = false;
                     exchange.IsIExchangeDeny = false;
                 }
-                RoleDataPermission accountPermission = dataPermissions.SingleOrDefault(d => d.ParentId == exchangeNode.PermissionId && d.Code.ToLower() == "account");
+                RoleDataPermission accountPermission = dataPermissions.SingleOrDefault(d => d.IExchangeCode == item && d.Code.ToLower() == "account");
                 if (accountPermission != null)
                 {
                     account.DataObjectTypeId = accountPermission.PermissionId;
@@ -939,7 +925,7 @@ namespace ManagerConsole.ViewModel
                         account.IsDataObjectTypeDeny = false;
                     }
                 }
-                RoleDataPermission instrumentPermission = dataPermissions.SingleOrDefault(d => d.ParentId == exchangeNode.PermissionId && d.Code.ToLower() == "instrument");
+                RoleDataPermission instrumentPermission = dataPermissions.SingleOrDefault(d => d.IExchangeCode == item && d.Code.ToLower() == "instrument");
                 if (instrumentPermission != null)
                 {
                     instrument.DataObjectTypeId = instrumentPermission.PermissionId;
@@ -1102,7 +1088,7 @@ namespace ManagerConsole.ViewModel
                 }
                 foreach (DataObjectTypeGridData type in exchange.DataObjectTypes)
                 {
-                    if (type.IsDataObjectTypeAllow == true|| type.IsDataObjectTypeDeny== true)
+                    if (type.IsDataObjectTypeAllow == true || type.IsDataObjectTypeDeny == true)
                     {
                         RoleDataPermission data = new RoleDataPermission();
                         data.PermissionId = type.DataObjectTypeId;
@@ -1111,7 +1097,7 @@ namespace ManagerConsole.ViewModel
                         data.ParentId = exchange.IExchangeId;
                         data.Level = 2;
                         data.IExchangeCode = exchange.IExchangeCode;
-                        if (type.IsDataObjectTypeAllow ==true)
+                        if (type.IsDataObjectTypeAllow == true)
                         {
                             data.IsAllow = true;
                         }
@@ -1154,7 +1140,7 @@ namespace ManagerConsole.ViewModel
     {
         #region private
         private bool _isIExchangeAllow = false;
-        private bool _isIExchangeDeny = false; 
+        private bool _isIExchangeDeny = false;
         #endregion
 
         #region public
@@ -1164,14 +1150,7 @@ namespace ManagerConsole.ViewModel
         {
             get
             {
-                if (_isIExchangeDeny == true)
-                {
-                    return !_isIExchangeDeny;
-                }
-                else
-                {
-                    return _isIExchangeAllow;
-                }
+                return _isIExchangeAllow;
             }
             set
             {
@@ -1179,12 +1158,13 @@ namespace ManagerConsole.ViewModel
                 {
                     _isIExchangeAllow = value;
                     _isIExchangeDeny = !value;
+                    this.SetChildDeafult(null, false);
                 }
                 else
                 {
                     _isIExchangeAllow = value;
                 }
-                this.SetChildDeafult(value, _isIExchangeDeny);
+                
                 if (_isIExchangeDeny != true)
                 {
                     this.SetChildIsAllow(value);
@@ -1197,14 +1177,7 @@ namespace ManagerConsole.ViewModel
         {
             get
             {
-                if (_isIExchangeAllow == true)
-                {
-                    return !_isIExchangeAllow;
-                }
-                else
-                {
-                    return _isIExchangeDeny;
-                }
+                return _isIExchangeDeny;
             }
             set
             {
@@ -1212,12 +1185,12 @@ namespace ManagerConsole.ViewModel
                 {
                     _isIExchangeDeny = value;
                     _isIExchangeAllow = !value;
+                    this.SetChildDeafult(false, null);
                 }
                 else
                 {
                     _isIExchangeDeny = value;
                 }
-                this.SetChildDeafult(_isIExchangeAllow, value);
                 if (_isIExchangeAllow != true)
                 {
                     this.SetChildIsDeny(value);
@@ -1226,14 +1199,14 @@ namespace ManagerConsole.ViewModel
                 this.NotifyPropertyChanged("IsIExchangeDeny");
             }
         }
-        public ObservableCollection<DataObjectTypeGridData> DataObjectTypes { get; set; } 
+        public ObservableCollection<DataObjectTypeGridData> DataObjectTypes { get; set; }
         #endregion
 
         #region Constructor
         public IExchangeGridData()
         {
             DataObjectTypes = new ObservableCollection<DataObjectTypeGridData>();
-        } 
+        }
         #endregion
 
         #region event
@@ -1245,7 +1218,7 @@ namespace ManagerConsole.ViewModel
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(info));
             }
-        } 
+        }
         #endregion
 
         #region method
@@ -1257,7 +1230,8 @@ namespace ManagerConsole.ViewModel
                 {
                     if (type.IsDataObjectTypeAllow == null || type.IsDataObjectTypeDeny == null || type.IsDataObjectTypeDeny == type.IsDataObjectTypeAllow)
                     {
-                        type.SetPermission(false, _isIExchangeDeny);
+                        type.SetDeafult(false, false);
+                        type.SetPermission(false, false);
                     }
                 }
             }
@@ -1267,6 +1241,7 @@ namespace ManagerConsole.ViewModel
                 {
                     if (type.IsDataObjectTypeAllow == null || type.IsDataObjectTypeDeny == null || type.IsDataObjectTypeDeny == type.IsDataObjectTypeAllow)
                     {
+                        type.SetDeafult(null, false);
                         type.SetPermission(null, false);
                     }
                 }
@@ -1281,6 +1256,7 @@ namespace ManagerConsole.ViewModel
                 {
                     if (type.IsDataObjectTypeAllow == null || type.IsDataObjectTypeDeny == null || type.IsDataObjectTypeDeny == type.IsDataObjectTypeAllow)
                     {
+                        type.SetDeafult(false, false);
                         type.SetPermission(_isIExchangeAllow, false);
                     }
                 }
@@ -1291,34 +1267,17 @@ namespace ManagerConsole.ViewModel
                 {
                     if (type.IsDataObjectTypeAllow == null || type.IsDataObjectTypeDeny == null || type.IsDataObjectTypeDeny == type.IsDataObjectTypeAllow)
                     {
+                        type.SetDeafult(false, null);
                         type.SetPermission(false, null);
                     }
                 }
             }
         }
-        private void SetChildDeafult(bool isAllow, bool isDeny)
+        private void SetChildDeafult(bool? isAllow, bool? isDeny)
         {
-            bool?deafultAllow;
-            bool? deafultDeny;
-            if (isAllow ==false)
-            {
-                deafultAllow = false;
-            }
-            else
-            {
-                deafultAllow = null;
-            }
-            if (isDeny == false)
-            {
-                deafultDeny = false;
-            }
-            else
-            {
-                deafultDeny = null;
-            }
             foreach (DataObjectTypeGridData type in DataObjectTypes)
             {
-                type.SetDeafult(deafultAllow, deafultDeny);
+                type.SetDeafult(isAllow, isDeny);
             }
         }
 
@@ -1351,8 +1310,8 @@ namespace ManagerConsole.ViewModel
         #region private
         private bool? _isDataObjectTypeAllow = false;
         private bool? _isDataObjectTypeDeny = false;
-        private bool? _deafultTypeAllow;
-        private bool? _deafultTypeDeny;
+        private bool? _deafultTypeAllow = false;
+        private bool? _deafultTypeDeny = false;
         #endregion
 
         #region public
@@ -1362,78 +1321,78 @@ namespace ManagerConsole.ViewModel
         {
             get
             {
-                if (_isDataObjectTypeDeny == true)
-                {
-                    return !_isDataObjectTypeDeny;
-                }
-                else
-                {
-                    return _isDataObjectTypeAllow;
-                }
+                return _isDataObjectTypeAllow;
             }
             set
             {
-                if (value == true)
+                if (_isDataObjectTypeAllow != null)
                 {
-                    _isDataObjectTypeAllow = value;
-                    _isDataObjectTypeDeny = !value;
+                    if (value == true)
+                    {
+                        _isDataObjectTypeAllow = value;
+                        _isDataObjectTypeDeny = !value;
+                        this.SetChildDeafult(null, false);
+                    }
+                    else
+                    {
+                        this.SetChildDeafult(_deafultTypeAllow, _deafultTypeDeny);
+                        _isDataObjectTypeAllow = value;
+                    }
+                    if (_isDataObjectTypeDeny == false)
+                    {
+                        this.SetChildIsAllow(value);
+                        if (_isDataObjectTypeAllow == false)
+                        {
+                            _isDataObjectTypeDeny = _deafultTypeDeny;
+                        }
+                    }
+                    this.NotifyPropertyChanged("IsDataObjectTypeAllow");
+                    this.NotifyPropertyChanged("IsDataObjectTypeDeny");
                 }
-                else if (value == false)
-                {
-                    _isDataObjectTypeAllow = _deafultTypeAllow;
-                }
-                else
-                {
-                    _isDataObjectTypeAllow = value;
-                }
-                if (_isDataObjectTypeDeny == false)
-                {
-                    this.SetChildIsAllow(value);
-                }
-                this.NotifyPropertyChanged("IsDataObjectTypeAllow");
-                this.NotifyPropertyChanged("IsDataObjectTypeDeny");
             }
         }
         public bool? IsDataObjectTypeDeny
         {
             get
             {
-                if (_isDataObjectTypeAllow == true)
-                {
-                    return !_isDataObjectTypeAllow;
-                }
-                else
-                {
-                    return _isDataObjectTypeDeny;
-                }
+                return _isDataObjectTypeDeny;
             }
             set
             {
-                if (value == true)
+                if (_isDataObjectTypeDeny != null)
                 {
-                    _isDataObjectTypeDeny = value;
-                    _isDataObjectTypeAllow = !value;
+                    if (value == true)
+                    {
+                        _isDataObjectTypeDeny = value;
+                        _isDataObjectTypeAllow = !value;
+                        this.SetChildDeafult(false, null);
+                    }
+                    else
+                    {
+                        this.SetChildDeafult(_deafultTypeAllow, _deafultTypeDeny);
+                        _isDataObjectTypeDeny = value;
+                    }
+                    if (_isDataObjectTypeAllow == false)
+                    {
+                        this.SetChildIsDeny(value);
+                        if (_isDataObjectTypeDeny == false)
+                        {
+                            _isDataObjectTypeAllow = _deafultTypeAllow;
+                        }
+                    }
+                    this.NotifyPropertyChanged("IsDataObjectTypeAllow");
+                    this.NotifyPropertyChanged("IsDataObjectTypeDeny");
                 }
-                else
-                {
-                    _isDataObjectTypeDeny = value;
-                }
-                if (_isDataObjectTypeAllow == false)
-                {
-                    this.SetChildIsDeny(value);
-                }
-                this.NotifyPropertyChanged("IsDataObjectTypeAllow");
-                this.NotifyPropertyChanged("IsDataObjectTypeDeny");
             }
         }
-        public ObservableCollection<DataObjectGridData> DataObjects { get; set; } 
+        public ObservableCollection<DataObjectGridData> DataObjects { get; set; }
         #endregion
 
         #region Constructor
         public DataObjectTypeGridData()
         {
             DataObjects = new ObservableCollection<DataObjectGridData>();
-        } 
+        }
         #endregion
 
         #region event
@@ -1445,7 +1404,7 @@ namespace ManagerConsole.ViewModel
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(info));
             }
-        } 
+        }
         #endregion
 
         #region method
@@ -1457,15 +1416,8 @@ namespace ManagerConsole.ViewModel
                 {
                     if (dataGrid.IsAllow == null || dataGrid.IsDeny == null || dataGrid.IsAllow == dataGrid.IsDeny)
                     {
-                        dataGrid.SetPermission(false, _isDataObjectTypeDeny);
-                        if (_isDataObjectTypeDeny == false)
-                        {
-                            dataGrid.ResetDeafult(false, false);
-                        }
-                        else
-                        {
-                            dataGrid.ResetDeafult(false, null);
-                        }
+                        dataGrid.SetPermission(false, _deafultTypeDeny);
+                        dataGrid.ResetDeafult(false, _deafultTypeDeny);
                     }
                 }
             }
@@ -1490,15 +1442,9 @@ namespace ManagerConsole.ViewModel
                 {
                     if (dataGrid.IsAllow == null || dataGrid.IsDeny == null || dataGrid.IsAllow == dataGrid.IsDeny)
                     {
-                        dataGrid.SetPermission(false, _isDataObjectTypeAllow);
-                        if (_isDataObjectTypeAllow == false)
-                        {
-                            dataGrid.ResetDeafult(false, false);
-                        }
-                        else
-                        {
-                            dataGrid.ResetDeafult(null, false);
-                        }
+                        dataGrid.SetPermission(_deafultTypeAllow, false);
+                        dataGrid.ResetDeafult(_deafultTypeAllow, false);
+                        
                     }
                 }
             }
@@ -1517,8 +1463,16 @@ namespace ManagerConsole.ViewModel
 
         public void SetPermission(bool? isDataObjectTypeAllow, bool? isDataObjectTypeDeny)
         {
-            this.IsDataObjectTypeAllow = isDataObjectTypeAllow;
-            this.IsDataObjectTypeDeny = isDataObjectTypeDeny;
+            this._isDataObjectTypeAllow = isDataObjectTypeAllow;
+            this._isDataObjectTypeDeny = isDataObjectTypeDeny;
+            if (_isDataObjectTypeAllow != isDataObjectTypeAllow)
+            {
+                this.SetChildIsAllow(isDataObjectTypeAllow);
+            }
+            if (_isDataObjectTypeDeny == isDataObjectTypeDeny)
+            {
+                this.SetChildIsDeny(isDataObjectTypeDeny);
+            }
             this.NotifyPropertyChanged("IsDataObjectTypeAllow");
             this.NotifyPropertyChanged("IsDataObjectTypeDeny");
         }
@@ -1527,6 +1481,14 @@ namespace ManagerConsole.ViewModel
         {
             this._deafultTypeAllow = isAllow;
             this._deafultTypeDeny = isDeny;
+        }
+
+        public void SetChildDeafult(bool? isAllow, bool? isDeny)
+        {
+            foreach (DataObjectGridData dataGrid in DataObjects)
+            {
+                dataGrid.ResetDeafult(isAllow, isDeny);
+            }
         }
         #endregion
     }
@@ -1537,7 +1499,7 @@ namespace ManagerConsole.ViewModel
         private bool? _isAllow = false;
         private bool? _isDeny = false;
         private bool? _deafultAllow = false;
-        private bool? _deafultDeny = false; 
+        private bool? _deafultDeny = false;
         #endregion
 
         #region public
@@ -1548,14 +1510,7 @@ namespace ManagerConsole.ViewModel
         {
             get
             {
-                if (_isDeny == true)
-                {
-                    return !_isDeny;
-                }
-                else
-                {
-                    return _isAllow;
-                }
+                return _isAllow;
             }
             set
             {
@@ -1595,14 +1550,7 @@ namespace ManagerConsole.ViewModel
         {
             get
             {
-                if (_isAllow == true)
-                {
-                    return !_isAllow;
-                }
-                else
-                {
-                    return _isDeny;
-                }
+                return _isDeny;
             }
             set
             {
@@ -1636,7 +1584,7 @@ namespace ManagerConsole.ViewModel
                     this.NotifyPropertyChanged("IsDeny");
                 }
             }
-        } 
+        }
         #endregion
 
         #region method
@@ -1652,7 +1600,7 @@ namespace ManagerConsole.ViewModel
         {
             this._deafultAllow = isAllow;
             this._deafultDeny = isDeny;
-        } 
+        }
         #endregion
 
         #region event
@@ -1664,7 +1612,9 @@ namespace ManagerConsole.ViewModel
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(info));
             }
-        } 
+        }
         #endregion
     }
 }
+
+    #endregion

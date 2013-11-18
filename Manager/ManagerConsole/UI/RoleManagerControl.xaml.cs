@@ -34,8 +34,9 @@ namespace ManagerConsole.UI
         private List<RoleFunctonPermission> _AllFunctions;
         private List<RoleDataPermission> _AllData;
         private RoleData _SelectRole;
+        private bool _isNew;
 
-        public static readonly DependencyProperty IsTeamLeaderProperty = DependencyProperty.Register("IsAllowEdit", typeof(bool), typeof(RoleManagerControl));
+        public static readonly DependencyProperty IsTeamLeaderProperty = DependencyProperty.Register("IsAllowAdd", typeof(bool), typeof(RoleManagerControl));
 
         public bool IsAllowEdit{ get;set;}
         public bool IsAllowDelete { get; set; }
@@ -50,7 +51,15 @@ namespace ManagerConsole.UI
             try
             {
                 this._SelectRole = new RoleData();
-                this._SelectRole.RoleId = this._roleDatas.Count + 2;
+                int id = 0;
+                foreach (RoleData item in this._roleDatas)
+                {
+                    if (item.RoleId >= id)
+                    {
+                        id = item.RoleId + 1;
+                    }
+                }
+                this._SelectRole.RoleId = id;
                 this.Submit.Visibility = System.Windows.Visibility.Visible;
                 this.Cancel.Visibility = System.Windows.Visibility.Hidden;
                 this.RoleName.IsReadOnly = false;
@@ -61,7 +70,10 @@ namespace ManagerConsole.UI
                 DataPermissionGridData allDataPermissions = new DataPermissionGridData();
                 allDataPermissions.CastDataPermissionToGridData(new List<RoleDataPermission>(), this._AllData);
                 this._DataPermissionGridDatas = allDataPermissions;
-
+                this.FunctionPermission.ItemsSource = this._FunctionGridDatas.CategoryDatas;
+                this.DataPermission.ItemsSource = this._DataPermissionGridDatas.IExchangeCodes;
+                this.FunctionPermission.EditingSettings.AllowEditing = EditingType.Hover;
+                this.DataPermission.EditingSettings.AllowEditing = EditingType.Hover;
             }
             catch (Exception ex)
             {
@@ -74,6 +86,9 @@ namespace ManagerConsole.UI
             try
             {
                 this.DataContext = this;
+                this.IsAllowAdd = ConsoleClient.Instance.HasPermission(new AccessPermission(ModuleCategoryType.UserManager,ModuleType.RoleManager,"Add"));
+                this.IsAllowEdit = ConsoleClient.Instance.HasPermission(new AccessPermission(ModuleCategoryType.UserManager, ModuleType.RoleManager, "Edit"));
+                this.IsAllowDelete = ConsoleClient.Instance.HasPermission(new AccessPermission(ModuleCategoryType.UserManager, ModuleType.RoleManager, "Delete"));
                 List<RoleFunctonPermission> allFunction = ConsoleClient.Instance.GetAllFunctionPermission();
                 List<RoleDataPermission> allData = ConsoleClient.Instance.GetAllDataPermissions();
                 this._AllData = allData;
@@ -85,7 +100,7 @@ namespace ManagerConsole.UI
                 {
                     if (role.RoleId != 1)
                     {
-                        this._RoleGridDatas.Add(new RoleGridData(role, true, true, true));
+                        this._RoleGridDatas.Add(new RoleGridData(role, this.IsAllowAdd, this.IsAllowDelete, this.IsAllowEdit));
                     }
                 }
                 this._AllFunctions = allFunction;
@@ -136,10 +151,12 @@ namespace ManagerConsole.UI
                 functionGrid.CastFunctionToGridData(role.FunctionPermissions, this._AllFunctions);
                 this._FunctionGridDatas = functionGrid;
                 DataPermissionGridData dataPermissionGrid = new DataPermissionGridData();
-                dataPermissionGrid.CastDataPermissionToGridData(this._AllData, role.DataPermissions);
+                dataPermissionGrid.CastDataPermissionToGridData(role.DataPermissions, this._AllData);
                 this._DataPermissionGridDatas = dataPermissionGrid;
                 this.FunctionPermission.ItemsSource = this._FunctionGridDatas.CategoryDatas;
+                this.FunctionPermission.EditingSettings.AllowEditing = EditingType.None;
                 this.DataPermission.ItemsSource = this._DataPermissionGridDatas.IExchangeCodes;
+                this.DataPermission.EditingSettings.AllowEditing = EditingType.None;
                 this.Submit.Visibility = System.Windows.Visibility.Hidden;
                 this.Cancel.Visibility = System.Windows.Visibility.Hidden;
             }
@@ -185,11 +202,23 @@ namespace ManagerConsole.UI
                     MessageBox.Show("有部分数据权限没有赋值，请检查后再提交");
                     return;
                 }
+                if (string.IsNullOrEmpty(this.RoleName.Text))
+                {
+                    MessageBox.Show("请输入角色名！");
+                    return;
+                }
                 newRole.FunctionPermissions = this._FunctionGridDatas.CastGridDataToFunction();
                 newRole.DataPermissions = this._DataPermissionGridDatas.CastGridDataToDataPermission();
                 newRole.RoleId = this._SelectRole.RoleId;
                 this._SelectRole.RoleName = this.RoleName.Text;
-                ConsoleClient.Instance.UpdateRole(newRole, (newRole.RoleId == this._roleDatas.Count + 2), EditResult);
+                newRole.RoleName = this._SelectRole.RoleName;
+                this._isNew = false;
+                if (this._roleDatas.SingleOrDefault(r=>r.RoleId==this._SelectRole.RoleId)==null)
+                {
+                    this._isNew = true;
+                }
+                this._SelectRole = newRole;
+                ConsoleClient.Instance.UpdateRole(newRole, this._isNew, EditResult);
             }
             catch (Exception ex)
             {
@@ -201,20 +230,40 @@ namespace ManagerConsole.UI
         {
             try
             {
-                if (this._SelectRole.RoleId == (this._roleDatas.Count + 2))
+                if (this._isNew)
                 {
                     this.Dispatcher.BeginInvoke((Action<bool>)delegate(bool result)
                     {
-                        this._roleDatas.Add(this._SelectRole);
-                        this._RoleGridDatas.Add(new RoleGridData(this._SelectRole,this.IsAllowAdd,this.IsAllowDelete,this.IsAllowEdit));
+                        if (result)
+                        {
+                            this._roleDatas.Add(this._SelectRole);
+                            this._RoleGridDatas.Add(new RoleGridData(this._SelectRole, this.IsAllowAdd, this.IsAllowDelete, this.IsAllowEdit));
+                            MessageBox.Show("添加成功");
+                        }
+                        else
+                        {
+                            MessageBox.Show("添加失败");
+                        }
                     }, isSuccess);
                 }
                 else
                 {
                     this.Dispatcher.BeginInvoke((Action<bool>)delegate(bool result)
                     {
-                        RoleData role = this._roleDatas.SingleOrDefault(r => r.RoleId == this._SelectRole.RoleId);
-                        role = this._SelectRole;
+                        if (result)
+                        {
+                            RoleData role = this._roleDatas.SingleOrDefault(r => r.RoleId == this._SelectRole.RoleId);
+                            this._roleDatas.Remove(role);
+                            this._roleDatas.Add(this._SelectRole);
+                            role = this._SelectRole;
+                            this._RoleGridDatas.SingleOrDefault(r => r.RoleId == this._SelectRole.RoleId).RoleName = this._SelectRole.RoleName;
+                            MessageBox.Show("编辑成功");
+                        }
+                        else
+                        {
+                            MessageBox.Show("编辑失败");
+                        }
+
                     }, isSuccess);
                 }
             }
@@ -238,33 +287,6 @@ namespace ManagerConsole.UI
             catch (Exception ex)
             {
                 Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "RoleManager.Cancel_Click.\r\n{0}", ex.ToString());
-            }
-        }
-
-        private void AccessExpandAll_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                //if (this.AccessTree != null&&this.AccessTree.Nodes.Count>0)
-                //{
-                //    this.SetNodeExpandedState(this.AccessTree.Nodes, true);
-                //}
-            }
-            catch (Exception ex)
-            {
-                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "RoleManager.ExpandAll_Click.\r\n{0}", ex.ToString());
-            }
-        }
-
-        private void DataExpandAll_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-               
-            }
-            catch (Exception ex)
-            {
-                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "RoleManager.ExpandAll_Click.\r\n{0}", ex.ToString());
             }
         }
 
@@ -305,17 +327,16 @@ namespace ManagerConsole.UI
                     {
                         this._RoleGridDatas.Remove(this._RoleGridDatas.SingleOrDefault(r => r.RoleId == this._SelectRole.RoleId));
                     }
+                    else
+                    {
+                        MessageBox.Show("删除失败");
+                    }
                 }, isSuccess);
             }
             catch (Exception ex)
             {
                 Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "RoleManager/DeleteResult.\r\n{0}", ex.ToString());
             }
-        }
-
-        private void FunctionPermission_RowExitedEditMode(object sender, EditingRowEventArgs e)
-        {
-            int level = e.Row.Level;
         }
     }
 }

@@ -7,16 +7,18 @@ AS
 BEGIN
 	DECLARE @categorys TABLE 
 	(
-		Id	INT,
+		CategoryId	INT,
+		Code	NVARCHAR(50),
 		[Description]	NVARCHAR(50)
 	)
 	
 	DECLARE @modules TABLE 
 	(
-		Id	INT,
-		parentId	INT,
+		ModuleId	INT,
+		parentCode	NVARCHAR(50),
+		Code	NVARCHAR(50),
 		[Description]	NVARCHAR(50)
-	)
+	)		
 	
 	DECLARE @IsAdmin BIT = 0
 	IF(EXISTS(SELECT r.RoleName FROM dbo.UserInRole ui INNER JOIN dbo.Roles r ON r.Id = ui.RoleId WHERE ui.UserId=@userId AND r.RoleName='admin'))
@@ -24,33 +26,78 @@ BEGIN
 	
 	IF(@IsAdmin=0)
 	BEGIN
-		INSERT INTO @categorys(Id,[Description])
-		SELECT f3.Id,(CASE WHEN @language='CHT' THEN f3.NameCHT ELSE (CASE WHEN @language='CHS' THEN f3.NameCHS ELSE f3.NameENG END) END)
-		FROM dbo.RoleFunctionPermission rfp
-			INNER JOIN dbo.[Function] f ON f.Id=rfp.FunctionId
-			INNER JOIN dbo.[Function] f2 ON f2.Id=f.ParentId
-			INNER JOIN dbo.[Function] f3 ON f3.Id=f2.ParentId
-		WHERE f3.ParentId=0	
+		DECLARE @AllPermission TABLE 
+		(
+			Id	INT,
+			ParentId	INT,
+			[Status]	BIT
+		)
+		INSERT INTO @AllPermission(Id,ParentId)
+		SELECT pt.Id,pt.ParentId
+		FROM dbo.PermissionTarget pt
+		WHERE pt.TargetType = 1 AND pt.[Level]=3
 		
-		INSERT INTO @modules(Id,parentId,[Description])
-		SELECT f2.Id,f2.ParentId,(CASE WHEN @language='CHT' THEN f2.NameCHT ELSE (CASE WHEN @language='CHS' THEN f2.NameCHS ELSE f2.NameENG END) END)
-		FROM dbo.RoleFunctionPermission rfp
-			INNER JOIN dbo.[Function] f ON f.Id=rfp.FunctionId
-			INNER JOIN dbo.[Function] f2 ON f2.Id=f.ParentId
+		UPDATE @AllPermission
+		SET [Status] = rp.[Status]
+		FROM @AllPermission ap
+			INNER JOIN dbo.RolePermission rp ON rp.TargetId = ap.Id
+			INNER JOIN UserInRole uir ON uir.RoleId = rp.RoleId
+		WHERE uir.UserId=@userId
+		
+		IF(EXISTS(SELECT * FROM @AllPermission WHERE [Status] IS NULL))
+		BEGIN
+			UPDATE @AllPermission
+			SET [Status] = rp.[Status]
+			FROM @AllPermission ap 
+				INNER JOIN dbo.PermissionTarget pt ON pt.Id=ap.ParentId
+				INNER JOIN dbo.RolePermission rp ON rp.TargetId = pt.Id
+				INNER JOIN UserInRole uir ON uir.RoleId = rp.RoleId
+			WHERE uir.UserId=@userId AND ap.[Status] IS NULL
+		END			
+		IF(EXISTS(SELECT * FROM @AllPermission WHERE [Status] IS NULL))
+		BEGIN
+			UPDATE @AllPermission
+			SET [Status] = rp.[Status]
+			FROM @AllPermission ap 
+				INNER JOIN dbo.PermissionTarget pt ON pt.Id=ap.ParentId
+				INNER JOIN dbo.PermissionTarget pt2 ON pt2.Id=pt.ParentId
+				INNER JOIN dbo.RolePermission rp ON rp.TargetId = pt2.Id
+				INNER JOIN UserInRole uir ON uir.RoleId = rp.RoleId
+			WHERE uir.UserId=@userId AND ap.[Status] IS NULL
+		END
+		
+		INSERT INTO @categorys(CategoryId,Code,[Description])
+		SELECT pt1.Id,pt2.Code,(CASE WHEN @language='CHT' THEN fd.NameCHT ELSE (CASE WHEN @language='CHS' THEN fd.NameCHS ELSE fd.NameENG END) END)
+		FROM @AllPermission ap 
+			INNER JOIN dbo.PermissionTarget pt1 ON pt1.Id=ap.ParentId
+			INNER JOIN dbo.PermissionTarget pt2 ON pt2.Id=pt1.ParentId
+			INNER JOIN dbo.FunctionDescription fd ON fd.FunctionId=pt1.ParentId
+		WHERE ap.[Status]=1
+		
+		INSERT INTO @modules(ModuleId,parentCode,Code,[Description])
+		SELECT pt1.Id,pt2.Code,pt1.Code,(CASE WHEN @language='CHT' THEN fd.NameCHT ELSE (CASE WHEN @language='CHS' THEN fd.NameCHS ELSE fd.NameENG END) END)
+		FROM @AllPermission ap 
+			INNER JOIN dbo.PermissionTarget pt1 ON pt1.Id=ap.ParentId
+			INNER JOIN dbo.PermissionTarget pt2 ON pt2.Id=pt1.ParentId
+			INNER JOIN dbo.FunctionDescription fd ON fd.FunctionId=pt1.ParentId
+		WHERE ap.[Status]=1
 	END
 	ELSE
 	BEGIN
-		INSERT INTO @categorys(Id,[Description])
-		SELECT f.Id,(CASE WHEN @language='CHT' THEN f.NameCHT ELSE (CASE WHEN @language='CHS' THEN f.NameCHS ELSE f.NameENG END) END) 
-		FROM dbo.[Function] f
-		WHERE f.ParentId=0
+		INSERT INTO @categorys(CategoryId,Code,[Description])
+		SELECT pt.Id,pt.Code,(CASE WHEN @language='CHT' THEN fd.NameCHT ELSE (CASE WHEN @language='CHS' THEN fd.NameCHS ELSE fd.NameENG END) END)
+		FROM dbo.PermissionTarget pt
+			INNER JOIN dbo.FunctionDescription fd ON fd.FunctionId=pt.Id
+		WHERE pt.TargetType = 1 AND pt.[Level]=1
 		
-		INSERT INTO @modules(Id,[Description],parentId)
-		SELECT f.Id,(CASE WHEN @language='CHT' THEN f.NameCHT ELSE (CASE WHEN @language='CHS' THEN f.NameCHS ELSE f.NameENG END) END),f.ParentId
-		FROM dbo.[Function] f
-			INNER JOIN @categorys c ON c.Id=f.ParentId
+		INSERT INTO @modules(ModuleId,parentCode,Code,[Description])
+		SELECT pt.Id,pt2.Code,pt.Code,(CASE WHEN @language='CHT' THEN fd.NameCHT ELSE (CASE WHEN @language='CHS' THEN fd.NameCHS ELSE fd.NameENG END) END)
+		FROM dbo.PermissionTarget pt
+			INNER JOIN dbo.PermissionTarget pt2 ON pt2.Id=pt.ParentId
+			INNER JOIN dbo.FunctionDescription fd ON fd.FunctionId=pt.Id
+		WHERE pt.TargetType = 1 AND pt.[Level]=2
 	END
 		
-	SELECT DISTINCT Id, [Description] FROM @categorys
-	SELECT DISTINCT Id,[Description],parentId FROM @modules
+	SELECT DISTINCT CategoryId,Code AS CategoryCode, [Description] FROM @categorys
+	SELECT DISTINCT ModuleId,Code AS ModuleCode,[Description],parentCode FROM @modules
 END

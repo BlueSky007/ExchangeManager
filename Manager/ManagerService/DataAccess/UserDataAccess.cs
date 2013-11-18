@@ -7,6 +7,7 @@ using System.Text;
 using System.Security.Cryptography;
 using Manager.Common;
 using System.Xml;
+using System.IO;
 
 namespace ManagerService.DataAccess
 {
@@ -15,6 +16,7 @@ namespace ManagerService.DataAccess
         public static User Login(string userName, string password, out List<DataPermission> dataPermissions)
         {
             User user = new User();
+            user.UserName = userName;
             string sqlPassword = null;
             dataPermissions = new List<DataPermission>();
             using (SqlConnection connection = DataAccess.GetInstance().GetSqlConnection())
@@ -47,7 +49,7 @@ namespace ManagerService.DataAccess
                                 {
                                     int roleId = (int)reader["Id"];
                                     string roleName = reader["RoleName"].ToString();
-                                    user.Roles.Add(roleId, roleName);
+                                    user.Roles.Add(roleId, roleName.ToLower());
                                 }
                             }
                             if (reader.NextResult())
@@ -69,22 +71,54 @@ namespace ManagerService.DataAccess
             }
         }
 
-        public static List<AccessPermission> GetAccessPermissions(Guid userId,Language language)
+        public static void LoadLayout(string userName,string layoutName,out string dockLayout, out string contentLayout)
         {
-            List<AccessPermission> permissions = new List<AccessPermission>();
-            string sql = "SELECT DISTINCT rfp.FunctionId,f.ParentId AS Module,f2.ParentId AS Category, (CASE @language WHEN'CHT' THEN f.NameCHT ELSE(CASE @language WHEN 'CHS' THEN f.NameCHS ELSE f.NameENG END) END) AS FunctionName FROM dbo.RoleFunctionPermission rfp INNER JOIN dbo.[Function] f ON f.Id=rfp.FunctionId INNER JOIN dbo.[Function] f2 ON f2.Id=f.ParentId INNER JOIN dbo.UserInRole uir ON uir.RoleId = rfp.RoleId WHERE uir.UserId=@userId";
+            dockLayout = string.Empty;
+            contentLayout = string.Empty;
+            string path = string.Format("../../Layout/{0}", userName);
+            string layoutPath = string.Format("../../Layout/{0}/{1}_layout.xml", userName, layoutName);
+            string contentPath = string.Format("../../Layout/{0}/{1}_content.xml", userName, layoutName);
+            if (Directory.Exists(path))
+            {
+                if (File.Exists(layoutPath))
+                {
+                    using (var stream = new StreamReader(layoutPath))
+                    {
+                        dockLayout = stream.ReadToEnd();
+                    }
+                }
+                if (File.Exists(contentPath))
+                {
+                    using (var stream = new StreamReader(contentPath))
+                    {
+                        contentLayout = stream.ReadToEnd();
+                    }
+                }
+            }
+
+        }
+
+        public static Dictionary<string, string> GetAccessPermissions(Guid userId, Language language)
+        {
+            Dictionary<string, string> permissions = new Dictionary<string, string>();
+            string sql = "SELECT DISTINCT pt.Id,pt2.Code AS Parent,pt.Code,rp.[Status],pt.[Level] FROM dbo.RolePermission rp INNER JOIN dbo.UserInRole uir ON uir.RoleId = rp.RoleId INNER JOIN dbo.PermissionTarget pt ON pt.Id=rp.TargetId LEFT JOIN dbo.PermissionTarget pt2 ON pt2.Id = pt.ParentId WHERE pt.TargetType = 1 AND uir.UserId = @userId";
             DataAccess.GetInstance().ExecuteReader(sql, CommandType.Text, delegate(SqlDataReader reader)
             {
                 while (reader.Read())
                 {
-                    AccessPermission access = new AccessPermission();
-                    access.CategotyType = (ModuleCategoryType)reader["Category"];
-                    access.ModuleType = (ModuleType)reader["Module"];
-                    access.OperationId = (int)reader["FunctionId"];
-                    access.OperationName = reader["FunctionName"].ToString();
-                    permissions.Add(access);
+                    if ((bool)reader["Status"])
+                    {
+                        if (int.Parse(reader["Level"].ToString()) == 1)
+                        {
+                            permissions.Add("root", reader["Code"].ToString());
+                        }
+                        else
+                        {
+                            permissions.Add(reader["Parent"].ToString(), reader["Code"].ToString());
+                        }
+                    }
                 }
-            }, new SqlParameter("@userId", userId), new SqlParameter("@language",language.ToString()));
+            }, new SqlParameter("@userId", userId));
             return permissions;
         }
 
@@ -336,7 +370,6 @@ namespace ManagerService.DataAccess
                             transaction.Commit();
                         }
                     }
-
                 }
             }
             return isSuccess;
@@ -387,7 +420,7 @@ namespace ManagerService.DataAccess
             return allData;
         }
 
-        public static bool AddNewRole(RoleData role)
+        public static bool AddNewRole(RoleData role,out int roleId)
         {
             bool isSuccess = false;
             DataTable permission = new DataTable();
@@ -395,7 +428,9 @@ namespace ManagerService.DataAccess
             permission.Columns.Add("ParentId",typeof(int));
             permission.Columns.Add("Level",typeof(int));
             permission.Columns.Add("Code",typeof(string));
+            permission.Columns.Add("ExchangeCode", typeof(string));
             permission.Columns.Add("TargetType",typeof(int));
+            permission.Columns.Add("DataObjectType", typeof(string));
             permission.Columns.Add("DataObjectId",typeof(Guid));
             permission.Columns.Add("Status", typeof(bool));
             foreach (RoleFunctonPermission item in role.FunctionPermissions)
@@ -416,10 +451,14 @@ namespace ManagerService.DataAccess
                 row["ParentId"] = item.ParentId;
                 row["Level"] = item.Level;
                 row["Code"] = item.Code;
+                row["ExchangeCode"] = item.IExchangeCode;
                 row["TargetType"] = 2;
+                row["DataObjectType"] = Enum.GetName(typeof(DataObjectType), item.Type);
                 row["DataObjectId"] = item.DataObjectId;
                 row["Status"] = item.IsAllow;
+                permission.Rows.Add(row);
             }
+            
             using (SqlConnection con = DataAccess.GetInstance().GetSqlConnection())
             {
                 using (SqlTransaction transaction = con.BeginTransaction())
@@ -436,6 +475,7 @@ namespace ManagerService.DataAccess
                         parameter.TypeName = "dbo.PermissionTargetType";
                         command.Parameters.Add(new SqlParameter("@RETURN_VALUE", SqlDbType.Int) { Direction = ParameterDirection.ReturnValue });
                         command.ExecuteNonQuery();
+                        roleId = (int)command.Parameters["@roleId"].Value;
                         int returnValue = (int)command.Parameters["@RETURN_VALUE"].Value;
                         isSuccess = (returnValue == 0);
                         if (isSuccess)
@@ -456,7 +496,9 @@ namespace ManagerService.DataAccess
             permission.Columns.Add("ParentId", typeof(int));
             permission.Columns.Add("Level", typeof(int));
             permission.Columns.Add("Code", typeof(string));
+            permission.Columns.Add("ExchangeCode", typeof(string));
             permission.Columns.Add("TargetType", typeof(int));
+            permission.Columns.Add("DataObjectType", typeof(string));
             permission.Columns.Add("DataObjectId", typeof(Guid));
             permission.Columns.Add("Status", typeof(bool));
             foreach (RoleFunctonPermission item in role.FunctionPermissions)
@@ -477,9 +519,12 @@ namespace ManagerService.DataAccess
                 row["ParentId"] = item.ParentId;
                 row["Level"] = item.Level;
                 row["Code"] = item.Code;
+                row["DataObjectType"] = item.Type;
+                row["ExchangeCode"] = item.IExchangeCode;
                 row["TargetType"] = 2;
                 row["DataObjectId"] = item.DataObjectId;
                 row["Status"] = item.IsAllow;
+                permission.Rows.Add(row);
             }
             using (SqlConnection con = DataAccess.GetInstance().GetSqlConnection())
             {
@@ -535,6 +580,59 @@ namespace ManagerService.DataAccess
                 }
             }
             return isSuccess;
+        }
+
+        public static void GetGroupDeafultStatus(string exchangeCode, List<DataPermission> permissions,out bool accountDeafultStatus, out bool instruemntDeafultStatus)
+        {
+            accountDeafultStatus = false;
+            instruemntDeafultStatus = false;
+            DataPermission accountTypePermission = permissions.SingleOrDefault(d => d.ExchangeSystemCode == exchangeCode && d.DataObjectType == DataObjectType.Account && d.DataObjectId == null);
+            if (accountTypePermission != null)
+            {
+                accountDeafultStatus = accountTypePermission.IsAllow;
+            }
+            else
+            {
+                DataPermission exchangePermission = permissions.SingleOrDefault(d => d.ExchangeSystemCode == exchangeCode && d.DataObjectType == DataObjectType.None);
+                if (exchangePermission != null)
+                {
+                    accountDeafultStatus = exchangePermission.IsAllow;
+                }
+            }
+
+            DataPermission instrumentTypePermission = permissions.SingleOrDefault(d => d.ExchangeSystemCode == exchangeCode && d.DataObjectType == DataObjectType.Instrument && d.DataObjectId == null);
+            if (instrumentTypePermission != null)
+            {
+                instruemntDeafultStatus = instrumentTypePermission.IsAllow;
+            }
+            else
+            {
+                DataPermission exchangePermission = permissions.SingleOrDefault(d => d.ExchangeSystemCode == exchangeCode && d.DataObjectType == DataObjectType.None);
+                if (exchangePermission != null)
+                {
+                    instruemntDeafultStatus = exchangePermission.IsAllow;
+                }
+            }
+        }
+
+        public static List<string> GetAllLayoutName(string userName)
+        {
+            List<string> layoutNames = new List<string>();
+            string path = string.Format("../../Layout/{0}", userName);
+            DirectoryInfo dir = new DirectoryInfo(path);
+            FileInfo[] files = dir.GetFiles();
+            foreach (FileInfo file in files)
+            {
+                string[] name = file.Name.Split('_');
+                if (!layoutNames.Contains(name[0]))
+                {
+                    if (name[0] != "LastClosed")
+                    {
+                        layoutNames.Add(name[0]);
+                    }
+                }
+            }
+            return layoutNames;
         }
     }
 }

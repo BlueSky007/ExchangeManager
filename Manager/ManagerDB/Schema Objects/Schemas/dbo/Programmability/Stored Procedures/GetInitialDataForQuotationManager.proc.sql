@@ -2,12 +2,12 @@
 AS
 BEGIN
 	SET NOCOUNT ON
-	SELECT Id, Name, AuthName, Password FROM dbo.QuotationSource
+	SELECT Id, Name, AuthName, [Password] FROM dbo.QuotationSource
 
-	SELECT Id, Code, MappingCode, DecimalPlace, Inverted, InactiveTime, UseWeightedPrice,
+	SELECT Id, Code, DecimalPlace, Inverted, InactiveTime, UseWeightedPrice,
 	    IsDerivative, IsSwitchUseAgio, AgioSeconds, LeastTicks FROM dbo.Instrument
 
-	SELECT InstrumentId, SourceId, IsActive, IsDefault, Priority, SwitchTimeout,
+	SELECT SourceId, SourceSymbol, InstrumentId, IsActive, IsDefault, [Priority], SwitchTimeout,
 	    AdjustPoints, AdjustIncrement FROM dbo.InstrumentSourceRelation
 
 	SELECT InstrumentId, UnderlyingInstrument1Id, UnderlyingInstrument1IdInverted, UnderlyingInstrument2Id, 
@@ -32,5 +32,5 @@ BEGIN
 	    AskAvarageWeight, BidAvarageWeight, LastAvarageWeight,
 		AskAdjust, BidAdjust, LastAdjust FROM dbo.WeightedPriceRule
 	
-	SELECT SourceId, InstrumentId, Timestamp, Ask, Bid, Last, High, Low FROM dbo.LastQuotation
+	SELECT InstrumentId, SourceId, [Timestamp], Ask, Bid, Last, High, Low FROM dbo.LastQuotation
 END

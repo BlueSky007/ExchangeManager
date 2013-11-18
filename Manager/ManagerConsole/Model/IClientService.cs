@@ -1,4 +1,5 @@
 ﻿using Manager.Common;
+using Manager.Common.QuotationEntities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,12 +31,16 @@ namespace ManagerConsole.Model
         void EndLogout(IAsyncResult result);
 
         [OperationContract(IsInitiating = false)]
-        void SaveLayout(string layout,string content);  
+        void SaveLayout(string layout,string content,string layoutName);
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginLoadLayout(string layoutName, AsyncCallback callback, object asyncState);
+        List<string> EndLoadLayout(IAsyncResult result);
 
         #region UserManager
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginGetAccessPermissions(AsyncCallback callback, object asyncState);
-        List<AccessPermission> EndGetAccessPermissions(IAsyncResult result);
+        Dictionary<string, string> EndGetAccessPermissions(IAsyncResult result);
 
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginGetUserData(AsyncCallback callback, object asyncState);
@@ -80,7 +85,7 @@ namespace ManagerConsole.Model
         void SendQuotePrice(List<Answer> sendQuotePrices);
 
         [OperationContract(AsyncPattern = true)]
-        IAsyncResult BeginAcceptPlace(Guid transactionId,AsyncCallback callback, object asyncState);
+        IAsyncResult BeginAcceptPlace(Guid transactionId,LogOrder logEntity,AsyncCallback callback, object asyncState);
         TransactionError EndAcceptPlace(IAsyncResult result);
 
         [OperationContract(AsyncPattern = true)]
@@ -88,9 +93,13 @@ namespace ManagerConsole.Model
         TransactionError EndCancelPlace(IAsyncResult result);
 
         [OperationContract(AsyncPattern = true)]
-        IAsyncResult BeginExecute(Guid transactionId, string buyPrice, string sellPrice, decimal lot, Guid orderId, out XmlNode xmlNode, AsyncCallback callback, object asyncState);
+        IAsyncResult BeginExecute(Guid transactionId, string buyPrice, string sellPrice, decimal lot, Guid orderId, LogOrder logEntity, AsyncCallback callback, object asyncState);
         TransactionError EndExecute(IAsyncResult result);
 
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginCancel(Guid transactionId, CancelReason cancelReason, LogOrder logEntity, AsyncCallback callback, object asyncState);
+        TransactionError EndCancel(IAsyncResult result);
+        
         [OperationContract(IsInitiating = false)]
         void ResetHit(Guid[] orderIds);
 
@@ -99,9 +108,31 @@ namespace ManagerConsole.Model
         
         #endregion
 
-        
-       
-      
+        #region Log Audit
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginGetQuoteLogData(DateTime fromDate, DateTime toDate, LogType logType, AsyncCallback callback, object asyncStatus);
+        List<LogQuote> EndGetQuoteLogData(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginGetLogOrderData(DateTime fromDate, DateTime toDate, LogType logType, AsyncCallback callback, object asyncStatus);
+        List<LogOrder> EndGetLogOrderData(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginGetLogPriceData(DateTime fromDate, DateTime toDate, LogType logType, AsyncCallback callback, object asyncStatus);
+        List<LogPrice> EndGetLogPriceData(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginGetLogSourceChangeData(DateTime fromDate, DateTime toDate, LogType logType, AsyncCallback callback, object asyncStatus);
+        List<LogSourceChange> EndGetLogSourceChangeData(IAsyncResult result);
+
+        #endregion
+
+
+        #region Quotation
+        [OperationContract(AsyncPattern=true)]
+        IAsyncResult BeginGetConfigMetadata(AsyncCallback callback, object asyncState);
+        ConfigMetadata EndGetConfigMetadata(IAsyncResult result);
+        #endregion
     }
 
     [ServiceContract]

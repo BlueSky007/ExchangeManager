@@ -13,6 +13,8 @@ namespace ManagerService
         public string Code;
         public string DbConnectionString;
         public string StateServerUrl;
+        public bool ConfirmRejectDQOrder;
+        public bool AllowModifyOrderLot;
     }
 
     public class ManagerSettings

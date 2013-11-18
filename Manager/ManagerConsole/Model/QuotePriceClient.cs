@@ -178,13 +178,16 @@ namespace ManagerConsole.Model
         {
             Answer sendQuote = new Answer();
             sendQuote.ExchangeCode = this._ExchangeCode;
-            sendQuote.CustomerId = this.CustomerId;
+            sendQuote.CustomerId = this._CustomerId;
+            sendQuote.CustomerCode = this._CustomerCode;
             sendQuote.InstrumentId = this._InstrumentId;
+            sendQuote.InstrumentCode = this.InstrumentCode;
             sendQuote.Origin = this._Origin;
             sendQuote.Ask = this._Ask;
             sendQuote.Bid = this._Bid;
             sendQuote.QuoteLot = this._QuoteLot;
             sendQuote.AnswerLot = this._AnswerLot;
+            sendQuote.SendTime = DateTime.Now;
 
             return sendQuote;
         }

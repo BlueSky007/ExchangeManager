@@ -8,27 +8,43 @@ namespace ManagerConsole.Model
 {
     public class Function
     {
-        public Dictionary<int, string> FunctionPermissions { get; set; }
+        public Dictionary<string, string> FunctionPermissions { get; set; }
 
         public Function()
         {
-            FunctionPermissions = new Dictionary<int, string>();
+            FunctionPermissions = new Dictionary<string, string>();
         }
 
         public bool HasPermission(AccessPermission function)
         {
             bool isOwn = false;
-            if (FunctionPermissions.ContainsValue(Enum.GetName(typeof(ModuleCategoryType),function.CategotyType)))
+            if (FunctionPermissions.ContainsKey("admin"))
             {
-                isOwn = true;
+                return true;
             }
-            if (FunctionPermissions.ContainsValue(Enum.GetName(typeof(ModuleType),function.ModuleType)))
+            string category = "";
+            if (FunctionPermissions.TryGetValue("root",out category))
             {
-                isOwn = true;
+                if (category == Enum.GetName(typeof(ModuleCategoryType),function.CategotyType))
+                {
+                    isOwn = true;
+                }
             }
-            if (FunctionPermissions.ContainsValue(function.OperationName))
+            string module = "";
+            if (FunctionPermissions.TryGetValue(Enum.GetName(typeof(ModuleCategoryType),function.CategotyType),out module))
             {
-                isOwn = true;
+                if (module == Enum.GetName(typeof(ModuleType),function.ModuleType))
+                {
+                    isOwn = true;
+                }
+            }
+            string value = "";
+            if (FunctionPermissions.TryGetValue(Enum.GetName(typeof(ModuleType), function.ModuleType), out value))
+            {
+                if (value==function.OperationName)
+                {
+                    isOwn = true;
+                }
             }
             return isOwn;
         }

@@ -29,6 +29,9 @@ namespace ManagerConsole
         public UserManagerControl()
         {
             InitializeComponent();
+            this.IsAllowAdd = ConsoleClient.Instance.HasPermission(new AccessPermission(ModuleCategoryType.UserManager,ModuleType.UserManager,"Add"));
+            this.IsAllowDelete = ConsoleClient.Instance.HasPermission(new AccessPermission(ModuleCategoryType.UserManager, ModuleType.UserManager, "Delete"));
+            this.IsAllowEdit = ConsoleClient.Instance.HasPermission(new AccessPermission(ModuleCategoryType.UserManager, ModuleType.UserManager, "Edit"));
         }
         private ObservableCollection<UserData> _AllUserData = new ObservableCollection<UserData>();
         private ObservableCollection<UserModel> _users;
@@ -36,6 +39,12 @@ namespace ManagerConsole
         private ObservableCollection<RoleData> _NewRole;
         private UserModel _NewUser = new UserModel();
         private string _Password;
+
+        public static readonly DependencyProperty IsTeamLeaderProperty = DependencyProperty.Register("IsAllowAdd", typeof(bool), typeof(UserManagerControl));
+
+        public bool IsAllowEdit { get; set; }
+        public bool IsAllowDelete { get; set; }
+        public bool IsAllowAdd { get; set; }
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {

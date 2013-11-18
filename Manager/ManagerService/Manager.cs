@@ -26,9 +26,9 @@ namespace ManagerService
 
         public void Start()
         {
+            Manager.QuotationManager.Start(Manager.ManagerSettings.QuotationListenPort);
             Manager.ExchangeManager.Start(Manager.ManagerSettings.ServiceAddressForExchange);
             Manager.ClientManager.Start(Manager.ManagerSettings.ServiceAddressForConsole);
-            //Manager.QuotationManager.Start(Manager.ManagerSettings.QuotationManagerSettings);
         }
 
         public void Stop()

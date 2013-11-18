@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Xml.Linq;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -39,7 +41,10 @@ namespace ManagerConsole
 			{
                 this.ServerComboBox.Items.Add(servers[i]);
 			}
+            if (servers.Length > 0) this.ServerComboBox.SelectedIndex = 0;
+
             this.UILanguage.ItemsSource = Enum.GetValues(typeof(Language)).Cast<Language>();
+            this.UILanguage.SelectedIndex = 0;
         }
 
         private void Login_Click(object sender, RoutedEventArgs e)
@@ -57,7 +62,7 @@ namespace ManagerConsole
                 if (this.TryGetServerAndPort(out server, out port))
                 {
                     if (!port.HasValue) port = int.Parse(defaultServicePort);
-                    ConsoleClient.Instance.Login(this.EndLogin, server, port.Value, this.UserNameTextBox.Text, this.PasswordTextBox.Password, (Manager.Common.Language)this.UILanguage.SelectedItem);
+                    ConsoleClient.Instance.Login(this.EndLogin, server, port.Value, this.UserNameTextBox.Text, this.PasswordTextBox.Password, (Language)this.UILanguage.SelectedItem);
                 }
                 else
                 {
@@ -70,23 +75,53 @@ namespace ManagerConsole
             }
         }
 
-        private void EndLogin(LoginResult loginResult)
+        private void EndLogin(LoginResult loginResult, string errorMessage)
         {
             this.Dispatcher.BeginInvoke((Action<LoginResult>)delegate(LoginResult result)
             {
-                if (result.Succeeded)
+                if (result != null && result.Succeeded)
                 {
+                    this.SaveServerSettings();
                     this._LoginSuccssAction(result);
                     this.LoginButton.IsEnabled = true;
                     this.Close();
                 }
                 else
                 {
-                    this.HintMessage.Text = "Invalid user name or password.";
+                    this.HintMessage.Text = errorMessage;
                     this.LoginButton.IsEnabled = true;
                 }
             }, loginResult
             );
+        }
+
+        private void SaveServerSettings()
+        {
+            string[] servers = ConfigurationManager.AppSettings["Servers"].Split(';');
+            string newServer = this.ServerComboBox.Text.Trim();
+            bool isNewServer = !servers.Any(s => s == newServer);
+            string serverConfig = string.Empty;
+
+            if (isNewServer)
+            {
+                serverConfig = newServer + ";";
+                for (int i = 0; i < servers.Length; i++) serverConfig += servers[i] + ";";
+            }
+            else if (servers[0] != newServer)
+            {
+                serverConfig = newServer + ";";
+                for (int i = 0; i < servers.Length; i++)
+                {
+                    if(servers[i] != newServer) serverConfig += servers[i] + ";";
+                }
+            }
+            if (serverConfig != string.Empty)
+            {
+                XDocument xDocument = XDocument.Load(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+                XElement configElement = xDocument.Element("configuration").Element("appSettings").Elements("add").Single(e => e.Attribute("key").Value == "Servers");
+                configElement.Attribute("value").Value = serverConfig;
+                xDocument.Save(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+            }
         }
 
         private bool TryGetServerAndPort(out string server, out int? port)
@@ -118,6 +153,7 @@ namespace ManagerConsole
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
+            App.Current.Shutdown();
         }
     }
 }

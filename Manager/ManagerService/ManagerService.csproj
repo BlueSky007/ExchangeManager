@@ -76,6 +76,7 @@
     <Compile Include="Console\IClientService.cs" />
     <Compile Include="DataAccess\DataAccess.cs" />
     <Compile Include="DataAccess\ExchangeData.cs" />
+    <Compile Include="DataAccess\LogDataAccess.cs" />
     <Compile Include="DataAccess\QuotationData.cs" />
     <Compile Include="DataAccess\SettingsSetHelper.cs" />
     <Compile Include="DataAccess\UserDataAccess.cs" />
@@ -96,18 +97,20 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Quotation\DerivativeController.cs" />
-    <Compile Include="Quotation\AbnormalQuotationManager.cs" />
-    <Compile Include="Quotation\LastQuotationManager.cs" />
-    <Compile Include="Quotation\Quotation.cs" />
-    <Compile Include="Quotation\QuotationClient.cs" />
-    <Compile Include="Quotation\ConfigMetadata.cs" />
-    <Compile Include="Quotation\QuotationManager.cs" />
-    <Compile Include="Quotation\QuotationReceiver.cs" />
-    <Compile Include="Quotation\SourceController.cs" />
+    <Compile Include="QuotationManager\DerivativeController.cs" />
+    <Compile Include="QuotationManager\AbnormalQuotationManager.cs" />
+    <Compile Include="QuotationManager\Extension.cs" />
+    <Compile Include="QuotationManager\LastQuotationManager.cs" />
+    <Compile Include="QuotationManager\SourceQuotation.cs" />
+    <Compile Include="QuotationManager\QuotationClient.cs" />
+    <Compile Include="QuotationManager\QuotationManager.cs" />
+    <Compile Include="QuotationManager\QuotationReceiver.cs" />
+    <Compile Include="QuotationManager\SourceController.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Audit\" />
+    <Folder Include="Layout\" />
+    <Folder Include="QuotationExchange\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Manager.Common\Manager.Common.csproj">
