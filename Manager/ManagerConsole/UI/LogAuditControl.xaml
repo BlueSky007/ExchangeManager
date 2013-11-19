@@ -37,7 +37,7 @@
                 <igRibbon:XamRibbon.Tabs >
                     <igRibbon:RibbonTabItem  Height="25" x:Name="_DealingLog" KeyTip="Quo" Header="交易日志">
                         <igRibbon:RibbonGroup>
-                            <igRibbon:ToolHorizontalWrapPanel >
+                            <igRibbon:ToolHorizontalWrapPanel>
                                 <igRibbon:ButtonTool  Caption="询价日志" Id="_QuotePriceLog" Click="ButtonTool_Click">
                                     <igRibbon:ButtonTool.ToolTip>
                                         <igRibbon:XamRibbonScreenTip 
@@ -49,6 +49,7 @@
                                     </igRibbon:ButtonTool.ToolTip>
                                 </igRibbon:ButtonTool>
                                 <igRibbon:ButtonTool Caption="批单日志" Id="_QuoteOrderLog" Click="ButtonTool_Click" />
+                                <igRibbon:ButtonTool Caption="参数更新日志" Id="_SettingChangeLog" Click="ButtonTool_Click" />
                             </igRibbon:ToolHorizontalWrapPanel>
                         </igRibbon:RibbonGroup>
                     </igRibbon:RibbonTabItem>
@@ -71,9 +72,9 @@
                     </igRibbon:RibbonTabItem>
                     <igRibbon:RibbonTabItem x:Name="Permisstion" Header="权限日志">
                         <igRibbon:RibbonGroup>
-                            <igRibbon:ButtonTool Caption="新增用户日志" Id="id004" Click="ButtonTool_Click" />
-                            <igRibbon:ButtonTool Caption="修改用户日志" Id="id005" Click="ButtonTool_Click" />
-                            <igRibbon:ButtonTool Caption="删除用户日志" Id="id006" Click="ButtonTool_Click" />
+                            <igRibbon:ButtonTool Caption="新增用户日志" Id="_AddUserLog" Click="ButtonTool_Click" />
+                            <igRibbon:ButtonTool Caption="修改用户日志" Id="_ModifyUserLog" Click="ButtonTool_Click" />
+                            <igRibbon:ButtonTool Caption="删除用户日志" Id="_DeleteUserLog" Click="ButtonTool_Click" />
                         </igRibbon:RibbonGroup>
                     </igRibbon:RibbonTabItem>
                     <igRibbon:RibbonTabItem x:Name="ReportLog" Header="报表日志">
@@ -85,16 +86,7 @@
                     </igRibbon:RibbonTabItem>
                     <igRibbon:RibbonTabItem x:Name="RiskLog" Header="风险控制日志">
                         <igRibbon:RibbonGroup>
-                            <igRibbon:ButtonTool Caption="Bold" Id="id0013" />
-                            <igRibbon:ButtonTool Caption="Italic" Id="id0014" />
-                            <igRibbon:ButtonTool Caption="Underline" Id="id0015" />
-                            <igRibbon:GalleryItemGroup Title="Risk">
-                                <igRibbon:GalleryItemGroup.ItemKeys>
-                                    <sys:String>Medium Red</sys:String>
-                                    <sys:String>Boldly Blue</sys:String>
-                                    <sys:String>Italicized Indigo</sys:String>
-                                </igRibbon:GalleryItemGroup.ItemKeys>
-                            </igRibbon:GalleryItemGroup>
+                            <igRibbon:ButtonTool Caption="RiskAccount" Id="_RiskAccountLog" />
                         </igRibbon:RibbonGroup>
                     </igRibbon:RibbonTabItem> 
 

@@ -1,4 +1,5 @@
-﻿using Manager.Common.QuotationEntities;
+﻿using Manager.Common;
+using Manager.Common.QuotationEntities;
 using ManagerConsole.Model;
 using System;
 using System.Collections.Generic;
@@ -44,10 +45,70 @@ namespace ManagerConsole.ViewModel
                             Id = source.Id,
                             Name = source.Name,
                             AuthName = source.AuthName,
-                            Passowrd = source.Password
+                            Password = source.Password
                         });
                     }
                 });
+            }
+        }
+
+        internal void Update(Manager.Common.MetadataUpdateMessage message)
+        {
+            switch (message.MetadataType)
+            {
+                case MetadataType.QuotationSource:
+                    if (message.UpdateAction == UpdateAction.Modify)
+                    {
+                        QuotationSource source = this._QuotationSources.SingleOrDefault(s => s.Id == message.ObjectId);
+                        if (source != null)
+                        {
+                            foreach (string key in message.Fields.Keys)
+                            {
+                                if (key == FieldSR.Name)
+                                {
+                                    source.Name = message.Fields[key];
+                                }
+                                else if (key == FieldSR.AuthName)
+                                {
+                                    source.AuthName = message.Fields[key];
+                                }
+                                else if (key == FieldSR.Password)
+                                {
+                                    source.Password = message.Fields[key];
+                                }
+                            }
+                        }
+                    }
+                    else if (message.UpdateAction == UpdateAction.Add)
+                    {
+                        QuotationSource source = new QuotationSource();
+                        source.Id = message.ObjectId;
+                        source.Name = message.Fields[FieldSR.Name];
+                        source.AuthName = message.Fields[FieldSR.AuthName];
+                        source.Password = message.Fields[FieldSR.Password];
+                        this._QuotationSources.Add(source);
+                    }
+                    else if (message.UpdateAction == UpdateAction.Delete)
+                    {
+                        QuotationSource source = this._QuotationSources.SingleOrDefault(s => s.Id == message.ObjectId);
+                        if (source != null)
+                        {
+                            this._QuotationSources.Remove(source);
+                        }
+                    }
+                    break;
+                case MetadataType.Instrument:
+                    break;
+                case MetadataType.InstrumentSourceRelation:
+                    break;
+                case MetadataType.DerivativeRelation:
+                    break;
+                case MetadataType.PriceRangeCheckRule:
+                    break;
+                case MetadataType.WeightedPriceRule:
+                    break;
+                default:
+                    break;
             }
         }
     }

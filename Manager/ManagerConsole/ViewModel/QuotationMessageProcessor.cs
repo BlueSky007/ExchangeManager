@@ -54,12 +54,20 @@ namespace ManagerConsole.ViewModel
 
         public void Process(AbnormalQuotationMessage abnormalQuotationMessage)
         {
-
+            
         }
 
         public void Process(SourceStatusMessage sourceStatusMessage)
         {
 
+        }
+
+        internal void Process(MetadataUpdateMessage metadataUpdateMessage)
+        {
+            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+            {
+                QuotationConfigData.Instance.Update(metadataUpdateMessage);
+            });
         }
     }
 }

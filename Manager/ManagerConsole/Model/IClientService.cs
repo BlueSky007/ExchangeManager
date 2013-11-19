@@ -1,5 +1,7 @@
 ﻿using Manager.Common;
+using Manager.Common.LogEntities;
 using Manager.Common.QuotationEntities;
+using Manager.Common.ReportEntities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -108,6 +110,13 @@ namespace ManagerConsole.Model
         
         #endregion
 
+        #region Report
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginGetOrderByInstrument(Guid instrumentId,Guid accountGroupId,OrderType orderType,
+            bool isExecute, DateTime fromDate, DateTime toDate,AsyncCallback  callback, object asyncState);
+        List<OrderQueryEntity> EndGetOrderByInstrument(IAsyncResult result);
+        #endregion
+
         #region Log Audit
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginGetQuoteLogData(DateTime fromDate, DateTime toDate, LogType logType, AsyncCallback callback, object asyncStatus);
@@ -116,6 +125,10 @@ namespace ManagerConsole.Model
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginGetLogOrderData(DateTime fromDate, DateTime toDate, LogType logType, AsyncCallback callback, object asyncStatus);
         List<LogOrder> EndGetLogOrderData(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginGetLogSettingData(DateTime fromDate, DateTime toDate, LogType logType, AsyncCallback callback, object asyncStatus);
+        List<LogSetting> EndGetLogSettingData(IAsyncResult result);
 
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginGetLogPriceData(DateTime fromDate, DateTime toDate, LogType logType, AsyncCallback callback, object asyncStatus);
@@ -133,6 +146,8 @@ namespace ManagerConsole.Model
         IAsyncResult BeginGetConfigMetadata(AsyncCallback callback, object asyncState);
         ConfigMetadata EndGetConfigMetadata(IAsyncResult result);
         #endregion
+        [OperationContract(IsInitiating = false)]
+        void Updatetest();  
     }
 
     [ServiceContract]

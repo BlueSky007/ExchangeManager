@@ -78,7 +78,7 @@
                                                 <Grid Height="20" Background="{TemplateBinding Background}" Width="AUTO">
                                                     <Button x:Name="AddNew" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="AddRole_Click" HorizontalAlignment="Left" Margin="5,0,0,0">
                                                         <Button.Content>
-                                                            <Image Source="../Asset/Images/TopToolBar/add_user.png" ToolTipService.ToolTip="Add New Role"/>
+                                                            <Image Source="../Asset/Images/add.png" ToolTipService.ToolTip="Add New Role"/>
                                                         </Button.Content>
                                                     </Button>
                                                     <StackPanel Orientation="Horizontal" Background="{TemplateBinding Background}" HorizontalAlignment="Right">
@@ -372,12 +372,12 @@
                             <StackPanel Orientation="Horizontal">
                                 <Button Tag="{Binding RoleId}" Visibility="{Binding IsAllowEdit, Converter={StaticResource BooleanToVisibility}}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="EditButton_Click">
                                     <Button.Content>
-                                        <Image Source="../Asset/Images/TopToolBar/edit_user.png" Width="20" Height="20" ToolTipService.ToolTip="Edit"/>
+                                        <Image Source="../Asset/Images/post.png" Width="20" Height="20" ToolTipService.ToolTip="Edit"/>
                                     </Button.Content>
                                 </Button>
                                 <Button Tag="{Binding RoleId}" Visibility="{Binding IsAllowDelete, Converter={StaticResource BooleanToVisibility}}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="DeleteButton_Click">
                                     <Button.Content>
-                                        <Image Source="../Asset/Images/TopToolBar/remove_user.png" Width="20" Height="20" ToolTipService.ToolTip="Delete"/>
+                                        <Image Source="../Asset/Images/cancel.png" Width="20" Height="20" ToolTipService.ToolTip="Delete"/>
                                     </Button.Content>
                                 </Button>
                             </StackPanel>

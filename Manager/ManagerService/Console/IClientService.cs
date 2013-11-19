@@ -1,5 +1,7 @@
 ﻿using Manager.Common;
+using Manager.Common.LogEntities;
 using Manager.Common.QuotationEntities;
+using Manager.Common.ReportEntities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -90,18 +92,32 @@ namespace ManagerService.Console
         List<LogOrder> GetLogOrderData(DateTime fromDate, DateTime toDate, LogType logType);
 
         [OperationContract(IsInitiating = false)]
+        List<LogSetting> GetLogSettingData(DateTime fromDate, DateTime toDate, LogType logType);
+
+        [OperationContract(IsInitiating = false)]
         List<LogPrice> GetLogPriceData(DateTime fromDate, DateTime toDate, LogType logType);
 
         [OperationContract(IsInitiating = false)]
         List<LogSourceChange> GetLogSourceChangeData(DateTime fromDate, DateTime toDate, LogType logType);
-        
+
+        #region Report
+        [OperationContract(IsInitiating = false)]
+        List<OrderQueryEntity> GetOrderByInstrument(Guid instrumentId, Guid accountGroupId, OrderType orderType,
+            bool isExecute, DateTime fromDate, DateTime toDate);
+        #endregion
 
         #region QuotationManager
         [OperationContract(IsInitiating = false)]
         ConfigMetadata GetConfigMetadata();
 
         [OperationContract(IsInitiating = false)]
-        bool AddQuotationSource(QuotationSource quotationSource);
+        int AddMetadataObject(MetadataType type, Dictionary<string, string> fields);
+
+        [OperationContract(IsInitiating = false)]
+        bool UpdateMetadataObject(MetadataType type, int objectId, Dictionary<string, string> fields);
+
+        [OperationContract(IsInitiating = false)]
+        bool DeleteMetadataObject(MetadataType type, int objectId);
 
         #endregion
     }

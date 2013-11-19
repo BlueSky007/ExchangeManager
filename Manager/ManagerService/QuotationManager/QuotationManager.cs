@@ -5,6 +5,7 @@ using System.Text;
 using Manager.Common;
 using Manager.Common.QuotationEntities;
 using System.Diagnostics;
+using ManagerInstrument = Manager.Common.QuotationEntities.Instrument;
 
 namespace ManagerService.Quotation
 {
@@ -97,9 +98,78 @@ namespace ManagerService.Quotation
             Manager.ExchangeManager.SetQuotation(quotations);
         }
 
-        public void UpdateMetadata(QuotationSource quotationSource)
+        public void AddMetadataObject(IMetadataObject metadataObject)
         {
-            //this.m
+            QuotationSource quotationSource = metadataObject as QuotationSource;
+            if (quotationSource != null)
+            {
+                this._ConfigMetadata.QuotationSources.Add(quotationSource.Name, quotationSource);
+                return;
+            }
+
+            ManagerInstrument instrument = metadataObject as ManagerInstrument;
+            if (instrument != null)
+            {
+                this._ConfigMetadata.Instruments.Add(instrument.Code, instrument);
+            }
+
+            InstrumentSourceRelation relation = metadataObject as InstrumentSourceRelation;
+            if (relation != null)
+            {
+                 Dictionary<string, InstrumentSourceRelation> relations;
+                if(!this._ConfigMetadata.InstrumentSourceRelations.TryGetValue(relation.SourceId, out relations))
+                {
+                    relations = new Dictionary<string,InstrumentSourceRelation>();
+                    this._ConfigMetadata.InstrumentSourceRelations.Add(relation.SourceId, relations);
+                }
+                relations.Add(relation.SourceSymbol, relation);
+            }
+
+            DerivativeRelation derivativeRelation = metadataObject as DerivativeRelation;
+            if (derivativeRelation != null)
+            {
+                this._ConfigMetadata.DerivativeRelations.Add(derivativeRelation.InstrumentId, derivativeRelation);
+            }
+
+            PriceRangeCheckRule priceRangeCheckRule = metadataObject as PriceRangeCheckRule;
+            if (priceRangeCheckRule != null)
+            {
+                this._ConfigMetadata.PriceRangeCheckRules.Add(priceRangeCheckRule.InstrumentId, priceRangeCheckRule);
+            }
+
+            WeightedPriceRule weightedPriceRule = metadataObject as WeightedPriceRule;
+            if (weightedPriceRule != null)
+            {
+                this._ConfigMetadata.WeightedPriceRules.Add(weightedPriceRule.InstrumentId, weightedPriceRule);
+            }
+        }
+
+        internal void DeleteMetadataObject(MetadataType type, int objectId)
+        {
+            switch (type)
+            {
+                case MetadataType.QuotationSource:
+                    QuotationSource source = this._ConfigMetadata.QuotationSources.Values.SingleOrDefault(s => s.Id == objectId);
+                    if (source != null) this._ConfigMetadata.QuotationSources.Remove(source.Name);
+                    break;
+                case MetadataType.Instrument:
+                    break;
+                case MetadataType.InstrumentSourceRelation:
+                    break;
+                case MetadataType.DerivativeRelation:
+                    break;
+                case MetadataType.PriceRangeCheckRule:
+                    break;
+                case MetadataType.WeightedPriceRule:
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        internal void UpdateMetadataObject(MetadataType type, int objectId, Dictionary<string, string> fields)
+        {
+            throw new NotImplementedException();
         }
     }
 }

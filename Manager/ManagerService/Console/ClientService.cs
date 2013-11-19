@@ -1,18 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.ServiceModel;
-using System.Text;
 using Manager.Common;
 using ManagerService.DataAccess;
-using ManagerService.Exchange;
 using System.Diagnostics;
-using System.IO;
-using System.Xml;
-using System.Data;
-using System.Threading;
-using System.Net;
 using Manager.Common.QuotationEntities;
+using Manager.Common.LogEntities;
+using Manager.Common.ReportEntities;
 
 namespace ManagerService.Console
 {
@@ -211,6 +205,14 @@ namespace ManagerService.Console
         }
         #endregion
 
+        #region Report
+        public List<OrderQueryEntity> GetOrderByInstrument(Guid instrumentId, Guid accountGroupId, OrderType orderType,
+            bool isExecute, DateTime fromDate, DateTime toDate)
+        {
+            return this._Client.GetOrderByInstrument(instrumentId, accountGroupId, orderType, isExecute, fromDate, toDate);
+        }
+        #endregion
+
         #region Log Audit
 
         public List<LogQuote> GetQuoteLogData(DateTime fromDate, DateTime toDate, LogType logType)
@@ -221,6 +223,11 @@ namespace ManagerService.Console
         public List<LogOrder> GetLogOrderData(DateTime fromDate, DateTime toDate, LogType logType)
         {
             return this._Client.GetLogOrderData(fromDate, toDate, logType);
+        }
+
+        public List<LogSetting> GetLogSettingData(DateTime fromDate, DateTime toDate, LogType logType)
+        {
+            return this._Client.GetLogSettingData(fromDate, toDate, logType);
         }
 
         public List<LogPrice> GetLogPriceData(DateTime fromDate, DateTime toDate, LogType logType)
@@ -248,10 +255,48 @@ namespace ManagerService.Console
             throw new NotImplementedException();
         }
 
-
-        public bool AddQuotationSource(QuotationSource quotationSource)
+        public int AddMetadataObject(MetadataType type, Dictionary<string, string> fields)
         {
-            return this._Client.AddQuotationSource(quotationSource);
+            try
+            {
+                return this._Client.AddMetadataObject(type, fields);
+            }
+            catch (Exception ex)
+            {
+                Logger.AddEvent(TraceEventType.Error,
+                    "[ManagerService.AddMetadataObject]type:{0}, fields:\r\n{1}{2}", type, Helper.DumpDictionary(fields), ex.ToString());
+            }
+            return 0;
+        }
+
+        public bool UpdateMetadataObject(MetadataType type, int objectId, Dictionary<string, string> fields)
+        {
+            try
+            {
+                this._Client.UpdateMetadataObject(type, objectId, fields);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Logger.AddEvent(TraceEventType.Error,
+                    "[ManagerService.UpdateMetadataObject]type:{0}, objectId:{1}\r\nfields:\r\n{2}{3}", type, objectId, Helper.DumpDictionary(fields), ex.ToString());
+            }
+            return false;
+        }
+
+        public bool DeleteMetadataObject(MetadataType type, int objectId)
+        {
+            try
+            {
+                this._Client.DeleteMetadataObject(type, objectId);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Logger.AddEvent(TraceEventType.Error,
+                    "[ManagerService.DeleteMetadataObject]type:{0}, objectId:{1}\r\n{2}", type, objectId, ex.ToString());
+            }
+            return false;
         }
     }
 }

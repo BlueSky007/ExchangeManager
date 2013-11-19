@@ -134,11 +134,11 @@ namespace ManagerConsole.ViewModel
                     this.OnPropertyChanged("OrderStatus");
                     this.OnPropertyChanged("OrderStatusString");
                     this.OnPropertyChanged("IsExecutedStatus");
-                    if (this.OrderType == Manager.Common.OrderType.Limit && !this._IsExecutedStatus)
-                    {
-                        this.IsSelected = false;
-                        this.OnPropertyChanged("IsSelected");
-                    }
+                    //if (this.OrderType == Manager.Common.OrderType.Limit && !this._IsExecutedStatus)
+                    //{
+                    //    this.IsSelected = false;
+                    //    this.OnPropertyChanged("IsSelected");
+                    //}
                     this.OnPropertyChanged("DQCellDataDefine1");
                     this.OnPropertyChanged("DQCellDataDefine1");
                     this.OnPropertyChanged("CellDataDefine1");

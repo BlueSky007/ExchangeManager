@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CommonSystemParameter = Manager.Common.SystemParameter;
+using CommonSystemParameter = Manager.Common.Settings.SystemParameter;
 
 namespace ManagerConsole.Model
 {

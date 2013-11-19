@@ -61,7 +61,19 @@
   <ItemGroup>
     <Reference Include="Accessibility" />
     <Reference Include="infragisticswpf4.controls.charts.xamdatachart.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
+    <Reference Include="InfragisticsWPF4.Controls.Editors.XamCalendar.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>E:\ToolsForSofteWare\InfragisticsWPF\NetAdvantage 2013.1\WPF\CLR4.0\Bin - Signed\InfragisticsWPF4.Controls.Editors.XamCalendar.v13.1.dll</HintPath>
+    </Reference>
     <Reference Include="infragisticswpf4.controls.editors.xamcomboeditor.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
+    <Reference Include="InfragisticsWPF4.Controls.Editors.XamDateTimeInput.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>E:\ToolsForSofteWare\InfragisticsWPF\NetAdvantage 2013.1\WPF\CLR4.0\Bin - Signed\InfragisticsWPF4.Controls.Editors.XamDateTimeInput.v13.1.dll</HintPath>
+    </Reference>
+    <Reference Include="InfragisticsWPF4.Controls.Editors.XamMaskedInput.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>E:\ToolsForSofteWare\InfragisticsWPF\NetAdvantage 2013.1\WPF\CLR4.0\Bin - Signed\InfragisticsWPF4.Controls.Editors.XamMaskedInput.v13.1.dll</HintPath>
+    </Reference>
     <Reference Include="infragisticswpf4.controls.grids.xamgrid.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
     <Reference Include="infragisticswpf4.controls.interactions.xamdialogwindow.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
     <Reference Include="infragisticswpf4.controls.layouts.xamtilemanager.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
@@ -73,6 +85,10 @@
     <Reference Include="infragisticswpf4.dockmanager.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
     <Reference Include="InfragisticsWPF4.DragDrop.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
     <Reference Include="InfragisticsWPF4.Editors.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
+    <Reference Include="InfragisticsWPF4.Reporting.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>E:\ToolsForSofteWare\InfragisticsWPF\NetAdvantage 2013.1\WPF\CLR4.0\Bin\WPFOnly\InfragisticsWPF4.Reporting.v13.1.dll</HintPath>
+    </Reference>
     <Reference Include="InfragisticsWPF4.Ribbon.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>E:\ToolsForSofteWare\InfragisticsWPF\NetAdvantage 2013.1\WPF\CLR4.0\Bin\WPFOnly\InfragisticsWPF4.Ribbon.v13.1.dll</HintPath>
@@ -128,7 +144,9 @@
     <Compile Include="LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="MessageProcessor.cs" />
     <Compile Include="Model\Account.cs" />
+    <Compile Include="Model\AccountGroup.cs" />
     <Compile Include="Model\ConsoleClient.cs" />
     <Compile Include="Model\ConsoleClientMock.cs" />
     <Compile Include="Model\Customer.cs" />
@@ -139,6 +157,13 @@
     <Compile Include="Model\InstrumentClient.cs" />
     <Compile Include="Model\MessageClient.cs" />
     <Compile Include="Model\Order.cs" />
+    <Compile Include="Model\TestData.cs" />
+    <Compile Include="UI\LMTProcess.xaml.cs">
+      <DependentUpon>LMTProcess.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\OrderSearchControl.xaml.cs">
+      <DependentUpon>OrderSearchControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\QuotationSourceControl.xaml.cs">
       <DependentUpon>QuotationSourceControl.xaml</DependentUpon>
     </Compile>
@@ -151,7 +176,6 @@
     <Compile Include="Model\TradePolicy.cs" />
     <Compile Include="Model\TradePolicyDetail.cs" />
     <Compile Include="Model\Transaction.cs" />
-    <Compile Include="NotifyManager.cs" />
     <Compile Include="OrderHandle.cs" />
     <Compile Include="SettingsChangedEventArgs.cs" />
     <Compile Include="SettingsManager.cs" />
@@ -161,7 +185,6 @@
     <Compile Include="UI\ExcuteOrderConfirm.xaml.cs">
       <DependentUpon>ExcuteOrderConfirm.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\LMTProcess.xaml.cs" />
     <Compile Include="UI\LogAuditControl.xaml.cs">
       <DependentUpon>LogAuditControl.xaml</DependentUpon>
     </Compile>
@@ -192,7 +215,6 @@
       <DependentUpon>UserTileControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\DQOrderTaskForInstrument.cs" />
-    <Compile Include="ViewModel\LmtOrderTaskForInstrument.cs" />
     <Compile Include="ViewModel\LMTProcessModel.cs" />
     <Compile Include="ViewModel\Login.cs" />
     <Compile Include="ViewModel\MooMocOrderForInstrument.cs" />
@@ -200,9 +222,19 @@
     <Compile Include="ViewModel\OrderTaskForInstrument.cs" />
     <Compile Include="ViewModel\QuotePriceForInstrument.cs" />
     <Compile Include="ViewModel\UserModel.cs" />
-    <Page Include="Asset\Styles.xaml">
+    <Resource Include="Asset\IG.xamDateTimeInput.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Asset\Styles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Page Include="Asset\Colors.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="ChangePassword.xaml">
       <SubType>Designer</SubType>
@@ -233,6 +265,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Theme.Colors.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="UI\DQOrderTaskControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -242,14 +278,18 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\LMTProcess.xaml">
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\LogAuditControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\MooMocOrderTask.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\OrderSearchControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -330,12 +370,6 @@
     <Resource Include="Asset\manager.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Asset\Images\TopToolBar\CancelOrder.png" />
-    <Resource Include="Asset\Images\TopToolBar\Execute.png" />
-    <Resource Include="Asset\Images\TopToolBar\Modify.png" />
-    <Resource Include="Asset\Images\TopToolBar\Update.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="manager.ico" />
   </ItemGroup>
   <ItemGroup>
@@ -361,15 +395,27 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Asset\Images\TopToolBar\add_user.png" />
+    <Resource Include="Asset\Images\Print.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Asset\Images\TopToolBar\back.png" />
-    <Resource Include="Asset\Images\TopToolBar\forward.png" />
+    <Resource Include="Asset\Images\add.png" />
+    <Resource Include="Asset\Images\add_user.png" />
+    <Resource Include="Asset\Images\back.png" />
+    <Resource Include="Asset\Images\CancelOrder.png" />
+    <Resource Include="Asset\Images\delete.png" />
+    <Resource Include="Asset\Images\edit.png" />
+    <Resource Include="Asset\Images\edit_user.png" />
+    <Resource Include="Asset\Images\Execute.png" />
+    <Resource Include="Asset\Images\forward.png" />
+    <Resource Include="Asset\Images\Modify.png" />
+    <Resource Include="Asset\Images\Query.png" />
+    <Resource Include="Asset\Images\remove_user.png" />
+    <Resource Include="Asset\Images\Update.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Asset\Images\TopToolBar\edit_user.png" />
-    <Resource Include="Asset\Images\TopToolBar\remove_user.png" />
+    <Resource Include="Asset\Images\add.png" />
+    <Resource Include="Asset\Images\delete.png" />
+    <Resource Include="Asset\Images\edit.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

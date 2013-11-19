@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CommonDealingPolicyDetail = Manager.Common.DealingPolicyDetail;
+using CommonDealingPolicyDetail = Manager.Common.Settings.DealingPolicyDetail;
 
 namespace ManagerConsole.Model
 {

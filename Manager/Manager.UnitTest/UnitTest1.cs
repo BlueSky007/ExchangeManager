@@ -17,7 +17,7 @@ namespace Manager.UnitTest
             QuotationSource source = new QuotationSource{
                 Id=0, Name="Source1", AuthName="aaa", Password="12345678"
             };
-            QuotationData.AddQuotationSource(source);
+            //QuotationData.UpdateMetadata(source);
             Assert.IsTrue(source.Id > 0);
         }
     }

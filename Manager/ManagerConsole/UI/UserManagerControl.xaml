@@ -78,7 +78,7 @@
                                                 <Grid Height="20" Background="{TemplateBinding Background}" Width="AUTO">
                                                     <Button x:Name="AddNew" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="AddUser_Click" HorizontalAlignment="Left" Margin="5,0,0,0">
                                                         <Button.Content>
-                                                            <Image Source="../Asset/Images/TopToolBar/add_user.png" ToolTipService.ToolTip="Add New User"/>
+                                                            <Image Source="..\Asset\Images\add.png" ToolTipService.ToolTip="Add New User"/>
                                                         </Button.Content>
                                                     </Button>
                                                     <StackPanel Orientation="Horizontal" Background="{TemplateBinding Background}" HorizontalAlignment="Right">
@@ -125,7 +125,7 @@
         <Border Margin="0 0 5 0" BorderBrush="Black" Grid.Row="0">
         <ig:XamGrid x:Name="UserManager" Loaded="UserControl_Loaded">
                     <ig:XamGrid.PagerSettings>
-                    <ig:PagerSettings AllowPaging="Top" PageSize="1" DisplayPagerWhenOnlyOnePage="True">
+                    <ig:PagerSettings AllowPaging="Top" PageSize="30" DisplayPagerWhenOnlyOnePage="True">
                     </ig:PagerSettings>
                 </ig:XamGrid.PagerSettings>
                 <ig:XamGrid.Columns>
@@ -140,12 +140,12 @@
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal">
                                     <Button x:Name="Edit" Tag="{Binding UserId}" Visibility="{Binding IsAllowEdit, Converter={StaticResource BooleanToVisibility}}"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"  Click="Button_Click">
                                         <Button.Content>
-                                            <Image Source="../Asset/Images/TopToolBar/edit_user.png" Width="20" Height="20" ToolTipService.ToolTip="Edit"/>
+                                            <Image Source="../Asset/Images/post.png" Width="20" Height="20" ToolTipService.ToolTip="Edit"/>
                                         </Button.Content>
                                     </Button>
                                     <Button x:Name="Delete" Tag="{Binding UserId}" Visibility="{Binding IsAllowDelete, Converter={StaticResource BooleanToVisibility}}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"  Click="Button_Click">
                                         <Button.Content>
-                                            <Image Source="../Asset/Images/TopToolBar/remove_user.png" Width="20" Height="20" ToolTipService.ToolTip="Delete"/>
+                                            <Image Source="../Asset/Images/cancel.png" Width="20" Height="20" ToolTipService.ToolTip="Delete"/>
                                         </Button.Content>
                                     </Button>
                                 </StackPanel>

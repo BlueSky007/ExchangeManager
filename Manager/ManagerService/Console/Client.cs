@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Manager.Common;
 using System.Diagnostics;
 using ManagerService.Exchange;
@@ -9,7 +8,8 @@ using ManagerService.DataAccess;
 using Manager.Common.QuotationEntities;
 using System.Threading;
 using System.IO;
-using System.ServiceModel;
+using Manager.Common.LogEntities;
+using Manager.Common.ReportEntities;
 
 namespace ManagerService.Console
 {
@@ -578,6 +578,14 @@ namespace ManagerService.Console
         }
         #endregion
 
+        #region Report
+        public List<OrderQueryEntity> GetOrderByInstrument(Guid instrumentId, Guid accountGroupId, OrderType orderType,
+           bool isExecute, DateTime fromDate, DateTime toDate)
+        {
+            return ExchangeData.GetOrderByInstrument(this.userId,instrumentId, accountGroupId, orderType, isExecute, fromDate, toDate);
+        }
+        #endregion
+
         #region Log Audit
 
         public List<LogQuote> GetQuoteLogData(DateTime fromDate, DateTime toDate, LogType logType)
@@ -608,6 +616,21 @@ namespace ManagerService.Console
             return logOrders;
         }
 
+        public List<LogSetting> GetLogSettingData(DateTime fromDate, DateTime toDate, LogType logType)
+        {
+            List<LogSetting> logSettings = new List<LogSetting>();
+            try
+            {
+                logSettings = LogDataAccess.Instance.GetLogSettingData(fromDate, toDate, logType);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerService.Console.Client/GetLogSettingData.\r\n{0}", ex.ToString());
+            }
+            return logSettings;
+        }
+
+
         public List<LogPrice> GetLogPriceData(DateTime fromDate, DateTime toDate, LogType logType)
         {
             List<LogPrice> logPricies = new List<LogPrice>();
@@ -637,15 +660,35 @@ namespace ManagerService.Console
         }
         #endregion
 
-        internal bool AddQuotationSource(QuotationSource quotationSource)
+        internal int AddMetadataObject(MetadataType type, Dictionary<string, string> fields)
         {
-            if (QuotationData.AddQuotationSource(quotationSource))
+            IMetadataObject addedObject = QuotationData.AddMetadataObject(type, fields);
+            if (addedObject.Id > 0)
             {
-                // TODO: Update memory and notify here
-                Manager.QuotationManager.UpdateMetadata(quotationSource);
-                return true;
+                Manager.QuotationManager.AddMetadataObject(addedObject);
+                MetadataUpdateMessage message = new MetadataUpdateMessage() { ObjectId = addedObject.Id, MetadataType = type, UpdateAction = UpdateAction.Add, Fields = fields };
+                // dispatch message to other clients here
+                Manager.ClientManager.DispatchExcept(message, this);
             }
-            return false;
+            return addedObject.Id;
+        }
+
+        internal void UpdateMetadataObject(MetadataType type, int objectId, Dictionary<string, string> fields)
+        {
+            QuotationData.UpdateMetadataObject(type, objectId, fields);
+            Manager.QuotationManager.UpdateMetadataObject(type, objectId, fields);
+            MetadataUpdateMessage message = new MetadataUpdateMessage() { ObjectId = objectId, MetadataType = type, UpdateAction = UpdateAction.Modify, Fields = fields };
+            // dispatch message to other clients here
+            Manager.ClientManager.DispatchExcept(message, this);
+        }
+
+        internal void DeleteMetadataObject(MetadataType type, int objectId)
+        {
+            QuotationData.DeleteMetadataObject(type, objectId);
+            Manager.QuotationManager.DeleteMetadataObject(type, objectId);
+            MetadataUpdateMessage message = new MetadataUpdateMessage() { ObjectId = objectId, MetadataType = type, UpdateAction = UpdateAction.Delete, Fields = null };
+            // dispatch message to other clients here
+            Manager.ClientManager.DispatchExcept(message, this);
         }
     }
 }

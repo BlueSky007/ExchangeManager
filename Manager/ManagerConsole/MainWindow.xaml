@@ -10,6 +10,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="22"/>
                 <RowDefinition Height="240*"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <ig:XamMenu Grid.Row="0" x:Name="MainMenu">
                 <ig:XamMenuItem Header="File">
@@ -36,6 +37,7 @@
 
                 </igWPF:DocumentContentHost>
             </igWPF:XamDockManager>
+            <MediaElement x:Name="_Media" Volume="1" Grid.Row="2"/>
         </Grid>
     </Grid>
 </Window>

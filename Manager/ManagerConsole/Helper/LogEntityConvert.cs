@@ -1,4 +1,5 @@
 ﻿using Manager.Common;
+using Manager.Common.LogEntities;
 using ManagerConsole.ViewModel;
 using System;
 using System.Collections.Generic;

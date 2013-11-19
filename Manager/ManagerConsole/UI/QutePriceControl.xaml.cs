@@ -31,11 +31,10 @@ namespace ManagerConsole
     public partial class QutePriceControl : UserControl
     {
         private ObservableCollection<QuotePriceForInstrument> _ClientQuotePriceForInstrument = new ObservableCollection<QuotePriceForInstrument>();
-        private ObservableCollection<QuotePriceClient> _EnquiryTimeOutQuotePriceClients = new ObservableCollection<QuotePriceClient>();
         private DispatcherTimer _QuoteTimer;
         private CommonDialogWin _CommonDialogWin;
         private ConfirmDialogWin _ConfirmDialogWin;
-       
+        private ManagerConsole.MainWindow _App;
         
         public QutePriceControl()
         {
@@ -44,20 +43,21 @@ namespace ManagerConsole
 
         void onLoad(object sender, RoutedEventArgs e)
         {
-            this._CommonDialogWin = new CommonDialogWin(this.LayoutRoot);
-            this._ConfirmDialogWin = new ConfirmDialogWin(this.LayoutRoot);
-            this.AttachEvent();
             this.InitData();
+            this.AttachEvent();
             this.BindGridData();
             this.TimerHandle();
         }
         private void InitData()
-        { 
-
+        {
+            this._App = ((ManagerConsole.MainWindow)Application.Current.MainWindow);
+            this._CommonDialogWin = this._App.CommonDialogWin;
+            this._ConfirmDialogWin = this._App.ConfirmDialogWin;
+            this._ClientQuotePriceForInstrument = this._App.InitDataManager.ClientQuotePriceForInstrument;
         }
         private void BindGridData()
         {
-            this.QuotePriceGrid.ItemsSource = this._ClientQuotePriceForInstrument;
+            this.QuotePriceGrid.ItemsSource = this._App.InitDataManager.ClientQuotePriceForInstrument;// this._ClientQuotePriceForInstrument;
         }
         private void TimerHandle()
         {
@@ -70,31 +70,23 @@ namespace ManagerConsole
         private void AttachEvent()
         { 
             ConsoleClient.Instance.MessageClient.QuotePriceToDealerEvent += this.MessageClient_QuotePriceReceived;
-            this._ConfirmDialogWin.OnConfirmDialogResult += new ConfirmDialogWin.ConfirmDialogResultHandle(ExcuteOrder);
         }
         #endregion
 
-        void ExcuteOrder(bool yesOrNo, UIElement uIElement)
-        {
-            if (yesOrNo)
-            {
-            }
-        }
-
         void Quote_Tick(object sender, EventArgs e)
         {
-            if (this._ClientQuotePriceForInstrument != null && this._ClientQuotePriceForInstrument.Count > 0)
+            if (this._App.InitDataManager.ClientQuotePriceForInstrument != null && this._App.InitDataManager.ClientQuotePriceForInstrument.Count > 0)
             {
-                for(int i=0;i<this._ClientQuotePriceForInstrument.Count;i++)
+                for (int i = 0; i < this._App.InitDataManager.ClientQuotePriceForInstrument.Count; i++)
                 {
-                    var quotePriceClients = this._ClientQuotePriceForInstrument[i].QuotePriceClients;
-                    for(int j=0;j<quotePriceClients.Count;j++)
+                    var quotePriceClients = this._App.InitDataManager.ClientQuotePriceForInstrument[i].QuotePriceClients;
+                    for (int j = 0; j < quotePriceClients.Count; j++)
                     {
                         QuotePriceClient quotePriceEntity = quotePriceClients[j];
-                         quotePriceEntity.WaitTimes = quotePriceEntity.WaitTimes > 0 ? quotePriceEntity.WaitTimes - 1 : quotePriceEntity.WaitTimes;
+                        quotePriceEntity.WaitTimes = quotePriceEntity.WaitTimes > 0 ? quotePriceEntity.WaitTimes - 1 : quotePriceEntity.WaitTimes;
                         if (quotePriceEntity.WaitTimes == 0)
                         {
-                            this._ClientQuotePriceForInstrument[i].RemoveSendQuotePrice(quotePriceEntity);
+                            this._App.InitDataManager.ClientQuotePriceForInstrument[i].RemoveSendQuotePrice(quotePriceEntity);
                             j--;
                         }
                     }
@@ -108,7 +100,6 @@ namespace ManagerConsole
                 }
             }
         }
-
 
         #region Grid Event Hander
         void QuotePriceGrid_CellControlAttached(object sender, CellControlAttachedEventArgs e)
@@ -185,7 +176,7 @@ namespace ManagerConsole
             Button btn = sender as Button;
             QuotePriceForInstrument quotePriceForInstrument;
             QuotePriceClient quotePriceClient;
-            List<Manager.Common.QuoteQuotation> quoteQuotations = new List<Manager.Common.QuoteQuotation>();
+            List<Manager.Common.Settings.QuoteQuotation> quoteQuotations = new List<Manager.Common.Settings.QuoteQuotation>();
 
             try
             {
@@ -254,7 +245,6 @@ namespace ManagerConsole
                         quotePriceForInstrument = ((UnboundColumnDataContext)radioBtn.DataContext).RowData as QuotePriceForInstrument;
                         quotePriceForInstrument.OnEnquiryQuantity(false);
                         break;
-
                 }
             }
             catch (Exception ex)
@@ -453,7 +443,6 @@ namespace ManagerConsole
                     };
                 }
                 //Notify service
-                string exchangeCode = string.Empty;
                 ConsoleClient.Instance.AbandonQuote(quoteQuotations);
             }
         }
@@ -491,122 +480,12 @@ namespace ManagerConsole
         #region 通知处理
         void MessageClient_QuotePriceReceived(QuoteMessage quoteMessage)
         {
-            this.Dispatcher.BeginInvoke((Action<QuoteMessage>)delegate(QuoteMessage result)
+            if (!this._QuoteTimer.IsEnabled)
             {
-                //声音处理
-                MediaManager.PlayMedia(this._Media, MediaManager._EnquiryMediaSource);
-
-                int waiteTime = 50;     //取初始化数据系统参数
-                Guid customerId = result.CustomerID;
-                //通过CustomerId获取Customer对象
-                //var customer = this._Customers.SingleOrDefault(P => P.id == customerId);
-                var customer = new Customer();
-                customer.Id = result.CustomerID;
-                customer.Code = "WF007";
-                QuotePriceClient quotePriceClient = new QuotePriceClient(result, waiteTime, customer);
-                QuotePriceForInstrument clientQuotePriceForInstrument = null;
-                clientQuotePriceForInstrument = this._ClientQuotePriceForInstrument.SingleOrDefault(P => P.InstrumentClient.Id == quotePriceClient.InstrumentId);
-                if (clientQuotePriceForInstrument == null)
-                {
-                    //从内存中获取Instrument
-                    //var instrumentEntity = this._Instruments.SingleOrDefault(P => P.InstrumentId == clientQuotePriceForAccount.InstrumentId);
-                    clientQuotePriceForInstrument = new QuotePriceForInstrument();
-                    var instrument = this.GetInstrument(quotePriceClient);
-                    clientQuotePriceForInstrument.InstrumentClient = instrument;
-                    clientQuotePriceForInstrument.Origin = instrument.Origin;
-                    clientQuotePriceForInstrument.Adjust = decimal.Parse(instrument.Origin);
-                    clientQuotePriceForInstrument.AdjustLot = quotePriceClient.QuoteLot;
-                    this._ClientQuotePriceForInstrument.Add(clientQuotePriceForInstrument);
-                }
-                clientQuotePriceForInstrument.OnEmptyQuotePriceClient += new QuotePriceForInstrument.EmptyQuotePriceHandle(ClientQuotePriceForInstrument_OnEmptyClientQuotePriceClient);
-                //clientQuotePriceForInstrument.OnEmptyCheckBoxClient += new QuotePriceForInstrument.EmptyCheckBoxHandle(ClientQuotePriceForInstrument_OnEmptyCheckBoxClient);
-                clientQuotePriceForInstrument.AddNewQuotePrice(quotePriceClient);
-
-                if (!this._QuoteTimer.IsEnabled)
-                {
-                    this._QuoteTimer.Start();
-                }
-
-            }, quoteMessage);
+                this._QuoteTimer.Start();
+            }
         }
-
-        void ClientQuotePriceForInstrument_OnEmptyClientQuotePriceClient(QuotePriceForInstrument clientQuotePriceForInstrument)
-        {
-            this._ClientQuotePriceForInstrument.Remove(clientQuotePriceForInstrument);
-        }
-
 
         #endregion
-
-        #region 测试数据
-
-        private string GetCode() 
-        { 
-            int number; 
-            char code; 
-            string checkCode = String.Empty; 
-            Random random = new Random(); 
-            for (int i = 0; i < 4; i++) { number = random.Next(); 
-                if (number % 2 == 0)               
-                code = (char)('0' + (char)(number % 10)); 
-            else                
-                code = (char)('A' + (char)(number % 26)); 
-                checkCode += code.ToString(); } return checkCode; 
-        }
-        private InstrumentClient GetInstrument(QuotePriceClient quotePriceClient)
-        {
-            //Property not empty
-            InstrumentClient instrument = new InstrumentClient();
-            instrument.Id = quotePriceClient.InstrumentId;
-            instrument.Code = "GBP" + GetCode();
-            instrument.Origin = "1.1";
-            instrument.Ask = "1.5";
-            instrument.Bid = "1.2";
-            instrument.Denominator = 10;
-            instrument.NumeratorUnit = 1;
-            instrument.MaxAutoPoint = 100;
-            instrument.MaxSpread = 100;
-            //instrument.AlertPoint = 10;
-            instrument.AutoPoint = 1;
-            instrument.Spread = 3;
-            
-            return instrument;
-        }
-        #endregion
-
-        #region 异步回调事件
-        private void AbandonQuotePriceCallBack(int abandonResult)
-        {
-            try
-            {
-                this.Dispatcher.BeginInvoke((Action<int>)delegate(int result)
-                {
-                    MessageBox.Show(result.ToString());
-                }, abandonResult
-            );
-            }
-            catch (Exception ex)
-            {
-                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "AbandonQuotePriceCallBack.\r\n{0}", ex.ToString());
-            }
-        }
-
-        private void ConfirmQuotePriceCallBack(int confirmResult)
-        {
-            try
-            {
-                this.Dispatcher.BeginInvoke((Action<int>)delegate(int result)
-                {
-                    MessageBox.Show(result.ToString());
-                }, confirmResult
-            );
-            }
-            catch (Exception ex)
-            {
-                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ConfirmQuotePriceCallBack.\r\n{0}", ex.ToString());
-            }
-        }
-        #endregion
-
     }
 }

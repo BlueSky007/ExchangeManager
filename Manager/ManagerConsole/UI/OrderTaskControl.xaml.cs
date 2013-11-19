@@ -17,7 +17,7 @@ using System.Windows.Shapes;
 using ManagerConsole.ViewModel;
 using System.Collections.ObjectModel;
 using CommonTransactionError = Manager.Common.TransactionError;
-using CommonParameter = Manager.Common.SystemParameter;
+using CommonParameter = Manager.Common.Settings.SystemParameter;
 using Logger = Manager.Common.Logger;
 using Infragistics.Controls.Interactions;
 using Infragistics.Controls.Grids;
@@ -34,7 +34,6 @@ namespace ManagerConsole.UI
         private CommonDialogWin _CommonDialogWin;
         private ConfirmDialogWin _ConfirmDialogWin;
         private ManagerConsole.MainWindow _App;
-        private OrderHandle OrderHandle;
         private ObservableCollection<InstrumentClient> _InstrumentList = new ObservableCollection<InstrumentClient>();
         private Style _ExecuteStatusStyle;
         private Style _NormalStyle;
@@ -59,8 +58,6 @@ namespace ManagerConsole.UI
             style.Setters.Add(new Setter(BackgroundProperty, new SolidColorBrush(bgColor)));
             this._NormalStyle = style;
             this._ExecuteStatusStyle = App.Current.Resources["ExecuteSatusCellStyle"] as Style;
-            
-            OrderHandle = new OrderHandle();
         }
         private void AttachEvent()
         {
@@ -87,7 +84,7 @@ namespace ManagerConsole.UI
 
         private void BindGridData()
         {
-            this.LayRootGrid.DataContext = this._App.InitDataManager.OrderTaskModel;//this._OrderTaskEntity;
+            this.LayRootGrid.DataContext = this._App.InitDataManager.OrderTaskModel;
             this._ConfirmDialogWin.OnConfirmDialogResult += new ConfirmDialogWin.ConfirmDialogResultHandle(ExcuteOrder);
             this._OrderTaskGrid.ItemsSource = this._App.InitDataManager.OrderTaskModel.OrderTasks;
             this._TopToolBar.DataContext = new TopToolBarImages();
@@ -110,20 +107,20 @@ namespace ManagerConsole.UI
             {
                 case "_UpdateBtn":
                     if (orderTask == null || orderTask.OrderType != ManagerCommon.OrderType.Limit) return;
-                    this.OrderHandle.OnOrderUpdate(orderTask);
+                    this._App.OrderHandle.OnOrderUpdate(orderTask);
                     break;
                 case "_ModifyBtn":
                     if (orderTask == null || orderTask.OrderType != ManagerCommon.OrderType.Limit) return;
-                    this.OrderHandle.OnOrderModify(orderTask);
+                    this._App.OrderHandle.OnOrderModify(orderTask);
                     break;
                 case "_CancelBtn":
                     if (orderTask == null || orderTask.OrderType != ManagerCommon.OrderType.Limit) return;
-                    this.OrderHandle.OnOrderWait(orderTask);
+                    this._App.OrderHandle.OnOrderWait(orderTask);
                     this.BackHitOrder(orderTask, 0);
                     break;
                 case "_ExecuteBtn":
                     if (orderTask == null || orderTask.OrderType != ManagerCommon.OrderType.Limit) return;
-                    this.OrderHandle.OnOrderExecute(orderTask);
+                    this._App.OrderHandle.OnOrderExecute(orderTask);
                     break;
                 case "_ShowGroupPanelBtn":
                     this.ShowGroupPanel();
@@ -135,7 +132,6 @@ namespace ManagerConsole.UI
         {
             Button btn = sender as Button;
             OrderTask orderTask = null;
-            LmtOrderTaskForInstrument lmtOrderForInstrument = null;
             CellDataDefine currentCellData = null;
 
             switch (btn.Name)
@@ -148,10 +144,6 @@ namespace ManagerConsole.UI
                      orderTask = btn.DataContext as OrderTask;
                      currentCellData = orderTask.DQCellDataDefine2;
                      break;
-                case "ExecuteAllBtn":
-                    lmtOrderForInstrument = ((UnboundColumnDataContext)btn.DataContext).RowData as LmtOrderTaskForInstrument;
-                    this.OrderHandle.OnLMTExecute(lmtOrderForInstrument);
-                    return;
                 case "UpdateBtn":
                     orderTask = btn.DataContext as OrderTask;
                     currentCellData = orderTask.CellDataDefine1;
@@ -186,24 +178,24 @@ namespace ManagerConsole.UI
                     isEnabled = currentCellData.IsEnable;
                     if (isEnabled)
                     {
-                        this.OrderHandle.OnOrderAccept(orderTask); 
+                        this._App.OrderHandle.OnOrderAccept(orderTask); 
                     }
                     break;
                 case HandleAction.OnOrderReject:
                     isEnabled = currentCellData.IsEnable;
                     if (isEnabled)
                     {
-                        this.OrderHandle.OnOrderReject(orderTask);
+                        this._App.OrderHandle.OnOrderReject(orderTask);
                     }
                     break;
                 case HandleAction.OnOrderDetail:
                     //OnOrderDetail(row);
                     break;
                 case HandleAction.OnOrderAcceptPlace:
-                    this.OrderHandle.OnOrderAcceptPlace(orderTask);
+                    this._App.OrderHandle.OnOrderAcceptPlace(orderTask);
                     break;
                 case HandleAction.OnOrderRejectPlace:
-                    this.OrderHandle.OnOrderRejectPlace(orderTask);
+                    this._App.OrderHandle.OnOrderRejectPlace(orderTask);
                     break;
                 case HandleAction.OnOrderAcceptCancel:
                     //OnOrderAcceptCancel(row);
@@ -215,24 +207,24 @@ namespace ManagerConsole.UI
                     isEnabled = currentCellData.IsEnable;
                     if (isEnabled)
                     {
-                        this.OrderHandle.OnOrderUpdate(orderTask);
+                        this._App.OrderHandle.OnOrderUpdate(orderTask);
                     }
                     break;
                 case HandleAction.OnOrderModify:
                     isEnabled = currentCellData.IsEnable;
                     if (isEnabled)
                     {
-                        this.OrderHandle.OnOrderModify(orderTask);
+                        this._App.OrderHandle.OnOrderModify(orderTask);
                     }
                     break;
                 case HandleAction.OnOrderWait:
-                    this.OrderHandle.OnOrderWait(orderTask);
+                    this._App.OrderHandle.OnOrderWait(orderTask);
                     break;
                 case HandleAction.OnOrderExecute:
-                    this.OrderHandle.OnOrderExecute(orderTask);
+                    this._App.OrderHandle.OnOrderExecute(orderTask);
                     break;
                 case HandleAction.OnOrderCancel:
-                    this.OrderHandle.OnOrderCancel(orderTask);
+                    this._App.OrderHandle.OnOrderCancel(orderTask);
                     break;
             }
         }
@@ -551,11 +543,11 @@ namespace ManagerConsole.UI
                 QuotePolicyDetail quotePolicyDetail = this._App.InitDataManager.SettingsManager.GetQuotePolicyDetail(order.InstrumentId.Value);
                 if (OrderTaskManager.AllowAccept(order, quotePolicyDetail, origin, int.Parse(this._VariationText.Text)))
                 {
-                    this.OrderHandle.OnOrderAccept(order);
+                    this._App.OrderHandle.OnOrderAccept(order);
                 }
                 else
                 {
-                    this.OrderHandle.OnOrderReject(order);
+                    this._App.OrderHandle.OnOrderReject(order);
                 }
             }
         }

@@ -1,4 +1,5 @@
 ﻿using Manager.Common;
+using Manager.Common.Settings;
 using ManagerConsole.Helper;
 using ManagerConsole.Model;
 using System;
@@ -249,9 +250,9 @@ namespace ManagerConsole.ViewModel
         public void AdjustCurrentPrice(decimal adjust, QuotePriceClient quotePriceClient, bool isAdjustInstrument)
         {
             Quotation quotation = Quotation.Create((double)adjust,
-                double.Parse(quotePriceClient.Origin),
-                this.InstrumentClient.NumeratorUnit.Value, this.InstrumentClient.Denominator.Value,
-                this.InstrumentClient.AutoPoint.Value, this.InstrumentClient.Spread.Value);
+            double.Parse(quotePriceClient.Origin),
+            this.InstrumentClient.NumeratorUnit.Value, this.InstrumentClient.Denominator.Value,
+            this.InstrumentClient.AutoPoint.Value, this.InstrumentClient.Spread.Value);
 
             if (isAdjustInstrument)
             {

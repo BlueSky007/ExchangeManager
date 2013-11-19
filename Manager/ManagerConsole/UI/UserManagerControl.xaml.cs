@@ -157,11 +157,11 @@ namespace ManagerConsole
         {
             Button btn = sender as Button;
             Guid userId = (Guid)btn.Tag;
+            UserModel userModel = this._users.Single(u => u.UserId == userId);
             if (userId != Guid.Empty)
             {
                 if (btn.Name == "Edit")
                 {
-                    UserModel userModel = this._users.Single(u => u.UserId == userId);
                     UserData user = new UserData();
                     user.UserId = userModel.UserId;
                     user.UserName = userModel.UserName;
@@ -182,7 +182,11 @@ namespace ManagerConsole
                 }
                 else if (btn.Name == "Delete")
                 {
-                    ConsoleClient.Instance.DeleteUser(userId, this.DeleteUser);
+                    
+                    if (MessageBox.Show(App.MainWindow,string.Format("确认删除{0}用户吗",userModel.UserName), "", MessageBoxButton.YesNo,MessageBoxImage.Question,MessageBoxResult.No,MessageBoxOptions.DefaultDesktopOnly) == MessageBoxResult.Yes)
+                    {
+                        ConsoleClient.Instance.DeleteUser(userId, this.DeleteUser);
+                    }
                 }
             }
         }
@@ -203,6 +207,7 @@ namespace ManagerConsole
                         MessageBox.Show("删除成功");
                     }
                 }, isSuccess);
+
             }
             catch (Exception ex)
             {

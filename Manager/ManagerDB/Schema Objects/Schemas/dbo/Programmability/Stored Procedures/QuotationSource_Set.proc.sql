@@ -1,8 +1,8 @@
 ﻿CREATE PROCEDURE dbo.QuotationSource_Set
 	@id INT OUTPUT,
-	@name NVARCHAR(30),
-	@authName NVARCHAR(30),
-	@password NVARCHAR(60)
+	@name NVARCHAR(30) = NULL,
+	@authName NVARCHAR(30) = NULL,
+	@password NVARCHAR(60) = NULL
 AS
 BEGIN
 	IF @id = 0
@@ -12,6 +12,10 @@ BEGIN
 	END
 	ELSE
 	BEGIN
-		UPDATE dbo.QuotationSource SET [Name] = @name, AuthName = @authName, [Password] = @password WHERE Id = @id
+		UPDATE dbo.QuotationSource
+		SET [Name] = ISNULL(@name, [Name]),
+		    AuthName = ISNULL(@authName, AuthName),
+			[Password] = ISNULL(@password, [Password])
+	    WHERE Id = @id
 	END
 END

@@ -20,9 +20,13 @@ namespace ManagerConsole.ViewModel
 
     public class LMTProcessForInstrument : PropertyChangedNotifier
     {
+        public delegate void OnEmptyLmtOrderTaskHandle(LMTProcessForInstrument lMTProcessForInstrument);
+        public event OnEmptyLmtOrderTaskHandle OnEmptyLmtOrderTask;
+
         public LMTProcessForInstrument()
         {
             this._OrderTasks = new ObservableCollection<OrderTask>();
+            this._Instrument = new InstrumentClient();
         }
 
         #region Privete Property
@@ -95,10 +99,10 @@ namespace ManagerConsole.ViewModel
         public void RemoveLmtOrderTask(OrderTask orderTask)
         {
             this.OrderTasks.Remove(orderTask);
-            //if (this._OrderTasks.Count == 0)
-            //{
-            //    this.OnEmptyLmtOrderTask(this);
-            //}
+            if (this._OrderTasks.Count == 0)
+            {
+                this.OnEmptyLmtOrderTask(this);
+            }
         }
 
         //Apply Price

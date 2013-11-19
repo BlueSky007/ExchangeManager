@@ -40,10 +40,6 @@ namespace ManagerConsole.Model
             return true;
         }
 
-        private void Process(MetadataUpdateMessage priceMessage)
-        {
-        }
-
         private void Process(PrimitiveQuotationMessage primitiveQuotationMessage)
         {
             this._QuotationMessageProcessor.Process(primitiveQuotationMessage);
@@ -52,6 +48,11 @@ namespace ManagerConsole.Model
         private void Process(AbnormalQuotationMessage abnormalQuotationMessage)
         {
             this._QuotationMessageProcessor.Process(abnormalQuotationMessage);
+        }
+
+        private void Process(MetadataUpdateMessage metadataUpdateMessage)
+        {
+            this._QuotationMessageProcessor.Process(metadataUpdateMessage);
         }
 
         private void Process(QuoteMessage quoteMessage)

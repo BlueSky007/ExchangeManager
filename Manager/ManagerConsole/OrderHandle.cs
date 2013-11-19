@@ -8,20 +8,26 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using TransactionError = Manager.Common.TransactionError;
-using CommonParameter = Manager.Common.SystemParameter;
+using CommonParameter = Manager.Common.Settings.SystemParameter;
 using OrderType = Manager.Common.OrderType;
 using TransactionType = Manager.Common.TransactionType;
 using AccountInfor = Manager.Common.AccountInformation;
-using LogOrder = Manager.Common.LogOrder;
 using OperationType = Manager.Common.OperationType;
-using SettingParameter = Manager.Common.SettingParameters;
+using SettingParameter = Manager.Common.Settings.SettingParameters;
 using System.Xml;
 using System.Collections.ObjectModel;
+using Manager.Common.LogEntities;
 
 namespace ManagerConsole
 {
-    public class OrderHandle : UserControl
+    public class OrderHandle
     {
+        public delegate void WaitOrderNotifyHandler(OrderTask orderTask);
+        public event WaitOrderNotifyHandler OnOrderWaitNofityEvent;
+
+        public delegate void ExecuteOrderNotifyHandler(OrderTask orderTask);
+        public event ExecuteOrderNotifyHandler OnExecuteOrderNotifyEvent;
+
         private CommonDialogWin _CommonDialogWin;
         private ConfirmDialogWin _ConfirmDialogWin;
         private ConfirmOrderDialogWin ConfirmOrderDialogWin;
@@ -111,11 +117,29 @@ namespace ManagerConsole
             ConsoleClient.Instance.Cancel(orderTask.Transaction, Manager.Common.CancelReason.DealerCanceled, logEntity, CancelTransactionCallback);
         }
 
+        public void OnOrderCancel(OrderTask orderTask)
+        {
+            if (orderTask.OrderStatus == OrderStatus.WaitAcceptRejectPlace
+                || orderTask.OrderStatus == OrderStatus.WaitAcceptRejectCancel
+                || orderTask.OrderStatus == OrderStatus.WaitOutPriceLMT
+                || orderTask.OrderStatus == OrderStatus.WaitOutLotLMT
+                || orderTask.OrderStatus == OrderStatus.WaitOutLotLMTOrigin)
+            {
+                //at this case, do nothing.
+            }
+            else
+            {
+                string rejectOrderMsg = this.GetRejectOrderMessage(orderTask);
+                this.ConfirmOrderDialogWin.ShowRejectOrderWin(rejectOrderMsg, orderTask, HandleAction.OnOrderCancel);
+            }
+        }
+
         private void RejectPlace(Transaction transaction)
         {
             ConsoleClient.Instance.CancelPlace(transaction, Manager.Common.CancelReason.CustomerCanceled, RejectPlaceCallback);
         }
-        
+
+        #region 撞线状态操作
         public void OnOrderExecute(OrderTask orderTask)
         {
             SystemParameter systemParameter = this._App.InitDataManager.SettingsManager.SystemParameter;
@@ -138,6 +162,11 @@ namespace ManagerConsole
                 orderTask.ResetHit();
                 Guid[] orderIds = new Guid[] { orderTask.OrderId };
                 ConsoleClient.Instance.ResetHit(orderIds);
+
+                if (this.OnOrderWaitNofityEvent != null)
+                {
+                    this.OnOrderWaitNofityEvent(orderTask);
+                }
             }
         }
 
@@ -166,25 +195,9 @@ namespace ManagerConsole
                 }
             }
         }
+        #endregion
 
-        public void OnOrderCancel(OrderTask orderTask)
-        {
-            if (orderTask.OrderStatus == OrderStatus.WaitAcceptRejectPlace
-                || orderTask.OrderStatus == OrderStatus.WaitAcceptRejectCancel
-                || orderTask.OrderStatus == OrderStatus.WaitOutPriceLMT
-                || orderTask.OrderStatus == OrderStatus.WaitOutLotLMT
-                || orderTask.OrderStatus == OrderStatus.WaitOutLotLMTOrigin)
-            {
-                //at this case, do nothing.
-            }
-            else
-            {
-                string rejectOrderMsg = this.GetRejectOrderMessage(orderTask);
-                this.ConfirmOrderDialogWin.ShowRejectOrderWin(rejectOrderMsg, orderTask, HandleAction.OnOrderCancel);
-            }
-        }
-
-
+       
         //Accept or Reject Lmt Order
         public void OnOrderAcceptPlace(OrderTask orderTask)
         {
@@ -209,26 +222,26 @@ namespace ManagerConsole
         }
 
         #region 批量成交单
-        //public void OnLMTApply(LmtOrderTaskForInstrument lmtOrderForInstrument)
-        //{
-        //    string newAskPrice = lmtOrderForInstrument.AskPrice;
-        //    string newBidPrice = lmtOrderForInstrument.BidPrice;
-        //    foreach (OrderTask orderTask in lmtOrderForInstrument.OrderTasks)
-        //    {
-        //        if (orderTask.IsBuy == BuySell.Buy)
-        //        {
-        //            orderTask.SetPrice = newAskPrice;
-        //        }
-        //        else
-        //        {
-        //            orderTask.SetPrice = newBidPrice;
-        //        }
-        //    }
-        //}
-
-        public void OnLMTExecute(LmtOrderTaskForInstrument lmtOrderForInstrument)
+        public void OnLMTApply(LMTProcessForInstrument lMTProcessForInstrument)
         {
-            foreach (OrderTask orderTask in lmtOrderForInstrument.OrderTasks)
+            string newAskPrice = lMTProcessForInstrument.AskPrice;
+            string newBidPrice = lMTProcessForInstrument.BidPrice;
+            foreach (OrderTask orderTask in lMTProcessForInstrument.OrderTasks)
+            {
+                if (orderTask.IsBuy == BuySell.Buy)
+                {
+                    orderTask.SetPrice = newAskPrice;
+                }
+                else
+                {
+                    orderTask.SetPrice = newBidPrice;
+                }
+            }
+        }
+
+        public void OnLMTExecute(LMTProcessForInstrument lMTProcessForInstrument)
+        {
+            foreach (OrderTask orderTask in lMTProcessForInstrument.OrderTasks)
             {
                 if (orderTask.IsSelected)
                 {
@@ -238,7 +251,7 @@ namespace ManagerConsole
                         if (isValidPrice.Value)
                         {
                             //合法
-                            string executePrice = orderTask.IsBuy == BuySell.Buy ? lmtOrderForInstrument.Instrument.Ask : lmtOrderForInstrument.Instrument.Bid;
+                            string executePrice = orderTask.IsBuy == BuySell.Buy ? lMTProcessForInstrument.Instrument.Ask : lMTProcessForInstrument.Instrument.Bid;
                             this.Commit(orderTask, executePrice, (decimal)orderTask.Lot);
                         }
                     }
@@ -472,32 +485,32 @@ namespace ManagerConsole
         //Call Back Event
         private void AcceptPlaceCallback(Transaction tran, TransactionError transactionError)
         {
-            this.Dispatcher.BeginInvoke((Action<TransactionError>)delegate(TransactionError result)
+            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
-                if (result == TransactionError.OK)
+                if (transactionError == TransactionError.OK)
                 {
                     tran.Phase = Manager.Common.Phase.Placed;
                     TranPhaseManager.SetOrderStatus(tran,true);
                 }
-            }, transactionError);
+            });
         }
 
         private void RejectPlaceCallback(Transaction tran,TransactionError transactionError)
         {
-            this.Dispatcher.BeginInvoke((Action<TransactionError>)delegate(TransactionError result)
+            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
-                if (result == TransactionError.OK)
+                if (transactionError == TransactionError.OK)
                 {
                     this._CommonDialogWin.ShowDialogWin("Reject Place Succeed", "Infromation");
                 }
-            }, transactionError);
+            });
         }
 
         private void CancelTransactionCallback(Transaction tran,TransactionError transactionError)
         {
-            this.Dispatcher.BeginInvoke((Action<TransactionError>)delegate(TransactionError result)
+            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
-                if (result == TransactionError.OK)
+                if (transactionError == TransactionError.OK)
                 {
                     foreach (Order order in tran.Orders)
                     {
@@ -517,15 +530,15 @@ namespace ManagerConsole
                         this._CommonDialogWin.ShowDialogWin(sMsg, "Alert", 300, 200);
                     }
                 }
-            }, transactionError);
+            });
         }
 
         //Execute DQ Order/Lmt Order
         private void ExecuteCallback(Transaction tran,TransactionError transactionError)
         {
-            this.Dispatcher.BeginInvoke((Action<TransactionError>)delegate(TransactionError result)
+            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
-                if (result == TransactionError.OK)
+                if (transactionError == TransactionError.OK)
                 {
                     foreach (Order order in tran.Orders)
                     {
@@ -536,7 +549,7 @@ namespace ManagerConsole
                     }
                     this.RemoveTransaction(tran);
                 }
-            }, transactionError);
+            });
         }
         #endregion
 
@@ -559,6 +572,10 @@ namespace ManagerConsole
 
             foreach (OrderTask orderTask in deleteOrders)
             {
+                if (this.OnExecuteOrderNotifyEvent != null)
+                {
+                    this.OnExecuteOrderNotifyEvent(orderTask);
+                }
                 this._App.InitDataManager.OrderTaskModel.RemoveOrderTask(orderTask);
             }
         }

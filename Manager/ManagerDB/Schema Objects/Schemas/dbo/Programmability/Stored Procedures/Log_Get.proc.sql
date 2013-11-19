@@ -46,5 +46,15 @@ BEGIN
 		LEFT OUTER JOIN [dbo].[QuotationSource] qst ON qst.Id = lsc.ToSourceId
 		WHERE l.Timestamp >= @fromDate AND l.Timestamp <= @toDate
 	END
+	--Log Setting
+	ELSE IF @logType = 5   
+	BEGIN
+	    SELECT l.[Id],l.IP,l.[Event],l.ExchangeCode,l.Timestamp,l.UserId,u.Name as UserName,
+		ls.ParameterName,ls.TableName,ls.OldValue,ls.NewValue
+		FROM [dbo].[LogSetting] ls
+		INNER JOIN [dbo].[Log] l ON l.Id = ls.Id
+		INNER JOIN [dbo].[Users] u ON u.Id = l.UserId
+		WHERE l.Timestamp >= @fromDate AND l.Timestamp <= @toDate
+	END
    
 END

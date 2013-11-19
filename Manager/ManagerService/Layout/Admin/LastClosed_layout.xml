@@ -1,23 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xamDockManager version="13.1.20131.1009">
   <contentPanes>
-    <contentPane name="module12" location="Document" lastDockableState="Floating" lastFloatingSize="1060,906" lastFloatingWindowRect="685,490,1068,930" lastFloatingLocation="685,490" lastActivatedTime="2013-11-13T08:55:09.3764563Z" />
-    <contentPane name="module9" location="Document" lastActivatedTime="2013-11-13T08:54:44.9470591Z" />
-    <contentPane name="FunctionTreePane" location="DockedLeft" lastActivatedTime="2013-11-13T08:54:23.0488066Z" />
+    <contentPane name="module12" location="Document" lastDockableState="Floating" lastFloatingSize="1060,906" lastFloatingWindowRect="729,515,1068,930" lastFloatingLocation="729,515" lastActivatedTime="2013-11-15T06:10:28.0854658Z" />
+    <contentPane name="module10" location="Document" lastActivatedTime="2013-11-15T06:10:11.5515201Z" />
+    <contentPane name="module8" location="Document" lastActivatedTime="2013-11-14T04:00:38.302098Z" />
+    <contentPane name="FunctionTreePane" location="DockedLeft" lastActivatedTime="2013-11-14T04:00:07.007308Z" />
+    <contentPane name="module9" location="Document" lastActivatedTime="2013-11-14T03:37:34.2529349Z" />
   </contentPanes>
   <panes>
+    <splitPane name="Z4c43a0c3794444e69adb310be96767f3" splitterOrientation="Vertical" location="DockedTop" extent="469.5">
+      <contentPane name="module12" />
+    </splitPane>
     <splitPane name="Z2c8a01f27e7c486ca91282087ddb1a7c" splitterOrientation="Vertical" location="DockedLeft">
       <contentPane name="FunctionTreePane" />
     </splitPane>
-    <splitPane name="Z5b2a40a668d54a079788c0bb067d4f02" splitterOrientation="Vertical" location="Floating" floatingLocation="685,490" floatingSize="1060,906">
+    <splitPane name="Zaf8974e00a9a40e58df6337e55742bab" splitterOrientation="Vertical" location="Floating" floatingLocation="729,515" floatingSize="1060,906">
       <contentPane name="module12" />
     </splitPane>
   </panes>
   <documents splitterOrientation="Vertical">
     <splitPane name="Z32da9376907c4a788e86d6b2af53383f" splitterOrientation="Vertical">
-      <splitPane name="Z343d49a02a29475ba81701506f837bd8" splitterOrientation="Horizontal" relativeSize="100,100">
+      <splitPane name="Z343d49a02a29475ba81701506f837bd8" splitterOrientation="Horizontal">
         <tabGroup name="Z495cde00fce24ef6942e9ebecd1332db" selectedIndex="0">
           <contentPane name="module12" />
+          <contentPane name="module8" />
+          <contentPane name="module10" />
         </tabGroup>
         <tabGroup name="Z2308f11f820d44148931d8cd70ff0991" selectedIndex="0">
           <contentPane name="module9" />

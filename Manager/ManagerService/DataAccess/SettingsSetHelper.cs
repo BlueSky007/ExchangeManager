@@ -1,10 +1,9 @@
 ﻿using Manager.Common;
+using Manager.Common.Settings;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 
 namespace ManagerService.DataAccess
 {
@@ -234,6 +233,44 @@ namespace ManagerService.DataAccess
             instrument.BuyLot = (decimal)dr["BuyLot"];
             instrument.SellLot = (decimal)dr["SellLot"];
             instrument.HitPriceVariationForSTP = (int)dr["HitPriceVariationForSTP"];
+        }
+
+        private static void Initialize(Order order, SqlDataReader dr)
+        {
+            order.Id = (Guid)dr["ID"];
+            order.Code = (string)dr["Code"];
+            order.Phase = dr["Phase"].ConvertToEnumValue<Phase>();
+            order.TransactionId = (Guid)dr["TransactionId"];
+            order.TransactionCode = (string)dr["TransactionCode"];
+            order.TransactionType = dr["TransactionType"].ConvertToEnumValue<TransactionType>();
+            order.TransactionSubType = dr["TransactionSubType"].ConvertToEnumValue<TransactionSubType>();
+            order.TradeOption = dr["TradeOption"].ConvertToEnumValue<TradeOption>();
+            order.OrderType = dr["OrderTypeID"].ConvertToEnumValue<OrderType>();
+            order.IsOpen = (bool)dr["IsOpen"];
+            order.IsBuy = (bool)dr["IsBuy"];
+            order.AccountId = (Guid)dr["AccountID"];
+            order.InstrumentId = (Guid)dr["InstrumentID"];
+            order.ContractSize = (decimal)dr["ContractSize"];
+            order.SetPrice = (string)dr["SetPrice"];
+            order.ExecutePrice = (string)dr["ExecutePrice"];
+            order.Lot = (decimal)dr["Lot"];
+            order.LotBalance = (decimal)dr["LotBalance"];
+            order.MinLot = (decimal)dr["MinLot"];
+            order.MaxShow = (string)dr["MaxShow"];
+            order.BeginTime = (DateTime)dr["BeginTime"];
+            order.EndTime = (DateTime)dr["EndTime"];
+            order.SubmitTime = (DateTime)dr["SubmitTime"];
+            order.ExecuteTime = (DateTime)dr["ExecuteTime"];
+            order.HitCount = (int)dr["HitCount"];
+            order.BestPrice = (string)dr["BestPrice"];
+            order.BestTime = (DateTime)dr["BestTime"];
+            order.ApproverID = (Guid)dr["ApproverID"];
+            order.SubmitorID = (Guid)dr["SubmitorID"];
+            order.DQMaxMove = (int)dr["DQMaxMove"];
+            order.ExpireType = dr["ExpireType"].ConvertToEnumValue<ExpireType>();
+            order.SetPrice2 = (string)dr["SetPrice2"];
+            order.AssigningOrderID = (Guid)dr["AssigningOrderID"];
+            order.BlotterCode = (string)dr["BlotterCode"];
         }
     }
 }

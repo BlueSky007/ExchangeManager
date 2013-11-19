@@ -1,13 +1,11 @@
 ﻿using Manager.Common;
+using Manager.Common.LogEntities;
 using ManagerService.Console;
-using ManagerService.DataAccess;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Diagnostics;
-using System.Linq;
 using System.Net;
-using System.Text;
 
 namespace ManagerService.DataAccess
 {
@@ -92,6 +90,22 @@ namespace ManagerService.DataAccess
             return logOrders;
         }
 
+        public List<LogSetting> GetLogSettingData(DateTime fromDate, DateTime toDate, LogType logType)
+        {
+            List<LogSetting> logSettings = new List<LogSetting>();
+            SqlDataReader dr = this.GetLogReader(fromDate, toDate, logType);
+            try
+            {
+                logSettings = LogHelper.CreateLogEntity<LogSetting>(dr, GetLogEntity);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "LogDataAccess.GetLogSettingData:{0}, Error:\r\n{1}", ex.ToString());
+            }
+            return logSettings;
+        }
+        
+
         public List<LogPrice> GetLogPriceData(DateTime fromDate, DateTime toDate, LogType logType)
         {
             List<LogPrice> logPircies = new List<LogPrice>();
@@ -121,88 +135,103 @@ namespace ManagerService.DataAccess
             }
             return logSourceChanges;
         }
-        
 
-        private static void GetLogEntity(LogQuote logQuote, SqlDataReader dr)
+
+        private static void GetLogEntity(LogQuote entity, SqlDataReader dr)
         {
-            logQuote.Id = (Guid)dr["Id"];
-            logQuote.IP = dr["IP"] == DBNull.Value ? null : (string)dr["IP"];
-            logQuote.UserId = (Guid)dr["UserId"];
-            logQuote.UserName = (string)dr["UserName"];
-            logQuote.ExchangeCode = dr.GetItemValue<string>("ExchangeCode", null);
-            logQuote.Event = (string)dr["Event"];
-            logQuote.Timestamp = (DateTime)dr["Timestamp"];
-            logQuote.Lot = dr.GetItemValue<decimal>("Lot", 0);
-            logQuote.AnswerLot = dr.GetItemValue<decimal>("AnswerLot", 0);
-            logQuote.Ask = (string)dr["Ask"];
-            logQuote.Bid = (string)dr["Bid"];
-            logQuote.IsBuy = (bool)dr["IsBuy"];
-            logQuote.CustomerId = (Guid)dr["CustomerId"];
-            logQuote.CustomerName = dr.GetItemValue<string>("CustomerName", null);
-            logQuote.InstrumentId = (Guid)dr["InstrumentId"];
-            logQuote.InstrumentCode = (string)dr["InstrumentCode"];
-            logQuote.SendTime = (DateTime)dr["SendTime"];
+            entity.Id = (Guid)dr["Id"];
+            entity.IP = dr["IP"] == DBNull.Value ? null : (string)dr["IP"];
+            entity.UserId = (Guid)dr["UserId"];
+            entity.UserName = (string)dr["UserName"];
+            entity.ExchangeCode = dr.GetItemValue<string>("ExchangeCode", null);
+            entity.Event = (string)dr["Event"];
+            entity.Timestamp = (DateTime)dr["Timestamp"];
+            entity.Lot = dr.GetItemValue<decimal>("Lot", 0);
+            entity.AnswerLot = dr.GetItemValue<decimal>("AnswerLot", 0);
+            entity.Ask = (string)dr["Ask"];
+            entity.Bid = (string)dr["Bid"];
+            entity.IsBuy = (bool)dr["IsBuy"];
+            entity.CustomerId = (Guid)dr["CustomerId"];
+            entity.CustomerName = dr.GetItemValue<string>("CustomerName", null);
+            entity.InstrumentId = (Guid)dr["InstrumentId"];
+            entity.InstrumentCode = (string)dr["InstrumentCode"];
+            entity.SendTime = (DateTime)dr["SendTime"];
         }
 
-        private static void GetLogEntity(LogOrder logOrder, SqlDataReader dr)
+        private static void GetLogEntity(LogOrder entity, SqlDataReader dr)
         {
-            logOrder.Id = (Guid)dr["Id"];
-            logOrder.IP = dr["IP"] == DBNull.Value ? null : (string)dr["IP"];
-            logOrder.UserId = (Guid)dr["UserId"];
-            logOrder.UserName = (string)dr["UserName"];
-            logOrder.ExchangeCode = dr.GetItemValue<string>("ExchangeCode", null);
-            logOrder.Event = (string)dr["Event"];
-            logOrder.Timestamp = (DateTime)dr["Timestamp"];
+            entity.Id = (Guid)dr["Id"];
+            entity.IP = dr["IP"] == DBNull.Value ? null : (string)dr["IP"];
+            entity.UserId = (Guid)dr["UserId"];
+            entity.UserName = (string)dr["UserName"];
+            entity.ExchangeCode = dr.GetItemValue<string>("ExchangeCode", null);
+            entity.Event = (string)dr["Event"];
+            entity.Timestamp = (DateTime)dr["Timestamp"];
 
-            logOrder.OperationType = dr["OperationType"].ConvertToEnumValue<OperationType>();
-            logOrder.OrderId = (Guid)dr["OrderId"];
-            logOrder.OrderCode = (string)dr["OrderCode"];
-            logOrder.AccountCode = (string)dr["AccountCode"];
-            logOrder.InstrumentCode = (string)dr["InstrumentCode"];
-            logOrder.IsBuy = (bool)dr["IsBuy"];
-            logOrder.IsOpen = (bool)dr["IsOpen"];
-            logOrder.Lot = (decimal)dr["Lot"];
-            logOrder.SetPrice = (string)dr["SetPrice"];
-            logOrder.OrderType = (OrderType)dr["OrderTypeId"];
-            logOrder.OrderRelation = (string)dr["OrderRelation"];
-            logOrder.TransactionCode = (string)dr["TransactionCode"];
+            entity.OperationType = dr["OperationType"].ConvertToEnumValue<OperationType>();
+            entity.OrderId = (Guid)dr["OrderId"];
+            entity.OrderCode = (string)dr["OrderCode"];
+            entity.AccountCode = (string)dr["AccountCode"];
+            entity.InstrumentCode = (string)dr["InstrumentCode"];
+            entity.IsBuy = (bool)dr["IsBuy"];
+            entity.IsOpen = (bool)dr["IsOpen"];
+            entity.Lot = (decimal)dr["Lot"];
+            entity.SetPrice = (string)dr["SetPrice"];
+            entity.OrderType = (OrderType)dr["OrderTypeId"];
+            entity.OrderRelation = (string)dr["OrderRelation"];
+            entity.TransactionCode = (string)dr["TransactionCode"];
         }
 
-        private static void GetLogEntity(LogPrice logPrice, SqlDataReader dr)
+        private static void GetLogEntity(LogSetting entity, SqlDataReader dr)
         {
-            logPrice.Id = (Guid)dr["Id"];
-            logPrice.IP = dr["IP"] == DBNull.Value ? null : (string)dr["IP"];
-            logPrice.UserId = (Guid)dr["UserId"];
-            logPrice.UserName = (string)dr["UserName"];
-            logPrice.ExchangeCode = dr.GetItemValue<string>("ExchangeCode", null);
-            logPrice.Event = (string)dr["Event"];
-            logPrice.Timestamp = (DateTime)dr["Timestamp"];
+            entity.Id = (Guid)dr["Id"];
+            entity.IP = dr["IP"] == DBNull.Value ? null : (string)dr["IP"];
+            entity.UserId = (Guid)dr["UserId"];
+            entity.UserName = (string)dr["UserName"];
+            entity.ExchangeCode = dr.GetItemValue<string>("ExchangeCode", null);
+            entity.Event = (string)dr["Event"];
+            entity.Timestamp = (DateTime)dr["Timestamp"];
 
-            logPrice.InstrumentId = (int)dr["InstrumentId"];
-            logPrice.InstrumentCode = (string)dr["InstrumentCode"];
-            logPrice.OperationType = dr["OperationType"].ConvertToEnumValue<OperationType>();// (OperationType)dr["OperationType"];
-            logPrice.Price = (string)dr["Price"];
-            logPrice.Diff = (string)dr["Diff"];
+            entity.ParameterName = dr.GetItemValue<string>("ParameterName", null);
+            entity.TableName = dr.GetItemValue<string>("TableName", null);
+            entity.OldValue = dr.GetItemValue<string>("OldValue", null);
+            entity.NewValue = dr.GetItemValue<string>("NewValue", null);
         }
 
-        private static void GetLogEntity(LogSourceChange logSourceChange, SqlDataReader dr)
+        private static void GetLogEntity(LogPrice entity, SqlDataReader dr)
         {
-            logSourceChange.Id = (Guid)dr["Id"];
-            logSourceChange.IP = dr["IP"] == DBNull.Value ? null : (string)dr["IP"];
-            logSourceChange.UserId = (Guid)dr["UserId"];
-            logSourceChange.UserName = (string)dr["UserName"];
-            logSourceChange.ExchangeCode = dr.GetItemValue<string>("ExchangeCode", null);
-            logSourceChange.Event = (string)dr["Event"];
-            logSourceChange.Timestamp = (DateTime)dr["Timestamp"];
+            entity.Id = (Guid)dr["Id"];
+            entity.IP = dr["IP"] == DBNull.Value ? null : (string)dr["IP"];
+            entity.UserId = (Guid)dr["UserId"];
+            entity.UserName = (string)dr["UserName"];
+            entity.ExchangeCode = dr.GetItemValue<string>("ExchangeCode", null);
+            entity.Event = (string)dr["Event"];
+            entity.Timestamp = (DateTime)dr["Timestamp"];
 
-            logSourceChange.IsDefault = (bool)dr["IsDefault"];
-            logSourceChange.FromSourceId = (int)dr["FromSourceId"];
-            logSourceChange.FromSourceName = (string)dr["FromSourceName"];
-            logSourceChange.ToSourceId = (int)dr["ToSourceId"];
-            logSourceChange.ToSourceName = (string)dr["ToSourceName"];
-            logSourceChange.Priority = (byte)dr["Priority"];
+            entity.InstrumentId = (int)dr["InstrumentId"];
+            entity.InstrumentCode = (string)dr["InstrumentCode"];
+            entity.OperationType = dr["OperationType"].ConvertToEnumValue<OperationType>();// (OperationType)dr["OperationType"];
+            entity.Price = (string)dr["Price"];
+            entity.Diff = (string)dr["Diff"];
         }
-        
+
+        private static void GetLogEntity(LogSourceChange entity, SqlDataReader dr)
+        {
+            entity.Id = (Guid)dr["Id"];
+            entity.IP = dr["IP"] == DBNull.Value ? null : (string)dr["IP"];
+            entity.UserId = (Guid)dr["UserId"];
+            entity.UserName = (string)dr["UserName"];
+            entity.ExchangeCode = dr.GetItemValue<string>("ExchangeCode", null);
+            entity.Event = (string)dr["Event"];
+            entity.Timestamp = (DateTime)dr["Timestamp"];
+
+            entity.IsDefault = (bool)dr["IsDefault"];
+            entity.FromSourceId = (int)dr["FromSourceId"];
+            entity.FromSourceName = (string)dr["FromSourceName"];
+            entity.ToSourceId = (int)dr["ToSourceId"];
+            entity.ToSourceName = (string)dr["ToSourceName"];
+            entity.Priority = (byte)dr["Priority"];
+        }
     }
 
     public class WriteLogManager
@@ -302,6 +331,35 @@ namespace ManagerService.DataAccess
             catch (Exception ex)
             {
                 Logger.TraceEvent(TraceEventType.Error, "WriteLogManager.WriteQuoteOrderLog:{0}, Error:\r\n{1}", ex.ToString());
+            }
+        }
+
+        public static void WriteSettingChangeLog(LogSetting logEntity)
+        {
+            try
+            {
+                using (SqlConnection sqlConnection = DataAccess.GetInstance().GetSqlConnection())
+                {
+                    SqlCommand command = sqlConnection.CreateCommand();
+                    command.CommandText = "P_LogSetting_Ins";
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@id", logEntity.Id));
+                    command.Parameters.Add(new SqlParameter("@userId", logEntity.UserId));
+                    command.Parameters.Add(new SqlParameter("@ip", logEntity.IP));
+                    command.Parameters.Add(new SqlParameter("@exchangeCode", logEntity.ExchangeCode));
+                    command.Parameters.Add(new SqlParameter("@event", logEntity.Event));
+                    command.Parameters.Add(new SqlParameter("@timestamp", DateTime.Now));
+                    command.Parameters.Add(new SqlParameter("@parameterName", logEntity.ParameterName));
+                    command.Parameters.Add(new SqlParameter("@tableName", logEntity.TableName));
+                    command.Parameters.Add(new SqlParameter("@oldValue", logEntity.OldValue));
+                    command.Parameters.Add(new SqlParameter("@newValue", logEntity.NewValue));
+     
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "WriteLogManager.WriteSettingChangeLog:{0}, Error:\r\n{1}", ex.ToString());
             }
         }
 

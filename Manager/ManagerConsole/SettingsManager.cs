@@ -4,9 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SettingSet = Manager.Common.SettingSet;
+using Logger = Manager.Common.Logger;
 using UpdateAction = Manager.Common.UpdateAction;
-using CommonAccount = Manager.Common.Account;
-using CommonInstrument = Manager.Common.Instrument;
+using CommonAccount = Manager.Common.Settings.Account;
+using CommonInstrument = Manager.Common.Settings.Instrument;
+using CommonTradePolicy = Manager.Common.Settings.TradePolicy;
+using CommonTradePolicyDetail = Manager.Common.Settings.TradePolicyDetail;
+using CommonAccountGroup = Manager.Common.Settings.AccountGroup;
 
 namespace ManagerConsole
 {
@@ -16,6 +20,7 @@ namespace ManagerConsole
         public event SettingsChangedEventHandler SettingsChanged;
 
         private Dictionary<Guid, Account> _Accounts = new Dictionary<Guid, Account>();
+        private Dictionary<Guid, AccountGroup> _AccountGroups = new Dictionary<Guid, AccountGroup>();
         private Dictionary<Guid, InstrumentClient> _Instruments = new Dictionary<Guid, InstrumentClient>();
         private Dictionary<Guid, Dictionary<Guid, QuotePolicyDetail>> _QuotePolicyDetails = new Dictionary<Guid, Dictionary<Guid, QuotePolicyDetail>>();
         private Dictionary<Guid, TradePolicy> _TradePolicies = new Dictionary<Guid, TradePolicy>();
@@ -25,6 +30,10 @@ namespace ManagerConsole
         public SettingsManager()
         {
             Toolkit.SettingsManager = this;
+
+            //just test
+            this._Instruments = TestData.GetInitializeTestDataForInstrument();
+            this._Accounts = TestData.GetInitializeTestDataForAccount();
         }
 
         #region Public Property
@@ -50,7 +59,14 @@ namespace ManagerConsole
 
         public void Initialize(SettingSet settingSet)
         {
-            this.Update(settingSet, UpdateAction.Initialize);
+            try
+            {
+                this.Update(settingSet, UpdateAction.Initialize);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "SettingsManager.Initialize.\r\n{0}", ex.ToString());
+            }
         }
 
         public void UpdateNotify(SettingSet addSet, SettingSet deletedSet, SettingSet modifySet)
@@ -91,6 +107,27 @@ namespace ManagerConsole
                     this.SystemParameter.Update(settingSet.SystemParameter);
                 }
             }
+            if (settingSet.AccountGroups != null)
+            {
+                foreach (CommonAccountGroup accountGroup in settingSet.AccountGroups)
+                {
+                    if (action == UpdateAction.Initialize)
+                    {
+                        this._AccountGroups[accountGroup.Id] = new AccountGroup(accountGroup);
+                    }
+                    else if (action == UpdateAction.Modify)
+                    {
+                        if (this._AccountGroups.ContainsKey(accountGroup.Id))
+                        {
+                            this._AccountGroups[accountGroup.Id].Update(accountGroup);
+                        }
+                    }
+                    else if (action == UpdateAction.Delete)
+                    {
+                        this._AccountGroups.Remove(accountGroup.Id);
+                    }
+                }
+            }
             if (settingSet.Accounts != null)
             {
                 foreach (CommonAccount account in settingSet.Accounts)
@@ -109,6 +146,60 @@ namespace ManagerConsole
                     else if (action == UpdateAction.Delete)
                     {
                         this._Accounts.Remove(account.Id);
+                    }
+                }
+            }
+
+            if (settingSet.TradePolicies != null)
+            {
+                foreach (CommonTradePolicy tradePolicy in settingSet.TradePolicies)
+                {
+                    if (action == UpdateAction.Initialize || action == UpdateAction.Add)
+                    {
+                        this._TradePolicies[tradePolicy.Id] = new TradePolicy(tradePolicy);
+                    }
+                    else if (action == UpdateAction.Modify)
+                    {
+                        this._TradePolicies[tradePolicy.Id].Update(tradePolicy);
+                    }
+                    else if (action == UpdateAction.Delete)
+                    {
+                        this._TradePolicies.Remove(tradePolicy.Id);
+                    }
+                }
+            }
+
+            if (settingSet.TradePolicyDetails != null)
+            {
+                foreach (CommonTradePolicyDetail tradePolicyDetail in settingSet.TradePolicyDetails)
+                {
+                    if (action == UpdateAction.Initialize || action == UpdateAction.Add)
+                    {
+                        Dictionary<Guid, TradePolicyDetail> tradePolicyDetails = null;
+                        if (!this._TradePolicyDetails.TryGetValue(tradePolicyDetail.TradePolicyId, out tradePolicyDetails))
+                        {
+                            tradePolicyDetails = new Dictionary<Guid, TradePolicyDetail>();
+                            this._TradePolicyDetails.Add(tradePolicyDetail.TradePolicyId, tradePolicyDetails);
+                        }
+                        tradePolicyDetails[tradePolicyDetail.InstrumentId] = new TradePolicyDetail(tradePolicyDetail);
+                    }
+                    else if (action == UpdateAction.Modify)
+                    {
+                        Dictionary<Guid, TradePolicyDetail> tradePolicyDetails = null;
+                        if (this._TradePolicyDetails.TryGetValue(tradePolicyDetail.TradePolicyId, out tradePolicyDetails)
+                            && tradePolicyDetails.ContainsKey(tradePolicyDetail.InstrumentId))
+                        {
+                            tradePolicyDetails[tradePolicyDetail.InstrumentId].Update(tradePolicyDetail);
+                            //this.IsCalculateNecessary = true;
+                        }
+                    }
+                    else if (action == UpdateAction.Delete)
+                    {
+                        Dictionary<Guid, TradePolicyDetail> tradePolicyDetails = null;
+                        if (this._TradePolicyDetails.TryGetValue(tradePolicyDetail.TradePolicyId, out tradePolicyDetails))
+                        {
+                            tradePolicyDetails.Remove(tradePolicyDetail.TradePolicyId);
+                        }
                     }
                 }
             }
@@ -224,6 +315,10 @@ namespace ManagerConsole
         internal IList<Account> GetAccounts()
         {
             return new List<Account>(this._Accounts.Values);
+        }
+        internal IList<AccountGroup> GetAccountGroups()
+        {
+            return new List<AccountGroup>(this._AccountGroups.Values);
         }
         internal TradePolicyDetail GetTradePolicyDetail(Guid tradePolicyId, Guid instrumentId)
         {

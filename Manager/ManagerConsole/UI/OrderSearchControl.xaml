@@ -1,0 +1,103 @@
+﻿<UserControl x:Class="ManagerConsole.UI.OrderSearchControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:igGrid="http://schemas.infragistics.com/xaml"
+             xmlns:igDP="http://infragistics.com/DataPresenter"
+             xmlns:igRep="http://infragistics.com/Reporting"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="800">
+    <Grid>
+        <Grid.Resources>
+            <Style TargetType="CalendarDayButton" x:Key="CalendarDayBtnStyle">
+                <Setter Property="Background">
+                    <Setter.Value>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="White" Offset="0"/>
+                            <GradientStop Color="Green" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="65"/>
+            <RowDefinition Height="500*"/>
+        </Grid.RowDefinitions>
+        <Border CornerRadius="5" Background="{StaticResource BackGroundForPanel}" Grid.Row="0">
+            <StackPanel Orientation="Vertical">
+                <StackPanel Orientation="Horizontal"  >
+                    <TextBlock Foreground="White" Width="90" Text="Query Type:" Margin="8,5,0,0" Height="25"/>
+                    <ComboBox x:Name="_QueryType" Style="{StaticResource ComboBoxStyle}" Width="85" Height="23" SelectedIndex="0">
+                        <ComboBoxItem>Executed</ComboBoxItem>
+                        <ComboBoxItem>Cancelled</ComboBoxItem>
+                    </ComboBox>
+                    <TextBlock Foreground="White" Text="Instrument:" Margin="8,10,0,0" Height="25" Width="90" TextAlignment="Right"/>
+                    <ComboBox Style="{StaticResource ComboBoxStyle}" x:Name="_InstrumentCombo" Margin="5,1,1,1" Height="23"  Width="110" />
+                    <TextBlock x:Name="_FromTextBlock" Foreground="White" Text="Trad Time From:" Margin="8,10,0,0" Height="25"/>
+                    <igGrid:XamDateTimeInput Style="{StaticResource XamDateTimeInput}" AutoFillDate="MonthAndYear" DropDownButtonDisplayMode="Always" SpinButtonDisplayMode="Focused" SpinIncrement="1m" Width="150" Height="23" x:Name="_FromDatePicker"   AllowDropDown="True" Mask="yyyy-mm-dd hh:mm:ss"/>
+
+                    <Button x:Name="_QueryButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"  Click="ToolBar_Click" Width="25" Height="25" Margin="2" >
+                        <Button.Content>
+                            <Image Source="../Asset/Images/Query.png" ToolTipService.ToolTip="Query Log"  Margin="1"/>
+                        </Button.Content>
+                    </Button>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Grid.Row="1">
+                    <TextBlock Text="Account Group:" Width="90" Foreground="White" Margin="8,5,0,0"/>
+                    <ComboBox Style="{StaticResource ComboBoxStyle}" x:Name="_AccountGroupCombo" Height="23"  Width="86" Margin="0,5,0,0"/>
+                    <TextBlock Text="OrderType:" Foreground="White" Margin="8,5,0,0" Width="90" TextAlignment="Right"/>
+                    <ComboBox Style="{StaticResource ComboBoxStyle}" x:Name="_OrderTypeCombo" Height="23" Margin="8,5,0,0" Width="110" />
+                    <TextBlock x:Name="_ToTextBlock" Foreground="White" Text="To:" Margin="8,5,0,0" Height="25" Width="80" TextAlignment="Right"/>
+                    <igGrid:XamDateTimeInput x:Name="_ToDatePicker" AutoFillDate="MonthAndYear" DropDownButtonDisplayMode="Always" SpinButtonDisplayMode="Focused" SpinIncrement="1m"  Margin="3,0,0,0" Width="150" Height="23" AllowDropDown="True"  Mask="yyyy-mm-dd hh:mm:ss"/>
+                    <Button x:Name="_PrintBtn" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"  Click="ToolBar_Click" Width="25" Height="25" Margin="2" >
+                        <Button.Content>
+                            <Image Source="../Asset/Images/Print.png" ToolTipService.ToolTip="Query Log"  Margin="1"/>
+                        </Button.Content>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+
+        <TabControl Grid.Row="1" Background="White">
+            <TabItem Header="单子查询" Style="{StaticResource TableItemStyle}">
+                <igGrid:XamGrid x:Name="_OrderSerchGrid" Grid.Row="1" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto"  Foreground="{Binding IsBuyBrush}">
+                    <igGrid:XamGrid.FixedColumnSettings>
+                        <igGrid:FixedColumnSettings AllowFixedColumns="DropArea"/>
+                    </igGrid:XamGrid.FixedColumnSettings>
+                    <igGrid:XamGrid.GroupBySettings>
+                        <igGrid:GroupBySettings AllowGroupByArea="Top" IsGroupable="True" EmptyGroupByAreaContent="单子查询     拖动列标题栏在此分组"/>
+                    </igGrid:XamGrid.GroupBySettings>
+
+                    <!--Column Setting-->
+                    <igGrid:XamGrid.Columns>
+                        <igGrid:TemplateColumn Key="InstrumentCode" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Item">
+                            <igGrid:TemplateColumn.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding InstrumentCode}" Foreground="{Binding RowBrush}"/>
+                                </DataTemplate>
+                            </igGrid:TemplateColumn.ItemTemplate>
+                        </igGrid:TemplateColumn>
+                        <igGrid:TextColumn Key="ExchangeCode"  Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="ExchangeCode" />
+                        <igGrid:CheckBoxColumn Key="BuySell" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="B/S" />
+                        <igGrid:CheckBoxColumn Key="OpenClose"  Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="O/C" />
+                        <igGrid:TextColumn Key="Lot" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Lot" />
+                        <igGrid:TextColumn Key="AccountCode"  Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="A/C" />
+                        <igGrid:CheckBoxColumn Key="SetPrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Price" />
+                        <igGrid:CheckBoxColumn Key="OrderType"  Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Type" />
+                        <igGrid:TextColumn Key="ExecuteTime" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Execute Time" />
+                        <igGrid:TextColumn Key="Relation"  Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Relation" />
+                        <igGrid:CheckBoxColumn Key="Dealer" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Dealer" />
+                    </igGrid:XamGrid.Columns>
+                </igGrid:XamGrid>
+            </TabItem>
+            <TabItem x:Name="tbiPreview" Header="打印预览" Style="{StaticResource TableItemStyle}">
+                <igRep:XamReportPreview x:Name="_OrderReportPreview"></igRep:XamReportPreview>
+            </TabItem>
+        </TabControl>
+
+        
+    </Grid>
+</UserControl>

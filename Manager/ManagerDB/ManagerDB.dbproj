@@ -326,6 +326,12 @@
     <Build Include="Schema Objects\Schemas\dbo\Programmability\Stored Procedures\QuotationSource_Set.proc.sql">
       <SubType>Code</SubType>
     </Build>
+    <Build Include="Schema Objects\Schemas\dbo\Tables\Keys\InstrumentSourceRelation.UK_InstrumentSource.ukey.sql">
+      <SubType>Code</SubType>
+    </Build>
+    <Build Include="Schema Objects\Schemas\dbo\Programmability\Stored Procedures\P_LogSetting_Ins.proc.sql">
+      <SubType>Code</SubType>
+    </Build>
   </ItemGroup>
   <ItemGroup>
     <NotInBuild Include="Schema Objects\Schemas\dbo\Tables\Keys\PK_Log.pkey.sql">

@@ -765,8 +765,8 @@ namespace ManagerConsole.Helper
             Grid.SetColumn(valuePanel, 1);
 
             //按钮
-            Button ok = new Button() { Name = "okBtn", Content = "Yes", Width = 80, Height = 25, TabIndex = 1, Margin = new Thickness(25, 0, 0, 0) };
-            Button cancel = new Button() { Name = "cancelBtn", Content = "No", Width = 80, Height = 25, Margin = new Thickness(25, 0, 0, 0) };
+            Button ok = new Button() { Name = "okBtn", Content = "Yes", Width = 60, Height = 25, TabIndex = 1, Margin = new Thickness(25, 0, 0, 0) };
+            Button cancel = new Button() { Name = "cancelBtn", Content = "No", Width = 60, Height = 25, Margin = new Thickness(25, 0, 0, 0) };
             ok.Click += new RoutedEventHandler(ok_Click);
             cancel.Click += new RoutedEventHandler(cancel_Click);
 

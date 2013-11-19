@@ -12,7 +12,7 @@
         </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="30" />
-            <RowDefinition />
+            <RowDefinition Height="500"/>
             <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal" Background="{StaticResource BackGroundForPanel}" Grid.Row="0">
@@ -20,7 +20,11 @@
             <DatePicker Width="120" x:Name="_FromDatePicker" Margin="2,0,0,0"  Height="25" ></DatePicker>
             <TextBlock x:Name="_ToTextBlock"  Foreground="White" Text="To:" Margin="2,10,0,0" Height="25"/>
             <DatePicker Width="120" x:Name="_ToDatePicker" Margin="2,0,0,0" Height="25"></DatePicker>
-            <Button x:Name="_QueryButton" Content="Query" Click="ToolBar_Click" Height="23" Width="40" Margin="2" />
+            <Button x:Name="_QueryButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"  Click="ToolBar_Click" Width="25" Height="25" Margin="2" >
+                <Button.Content>
+                    <Image Source="../Asset/Images/Query.png" ToolTipService.ToolTip="Query Log"  Margin="1"/>
+                </Button.Content>
+            </Button>
         </StackPanel>
 
         <igGrid:XamGrid x:Name="_LogPriceGrid" AutoGenerateColumns="False" Grid.Row="1">
@@ -47,6 +51,9 @@
                 <igGrid:TextColumn Key="Diff" Width="60" HorizontalContentAlignment="Center" HeaderText="Diff" IsFilterable="False"/>
                 <igGrid:TextColumn Key="Timestamp" Width="100" HorizontalContentAlignment="Center" HeaderText="Timestamp" IsFilterable="False"/>
             </igGrid:XamGrid.Columns>
+            <igGrid:XamGrid.PagerSettings>
+                <igGrid:PagerSettings AllowPaging="Bottom"  />
+            </igGrid:XamGrid.PagerSettings>
         </igGrid:XamGrid>
 
         <igGrid:XamGrid Grid.Row="1" x:Name="_LogSourceChangeGrid" AutoGenerateColumns="False" >
@@ -63,9 +70,12 @@
                 <igGrid:TextColumn Key="Priority" Width="60" HorizontalContentAlignment="Center" HeaderText="Priority" IsFilterable="False"/>
                 
             </igGrid:XamGrid.Columns>
+            <igGrid:XamGrid.PagerSettings>
+                <igGrid:PagerSettings AllowPaging="Bottom"  />
+            </igGrid:XamGrid.PagerSettings>
         </igGrid:XamGrid>
 
-        <Grid x:Name="RetrieveStoredLinksMask" Visibility="Collapsed"  Background="Black" Opacity=".20" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,0,0,0" Grid.RowSpan="4">
+        <Grid x:Name="RetrieveStoredLinksMask" Visibility="Collapsed"  Background="Black" Opacity=".20" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,0,0,0" Grid.RowSpan="2">
             <Border x:Name="brdWaitAnimationRetrieveStoredLinks" BorderThickness="0" BorderBrush="#FF000000" Margin="0,40,0,20" Height="64" Width="64">
                 <Border.Background>
                     <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">

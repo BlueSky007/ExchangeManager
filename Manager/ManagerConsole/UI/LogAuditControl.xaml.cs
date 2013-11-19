@@ -45,6 +45,9 @@ namespace ManagerConsole.UI
                 case "_QuoteOrderLog":
                     this.LogContentFrame.Content = new DealingLogControl(LogType.QuoteOrder);
                     break;
+                case "_SettingChangeLog":
+                    this.LogContentFrame.Content = new DealingLogControl(LogType.SettingChange);
+                    break;
                 case "_AdjustPriceLog":
                     this.LogContentFrame.Content = new SourceManagerLogControl(LogType.AdjustPrice);
                     break;

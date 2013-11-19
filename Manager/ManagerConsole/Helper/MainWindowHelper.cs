@@ -53,6 +53,8 @@ namespace ManagerConsole
                     return new MooMocOrderTask();
                 case ModuleType.LogAuditQuery:
                     return new LogAuditControl();
+                case ModuleType.OrderSearch:
+                    return new OrderSearchControl();
                 default:
                     break;
             }

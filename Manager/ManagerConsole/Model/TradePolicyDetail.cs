@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CommonTradePolicyDetail = Manager.Common.TradePolicyDetail;
+using CommonTradePolicyDetail = Manager.Common.Settings.TradePolicyDetail;
 
 namespace ManagerConsole.Model
 {

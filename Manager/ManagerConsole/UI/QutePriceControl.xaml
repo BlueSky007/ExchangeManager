@@ -20,11 +20,13 @@
             <Setter Property="Foreground" Value="Red" />
             <Setter Property="FontSize" Value="15"></Setter>
         </Style>
+        
+        
     </UserControl.Resources>
 
     <Grid x:Name="LayoutRoot">
         <MediaElement x:Name="_Media" Volume="1" />
-        <Border Margin="0 0 5 0">
+        <Border Margin="0 3 0 0">
             <igGrid:XamGrid ColumnWidth="Auto" x:Name="QuotePriceGrid" RowHeight="25" AutoGenerateColumns="False"  CellStyle="{StaticResource CellStyle}" Foreground="#FF18341B"
                             CellExitedEditMode="QuotePriceGrid_CellExitedEditMode" CellControlAttached="QuotePriceGrid_CellControlAttached">
                 <igGrid:XamGrid.Background>
@@ -51,9 +53,9 @@
                                 <igGrid:UnboundColumn.ItemTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal" Margin="-5">
-                                            <Button x:Name="AbandonSingleBtn" Width="50" Content="Abandon" Click="QuoteHandler_Click" DataContext="{Binding}"/>
-                                            <Button x:Name="UpdateSingleBtn" Width="50" Content="Update" Click="QuoteHandler_Click"  DataContext="{Binding}"/>
-                                            <Button x:Name="SendSingleBtn"  Width="50"  Content="Send" Click="QuoteHandler_Click" DataContext="{Binding}"/>
+                                            <Button x:Name="AbandonSingleBtn" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" BorderBrush="Black" Background="#FF92D3F4" Width="50" Content="Abandon" Click="QuoteHandler_Click" DataContext="{Binding}"/>
+                                            <Button x:Name="UpdateSingleBtn" Margin="1,0,0,0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" BorderBrush="Black" Background="#FF92D3F4" Width="50" Content="Update" Click="QuoteHandler_Click"  DataContext="{Binding}"/>
+                                            <Button x:Name="SendSingleBtn" Margin="1,0,0,0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" BorderBrush="Black" Background="#FF92D3F4" Width="50"  Content="Send" Click="QuoteHandler_Click" DataContext="{Binding}"/>
                                         </StackPanel>
                                     </DataTemplate>
                                 </igGrid:UnboundColumn.ItemTemplate>
@@ -86,9 +88,9 @@
                         <igGrid:UnboundColumn.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" Margin="-5">
-                                    <Button x:Name="AbandonBtn" Width="50"  Content="Abandon" Click="QuoteHandler_Click" DataContext="{Binding}"/>
-                                    <Button x:Name="UpdateBtn" Width="50"  Content="Update" Click="QuoteHandler_Click"  DataContext="{Binding}"/>
-                                    <Button x:Name="SendBtn"  Width="50" Content="Send" Click="QuoteHandler_Click" DataContext="{Binding}"/>
+                                    <Button x:Name="AbandonBtn" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" BorderBrush="Black" Background="#FF92D3F4" Width="50"  Content="Abandon" Click="QuoteHandler_Click" DataContext="{Binding}"/>
+                                    <Button x:Name="UpdateBtn" Margin="1,0,0,0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" BorderBrush="Black" Background="#FF92D3F4" Width="50"  Content="Update" Click="QuoteHandler_Click"  DataContext="{Binding}"/>
+                                    <Button x:Name="SendBtn" Margin="1,0,0,0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" BorderBrush="Black" Background="#FF92D3F4" Width="50" Content="Send" Click="QuoteHandler_Click" DataContext="{Binding}"/>
                                 </StackPanel>
                             </DataTemplate>
                         </igGrid:UnboundColumn.ItemTemplate>
@@ -96,9 +98,9 @@
                     <igGrid:UnboundColumn Key="EnquiryQuantityHandler" HeaderText="Quantity" IsFixed="Left">
                         <igGrid:UnboundColumn.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal">
                                     <RadioButton x:Name="AboveRadio" BorderBrush="#FF314D34" Content="Above" Checked="QuantityHandler_Click" />
-                                    <RadioButton x:Name="BelowRadio" BorderBrush="#FF314D34" IsChecked="True" Content="Below" Checked="QuantityHandler_Click"/>
+                                    <RadioButton x:Name="BelowRadio" Margin="5,0,0,0" BorderBrush="#FF314D34" IsChecked="True" Content="Below" Checked="QuantityHandler_Click"/>
                                 </StackPanel>
                             </DataTemplate>
                         </igGrid:UnboundColumn.ItemTemplate>
@@ -116,8 +118,8 @@
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" Margin="-5">
                                     <TextBox x:Name="AdjustPriceText" Text="{Binding Adjust,Mode=TwoWay}" Width="80"/>
-                                    <Button x:Name="UpButton" Content="+" Background="#FFE16941" Width="30" Click="AdjustPrice_Click"/>
-                                    <Button x:Name="DownButton" Content="-" Background="#FF314D34" Width="30" Click="AdjustPrice_Click"/>
+                                    <Button x:Name="UpButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" BorderBrush="Black" Content="+" Background="#FFE16941" Width="30" Click="AdjustPrice_Click"/>
+                                    <Button x:Name="DownButton" Margin="1,0,0,0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" BorderBrush="Black" Content="-" Background="#FF314D34" Width="30" Click="AdjustPrice_Click"/>
                                 </StackPanel>
                             </DataTemplate>
                         </igGrid:TemplateColumn.ItemTemplate>

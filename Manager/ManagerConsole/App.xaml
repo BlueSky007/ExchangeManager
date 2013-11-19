@@ -5,6 +5,8 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Asset/Colors.xaml"/>
+                <ResourceDictionary Source="Asset/IG.xamDateTimeInput.xaml"/>
                 <ResourceDictionary Source="Asset/Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

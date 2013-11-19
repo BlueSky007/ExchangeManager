@@ -619,20 +619,28 @@ namespace ManagerService.DataAccess
         {
             List<string> layoutNames = new List<string>();
             string path = string.Format("../../Layout/{0}", userName);
-            DirectoryInfo dir = new DirectoryInfo(path);
-            FileInfo[] files = dir.GetFiles();
-            foreach (FileInfo file in files)
+            if (Directory.Exists(path))
             {
-                string[] name = file.Name.Split('_');
-                if (!layoutNames.Contains(name[0]))
+                DirectoryInfo dir = new DirectoryInfo(path);
+                FileInfo[] files = dir.GetFiles();
+                foreach (FileInfo file in files)
                 {
-                    if (name[0] != "LastClosed")
+                    string[] name = file.Name.Split('_');
+                    if (!layoutNames.Contains(name[0]))
                     {
-                        layoutNames.Add(name[0]);
+                        if (name[0] != "LastClosed" && name[0] != "SystemDeafult")
+                        {
+                            layoutNames.Add(name[0]);
+                        }
                     }
                 }
             }
-            return layoutNames;
+            else
+            {
+                layoutNames.Add(string.Empty);
+                layoutNames.Add(string.Empty);
+            }
+           return layoutNames;
         }
     }
 }

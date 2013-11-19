@@ -25,12 +25,21 @@
         </Style>
     </UserControl.Resources>
     <Grid x:Name="LayRootGrid">
-        <Border Margin="0 0 5 0" BorderBrush="Black" Grid.Row="0">
-            <igGrid:XamGrid x:Name="LMTProcessOrderGrid" AutoGenerateColumns="False" RowHeight="32" ColumnWidth="Auto" CellStyle="{StaticResource CellStyle}" Foreground="{Binding IsBuyBrush}"
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Background="{StaticResource BackGroundForPanel}" Grid.Row="0">
+            <Button x:Name="_QueryButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"  Click="ToolBar_Click" Width="25" Height="25" Margin="2" >
+                <Button.Content>
+                    <Image Source="../Asset/Images/Query.png" ToolTipService.ToolTip="Query Log"  Margin="1"/>
+                </Button.Content>
+            </Button>
+        </StackPanel>
+        <Border Margin="0 3 0 0" BorderBrush="Black" Grid.Row="1">
+            <igGrid:XamGrid x:Name="LMTProcessOrderGrid" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto" CellStyle="{StaticResource CellStyle}" Foreground="{Binding IsBuyBrush}"
                             InitializeRow="OrderTaskGrid_InitializeRow">
-                <igGrid:XamGrid.EditingSettings>
-                    <igGrid:EditingSettings AllowEditing="None" IsEnterKeyEditingEnabled="True" IsF2EditingEnabled="True"/>
-                </igGrid:XamGrid.EditingSettings>
                 <igGrid:XamGrid.FixedColumnSettings>
                     <igGrid:FixedColumnSettings AllowFixedColumns="DropArea"/>
                 </igGrid:XamGrid.FixedColumnSettings>
@@ -42,6 +51,13 @@
                 <igGrid:XamGrid.Columns>
                     <igGrid:ColumnLayout Key="OrderTasks" HeaderVisibility="false">
                         <igGrid:ColumnLayout.Columns>
+                            <igGrid:TemplateColumn Key="IsSelected" Width="60" HorizontalContentAlignment="Center" IsReadOnly="False" HeaderText="Select">
+                                <igGrid:TemplateColumn.ItemTemplate>
+                                    <DataTemplate>
+                                        <CheckBox x:Name="SelectSigleChk" IsChecked="{Binding IsSelected,Mode=TwoWay}"/>
+                                    </DataTemplate>
+                                </igGrid:TemplateColumn.ItemTemplate>
+                            </igGrid:TemplateColumn>
                             <igGrid:TemplateColumn Key="OrderStatus" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Order Status">
                                 <igGrid:TemplateColumn.ItemTemplate>
                                     <DataTemplate>
@@ -103,9 +119,9 @@
                     <igGrid:TemplateColumn Key="DQHandle" HeaderText="Action" IsFixed="Left">
                         <igGrid:TemplateColumn.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal" Width="120">
-                                    <Button x:Name="DQAcceptBtn" Width="60"  Content="Apply" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine1.IsVisibility}" IsEnabled="{Binding DQCellDataDefine1.IsEnable}"/>
-                                    <Button x:Name="DQRejecBtn"  Width="60"  Content="Execute" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine2.IsVisibility}" IsEnabled="{Binding DQCellDataDefine2.IsEnable}"/>
+                                <StackPanel Orientation="Horizontal" Width="122" Margin="-5">
+                                    <Button x:Name="ApplyBtn" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" BorderBrush="Black" Background="#FF92D3F4" Width="60"  Content="Apply" Click="OrderHandlerBtn_Click" />
+                                    <Button x:Name="ExecuteBtn" Margin="1,0,0,0"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" BorderBrush="Black" Background="#FF92D3F4" Width="60"  Content="Execute" Click="OrderHandlerBtn_Click"/>
                                 </StackPanel>
                             </DataTemplate>
                         </igGrid:TemplateColumn.ItemTemplate>

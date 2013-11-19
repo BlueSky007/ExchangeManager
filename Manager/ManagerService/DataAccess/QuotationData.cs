@@ -170,7 +170,7 @@ namespace ManagerService.DataAccess
                 new SqlParameter("@low", quotation.Low));
         }
 
-        public static bool AddQuotationSource(QuotationSource quotationSource)
+        private static bool UpdateQuotationSource(QuotationSource quotationSource)
         {
             SqlParameter id = new SqlParameter("@id", quotationSource.Id) { Direction = ParameterDirection.InputOutput };
             DataAccess.GetInstance().ExecuteNonQuery("dbo.QuotationSource_Set", CommandType.StoredProcedure,
@@ -184,6 +184,83 @@ namespace ManagerService.DataAccess
                 quotationSource.Id = (int)id.Value;
             }
             return true;
+        }
+
+        private static void AddInstrument(Instrument instrument)
+        {
+            string sql = "INSERT Instrument(Code, DecimalPlace, Inverted, InactiveTime, UseWeightedPrice, IsDerivative, IsSwitchUseAgio, AgioSeconds, LeastTicks) VALUES ({0});SELECT SCOPE_IDENTITY()";
+            string values = string.Join(",", instrument.Code,
+                instrument.DecimalPlace, instrument.Inverted, instrument.InactiveTime, instrument.UseWeightedPrice,
+                instrument.IsDerivative, instrument.IsSwitchUseAgio,
+                (instrument.AgioSeconds.HasValue ? instrument.AgioSeconds.Value.ToString() : "NULL"),
+                (instrument.LeastTicks.HasValue ? instrument.LeastTicks.Value.ToString() : "NULL"));
+            sql = string.Format(sql, values);
+            instrument.Id = (int)DataAccess.GetInstance().ExecuteScalar(sql, CommandType.Text);
+        }
+
+        private static void AddInstrumentSourceRelation(InstrumentSourceRelation relation)
+        {
+            string sql = "INSERT InstrumentSourceRelationInstrumentSourceRelation(SourceId, SourceSymbol, InstrumentId, IsActive, IsDefault, Priority, SwitchTimeout, AdjustPoints, AdjustIncrement) VALUES ({0});SELECT SCOPE_IDENTITY()";
+            string values = string.Join(",", relation.SourceId,
+                relation.InstrumentId, relation.IsActive, relation.IsDefault, relation.Priority,
+                relation.SwitchTimeout, relation.AdjustPoints, relation.AdjustIncrement);
+            sql = string.Format(sql, values);
+            relation.Id = (int)DataAccess.GetInstance().ExecuteScalar(sql, CommandType.Text);
+        }
+
+        internal static IMetadataObject AddMetadataObject(MetadataType type, Dictionary<string, string> fields)
+        {
+            switch (type)
+            {
+                case MetadataType.QuotationSource:
+                    QuotationSource source = QuotationSource.Convert(fields);
+                    QuotationData.UpdateQuotationSource(source);
+                    return source;
+                case MetadataType.Instrument:
+                    Instrument instrument = Instrument.Convert(fields);
+                    QuotationData.AddInstrument(instrument);
+                    return instrument;
+                case MetadataType.InstrumentSourceRelation:
+                    InstrumentSourceRelation relation = InstrumentSourceRelation.Convert(fields);
+                    QuotationData.AddInstrumentSourceRelation(relation);
+                    return relation;
+                case MetadataType.DerivativeRelation:
+                    //DerivativeRelation derivativeRelation = DerivativeRelation.Convert(fields);
+                    //QuotationData.AddDerivativeRelation(derivativeRelation);
+                    //return derivativeRelation;
+                case MetadataType.PriceRangeCheckRule:
+                    //PriceRangeCheckRule priceRangeCheckRule PriceRangeCheckRule.Convert(fields);
+                    //QuotationData.AddPriceRangeCheckRule(priceRangeCheckRule);
+                    //return priceRangeCheckRule;
+                case MetadataType.WeightedPriceRule:
+                    //WeightedPriceRule weightedPriceRule = WeightedPriceRule.Convert(fields);
+                    //QuotationData.AddWeightedPriceRule(weightedPriceRule);
+                    //return weightedPriceRule;
+                default:
+                    break;
+            }
+            return null;
+        }
+
+        internal static void UpdateMetadataObject(MetadataType type, int objectId, Dictionary<string, string> fields)
+        {
+            string tableName, keyFieldName;
+            Helper.GetTableName(type, out tableName, out keyFieldName);
+            List<string> sets = new List<string>();
+            foreach (string key in fields.Keys)
+            {
+                sets.Add(string.Format("{0}={1}", key, fields[key]));
+            }
+            string sql = string.Format("UPDATE {0} SET {1} WHERE {2}={3}", tableName, string.Join(",", sets), keyFieldName, objectId);
+            DataAccess.GetInstance().ExecuteNonQuery(sql, CommandType.Text);
+        }
+
+        internal static void DeleteMetadataObject(MetadataType type, int objectId)
+        {
+            string tableName, keyFieldName;
+            Helper.GetTableName(type, out tableName, out keyFieldName);
+            string sql = string.Format("DELETE {0} WHERE {1}={2}", tableName, keyFieldName, objectId);
+            DataAccess.GetInstance().ExecuteNonQuery(sql, CommandType.Text);
         }
     }
 }

@@ -44,7 +44,7 @@ namespace ManagerConsole.UI
             QuotationSource source = new QuotationSource();
             source.Name = this.NameTextBox.Text;
             source.AuthName = this.AuthNameTextBox.Text;
-            source.Passowrd = this.PasswordTextBox.Text;
+            source.Password = this.PasswordTextBox.Text;
 
             //ConsoleClient.Instance.
         }

@@ -11,8 +11,11 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Manager.Common;
 using ManagerConsole.Model;
+using Manager.Common.LogEntities;
+using LogType = Manager.Common.LogType;
+using System.Drawing.Printing;
+using System.Printing;
 
 namespace ManagerConsole.FramePages
 {
@@ -35,7 +38,6 @@ namespace ManagerConsole.FramePages
         {
             this._FromDatePicker.SelectedDate = DateTime.Today.AddDays(-(DateTime.Now.Day) + 1);
             this._ToDatePicker.SelectedDate = DateTime.Today.AddDays(1).AddSeconds(-1);
-
         }
 
         //Query
@@ -46,6 +48,14 @@ namespace ManagerConsole.FramePages
             {
                 this.QueryDealingLogData();
             }
+
+            //LocalPrintServer localPrintServer = new LocalPrintServer();
+            //PrintQueue defaultPrintQueue = localPrintServer.DefaultPrintQueue;
+
+            //PageSettings currentPageSettings = this._LogSourceChangeGrid.getc .GetCurrentPageSettings();
+
+            // Infragistics.Controls.Reports.PaperSettings paperSettings = 
+            //     new Infragistics.Controls.Reports.PaperSettings currentPageSettings.PaperSize, currentPageSettings.PageOrientation); 
         }
 
         private void QueryDealingLogData()

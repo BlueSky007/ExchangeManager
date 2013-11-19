@@ -72,20 +72,20 @@
                     <Rectangle x:Name="Divid2" Style="{StaticResource DividerStyle}"/>
 
                     <ComboBox Style="{StaticResource ComboBoxStyle}" x:Name="_InstrumentCombo" Margin="10,1,1,1" Height="23"  Width="110" SelectionChanged="InstrumentCombo_SelectionChanged" />
-                    <ComboBox Style="{StaticResource ComboBoxStyle}" x:Name="_BuySellCombo" SelectedIndex="0"  Margin="3,1,1,1" Height="23" Width="60"  SelectionChanged="BuySellCombo_SelectionChanged">
+                    <ComboBox Style="{StaticResource ComboBoxStyle}" x:Name="_BuySellCombo" SelectedIndex="0"  Margin="1,1,1,1" Height="23" Width="60"  SelectionChanged="BuySellCombo_SelectionChanged">
                         <ComboBoxItem Content="All"/>
                         <ComboBoxItem Content="Buy"/>
                         <ComboBoxItem Content="Sell"/>
                     </ComboBox>
-                    <ComboBox  Style="{StaticResource ComboBoxStyle}" x:Name="_OpenCloseCombo"  SelectedIndex="0" Margin="3,1,1,1" Height="23"  Width="60" SelectionChanged="IsOPenCombo_SelectionChanged" >
+                    <ComboBox  Style="{StaticResource ComboBoxStyle}" x:Name="_OpenCloseCombo"  SelectedIndex="0" Margin="1,1,1,1" Height="23"  Width="60" SelectionChanged="IsOPenCombo_SelectionChanged" >
                         <ComboBoxItem Content="All"/>
                         <ComboBoxItem Content="Open"/>
                         <ComboBoxItem Content="Close"/>
                     </ComboBox>
                     <Button BorderBrush="Black" Background="LightGray"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="QueryBtn" Content="Go" Height="23" Width="23" Click="QueryOrder_Click"/>
 
-                    <Border Background="LightGray" Width="80" Height="24" BorderBrush="#FF314D34" BorderThickness="1" Margin="5,3,1,1">
-                        <TextBlock Background="{x:Null}" VerticalAlignment="Top" Margin="1,2,1,1"  Foreground="Blue" Text="1.588" TextAlignment="Center"  FontWeight="Bold" FontSize="15" x:Name="_OriginLable" Height="25"/>
+                    <Border CornerRadius="4" Width="80" Height="24" BorderBrush="#FF314D34" BorderThickness="1" Margin="5,3,1,1" Background="#FFE4DADA">
+                        <TextBlock  Background="{x:Null}" VerticalAlignment="Top" Margin="1,2,1,1"  Foreground="Blue" Text="1.588" TextAlignment="Center"  FontWeight="Bold" FontSize="15" x:Name="_OriginLable" Height="25"/>
                     </Border>
 
                     <TextBlock Text="Variation" FontWeight="Bold" FontSize="12" Margin="5,0,0,0" VerticalAlignment="Center" />
@@ -103,7 +103,7 @@
                 </StackPanel>
             </StackPanel>
         </Border>
-        <Border Margin="0 0 5 0" BorderBrush="Black" Grid.Row="1">
+        <Border Margin="0 3 0 0" BorderBrush="Black" Grid.Row="1">
             <igGrid:XamGrid Margin="0" x:Name="_OrderTaskGrid" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto"  Foreground="{Binding IsBuyBrush}"  ><!--CellControlAttached="OrderTaskGrid_CellControlAttached"-->
                 <igGrid:XamGrid.EditingSettings>
                     <igGrid:EditingSettings IsEnterKeyEditingEnabled="True" IsF2EditingEnabled="True"/>

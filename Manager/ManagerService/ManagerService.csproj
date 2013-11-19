@@ -86,6 +86,7 @@
     <Compile Include="Exchange\IExchangeService.cs" />
     <Compile Include="Exchange\QuotationGenerator.cs" />
     <Compile Include="Exchange\ExchangeService.cs" />
+    <Compile Include="Helper.cs" />
     <Compile Include="ManagerSettings.cs" />
     <Compile Include="Exchange\ExchangeManager.cs" />
     <Compile Include="Manager.cs" />

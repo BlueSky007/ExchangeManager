@@ -309,7 +309,10 @@ namespace ManagerConsole.UI
                 Button btn = sender as Button;
                 int roleId = (int)btn.Tag;
                 this._SelectRole = this._roleDatas.SingleOrDefault(r => r.RoleId == roleId);
-                ConsoleClient.Instance.DeleteRole(roleId, DeleteResult);
+                if (MessageBox.Show(App.MainWindow,string.Format("确认删除{0}角色吗？", this._SelectRole.RoleName), "", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No, MessageBoxOptions.DefaultDesktopOnly) == MessageBoxResult.Yes)
+                {
+                    ConsoleClient.Instance.DeleteRole(roleId, DeleteResult);
+                }
             }
             catch (Exception ex)
             {

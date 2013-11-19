@@ -40,6 +40,8 @@ BEGIN
 	INSERT INTO [dbo].[PermissionTarget]([Id],[ParentId],[Code],[Level],TargetType)VALUES(233,104,'LimitBatchProcess',2,1)
 	INSERT INTO [dbo].[PermissionTarget]([Id],[ParentId],[Code],[Level],TargetType)VALUES(234,104,'MooMocProcess',2,1)
 
+	INSERT INTO [dbo].[PermissionTarget]([Id],[ParentId],[Code],[Level],TargetType)VALUES(251,105,'OrderSearch',2,1)
+
 	INSERT INTO [dbo].[PermissionTarget]([Id],[ParentId],[Code],[Level],TargetType)VALUES(261,106,'LogAuditQuery',2,1)
 
 	INSERT INTO [dbo].[PermissionTarget]([Id],[ParentId],[Code],[Level],TargetType)VALUES(301,201,'Add',3,1)
@@ -76,6 +78,8 @@ BEGIN
 	INSERT INTO dbo.[FunctionDescription](FunctionId,NameCHT,NameCHS,NameENG) VALUES (232,N'單子處理',N'单子处理',N'OrderProcess')
 	INSERT INTO dbo.[FunctionDescription](FunctionId,NameCHT,NameCHS,NameENG) VALUES (233,N'限價單批量處理',N'限价单批量处理',N'LimitBatchProcess')
 	INSERT INTO dbo.[FunctionDescription](FunctionId,NameCHT,NameCHS,NameENG) VALUES (234,N'開市收市單處理',N'开市收市单处理',N'MooMocProcess')
+
+	INSERT INTO dbo.[FunctionDescription](FunctionId,NameCHT,NameCHS,NameENG) VALUES (251,N'單子查詢',N'单子查询',N'OrderSearch')
 
 	INSERT INTO dbo.[FunctionDescription](FunctionId,NameCHT,NameCHS,NameENG) VALUES (261,N'日誌查詢',N'日志查询',N'LogAuditQuery')
 

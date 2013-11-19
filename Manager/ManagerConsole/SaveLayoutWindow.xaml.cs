@@ -48,7 +48,7 @@ namespace ManagerConsole
             this.Close();
         }
 
-        private void Close()
+        private void CloseDialog()
         {
             this.Close();
         }
@@ -59,12 +59,12 @@ namespace ManagerConsole
             {
                 if (MessageBox.Show("是否覆盖所选布局","",MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                 {
-                    this._SaveLayout(this.layoutName.Text, this.Close);
+                    this._SaveLayout(this.layoutName.Text, this.CloseDialog);
                 }
             }
             else
             {
-                this._SaveLayout(this.layoutName.Text, this.Close);
+                this._SaveLayout(this.layoutName.Text, this.CloseDialog);
             }
         }
 

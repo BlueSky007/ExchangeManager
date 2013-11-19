@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using iExchange.Common;
 using Manager.Common;
 using System.Xml;
@@ -9,6 +7,7 @@ using System.Collections;
 using ManagerCommon = Manager.Common;
 using ManagerTran = Manager.Common.Transactions;
 using PriceType = Manager.Common.PriceType;
+using Manager.Common.Settings;
 
 namespace ManagerService.Exchange
 {

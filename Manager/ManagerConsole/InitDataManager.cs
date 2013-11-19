@@ -8,12 +8,13 @@ using System.Text;
 using CommonTransaction = Manager.Common.Transaction;
 using CommonOrder = Manager.Common.Order;
 using PlaceMessage = Manager.Common.PlaceMessage;
+using QuoteMessage = Manager.Common.QuoteMessage;
 using HitMessage = Manager.Common.HitMessage;
-using CommonParameter = Manager.Common.SystemParameter;
+using CommonParameter = Manager.Common.Settings.SystemParameter;
 using ManagerConsole.Helper;
 using SettingSet = Manager.Common.SettingSet;
 using InitializeData = Manager.Common.InitializeData;
-using SettingParameters = Manager.Common.SettingParameters;
+using SettingParameters = Manager.Common.Settings.SettingParameters;
 
 namespace ManagerConsole
 {
@@ -22,7 +23,9 @@ namespace ManagerConsole
         public delegate void HitPriceReceivedRefreshUIEventHandler(int hitOrderCount);
         public event HitPriceReceivedRefreshUIEventHandler OnHitPriceReceivedRefreshUIEvent;
 
-        private CommonParameter _SystemParameter = new CommonParameter();
+        public delegate void OrderHitPriceNotifyHandler(OrderTask orderTask);
+        public event OrderHitPriceNotifyHandler OnOrderHitPriceNotifyEvent;
+
         private Dictionary<Guid, Account> _Accounts = new Dictionary<Guid, Account>();
         private Dictionary<Guid, InstrumentClient> _Instruments = new Dictionary<Guid, InstrumentClient>();
         private Dictionary<Guid, Transaction> _Transactions = new Dictionary<Guid, Transaction>();
@@ -30,13 +33,21 @@ namespace ManagerConsole
         private Dictionary<string, SettingParameters> _SettingParameters = new Dictionary<string, SettingParameters>();
 
         private ObservableCollection<OrderTask> _OrderTaskEntities = new ObservableCollection<OrderTask>();
-        private LmtOrderTaskForInstrumentModel _LmtOrderTaskForInstrumentModel = new LmtOrderTaskForInstrumentModel();
         private DQOrderTaskForInstrumentModel _DQOrderTaskForInstrumentModel = new DQOrderTaskForInstrumentModel();
         private MooMocOrderForInstrumentModel _MooMocOrderForInstrumentModel = new MooMocOrderForInstrumentModel();
         private OrderTaskModel _OrderTaskModel = new OrderTaskModel();
         private LMTProcessModel _LMTProcessModel = new LMTProcessModel();
 
+        //询价
+        private ObservableCollection<QuotePriceForInstrument> _ClientQuotePriceForInstrument = new ObservableCollection<QuotePriceForInstrument>();
+
         #region Public Property
+        public ObservableCollection<QuotePriceForInstrument> ClientQuotePriceForInstrument
+        {
+            get { return this._ClientQuotePriceForInstrument; }
+            set { this._ClientQuotePriceForInstrument = value; }
+        }
+
         public SettingsManager SettingsManager
         {
             get;
@@ -81,12 +92,6 @@ namespace ManagerConsole
             set { this._DQOrderTaskForInstrumentModel = value; }
         }
 
-        public LmtOrderTaskForInstrumentModel LmtOrderTaskForInstrumentModel
-        {
-            get { return this._LmtOrderTaskForInstrumentModel; }
-            set { this._LmtOrderTaskForInstrumentModel = value; }
-        }
-
         public MooMocOrderForInstrumentModel MooMocOrderForInstrumentModel
         {
             get { return this._MooMocOrderForInstrumentModel; }
@@ -97,43 +102,8 @@ namespace ManagerConsole
         public InitDataManager()
         {
             this.SettingsManager = new SettingsManager();
-            this.GetInitializeTestData();
-        }
-
-        private void GetInitializeTestData()
-        {
-            for (int i = 0; i < 10; i++)
-            {
-                InstrumentClient instrument = new InstrumentClient();
-                string guidStr = "66adc06c-c5fe-4428-867f-be97650eb3b" + i;
-                instrument.Id = new Guid(guidStr);
-                instrument.Code = "GBPUSA" + i;
-                instrument.Ask = "1.58" + i;
-                instrument.Bid = "1.56" + i;
-                instrument.Denominator = 10;
-                instrument.NumeratorUnit = 2;
-                instrument.MaxSpread = 100;
-                instrument.MaxAutoPoint = 100;
-                instrument.AcceptDQVariation = 10;
-                instrument.Spread = 5;
-                instrument.AutoPoint = 10;
-                instrument.Origin = "1.555";
-                instrument.IsNormal = true;
-                this._Instruments.Add(instrument.Id, instrument);
-            }
-
-            Account account = new Account();
-            account.Id = new Guid("9538eb6e-57b1-45fa-8595-58df7aabcfc9");
-            account.Code = "DEAccount009";
-            Account account2 = new Account();
-            account2.Id = new Guid("9538eb6e-57b1-45fa-8595-58df7aabcfc8");
-            account2.Code = "DEAccount008";
-            Account account3 = new Account();
-            account3.Id = new Guid("9538eb6e-57b1-45fa-8595-58df7aabcfc7");
-            account3.Code = "DEAccount007";
-            this._Accounts.Add(account.Id, account);
-            this._Accounts.Add(account2.Id, account2);
-            this._Accounts.Add(account3.Id, account3);
+            this._Accounts = TestData.GetInitializeTestDataForAccount();
+            this._Instruments = TestData.GetInitializeTestDataForInstrument();
         }
 
         #region Initialize Data
@@ -143,20 +113,66 @@ namespace ManagerConsole
             {
                 this.SettingsManager.Initialize(initializeData.SettingSet);
                 this._SettingParameters = initializeData.SettingParameters;
+                this.UpdateTradingSetting();
+            }
+        }
+
+        public void UpdateTradingSetting()
+        {
+            try
+            {
+                foreach (InstrumentClient instrument in this.SettingsManager.GetInstruments())
+                {
+                    if (!this._Instruments.ContainsKey(instrument.Id))
+                    {
+                        this._Instruments.Add(instrument.Id, instrument);
+                    }
+                }
+                foreach (Account account in this.SettingsManager.GetAccounts())
+                {
+                    if (!this._Instruments.ContainsKey(account.Id))
+                    {
+                        this._Accounts.Add(account.Id, account);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                
             }
         }
         #endregion
 
-        public InitDataManager(List<CommonOrder> orders)
+        #region Received Notify Convert
+        public void ProcessQuoteMessage(QuoteMessage quoteMessage)
         {
-            foreach (CommonOrder commonOrder in orders)
+            int waiteTime = 50;     //取初始化数据系统参数
+            Guid customerId = quoteMessage.CustomerID;
+            //通过CustomerId获取Customer对象
+            //var customer = this._Customers.SingleOrDefault(P => P.id == customerId);
+            var customer = new Customer();
+            customer.Id = quoteMessage.CustomerID;
+            customer.Code = "WF007";
+            QuotePriceClient quotePriceClient = new QuotePriceClient(quoteMessage, waiteTime, customer);
+            QuotePriceForInstrument clientQuotePriceForInstrument = null;
+            clientQuotePriceForInstrument = this.ClientQuotePriceForInstrument.SingleOrDefault(P => P.InstrumentClient.Id == quotePriceClient.InstrumentId);
+            if (clientQuotePriceForInstrument == null)
             {
-                //this._Orders.Add(new Order(order));
+                //从内存中获取Instrument
+                //var instrumentEntity = this._Instruments.SingleOrDefault(P => P.InstrumentId == clientQuotePriceForAccount.InstrumentId);
+                clientQuotePriceForInstrument = new QuotePriceForInstrument();
+                var instrument = TestData.GetInstrument(quotePriceClient);
+                clientQuotePriceForInstrument.InstrumentClient = instrument;
+                clientQuotePriceForInstrument.Origin = instrument.Origin;
+                clientQuotePriceForInstrument.Adjust = decimal.Parse(instrument.Origin);
+                clientQuotePriceForInstrument.AdjustLot = quotePriceClient.QuoteLot;
+                this.ClientQuotePriceForInstrument.Add(clientQuotePriceForInstrument);
             }
+            clientQuotePriceForInstrument.OnEmptyQuotePriceClient += new QuotePriceForInstrument.EmptyQuotePriceHandle(ClientQuotePriceForInstrument_OnEmptyClientQuotePriceClient);
+            clientQuotePriceForInstrument.AddNewQuotePrice(quotePriceClient);
         }
 
-        #region Received Notify Convert
-        public void AddPlaceMessage(PlaceMessage placeMessage)
+        public void ProcessPlaceMessage(PlaceMessage placeMessage)
         {
             foreach (CommonTransaction commonTransaction in placeMessage.Transactions)
             {
@@ -167,7 +183,6 @@ namespace ManagerConsole
                 commonOrder.ExchangeCode = placeMessage.ExchangeCode;
                 this.Process(commonOrder,false);
             }
-
 
             //Change Order status
             foreach (CommonTransaction commonTransaction in placeMessage.Transactions)
@@ -184,7 +199,7 @@ namespace ManagerConsole
             }
         }
 
-        public void AddHitMessage(HitMessage hitMessage)
+        public void ProcessHitMessage(HitMessage hitMessage)
         {
             foreach (CommonOrder commonOrder in hitMessage.Orders)
             {
@@ -214,6 +229,11 @@ namespace ManagerConsole
                 OrderTask orderTask = new OrderTask(newOrder);
                 orderTask.BaseOrder = newOrder;
                 this._OrderTaskModel.OrderTasks.Insert(0, orderTask);
+
+                if (this.OnOrderHitPriceNotifyEvent != null)
+                {
+                    this.OnOrderHitPriceNotifyEvent(orderTask);
+                }
             }
 
             if (this.OnHitPriceReceivedRefreshUIEvent != null)
@@ -238,7 +258,7 @@ namespace ManagerConsole
                 }
             }
             //Update Lmt/Stop Order
-            foreach (LmtOrderTaskForInstrument entity in this._LmtOrderTaskForInstrumentModel.LmtOrderTaskForInstruments)
+            foreach (LMTProcessForInstrument entity in this._LMTProcessModel.LMTProcessForInstruments)
             {
                 foreach (OrderTask orderTask in entity.OrderTasks)
                 {
@@ -266,9 +286,9 @@ namespace ManagerConsole
                 Transaction transaction = new Transaction(commonTransaction, account, instrument);
 
                 //Set Transaction.ContractSize
-                if (transaction.ContractSize == null)
+                if (transaction.ContractSize == 0)
                 {
-                    TradePolicyDetail tradePolicyDetail = null;// this.SettingsManager.GetTradePolicyDetail(account.TradePolicyId, instrument.Id);
+                    TradePolicyDetail tradePolicyDetail = this.SettingsManager.GetTradePolicyDetail(account.TradePolicyId, instrument.Id);
                     if (tradePolicyDetail != null)
                     {
                         transaction.ContractSize = tradePolicyDetail.ContractSize;
@@ -303,9 +323,6 @@ namespace ManagerConsole
                 Order order = new Order(transaction, commonOrder);
                 this._Orders.Add(order.Id, order);
                 transaction.Add(order);
-
-                //Add Binding Entity
-               // this.AddOrderTaskEntity(order);
             }
             else
             {
@@ -371,12 +388,16 @@ namespace ManagerConsole
         {
             return new List<InstrumentClient>(this._Instruments.Values);
         }
+
         #region Empty OrderTask Event
         void DQOrderTaskForInstrument_OnEmptyDQOrderTask(DQOrderTaskForInstrument orderTaskForInstrument)
         {
             this._DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments.Remove(orderTaskForInstrument);
         }
-
+        void ClientQuotePriceForInstrument_OnEmptyClientQuotePriceClient(QuotePriceForInstrument clientQuotePriceForInstrument)
+        {
+            this.ClientQuotePriceForInstrument.Remove(clientQuotePriceForInstrument);
+        }
         #endregion
     }
 }

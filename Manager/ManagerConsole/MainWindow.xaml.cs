@@ -20,6 +20,7 @@ using ManagerConsole.Helper;
 using ManagerConsole.UI;
 using Infragistics.Controls.Menus;
 using System.Collections.ObjectModel;
+using System.Threading;
 
 namespace ManagerConsole
 {
@@ -33,26 +34,31 @@ namespace ManagerConsole
         public CommonDialogWin CommonDialogWin;
         public ConfirmDialogWin ConfirmDialogWin;
         public ConfirmOrderDialogWin ConfirmOrderDialogWin;
-        public OrderHandle OrderHandle;
-        private OrderTaskControl _OrderTaskControl;
         private LMTProcess _LMTProcess;
         private ObservableCollection<string> _Layouts;
+        private OrderHandle _OrderHandle;
+        private MessageProcessor MessageProcessor;
 
         public MainWindow()
         {
             InitializeComponent();
-
             this.InitDataManager = new InitDataManager();
             this.CommonDialogWin = new CommonDialogWin(this.MainFrame);
             this.ConfirmDialogWin = new ConfirmDialogWin(this.MainFrame);
             this.ConfirmOrderDialogWin = new ConfirmOrderDialogWin(this.MainFrame);
-            this.OrderHandle = new OrderHandle();
+            this._OrderHandle = new OrderHandle();
         }
 
         public InitDataManager InitDataManager
         {
             get;
             private set;
+        }
+
+        public OrderHandle OrderHandle
+        {
+            get { return this._OrderHandle; }
+            set { this._OrderHandle = value; }
         }
 
         private void treeViewItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -79,6 +85,16 @@ namespace ManagerConsole
             loginWindow.IsModal = true;
             loginWindow.Show();
             loginWindow.BringToFront();
+            App.MainWindow = this;
+        }
+
+        private void StartMessageThread()
+        {
+            Thread thread = new Thread(delegate() {
+                MessageProcessor messageProcessor = new MessageProcessor(this._Media,this.InitDataManager);
+            });
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
         }
 
         private void HandleSuccessLogin(LoginResult result)
@@ -86,8 +102,9 @@ namespace ManagerConsole
             try
             {
                 this.InitializeLayout(result);
-                this.AttachEvent();
                 this.InitDataManager.Initialize(result.InitializeDatas);
+                this.MessageProcessor = new MessageProcessor(this._Media, this.InitDataManager);
+                //this.StartMessageThread();
             }
             catch (Exception ex)
             {
@@ -195,7 +212,7 @@ namespace ManagerConsole
             changePasswordWindow.BringToFront();
         }
 
-        private void SaveLayout(string layoutName,Action Close)
+        private void SaveLayout(string layoutName,Action CloseDialog)
         {
             try
             {
@@ -223,7 +240,7 @@ namespace ManagerConsole
                 string content = contentBld.ToString();
                 Logger.TraceEvent(System.Diagnostics.TraceEventType.Information, layout);
                 ConsoleClient.Instance.SaveLayout(layout, content, layoutName);
-                Close();
+                CloseDialog();
                 MessageBox.Show("存储成功");
             }
             catch (Exception ex)
@@ -261,69 +278,6 @@ namespace ManagerConsole
 
         }
 
-        #region Event
-        private void AttachEvent()
-        {
-            ConsoleClient.Instance.MessageClient.QuoteOrderToDealerEvent += this.MessageClient_QuoteOrderReceived;
-            ConsoleClient.Instance.MessageClient.HitPriceEvent += this.MessageClient_HitPriceReceived;
-        }
-        #endregion
-        #region Notify Dealing
-
-        void MessageClient_QuoteOrderReceived(PlaceMessage placeMessage)
-        {
-            this.Dispatcher.BeginInvoke((Action<PlaceMessage>)delegate(PlaceMessage message)
-            {
-                this.InitDataManager.AddPlaceMessage(message);
-
-                ContentPane contentPane = this.DockManager.ActivePane;
-                TreeViewItem moduleNode = (TreeViewItem)this.FunctionTree.SelectedItem;
-                if (moduleNode == null || moduleNode.Tag == null) return;
-                int moduleId = (int)moduleNode.Tag;
-
-                if (moduleId == 13)
-                {
- 
-                }
-
-            }, placeMessage);
-        }
-
-        
-        void MessageClient_HitPriceReceived(HitMessage hitMessage)
-        {
-            this.Dispatcher.BeginInvoke((Action<HitMessage>)delegate(HitMessage message)
-            {
-                this.InitDataManager.AddHitMessage(message);
-
-                ContentPane contentPane = this.DockManager.ActivePane;
-                TreeViewItem moduleNode = (TreeViewItem)this.FunctionTree.SelectedItem;
-                if (moduleNode == null || moduleNode.Tag == null) return;
-                int moduleId = (int)moduleNode.Tag;
-
-                if (moduleId == 15)
-                {
-                    this._LMTProcess = (LMTProcess)MainWindowHelper.GetControl(ModuleType.LimitBatchProcess);
-                    this._LMTProcess.RefreshUI();
-                }
-             
-                //foreach (ContentPane panel in this.DockManager.Panes[3].Panes)
-                //{
-                //    if (panel.Name == "module13")
-                //    {
-                //        this._OrderTaskControl = (OrderTaskControl)(panel.Content);
-                //        this._OrderTaskControl.RefreshUI();
-                //    }
-                //}
-
-                //this._OrderTaskControl = (OrderTaskControl)MainWindowHelper.GetControl(ModuleType.OrderTask);
-                //this._OrderTaskControl.RefreshUI();
-
-            }, hitMessage);
-        }
-        
-        #endregion
-
         private void SaveLayout_Click(object sender, EventArgs e)
         {
             SaveLayoutWindow saveLayout = new SaveLayoutWindow(this._Layouts,this.SaveLayout);
@@ -345,7 +299,7 @@ namespace ManagerConsole
                     }
                 }
             }
-            ConsoleClient.Instance.LoadLayout("LastClosed", this.EndLoadLayout);
+            ConsoleClient.Instance.LoadLayout("SystemDeafult", this.EndLoadLayout);
         }
 
         private void LoadLayout(string dockLayout, string contentLayout)
@@ -381,7 +335,7 @@ namespace ManagerConsole
 
         private void XamMenuItem_Click_1(object sender, EventArgs e)
         {
-            this._ConsoleClient.MessageClient.SendMessage(new Message());
+            ConsoleClient.Instance.Updatetest();
         }
     }
 }

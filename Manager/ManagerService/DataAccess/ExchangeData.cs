@@ -1,12 +1,12 @@
 ﻿using Manager.Common;
+using Manager.Common.ReportEntities;
+using Manager.Common.Settings;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Xml;
 
 namespace ManagerService.DataAccess
 {
@@ -213,5 +213,60 @@ namespace ManagerService.DataAccess
             }, new SqlParameter("@originCode", instrumentCode));
             return result;
         }
+
+        public static List<OrderQueryEntity> GetOrderByInstrument(Guid userId,Guid instrumentId, Guid accountGroupId, OrderType orderType,
+           bool isExecute, DateTime fromDate, DateTime toDate)
+        {
+            List<OrderQueryEntity> queryOrders = new List<OrderQueryEntity>();
+            string sql = string.Empty;
+            if (isExecute)
+            {
+                sql = string.Format("exec dbo.P_GetExecutedOrderByInstrument '{0}','{1}',{2},'{3}','{4}','{5}'", userId, instrumentId, orderType, fromDate, toDate, accountGroupId);
+            }
+            else
+            {
+                sql = string.Format("exec dbo.P_GetCancelledOrderByInstrument '{0}','{1}',{2},'{3}','{4}','{5}'", userId, instrumentId, orderType, fromDate, toDate, accountGroupId);
+            }
+
+            string exhcangeCode = "WF01";
+            using (SqlConnection sqlConnection = DataAccess.GetInstance(exhcangeCode).GetSqlConnection())
+            {
+                SqlCommand command = sqlConnection.CreateCommand();
+                command.CommandText = sql;
+                command.CommandType = System.Data.CommandType.Text;
+                command.Parameters.Add(new SqlParameter("@UserID", userId));
+                command.Parameters.Add(new SqlParameter("@InstrumentID", instrumentId));
+                command.Parameters.Add(new SqlParameter("@OrderType", (byte)orderType));
+                command.Parameters.Add(new SqlParameter("@FromDate", fromDate));
+                command.Parameters.Add(new SqlParameter("@ToDate", toDate));
+                command.Parameters.Add(new SqlParameter("@AccountGroupId", accountGroupId));
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        OrderQueryEntity order = new OrderQueryEntity();
+                        order.InstrumentCode = (string)reader["InstrumentCode"];
+                        order.BuySell = (bool)reader["IsBuy"];
+                        order.OpenClose = (string)reader["OpenClose"];
+                        order.Lot = (decimal)reader["Lot"];
+                        order.OrderCode = (string)reader["OrderCode"];
+                        order.AccountCode = (string)reader["AccountCode"];
+                        order.SetPrice = (string)reader["ExecutePrice"];
+                        order.OrderType = reader["OrderType"].ConvertToEnumValue<OrderType>();
+                        order.ExecuteTime = (DateTime)reader["ExecuteTime"];
+                        order.Relation = (string)reader["Relation"];
+                        order.Dealer = (string)reader["approverID"];
+
+                        queryOrders.Add(order);
+                    }
+                }
+            }
+            return queryOrders;
+        }
+
+
+
+
+
     }
 }

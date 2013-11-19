@@ -8,6 +8,8 @@ using System.Xml;
 using Manager.Common;
 using ManagerConsole.ViewModel;
 using Manager.Common.QuotationEntities;
+using Manager.Common.LogEntities;
+using Manager.Common.ReportEntities;
 
 namespace ManagerConsole.Model
 {
@@ -31,7 +33,7 @@ namespace ManagerConsole.Model
         public MessageClient MessageClient
         {
             get { return this._MessageClient; }
-        }
+        } 
 
         public void Login(Action<LoginResult, string> endLogin, string server, int port, string userName, string password, Language language, string oldSessionId = null)
         {
@@ -115,6 +117,18 @@ namespace ManagerConsole.Model
             catch (Exception ex)
             {
                 Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "LoadLayout.\r\n{0}", ex.ToString());
+            }
+        }
+
+        public void Updatetest()
+        {
+            try
+            {
+                this._ServiceProxy.Updatetest();
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ActionName.\r\n{0}", ex.ToString());
             }
         }
 
@@ -272,6 +286,19 @@ namespace ManagerConsole.Model
         {
             return this._ServiceProxy.GetAcountInfo(transactionId);
         }
+
+        #endregion
+
+        #region Report
+        public void GetOrderByInstrument(Guid instrumentId, Guid accountGroupId,OrderType orderType,
+            bool isExecute, DateTime fromDate, DateTime toDate,Action<List<OrderQueryEntity>> EndGetOrderByInstrument)
+        {
+            this._ServiceProxy.BeginGetOrderByInstrument(instrumentId, accountGroupId, orderType, isExecute, fromDate, toDate, delegate(IAsyncResult result)
+            {
+                List<OrderQueryEntity> queryOrders = this._ServiceProxy.EndGetOrderByInstrument(result);
+                EndGetOrderByInstrument(queryOrders);
+            }, null);
+        }
         #endregion
 
         #region Log Audit
@@ -290,6 +317,15 @@ namespace ManagerConsole.Model
             {
                 List<LogOrder> logOrders = this._ServiceProxy.EndGetLogOrderData(result);
                 EndGetLogOrderData(logOrders);
+            }, null);
+        }
+
+        public void GetLogSettingData(DateTime fromDate, DateTime toDate, LogType logType, Action<List<LogSetting>> EndGetLogSettingData)
+        {
+            this._ServiceProxy.BeginGetLogSettingData(fromDate, toDate, logType, delegate(IAsyncResult result)
+            {
+                List<LogSetting> logSettings = this._ServiceProxy.EndGetLogSettingData(result);
+                EndGetLogSettingData(logSettings);
             }, null);
         }
 

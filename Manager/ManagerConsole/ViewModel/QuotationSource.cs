@@ -8,10 +8,10 @@ namespace ManagerConsole.ViewModel
 {
     public class QuotationSource : PropertyChangedNotifier
     {
-        private int _Id;
+        //private int _Id;
         private string _Name;
         private string _AuthName;
-        private string _Passowrd;
+        private string _Password;
 
         public string Delete { get { return "Delete"; } }
 
@@ -40,15 +40,15 @@ namespace ManagerConsole.ViewModel
                 }
             }
         }
-        public string Passowrd
+        public string Password
         {
-            get { return this._Passowrd; }
+            get { return this._Password; }
             set
             {
-                if (this._Passowrd != value)
+                if (this._Password != value)
                 {
-                    this._Passowrd = value;
-                    this.OnPropertyChanged("Passowrd");
+                    this._Password = value;
+                    this.OnPropertyChanged("Password");
                 }
             }
         }

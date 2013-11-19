@@ -93,11 +93,22 @@ namespace ManagerService.Console
             }
         }
 
-        public void Dispatch(global::Manager.Common.Message message)
+        public void Dispatch(Message message)
         {
             foreach (Client client in this._Clients.Values)
             {
                 client.AddMessage(message);
+            }
+        }
+
+        public void DispatchExcept(Message message, Client excludedClient)
+        {
+            foreach (Client client in this._Clients.Values)
+            {
+                if (!object.ReferenceEquals(client, excludedClient))
+                {
+                    client.AddMessage(message);
+                }
             }
         }
 

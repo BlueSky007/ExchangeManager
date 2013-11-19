@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CommonCustomer = Manager.Common.Customer;
+using CommonCustomer = Manager.Common.Settings.Customer;
 
 namespace ManagerConsole.Model
 {

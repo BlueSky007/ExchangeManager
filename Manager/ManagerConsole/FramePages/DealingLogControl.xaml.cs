@@ -1,4 +1,4 @@
-﻿using Manager.Common;
+﻿using Manager.Common.LogEntities;
 using ManagerConsole.Model;
 using System;
 using System.Collections.Generic;
@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using LogType = Manager.Common.LogType;
 
 namespace ManagerConsole.FramePages
 {
@@ -30,6 +31,7 @@ namespace ManagerConsole.FramePages
             this.InitUI();
             this.AttachEvents();
             this.ChangeGridVisibilityStatus();
+            
         }
 
         private void InitUI()
@@ -65,8 +67,10 @@ namespace ManagerConsole.FramePages
                 case LogType.QuoteOrder:
                     ConsoleClient.Instance.GetLogOrderData(fromData, toData, this._LogType, this.GetLogOrderDataCallback);
                     break;
+                case LogType.SettingChange:
+                    ConsoleClient.Instance.GetLogSettingData(fromData, toData, this._LogType, this.GetLogSettingDataCallback);
+                    break;
             }
-            
         }
 
         private void AttachEvents()
@@ -91,12 +95,23 @@ namespace ManagerConsole.FramePages
             }, logOrders);
         }
 
+        private void GetLogSettingDataCallback(List<LogSetting> logSettings)
+        {
+            this.Dispatcher.BeginInvoke((Action<List<LogSetting>>)delegate(List<LogSetting> result)
+            {
+                this.RetrieveStoredLinksMask.Visibility = Visibility.Collapsed;
+                this._LogSettingGrid.ItemsSource = result;
+            }, logSettings);
+        }
+
         private void ChangeGridVisibilityStatus()
         {
             this._LogQuoteGrid.Visibility = Visibility.Collapsed;
             this._LogQuoteGrid.ItemsSource = null;
             this._LogOrderGrid.Visibility = Visibility.Collapsed;
             this._LogOrderGrid.ItemsSource = null;
+            this._LogSettingGrid.Visibility = Visibility.Collapsed;
+            this._LogSettingGrid.ItemsSource = null;
 
             switch (this._LogType)
             {
@@ -105,6 +120,9 @@ namespace ManagerConsole.FramePages
                     break;
                 case LogType.QuoteOrder:
                     this._LogOrderGrid.Visibility = Visibility.Visible;
+                    break;
+                case LogType.SettingChange:
+                    this._LogSettingGrid.Visibility = Visibility.Visible;
                     break;
             }
         }

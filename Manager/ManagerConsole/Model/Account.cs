@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CommonAccount = Manager.Common.Account;
+using CommonAccount = Manager.Common.Settings.Account;
 
 namespace ManagerConsole.Model
 {
