@@ -7,10 +7,6 @@
              mc:Ignorable="d" 
              d:DesignHeight="500" d:DesignWidth="1000">
     <UserControl.Resources>
-        <Style x:Key="CellStyle" TargetType="igGrid:CellControl">
-            <Setter Property="BorderBrush" Value="#FFDEDEDE" />
-            <Setter Property="BorderThickness" Value="1,1,1,1" />
-        </Style>
         <Style x:Key="InActiveCellStyle" TargetType="igGrid:CellControl">
             <Setter Property="BorderBrush" Value="#FFDEDEDE" />
             <Setter Property="BorderThickness" Value="1,1,1,1" />
@@ -23,6 +19,12 @@
         <Style x:Key="ButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="#FF86CEF3"/>
         </Style>
+        <Style x:Key="CellStyle" TargetType="igGrid:CellControl">
+            <Setter Property="Padding" Value="0,0,0,0"/>
+            <!--<Setter Property="BorderThickness" Value="0,0,1,1"/>-->
+            <Setter Property="BorderBrush" Value="#FFDEDEDE" />
+            <Setter Property="BorderThickness" Value="0,0,1,1" />
+        </Style>
     </UserControl.Resources>
     <Grid x:Name="LayRootGrid">
         <Grid.RowDefinitions>
@@ -33,12 +35,12 @@
         <StackPanel Orientation="Horizontal" Background="{StaticResource BackGroundForPanel}" Grid.Row="0">
             <Button x:Name="_QueryButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"  Click="ToolBar_Click" Width="25" Height="25" Margin="2" >
                 <Button.Content>
-                    <Image Source="../Asset/Images/Query.png" ToolTipService.ToolTip="Query Log"  Margin="1"/>
+                    <Image Source="../Asset/Images/Search.png" ToolTipService.ToolTip="Query Log"  Margin="1"/>
                 </Button.Content>
             </Button>
         </StackPanel>
         <Border Margin="0 3 0 0" BorderBrush="Black" Grid.Row="1">
-            <igGrid:XamGrid x:Name="LMTProcessOrderGrid" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto" CellStyle="{StaticResource CellStyle}" Foreground="{Binding IsBuyBrush}"
+            <igGrid:XamGrid x:Name="LMTProcessOrderGrid" AutoGenerateColumns="False" CellStyle="{StaticResource CellStyle}" RowHeight="25" IsAlternateRowsEnabled="True"
                             InitializeRow="OrderTaskGrid_InitializeRow">
                 <igGrid:XamGrid.FixedColumnSettings>
                     <igGrid:FixedColumnSettings AllowFixedColumns="DropArea"/>
@@ -116,12 +118,20 @@
 
 
                     <!--Column Setting-->
-                    <igGrid:TemplateColumn Key="DQHandle" HeaderText="Action" IsFixed="Left">
+                    <igGrid:TemplateColumn Key="DQHandle" HeaderText="Action" IsFixed="Left" Width="53">
                         <igGrid:TemplateColumn.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal" Width="122" Margin="-5">
-                                    <Button x:Name="ApplyBtn" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" BorderBrush="Black" Background="#FF92D3F4" Width="60"  Content="Apply" Click="OrderHandlerBtn_Click" />
-                                    <Button x:Name="ExecuteBtn" Margin="1,0,0,0"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" BorderBrush="Black" Background="#FF92D3F4" Width="60"  Content="Execute" Click="OrderHandlerBtn_Click"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button x:Name="ApplyBtn" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="OrderHandlerBtn_Click">
+                                        <Button.Content>
+                                            <Image Source="../Asset/Images/Apply.png" ToolTipService.ToolTip="Apply"  Width="18" Height="18"/>
+                                        </Button.Content>
+                                    </Button>
+                                    <Button x:Name="ExecuteBtn" Margin="1,0,0,0"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="OrderHandlerBtn_Click">
+                                        <Button.Content>
+                                            <Image Source="../Asset/Images/Execute.png" ToolTipService.ToolTip="Executed All"  Width="18" Height="18"/>
+                                        </Button.Content>
+                                    </Button>
                                 </StackPanel>
                             </DataTemplate>
                         </igGrid:TemplateColumn.ItemTemplate>

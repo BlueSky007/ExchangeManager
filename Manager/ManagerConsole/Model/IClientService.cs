@@ -11,18 +11,17 @@ using System.Xml;
 
 namespace ManagerConsole.Model
 {
+    [ServiceKnownType("GetKnownTypes", typeof(KnownTypes))]
     [ServiceContract(CallbackContract = typeof(IClientProxy), SessionMode = SessionMode.Required)]
     public interface IClientService
     {
-        //[OperationContract]
-        //LoginResult Login(string userName, string password, string oldSessionId, Language language);
-
-       
-
-        
         [OperationContract(AsyncPattern=true)]
         IAsyncResult BeginLogin(string userName, string password, string oldSessionId, Language language, AsyncCallback callback, object asyncState);
         LoginResult EndLogin(IAsyncResult result);
+      
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginGetInitializeData(AsyncCallback callback, object asyncState);
+        List<InitializeData> EndGetInitializeData(IAsyncResult result);
       
 
         [OperationContract(IsInitiating = false)]
@@ -42,7 +41,7 @@ namespace ManagerConsole.Model
         #region UserManager
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginGetAccessPermissions(AsyncCallback callback, object asyncState);
-        Dictionary<string, string> EndGetAccessPermissions(IAsyncResult result);
+        Dictionary<string, Tuple<string, bool>> EndGetAccessPermissions(IAsyncResult result);
 
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginGetUserData(AsyncCallback callback, object asyncState);
@@ -145,6 +144,28 @@ namespace ManagerConsole.Model
         [OperationContract(AsyncPattern=true)]
         IAsyncResult BeginGetConfigMetadata(AsyncCallback callback, object asyncState);
         ConfigMetadata EndGetConfigMetadata(IAsyncResult result);
+
+        [OperationContract(AsyncPattern=true)]
+        IAsyncResult BeginAddMetadataObject(IMetadataObject metadataObject, AsyncCallback callback, object asyncState);
+        int EndAddMetadataObject(IAsyncResult result);
+
+        
+        [OperationContract(AsyncPattern=true)]
+        IAsyncResult BeginAddMetadataObjects(IMetadataObject[] metadataObjects, AsyncCallback callback, object asyncState);
+        int[] EndAddMetadataObjects(IAsyncResult result);
+
+        [OperationContract(AsyncPattern=true)]
+        IAsyncResult BeginUpdateMetadataObject(MetadataType type, int objectId, Dictionary<string, object> fieldAndValues, AsyncCallback callback, object asyncState);
+        bool EndUpdateMetadataObject(IAsyncResult result);
+
+        [OperationContract(AsyncPattern=true)]
+        IAsyncResult BeginDeleteMetadataObject(MetadataType type, int objectId, AsyncCallback callback, object asyncState);
+        bool EndDeleteMetadataObject(IAsyncResult result);
+
+        [OperationContract(AsyncPattern=true)]
+        IAsyncResult BeginSendQuotation(int instrumentSourceRelationId, double ask, double bid, AsyncCallback callback, object asyncState);
+        void EndSendQuotation(IAsyncResult result);
+      
         #endregion
         [OperationContract(IsInitiating = false)]
         void Updatetest();  

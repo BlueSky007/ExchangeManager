@@ -9,15 +9,22 @@ namespace ManagerConsole.Model
 {
     public class MessageClient : IClientProxy
     {
-        #region Event
+        #region Message Event
         public delegate void QuotePriceToDealerEventHandler(QuoteMessage quoteMessage);
         public event QuotePriceToDealerEventHandler QuotePriceToDealerEvent;
 
         public delegate void QuoteOrderToDealerEventHandler(PlaceMessage placeMessage);
         public event QuoteOrderToDealerEventHandler QuoteOrderToDealerEvent;
 
+        public delegate void ExecutedOrderEventHandler(ExecuteMessage executeMessage);
+        public event ExecutedOrderEventHandler ExecutedOrderToDealerEvent;
+
         public delegate void HitPriceEventHandler(HitMessage hitMessage);
         public event HitPriceEventHandler HitPriceEvent;
+
+        public delegate void DeletedOrderEventHandler(DeleteMessage deleteMessage);
+        public event DeletedOrderEventHandler DeletedOrderEvent;
+
         #endregion
 
         private RelayEngine<Message> _MessageRelayEngine;
@@ -50,9 +57,19 @@ namespace ManagerConsole.Model
             this._QuotationMessageProcessor.Process(abnormalQuotationMessage);
         }
 
-        private void Process(MetadataUpdateMessage metadataUpdateMessage)
+        private void Process(AddMetadataObjectMessage message)
         {
-            this._QuotationMessageProcessor.Process(metadataUpdateMessage);
+            this._QuotationMessageProcessor.Process(message);
+        }
+
+        private void Process(UpdateMetadataMessage message)
+        {
+            this._QuotationMessageProcessor.Process(message);
+        }
+
+        private void Process(DeleteMetadataObjectMessage message)
+        {
+            this._QuotationMessageProcessor.Process(message);
         }
 
         private void Process(QuoteMessage quoteMessage)
@@ -83,6 +100,11 @@ namespace ManagerConsole.Model
                     this.HandleException(ex);
                 }
             }
+        }
+
+        private void Process(ExecuteMessage executeMessage)
+        {
+            this.ExecutedOrderToDealerEvent(executeMessage);
         }
 
         private void Process(HitMessage hitMessage)

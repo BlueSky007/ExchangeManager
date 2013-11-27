@@ -61,6 +61,11 @@ namespace ManagerConsole
             set { this._OrderHandle = value; }
         }
 
+        public void ShowAbnormalQuotation(AbnormalQuotationMessage message)
+        {
+            this.FloatPane.Visibility = Visibility.Visible;
+        }
+
         private void treeViewItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             TreeViewItem moduleNode = sender as TreeViewItem;
@@ -102,7 +107,7 @@ namespace ManagerConsole
             try
             {
                 this.InitializeLayout(result);
-                this.InitDataManager.Initialize(result.InitializeDatas);
+                ConsoleClient.Instance.GetInitializeData(this.GetInitializeDataCallback);
                 this.MessageProcessor = new MessageProcessor(this._Media, this.InitDataManager);
                 //this.StartMessageThread();
             }
@@ -110,6 +115,12 @@ namespace ManagerConsole
             {
                 Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "HandleSuccessLogin.\r\n{0}", ex.ToString());
             }
+        }
+
+        private void GetInitializeDataCallback(List<InitializeData> initalizeDatas)
+        {
+            this.InitDataManager.Initialize(initalizeDatas);
+            this.MessageProcessor = new MessageProcessor(this._Media, this.InitDataManager);
         }
 
         private void InitializeLayout(LoginResult result)
@@ -131,9 +142,10 @@ namespace ManagerConsole
             if (result.DockLayout != null)
             {
                 XDocument xdocument = XDocument.Parse(result.DockLayout);
-                var panes = xdocument.Element("xamDockManager").Element("contentPanes").Elements("contentPane").Where(p => p.Attribute("name").Value != "FunctionTreePane");
+                var panes = xdocument.Element("xamDockManager").Element("contentPanes").Elements("contentPane");
                 foreach (XElement pane in panes)
                 {
+                    if (pane.Attribute("name").Value == "FunctionTreePane" || pane.Attribute("name").Value == "FloatPane") continue;
                     int moduleType = MainWindowHelper.GetModuleType(pane.Attribute("name").Value);
                     if (this._Modules.ContainsKey(moduleType))
                     {
@@ -200,6 +212,7 @@ namespace ManagerConsole
 
         private void XamMenuItem_Click(object sender, EventArgs e)
         {
+           
             this.Window_Loaded(null, null);
         }
 
@@ -336,6 +349,11 @@ namespace ManagerConsole
         private void XamMenuItem_Click_1(object sender, EventArgs e)
         {
             ConsoleClient.Instance.Updatetest();
+        }
+
+        private void XamMenuItem_Click_2(object sender, EventArgs e)
+        {
+            this.FloatPane.Visibility = System.Windows.Visibility.Visible;
         }
     }
 }

@@ -86,9 +86,9 @@ namespace ManagerConsole.UI
             try
             {
                 this.DataContext = this;
-                this.IsAllowAdd = ConsoleClient.Instance.HasPermission(new AccessPermission(ModuleCategoryType.UserManager,ModuleType.RoleManager,"Add"));
-                this.IsAllowEdit = ConsoleClient.Instance.HasPermission(new AccessPermission(ModuleCategoryType.UserManager, ModuleType.RoleManager, "Edit"));
-                this.IsAllowDelete = ConsoleClient.Instance.HasPermission(new AccessPermission(ModuleCategoryType.UserManager, ModuleType.RoleManager, "Delete"));
+                this.IsAllowAdd = ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager,ModuleType.RoleManager,"Add");
+                this.IsAllowEdit = ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.RoleManager, "Edit");
+                this.IsAllowDelete = ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.RoleManager, "Delete");
                 List<RoleFunctonPermission> allFunction = ConsoleClient.Instance.GetAllFunctionPermission();
                 List<RoleDataPermission> allData = ConsoleClient.Instance.GetAllDataPermissions();
                 this._AllData = allData;
@@ -340,6 +340,11 @@ namespace ManagerConsole.UI
             {
                 Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "RoleManager/DeleteResult.\r\n{0}", ex.ToString());
             }
+        }
+
+        private void TabGroupPane_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
         }
     }
 }

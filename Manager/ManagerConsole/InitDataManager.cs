@@ -7,14 +7,20 @@ using System.Linq;
 using System.Text;
 using CommonTransaction = Manager.Common.Transaction;
 using CommonOrder = Manager.Common.Order;
+using CommonOrderRelation = Manager.Common.OrderRelation;
 using PlaceMessage = Manager.Common.PlaceMessage;
 using QuoteMessage = Manager.Common.QuoteMessage;
 using HitMessage = Manager.Common.HitMessage;
+using DeleteMessage = Manager.Common.DeleteMessage;
+using ExecuteMessage = Manager.Common.ExecuteMessage;
 using CommonParameter = Manager.Common.Settings.SystemParameter;
+using TransactionError = Manager.Common.TransactionError;
 using ManagerConsole.Helper;
 using SettingSet = Manager.Common.SettingSet;
 using InitializeData = Manager.Common.InitializeData;
 using SettingParameters = Manager.Common.Settings.SettingParameters;
+using Phase = Manager.Common.Phase;
+using OrderRelationType = Manager.Common.OrderRelationType;
 
 namespace ManagerConsole
 {
@@ -25,6 +31,9 @@ namespace ManagerConsole
 
         public delegate void OrderHitPriceNotifyHandler(OrderTask orderTask);
         public event OrderHitPriceNotifyHandler OnOrderHitPriceNotifyEvent;
+
+        public delegate void DeleteOrderFromExecuteOrderGridHandler(Order deletedOrder);
+        public event DeleteOrderFromExecuteOrderGridHandler OnDeleteOrderSetRowBackColorEvent;
 
         private Dictionary<Guid, Account> _Accounts = new Dictionary<Guid, Account>();
         private Dictionary<Guid, InstrumentClient> _Instruments = new Dictionary<Guid, InstrumentClient>();
@@ -37,11 +46,20 @@ namespace ManagerConsole
         private MooMocOrderForInstrumentModel _MooMocOrderForInstrumentModel = new MooMocOrderForInstrumentModel();
         private OrderTaskModel _OrderTaskModel = new OrderTaskModel();
         private LMTProcessModel _LMTProcessModel = new LMTProcessModel();
+        private ObservableCollection<Order> _ExecutedOrders = new ObservableCollection<Order>();
 
         //询价
         private ObservableCollection<QuotePriceForInstrument> _ClientQuotePriceForInstrument = new ObservableCollection<QuotePriceForInstrument>();
 
+        private TranPhaseManager _TranPhaseManager;
+
         #region Public Property
+        public TranPhaseManager TranPhaseManager
+        {
+            get { return this._TranPhaseManager; }
+            set { this._TranPhaseManager = value; }
+        }
+
         public ObservableCollection<QuotePriceForInstrument> ClientQuotePriceForInstrument
         {
             get { return this._ClientQuotePriceForInstrument; }
@@ -97,6 +115,12 @@ namespace ManagerConsole
             get { return this._MooMocOrderForInstrumentModel; }
             set { this._MooMocOrderForInstrumentModel = value; }
         }
+
+        public ObservableCollection<Order> ExecutedOrders
+        {
+            get { return this._ExecutedOrders; }
+            set { this._ExecutedOrders = value; }
+        }
         #endregion
 
         public InitDataManager()
@@ -104,10 +128,11 @@ namespace ManagerConsole
             this.SettingsManager = new SettingsManager();
             this._Accounts = TestData.GetInitializeTestDataForAccount();
             this._Instruments = TestData.GetInitializeTestDataForInstrument();
+            this._TranPhaseManager = new TranPhaseManager(this);
         }
 
         #region Initialize Data
-        public void Initialize(ObservableCollection<InitializeData> initializeDatas)
+        public void Initialize(List<InitializeData> initializeDatas)
         {
             foreach (InitializeData initializeData in initializeDatas)
             {
@@ -188,14 +213,44 @@ namespace ManagerConsole
             foreach (CommonTransaction commonTransaction in placeMessage.Transactions)
             {
                 Transaction tran = this._Transactions[commonTransaction.Id];
-                Guid accountId = tran.Account.Id;
-                bool existAccount = this._Accounts.ContainsKey(accountId);
-                TranPhaseManager.SetOrderStatus(tran, existAccount);
+                this.TranPhaseManager.UpdateTransaction(tran);
 
                 foreach (Order order in tran.Orders)
                 {
                     this.AddOrderTaskEntity(order);
                 }
+            }
+        }
+
+        public void ProcessExecuteMessage(ExecuteMessage executeMessage)
+        {
+            foreach (CommonTransaction commonTransaction in executeMessage.Transactions)
+            {
+                if (commonTransaction.Error != null && commonTransaction.Error.Value != TransactionError.OK)
+                { 
+                    //...
+                }
+                if(this._Transactions.ContainsKey(commonTransaction.Id) && this._Transactions[commonTransaction.Id].Phase == Phase.Executed)
+                {
+                    continue;
+                }
+                else
+                {
+                    this.Process(commonTransaction);
+                }
+            }
+            //Sound.PlayExecute()
+
+            foreach (CommonOrder commonOrder in executeMessage.Orders)
+            {
+                commonOrder.ExchangeCode = executeMessage.ExchangeCode;
+                this.Process(commonOrder, false);
+            }
+
+            foreach (CommonTransaction commonTransaction in executeMessage.Transactions)
+            {
+                Transaction tran = this._Transactions[commonTransaction.Id];
+                this.TranPhaseManager.UpdateTransaction(tran);
             }
         }
 
@@ -211,6 +266,52 @@ namespace ManagerConsole
                     this.UpdateOrderTask(this._Orders[commonOrder.Id]);
                 }
             } 
+        }
+
+        public void ProcessDeleteMessage(DeleteMessage deleteMessage)
+        {
+            if (deleteMessage.DeletedOrderId != Guid.Empty)
+            {
+                if (!this._Orders.ContainsKey(deleteMessage.DeletedOrderId)) return;
+                Order deletedOrder = this._Orders[deleteMessage.DeletedOrderId];
+                //Refresh Lot
+                if (this._ExecutedOrders.Contains(deletedOrder))
+                {
+                    this.TranPhaseManager.DeleteOrderNotifyUpdateLot(deleteMessage.InstrumentID, deletedOrder);
+                }
+
+                if (this.OnDeleteOrderSetRowBackColorEvent != null)
+                {
+                    this.OnDeleteOrderSetRowBackColorEvent(deletedOrder);
+                }
+            }
+            //Sound.PlayDelete();
+
+            foreach (CommonTransaction commonTransaction in deleteMessage.Transactions)
+            {
+                this.Process(commonTransaction);
+            }
+
+            foreach (CommonOrder commonOrder in deleteMessage.Orders)
+            {
+                this.Process(commonOrder,false);
+            }
+
+            foreach (CommonOrderRelation commonOrderRelation in deleteMessage.OrderRelations)
+            {
+                this.Process(commonOrderRelation);
+            }
+            foreach (CommonTransaction commonTran in deleteMessage.Transactions)
+            {
+                Transaction newTransaction = this._Transactions[commonTran.Id];
+                foreach (Order order in newTransaction.Orders)
+                {
+                    this.TranPhaseManager.AddExecutedOrder(order);
+                    this.TranPhaseManager.AddOrderProcessBuySellLot(deleteMessage.InstrumentID, order);
+                    this.TranPhaseManager.AddExecutedOrder(order);
+                }
+                //Refresh OpenInterestGrid
+            }
         }
 
         //Move Hit Order To the First Row
@@ -336,6 +437,14 @@ namespace ManagerConsole
                 if (this._Orders[commonOrder.Id].Phase == Manager.Common.Phase.Executed && isExecuted)
                     return;
                 this._Orders[commonOrder.Id].Update(commonOrder);
+            }
+        }
+
+        private void Process(CommonOrderRelation commonOrderRelation)
+        {
+            if(commonOrderRelation.RelationType == OrderRelationType.Close)
+            {
+ 
             }
         }
 

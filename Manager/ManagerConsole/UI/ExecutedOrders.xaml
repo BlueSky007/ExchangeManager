@@ -1,0 +1,118 @@
+﻿<UserControl x:Class="ManagerConsole.UI.ExecutedOrders"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:igGrid="http://schemas.infragistics.com/xaml"
+             xmlns:igDP="http://infragistics.com/DataPresenter"
+             xmlns:igRep="http://infragistics.com/Reporting"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35"/>
+            <RowDefinition Height="500*"/>
+        </Grid.RowDefinitions>
+        <Border x:Name="_ListToolbar" CornerRadius="5" Background="{StaticResource BackGroundForPanel}" Grid.Row="0">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock  Margin="10,0,0,0" Text="Account Group" Foreground="White" VerticalAlignment="Center"/>
+                <ComboBox Margin="10,0,0,0" VerticalAlignment="Center" Style="{StaticResource ComboBoxStyle}" x:Name="_AccountGroupCombo" Height="23"  Width="100" />
+                <Button x:Name="_PrintListOrderBtn" Click="Print_Click" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Width="25" Height="25"  Margin="10,0,0,0">
+                   <Button.Content>
+                        <Image Source="../Asset/Images/Print.png" ToolTipService.ToolTip="Print"  Margin="1"></Image>
+                    </Button.Content>
+                </Button>
+            </StackPanel>
+        </Border>
+        <Border x:Name="_SummaryToolbar"  Visibility="Collapsed" CornerRadius="5" Background="{StaticResource BackGroundForPanel}" Grid.Row="0">
+            <StackPanel Orientation="Horizontal">
+                <RadioButton x:Name="_TimeRangeRadio" IsChecked="True" Margin="15,0,0,0" VerticalAlignment="Center"/>
+                <TextBlock Text="Time Range:" Margin="10,0,0,0" Foreground="White" VerticalAlignment="Center"/>
+                <TextBox Style="{StaticResource TextBoxStyle}" Margin="5,0,0,0" x:Name="_TimeRangeText"  KeyDown="VariationText_KeyDown"  Height="23" Width="80"/>
+                <TextBlock Text="Minutes" Margin="5,0,0,0" Foreground="White" VerticalAlignment="Center"/>
+                
+                <RadioButton x:Name="_PriceRangeRadio" Margin="15,0,0,0" VerticalAlignment="Center"/>
+                <TextBlock Text="Price Range:" Margin="10,0,0,0" Foreground="White" VerticalAlignment="Center"/>
+                <TextBox Style="{StaticResource TextBoxStyle}" Margin="5,0,0,0" x:Name="_PriceRangeText"  KeyDown="VariationText_KeyDown"  Height="23" Width="80"/>
+                <TextBlock Text="Pips" Margin="5,0,0,0" Foreground="White" VerticalAlignment="Center"/>
+
+                <Button x:Name="_QueryBtn" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Width="25" Height="25"  Margin="10 0 0 0">
+                    <Button.Content>
+                        <Image Source="../Asset/Images/Search.png" ToolTipService.ToolTip="Print"  Margin="1"/>
+                    </Button.Content>
+                </Button>
+                
+                <Button x:Name="_PrintSummaryOrderBtn" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Width="25" Height="25"  Margin="10 0 0 0">
+                    <Button.Content>
+                        <Image Source="../Asset/Images/Print.png" ToolTipService.ToolTip="Print"  Margin="1"/>
+                    </Button.Content>
+                </Button>
+            </StackPanel>
+        </Border>
+        
+        <TabControl x:Name="ExecutedOrderTab" Grid.Row="1" TabStripPlacement="Bottom" SelectionChanged="ExecutedOrderTab_SelectionChanged">
+            <TabItem x:Name="_OrderListItem" Header="List" Style="{StaticResource TableItemStyle}">
+                <igGrid:XamGrid x:Name="_ExecutedOrderListGrid" Grid.Row="1" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto"  Foreground="{Binding IsBuyBrush}"
+                                InitializeRow="ExecutedOrderListGrid_InitializeRow">
+                    <igGrid:XamGrid.FixedColumnSettings>
+                        <igGrid:FixedColumnSettings AllowFixedColumns="DropArea"/>
+                    </igGrid:XamGrid.FixedColumnSettings>
+                    <igGrid:XamGrid.GroupBySettings>
+                        <igGrid:GroupBySettings AllowGroupByArea="Top" IsGroupable="True" EmptyGroupByAreaContent="成交单列表     拖动列标题栏在此分组"/>
+                    </igGrid:XamGrid.GroupBySettings>
+
+                    <!--Column Setting-->
+                    <igGrid:XamGrid.Columns>
+                        <igGrid:TextColumn Key="Transaction.Instrument.Code" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Item"/>
+                        <igGrid:TextColumn Key="ExchangeCode"  Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="ExchangeCode" />
+                        <igGrid:TextColumn Key="IsBuyString" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="B/S" />
+                        <igGrid:TextColumn Key="IsOpenString"  Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="O/C" />
+                        <igGrid:TextColumn Key="Lot" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Lot" />
+                        <igGrid:TextColumn Key="Transaction.Account.Code"  Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="A/C" />
+                        <igGrid:CheckBoxColumn Key="Transaction.Account.IsBlack"  Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="BL" />
+                        <igGrid:TextColumn Key="QuotePolicyCode" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Quote Policy" />
+                        <igGrid:TextColumn Key="SetPrice"  Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Price" />
+                        <igGrid:TextColumn Key="Type"  Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Order Type" />
+                        <igGrid:TextColumn Key="SubmitDateTime" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Execute Time" />
+                        <igGrid:TextColumn Key="RelationString"  Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Relation" />
+                        <igGrid:TextColumn Key="Dealer" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Dealer" />
+                    </igGrid:XamGrid.Columns>
+                </igGrid:XamGrid>
+            </TabItem>
+            <TabItem x:Name="_OrderSummary" Header="Summary" Style="{StaticResource TableItemStyle}">
+                <igGrid:XamGrid x:Name="_ExecutedOrderSummaryGrid" Grid.Row="1" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto"  Foreground="{Binding IsBuyBrush}">
+                    <igGrid:XamGrid.FixedColumnSettings>
+                        <igGrid:FixedColumnSettings AllowFixedColumns="DropArea"/>
+                    </igGrid:XamGrid.FixedColumnSettings>
+                    <igGrid:XamGrid.GroupBySettings>
+                        <igGrid:GroupBySettings AllowGroupByArea="Top" IsGroupable="True" EmptyGroupByAreaContent="成交单列表     拖动列标题栏在此分组"/>
+                    </igGrid:XamGrid.GroupBySettings>
+
+                    <!--Column Setting-->
+                    <igGrid:XamGrid.Columns>
+                        <igGrid:TextColumn Key="InstrumentCode" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Item"/>
+                        <igGrid:TextColumn Key="ExchangeCode"  Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="ExchangeCode" />
+                        <igGrid:TextColumn Key="OrderCount" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Order Count" />
+                        <igGrid:TextColumn Key="AverageSell"  Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Average Sell" />
+                        <igGrid:TemplateColumn Key="SellLot" Width="60" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Sell Lot" IsFilterable="False">
+                            <igGrid:TemplateColumn.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding SellLot}" Foreground="Red"/>
+                                </DataTemplate>
+                            </igGrid:TemplateColumn.ItemTemplate>
+                        </igGrid:TemplateColumn>
+
+                        <igGrid:TextColumn Key="AverageBuy"  Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Average Buy" />
+                        <igGrid:TemplateColumn Key="BuyLot" Width="60" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Buy Lot" IsFilterable="False">
+                            <igGrid:TemplateColumn.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding BuyLot}" Foreground="Blue"/>
+                                </DataTemplate>
+                            </igGrid:TemplateColumn.ItemTemplate>
+                        </igGrid:TemplateColumn>
+                    </igGrid:XamGrid.Columns>
+                </igGrid:XamGrid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

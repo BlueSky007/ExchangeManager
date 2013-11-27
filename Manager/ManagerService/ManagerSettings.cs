@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ManagerService.QuotationExchange;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
@@ -12,9 +13,20 @@ namespace ManagerService
     {
         public string Code;
         public string DbConnectionString;
+        public string QuotationConnectionString;
         public string StateServerUrl;
         public bool ConfirmRejectDQOrder;
         public bool AllowModifyOrderLot;
+        public string TraceOriginCode;
+        public bool AcceptZeroPricep;
+        public string OriginPriceValidTime;
+        public string CacheType;
+        public string CatchSize ;
+        public string QuotationFileCacheDirectory;
+        public string CommitFrequency;
+        public string MinIntervalToGetPricesOfHiLo;
+        public string ChartCommandTimeout;
+        public bool TraceOpenPrice;
     }
 
     public class ManagerSettings

@@ -16,7 +16,7 @@ namespace ManagerService.Exchange
         {
             string sessionId = OperationContext.Current.SessionId;
             IStateServer stateServer = OperationContext.Current.GetCallbackChannel<IStateServer>();
-            if (Manager.ExchangeManager.TryRegister(iexchangeCode, sessionId, stateServer, out this._ExchangeSystem))
+            if (MainService.ExchangeManager.TryRegister(iexchangeCode, sessionId, stateServer, out this._ExchangeSystem))
             {
                 OperationContext.Current.Channel.Faulted += this._ExchangeSystem.Channel_Broken;
                 OperationContext.Current.Channel.Closed += this._ExchangeSystem.Channel_Broken;

@@ -66,10 +66,10 @@ namespace ManagerService.Quotation
                         this._WaitQueue.Dequeue();
                     }
                     SourceQuotation confirmedQuotation = this._WaitQueue.Dequeue();
-                    Manager.ExchangeManager.SwitchPriceEnableState(confirmedQuotation.PrimitiveQuotation.Symbol, true);
+                    MainService.ExchangeManager.SwitchPriceEnableState(confirmedQuotation.PrimitiveQuotation.Symbol, true);
                     if (accepted)
                     {
-                        Manager.QuotationManager.ProcessNormalQuotation(confirmedQuotation);
+                        MainService.QuotationManager.ProcessNormalQuotation(confirmedQuotation);
                     }
 
                     this.ProcessSubsequentQuotation();
@@ -93,8 +93,8 @@ namespace ManagerService.Quotation
                     SourceQuotation quotation = this._WaitQueue.Dequeue();
                     if (this._TimeoutCount > this._PriceRangeCheckRule.OutOfRangeCount)
                     {
-                        Manager.ExchangeManager.SwitchPriceEnableState(quotation.PrimitiveQuotation.Symbol, true);
-                        Manager.QuotationManager.ProcessNormalQuotation(quotation);
+                        MainService.ExchangeManager.SwitchPriceEnableState(quotation.PrimitiveQuotation.Symbol, true);
+                        MainService.QuotationManager.ProcessNormalQuotation(quotation);
                         this.ProcessSubsequentQuotation();
                         this._TimeoutCount = 0;
                         break;
@@ -121,13 +121,13 @@ namespace ManagerService.Quotation
 
                 if (quotation.IsAbnormal)
                 {
-                    Manager.ExchangeManager.SwitchPriceEnableState(quotation.PrimitiveQuotation.Symbol, false);
+                    MainService.ExchangeManager.SwitchPriceEnableState(quotation.PrimitiveQuotation.Symbol, false);
                     this._AbnormalQuotationManager.StartConfirm(quotation);
                     break;
                 }
                 else
                 {
-                    Manager.QuotationManager.ProcessNormalQuotation(this._WaitQueue.Dequeue());
+                    MainService.QuotationManager.ProcessNormalQuotation(this._WaitQueue.Dequeue());
                 }
             }
         }
@@ -172,7 +172,7 @@ namespace ManagerService.Quotation
                 {
                     if (!this._PriceRangeCheckRules[quotation.InstrumentId].DiscardOutOfRangePrice)
                     {
-                        Manager.ExchangeManager.SwitchPriceEnableState(quotation.PrimitiveQuotation.Symbol, false);
+                        MainService.ExchangeManager.SwitchPriceEnableState(quotation.PrimitiveQuotation.Symbol, false);
                         abnormalInstrument = new AbnormalInstrument(quotation, this, this._PriceRangeCheckRules[quotation.InstrumentId]);
                         this._AbnormalInstruments.Add(quotation.InstrumentId, abnormalInstrument);
                         this.StartConfirm(quotation);
@@ -209,7 +209,7 @@ namespace ManagerService.Quotation
                 }
 
                 // diff to diffPoints
-                int decimalPlace = Manager.QuotationManager.ConfigMetadata.Instruments[quotation.PrimitiveQuotation.Symbol].DecimalPlace;
+                int decimalPlace = MainService.QuotationManager.ConfigMetadata.Instruments[quotation.PrimitiveQuotation.InstrumentId].DecimalPlace;
                 int diffPoints = (int)(diff * Math.Pow(10, decimalPlace));
 
 
@@ -234,7 +234,7 @@ namespace ManagerService.Quotation
             message.OutOfRangeType = quotation.OutOfRangeType;
             message.DiffPoints = quotation.DiffPoints;
             message.WaitSeconds = quotation.WaitSeconds;
-            Manager.ClientManager.Dispatch(message);
+            MainService.ClientManager.Dispatch(message);
 
             quotation.WaitEndTime = DateTime.Now.AddSeconds(quotation.WaitSeconds + 1);  // Add one sencond at server side.
             this.ChangeWaitTime(quotation.WaitEndTime);

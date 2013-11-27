@@ -21,13 +21,6 @@ namespace ManagerService.Exchange
         #region To Message
         private static Message Convert(string exchagenCode, QuoteCommand quoteCommand)
         {
-            //XmlNode node = quoteCommand.Content.Attributes["Quote"];
-            //Guid customerId = new Guid(node.Attributes["CustomerID"].Value);
-            //Guid instrumentId = new Guid(node.Attributes["InstrumentID"].Value);
-            //double quoteLot = double.Parse(node.Attributes["QuoteLot"].Value);
-            //int bSStatus = int.Parse(node.Attributes["BSStatus"].Value);
-            //QuoteMessage quoteMessage = new QuoteMessage(customerId,instrumentId,quoteLot,bSStatus);
-
             QuoteMessage quoteMessage = new QuoteMessage(exchagenCode, quoteCommand.CustomerID, quoteCommand.InstrumentID, quoteCommand.QuoteLot, quoteCommand.BSStatus);
             return quoteMessage;
         }
@@ -124,8 +117,46 @@ namespace ManagerService.Exchange
             Order[] orders;
 
             CommandConvertor.Parse(ordersNode, out orders);
-            HitMessage hitMessage = new HitMessage(orders);
+            HitMessage hitMessage = new HitMessage(exchangeCode, orders);
             return hitMessage;
+        }
+
+        private static Message Convert(string exchangeCode, DeleteCommand deleteCommand)
+        {
+            List<Transaction> transactionList = new List<Transaction>();
+            List<Order> orderList = new List<Order>();
+            List<OrderRelation> orderRelationList = new List<OrderRelation>();
+
+            XmlNode transactionNodes = deleteCommand.Content["AffectedOrders"];
+            if (transactionNodes != null)
+            {
+                foreach (XmlNode transactionNode in transactionNodes.ChildNodes)
+                {
+                    Transaction[] transactions;
+                    Order[] orders;
+                    OrderRelation[] orderRelations;
+
+                    CommandConvertor.Parse(transactionNode, out transactions, out orders, out orderRelations);
+                    transactionList.AddRange(transactions);
+                    orderList.AddRange(orders);
+                    orderRelationList.AddRange(orderRelations);
+                }
+            }
+
+            Guid deletedOrderId = Guid.Empty;
+            Guid accountId = Guid.Empty;
+            Guid instrumentId = Guid.Empty;
+            XmlNode deletedOrderNode = deleteCommand.Content["DeletedOrder"];
+            if (deletedOrderNode != null)
+            {
+                deletedOrderId = new Guid(deletedOrderNode.Attributes["ID"].Value);
+                instrumentId = new Guid(deletedOrderNode.Attributes["InstrumentID"].Value);
+                accountId = new Guid(deletedOrderNode.Attributes["AccountID"].Value);
+            }
+
+            DeleteMessage deleteMessage = new DeleteMessage(exchangeCode,deletedOrderId,
+                transactionList.ToArray(), orderList.ToArray(), orderRelationList.ToArray());
+            return  deleteMessage;
         }
         #endregion
 

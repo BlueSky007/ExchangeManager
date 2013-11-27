@@ -16,6 +16,12 @@ namespace ManagerConsole.Model
             private set;
         }
 
+        public Guid CustomerId { get; set; }
+
+        public Guid GroupId { get; set; }
+
+        public bool IsBlack { get; set; }
+
         public Account() { }
 
         public Account(CommonAccount account)
@@ -27,6 +33,9 @@ namespace ManagerConsole.Model
         {
             this.Id = account.Id;
             this.Code = account.Code;
+            this.CustomerId = account.CustomerId;
+            this.GroupId = account.GroupId;
+            this.IsBlack = account.IsBlack;
         }
     }
 }

@@ -56,7 +56,7 @@ namespace ManagerConsole.UI
             Color bgColor = Colors.Transparent;
             Style style = new Style(typeof(Infragistics.Controls.Grids.CellControl));
             style.Setters.Add(new Setter(BackgroundProperty, new SolidColorBrush(bgColor)));
-            this._NormalStyle = style;
+            this._NormalStyle = this.Resources["CellStyle"] as Style;
             this._ExecuteStatusStyle = App.Current.Resources["ExecuteSatusCellStyle"] as Style;
         }
         private void AttachEvent()

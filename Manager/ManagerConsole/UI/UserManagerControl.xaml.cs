@@ -29,9 +29,12 @@ namespace ManagerConsole
         public UserManagerControl()
         {
             InitializeComponent();
-            this.IsAllowAdd = ConsoleClient.Instance.HasPermission(new AccessPermission(ModuleCategoryType.UserManager,ModuleType.UserManager,"Add"));
-            this.IsAllowDelete = ConsoleClient.Instance.HasPermission(new AccessPermission(ModuleCategoryType.UserManager, ModuleType.UserManager, "Delete"));
-            this.IsAllowEdit = ConsoleClient.Instance.HasPermission(new AccessPermission(ModuleCategoryType.UserManager, ModuleType.UserManager, "Edit"));
+            this.IsAllowAdd = ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager,ModuleType.UserManager,"Add");
+            this.IsAllowDelete = ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.UserManager, "Delete");
+            this.IsAllowEdit = ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.UserManager, "Edit");
+            //ResourceDictionary resource = new ResourceDictionary();
+            //resource.Source = new Uri(@"D:\Program Files (x86)\Infragistics\NetAdvantage 2013.1\WPF\Themes\Office2010Blue\Office2010Blue.xamGrid.xaml", UriKind.Absolute);
+            //this.UserManager.Resources.MergedDictionaries.Add(resource);
         }
         private ObservableCollection<UserData> _AllUserData = new ObservableCollection<UserData>();
         private ObservableCollection<UserModel> _users;

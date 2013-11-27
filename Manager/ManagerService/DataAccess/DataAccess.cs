@@ -33,7 +33,7 @@ namespace ManagerService.DataAccess
             }
             else
             {
-                ExchangeSystemSetting exchangeSystemSetting = Manager.ManagerSettings.ExchangeSystems.Single(e => e.Code == exchangeCode);
+                ExchangeSystemSetting exchangeSystemSetting = MainService.ManagerSettings.ExchangeSystems.Single(e => e.Code == exchangeCode);
                 this._ConnectionString = exchangeSystemSetting.DbConnectionString;
             }
         }

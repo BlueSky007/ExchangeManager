@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xamDockManager version="13.1.20131.1009">
   <contentPanes>
-    <contentPane name="module12" location="Document" lastDockableState="Floating" lastFloatingSize="1060,906" lastFloatingWindowRect="729,515,1068,930" lastFloatingLocation="729,515" lastActivatedTime="2013-11-15T06:10:28.0854658Z" />
-    <contentPane name="module10" location="Document" lastActivatedTime="2013-11-15T06:10:11.5515201Z" />
-    <contentPane name="module8" location="Document" lastActivatedTime="2013-11-14T04:00:38.302098Z" />
-    <contentPane name="FunctionTreePane" location="DockedLeft" lastActivatedTime="2013-11-14T04:00:07.007308Z" />
-    <contentPane name="module9" location="Document" lastActivatedTime="2013-11-14T03:37:34.2529349Z" />
+    <contentPane name="module13" location="Document" lastActivatedTime="2013-11-22T06:50:27.4732504Z" />
+    <contentPane name="module9" location="Document" lastActivatedTime="2013-11-22T06:50:05.3019823Z" />
+    <contentPane name="FunctionTreePane" location="DockedLeft" lastActivatedTime="2013-11-22T06:49:48.4750198Z" />
+    <contentPane name="module12" location="Document" lastDockableState="Floating" lastFloatingSize="1060,906" lastFloatingWindowRect="729,515,1068,930" lastFloatingLocation="729,515" lastActivatedTime="2013-11-22T06:49:30.7240045Z" />
+    <contentPane name="module6" location="Document" lastActivatedTime="2013-11-21T07:00:01.3425067Z" />
+    <contentPane name="module5" location="Document" lastActivatedTime="2013-11-21T06:58:40.7638979Z" />
+    <contentPane name="module4" location="Document" lastActivatedTime="2013-11-21T06:58:39.6978369Z" />
+    <contentPane name="module3" location="Document" lastActivatedTime="2013-11-21T06:58:13.4993384Z" />
+    <contentPane name="module2" location="Document" lastActivatedTime="2013-11-21T06:58:11.9422494Z" />
+    <contentPane name="module1" location="Document" lastActivatedTime="2013-11-21T06:57:52.5231387Z" />
+    <contentPane name="module0" location="Document" lastActivatedTime="2013-11-21T06:57:47.1928338Z" />
+    <contentPane name="module11" location="Document" lastActivatedTime="2013-11-21T06:56:32.3945556Z" />
+    <contentPane name="module14" location="Document" lastActivatedTime="2013-11-21T06:55:20.5204446Z" />
+    <contentPane name="module10" location="Document" lastActivatedTime="2013-11-21T06:55:02.3054028Z" />
+    <contentPane name="module8" location="Document" lastActivatedTime="2013-11-21T06:53:25.9798933Z" />
   </contentPanes>
   <panes>
     <splitPane name="Z4c43a0c3794444e69adb310be96767f3" splitterOrientation="Vertical" location="DockedTop" extent="469.5">
@@ -21,12 +31,22 @@
   <documents splitterOrientation="Vertical">
     <splitPane name="Z32da9376907c4a788e86d6b2af53383f" splitterOrientation="Vertical">
       <splitPane name="Z343d49a02a29475ba81701506f837bd8" splitterOrientation="Horizontal">
-        <tabGroup name="Z495cde00fce24ef6942e9ebecd1332db" selectedIndex="0">
+        <tabGroup name="Z495cde00fce24ef6942e9ebecd1332db" selectedIndex="1" relativeSize="100,80.1069518716579">
+          <contentPane name="module14" />
+          <contentPane name="module13" />
+          <contentPane name="module11" />
           <contentPane name="module12" />
           <contentPane name="module8" />
           <contentPane name="module10" />
         </tabGroup>
-        <tabGroup name="Z2308f11f820d44148931d8cd70ff0991" selectedIndex="0">
+        <tabGroup name="Z2308f11f820d44148931d8cd70ff0991" selectedIndex="7" relativeSize="100,119.893048128342">
+          <contentPane name="module1" />
+          <contentPane name="module4" />
+          <contentPane name="module6" />
+          <contentPane name="module5" />
+          <contentPane name="module3" />
+          <contentPane name="module2" />
+          <contentPane name="module0" />
           <contentPane name="module9" />
         </tabGroup>
       </splitPane>

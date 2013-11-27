@@ -9,14 +9,14 @@ using ManagerService.RiskManage;
 
 namespace ManagerService
 {
-    public class Manager
+    public class MainService
     {
-        public Manager()
+        public MainService()
         {
-            Manager.ManagerSettings = ManagerSettings.Load();
-            Manager.ExchangeManager = new ExchangeManager(Manager.ManagerSettings.ExchangeSystems);
-            Manager.ClientManager = new ClientManager();
-            Manager.QuotationManager = new QuotationManager();
+            MainService.ManagerSettings = ManagerSettings.Load();
+            MainService.ExchangeManager = new ExchangeManager(MainService.ManagerSettings.ExchangeSystems);
+            MainService.ClientManager = new ClientManager();
+            MainService.QuotationManager = new QuotationManager();
         }
 
         public static ManagerSettings ManagerSettings { get; private set; }
@@ -26,9 +26,9 @@ namespace ManagerService
 
         public void Start()
         {
-            Manager.QuotationManager.Start(Manager.ManagerSettings.QuotationListenPort);
-            Manager.ExchangeManager.Start(Manager.ManagerSettings.ServiceAddressForExchange);
-            Manager.ClientManager.Start(Manager.ManagerSettings.ServiceAddressForConsole);
+            MainService.QuotationManager.Start(MainService.ManagerSettings.QuotationListenPort);
+            MainService.ExchangeManager.Start(MainService.ManagerSettings.ServiceAddressForExchange);
+            MainService.ClientManager.Start(MainService.ManagerSettings.ServiceAddressForConsole);
         }
 
         public void Stop()

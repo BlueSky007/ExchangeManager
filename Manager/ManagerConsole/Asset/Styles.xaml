@@ -369,7 +369,11 @@
         <Setter Property="Background" Value="{StaticResource TableItemPanel}"/>
         <Setter Property="Foreground" Value="White"/>
     </Style>
-
+    <Style x:Key="CellStylePadding" TargetType="ig:CellControl">
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="BorderThickness" Value="0,1,0,0"/>
+        <Setter Property="BorderBrush" Value="Gray"/>
+    </Style>
 
 
 </ResourceDictionary>

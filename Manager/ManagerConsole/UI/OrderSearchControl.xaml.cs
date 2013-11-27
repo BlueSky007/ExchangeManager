@@ -62,12 +62,12 @@ namespace ManagerConsole.UI
 
 
             AccountGroup allGroup = new AccountGroup();
-            allInstrument.Code = "All";
+            allGroup.Code = "All";
             foreach (AccountGroup group in this._App.InitDataManager.SettingsManager.GetAccountGroups())
             {
                 this._AccountGroups.Add(group);
             }
-
+            this._AccountGroups.Insert(0, allGroup);
             this._AccountGroupCombo.ItemsSource = this._AccountGroups;
             this._AccountGroupCombo.DisplayMemberPath = "Code";
             this._AccountGroupCombo.SelectedIndex = 0;
@@ -84,15 +84,18 @@ namespace ManagerConsole.UI
                     this.QueryOrder();
                     break;
                 case "_PrintBtn":
-                    Report reportObj = new Report();
-                    EmbeddedVisualReportSection section = new EmbeddedVisualReportSection(this._OrderSerchGrid);
-                    reportObj.Sections.Add(section);
-
-                    _OrderReportPreview.GeneratePreview(reportObj, false, false);
-
-                    tbiPreview.IsSelected = true;
+                    this.PrintGrid();
                     break;
             }
+        }
+        private void PrintGrid()
+        {
+            Report reportObj = new Report();
+            EmbeddedVisualReportSection section = new EmbeddedVisualReportSection(this._OrderSerchGrid);
+            reportObj.Sections.Add(section);
+
+            _OrderReportPreview.GeneratePreview(reportObj, false, false);
+            tbiPreview.IsSelected = true;
         }
 
         private void QueryOrder()

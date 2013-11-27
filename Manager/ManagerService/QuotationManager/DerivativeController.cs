@@ -60,7 +60,7 @@ namespace ManagerService.Quotation
                 }
             }
 
-            GeneralQuotation GeneralQuotation = new GeneralQuotation { InstrumentId = relation.InstrumentId, SourceId = quotation.SourceId };
+            GeneralQuotation GeneralQuotation = new GeneralQuotation { InstrumentId = relation.Id, SourceId = quotation.SourceId };
             double price;
             if (this.TryGetPrice(relation.AskOperand1Type, relation.AskOperator1Type,
                 relation.AskOperand2Type, relation.AskOperator2Type,
@@ -127,7 +127,7 @@ namespace ManagerService.Quotation
                     break;
                 default:
                     Logger.AddEvent(TraceEventType.Warning, "DerivativeController.Derive operand1 operand1Type is Invalid, relation.instrumentId:{0}, operand1Type:{1}",
-                        relation.InstrumentId, operand1Type);
+                        relation.Id, operand1Type);
                     return false;
             }
 
@@ -156,7 +156,7 @@ namespace ManagerService.Quotation
                         break;
                     default:
                         Logger.AddEvent(TraceEventType.Warning, "DerivativeController.Derive operand2Type is Invalid, relation.instrumentId:{0}, operand2Type:{1}",
-                            relation.InstrumentId, operand2Type);
+                            relation.Id, operand2Type);
                         return false;
                 }
                 if (operator1Type.Value == OperatorType.Multiply)

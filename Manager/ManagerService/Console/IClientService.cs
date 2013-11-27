@@ -11,6 +11,7 @@ using System.Xml;
 
 namespace ManagerService.Console
 {
+    [ServiceKnownType("GetKnownTypes", typeof(KnownTypes))]
     [ServiceContract(CallbackContract = typeof(IClientProxy), SessionMode = SessionMode.Required)]
     public interface IClientService
     {
@@ -21,8 +22,11 @@ namespace ManagerService.Console
         void Logout();
 
         [OperationContract(IsInitiating = false)]
+        List<InitializeData> GetInitializeData();
+
+        [OperationContract(IsInitiating = false)]
         FunctionTree GetFunctionTree();
-        
+
         [OperationContract(IsInitiating = false)]
         void SaveLayout(string layout, string content,string layoutName);
 
@@ -34,7 +38,7 @@ namespace ManagerService.Console
         bool ChangePassword(string currentPassword, string newPassword);
 
         [OperationContract(IsInitiating = false)]
-        Dictionary<string, string> GetAccessPermissions();
+        Dictionary<string, Tuple<string, bool>> GetAccessPermissions();
 
         [OperationContract(IsInitiating = false)]
         List<UserData> GetUserData();
@@ -110,14 +114,23 @@ namespace ManagerService.Console
         [OperationContract(IsInitiating = false)]
         ConfigMetadata GetConfigMetadata();
 
+        //[OperationContract(IsInitiating = false)]
+        //int AddMetadataObject(MetadataType type, Dictionary<string, string> fields);
         [OperationContract(IsInitiating = false)]
-        int AddMetadataObject(MetadataType type, Dictionary<string, string> fields);
+        //[ServiceKnownType(typeof(QuotationSource))]
+        int AddMetadataObject(IMetadataObject metadataObject);
 
         [OperationContract(IsInitiating = false)]
-        bool UpdateMetadataObject(MetadataType type, int objectId, Dictionary<string, string> fields);
+        int[] AddMetadataObjects(IMetadataObject[] metadataObjects);
+
+        [OperationContract(IsInitiating = false)]
+        bool UpdateMetadataObject(MetadataType type, int objectId, Dictionary<string, object> fieldAndValues);
 
         [OperationContract(IsInitiating = false)]
         bool DeleteMetadataObject(MetadataType type, int objectId);
+
+        [OperationContract(IsInitiating = false)]
+        void SendQuotation(int instrumentSourceRelationId, double ask, double bid);
 
         #endregion
     }

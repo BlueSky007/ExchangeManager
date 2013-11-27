@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2010
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagerConsole", "ManagerConsole\ManagerConsole.csproj", "{F5C40A2B-77D4-4E07-BACF-CF123D2B890C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagerService", "ManagerService\ManagerService.csproj", "{40393775-FDC3-4433-A144-8D248F855E91}"
@@ -44,9 +46,6 @@ Global
 		SccProjectUniqueName6 = Manager.UnitTest\\Manager.UnitTest.csproj
 		SccProjectName6 = Manager.UnitTest
 		SccLocalPath6 = Manager.UnitTest
-	EndGlobalSection
-	GlobalSection(TestCaseManagementSettings) = postSolution
-		CategoryFile = Manager.vsmdi
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,16 +96,16 @@ Global
 		{FD64B9C0-DA18-46F7-8EF7-AFB6B66CE932}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{FD64B9C0-DA18-46F7-8EF7-AFB6B66CE932}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{FD64B9C0-DA18-46F7-8EF7-AFB6B66CE932}.Release|x86.ActiveCfg = Release|Any CPU
-		{C233E250-4A8A-43DA-9FE6-F92F51FDD404}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C233E250-4A8A-43DA-9FE6-F92F51FDD404}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C233E250-4A8A-43DA-9FE6-F92F51FDD404}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{C233E250-4A8A-43DA-9FE6-F92F51FDD404}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{C233E250-4A8A-43DA-9FE6-F92F51FDD404}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{C233E250-4A8A-43DA-9FE6-F92F51FDD404}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C233E250-4A8A-43DA-9FE6-F92F51FDD404}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C233E250-4A8A-43DA-9FE6-F92F51FDD404}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{C233E250-4A8A-43DA-9FE6-F92F51FDD404}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{C233E250-4A8A-43DA-9FE6-F92F51FDD404}.Release|x86.ActiveCfg = Release|Any CPU
+		{C233E250-4A8A-43DA-9FE6-F92F51FDD404}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{C233E250-4A8A-43DA-9FE6-F92F51FDD404}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{C233E250-4A8A-43DA-9FE6-F92F51FDD404}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{C233E250-4A8A-43DA-9FE6-F92F51FDD404}.Debug|x86.ActiveCfg = Debug|x86
+		{C233E250-4A8A-43DA-9FE6-F92F51FDD404}.Debug|x86.Build.0 = Debug|x86
+		{C233E250-4A8A-43DA-9FE6-F92F51FDD404}.Release|Any CPU.ActiveCfg = Release|x86
+		{C233E250-4A8A-43DA-9FE6-F92F51FDD404}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{C233E250-4A8A-43DA-9FE6-F92F51FDD404}.Release|Mixed Platforms.Build.0 = Release|x86
+		{C233E250-4A8A-43DA-9FE6-F92F51FDD404}.Release|x86.ActiveCfg = Release|x86
+		{C233E250-4A8A-43DA-9FE6-F92F51FDD404}.Release|x86.Build.0 = Release|x86
 		{BE40A354-B6E8-4B9B-B9EB-383D21FE3D17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BE40A354-B6E8-4B9B-B9EB-383D21FE3D17}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE40A354-B6E8-4B9B-B9EB-383D21FE3D17}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
@@ -120,5 +119,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = Manager.vsmdi
 	EndGlobalSection
 EndGlobal

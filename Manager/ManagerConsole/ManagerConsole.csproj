@@ -135,7 +135,7 @@
     <Compile Include="Helper\CommonDialogWin.cs" />
     <Compile Include="Helper\Enums.cs" />
     <Compile Include="Helper\LogEntityConvert.cs" />
-    <Compile Include="Helper\OrderPhaseManager.cs" />
+    <Compile Include="Helper\TranPhaseManager.cs" />
     <Compile Include="Helper\OrderTaskManager.cs" />
     <Compile Include="Helper\PropertyChangedNotifier.cs" />
     <Compile Include="Helper\Toolkit.cs" />
@@ -158,6 +158,15 @@
     <Compile Include="Model\MessageClient.cs" />
     <Compile Include="Model\Order.cs" />
     <Compile Include="Model\TestData.cs" />
+    <Compile Include="UI\ExecutedOrders.xaml.cs">
+      <DependentUpon>ExecutedOrders.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\InstrumentWindow.xaml.cs">
+      <DependentUpon>InstrumentWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\QuotationMonitorControl.xaml.cs">
+      <DependentUpon>QuotationMonitorControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\LMTProcess.xaml.cs">
       <DependentUpon>LMTProcess.xaml</DependentUpon>
     </Compile>
@@ -167,7 +176,9 @@
     <Compile Include="UI\QuotationSourceControl.xaml.cs">
       <DependentUpon>QuotationSourceControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModel\QuotationConfigData.cs" />
+    <Compile Include="ViewModel\VmPriceRangeCheckRule.cs" />
+    <Compile Include="ViewModel\VmQuotation.cs" />
+    <Compile Include="ViewModel\VmQuotationManager.cs" />
     <Compile Include="ViewModel\QuotationMessageProcessor.cs" />
     <Compile Include="Model\QuotePolicyDetail.cs" />
     <Compile Include="Model\QuotePriceClient.cs" />
@@ -203,11 +214,10 @@
     <Compile Include="SaveLayoutWindow.xaml.cs">
       <DependentUpon>SaveLayoutWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModel\QuotationSource.cs" />
-    <Compile Include="ViewModel\SourceQuotation.cs" />
-    <Compile Include="UI\SourceQuotationControl.xaml.cs">
-      <DependentUpon>SourceQuotationControl.xaml</DependentUpon>
-    </Compile>
+    <Compile Include="ViewModel\VmInstrument.cs" />
+    <Compile Include="ViewModel\VmInstrumentSourceRelation.cs" />
+    <Compile Include="ViewModel\VmQuotationSource.cs" />
+    <Compile Include="ViewModel\VmSourceQuotation.cs" />
     <Compile Include="UI\UserManagerControl.xaml.cs">
       <DependentUpon>UserManagerControl.xaml</DependentUpon>
     </Compile>
@@ -222,6 +232,7 @@
     <Compile Include="ViewModel\OrderTaskForInstrument.cs" />
     <Compile Include="ViewModel\QuotePriceForInstrument.cs" />
     <Compile Include="ViewModel\UserModel.cs" />
+    <Compile Include="ViewModel\VmWeightedPriceRule.cs" />
     <Resource Include="Asset\IG.xamDateTimeInput.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -233,6 +244,22 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Page Include="Asset\Colors.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Asset\Office2010Blue.xamGrid.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Asset\Styles.Shared.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Asset\Styles.WPF.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Asset\Theme.Colors.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -265,15 +292,23 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Theme.Colors.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="UI\DQOrderTaskControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\ExcuteOrderConfirm.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\ExecutedOrders.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\InstrumentWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\QuotationMonitorControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -310,10 +345,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="SaveLayoutWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI\SourceQuotationControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -398,12 +429,9 @@
     <Resource Include="Asset\Images\Print.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Asset\Images\add.png" />
     <Resource Include="Asset\Images\add_user.png" />
     <Resource Include="Asset\Images\back.png" />
     <Resource Include="Asset\Images\CancelOrder.png" />
-    <Resource Include="Asset\Images\delete.png" />
-    <Resource Include="Asset\Images\edit.png" />
     <Resource Include="Asset\Images\edit_user.png" />
     <Resource Include="Asset\Images\Execute.png" />
     <Resource Include="Asset\Images\forward.png" />
@@ -416,6 +444,14 @@
     <Resource Include="Asset\Images\add.png" />
     <Resource Include="Asset\Images\delete.png" />
     <Resource Include="Asset\Images\edit.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Asset\Images\Accept.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Asset\Images\Apply.png" />
+    <Resource Include="Asset\Images\Reject.png" />
+    <Resource Include="Asset\Images\Search.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

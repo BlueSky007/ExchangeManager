@@ -9,31 +9,40 @@
         <StackPanel Orientation="Vertical">
             <ToolBar>
                 <ToolBarPanel>
-                    <Button x:Name="Add" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Content="New" Click="Add_Click" />
+                    <Button x:Name="Add" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="Add_Click"  >
+                        <Image Source="../Asset/Images/add.png" ToolTipService.ToolTip="Add New" Width="20" Height="20"/>
+                    </Button>
                 </ToolBarPanel>
             </ToolBar>
-            <ig:XamGrid Name="DataGrid" AutoGenerateColumns="False" >
+            <ig:XamGrid Name="DataGrid" AutoGenerateColumns="False" IsAlternateRowsEnabled="True" >
+                <ig:XamGrid.CellStyle>
+                    <Style TargetType="ig:CellControl">
+                        <Setter Property="Padding" Value="0,0,0,0"/>
+                        <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                    </Style>
+                </ig:XamGrid.CellStyle>
                 <ig:XamGrid.Columns>
-                    <ig:TemplateColumn Key="Delete" HeaderText="Delete">
+                    <ig:TemplateColumn Key="Id" HeaderText="Action">
                         <ig:TemplateColumn.ItemTemplate>
                             <DataTemplate>
-                                <Button Content="Delete"></Button>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Tag="{Binding}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="Delete_Click">
+                                        <Image Source="../Asset/Images/delete.png" ToolTipService.ToolTip="Delete" Width="18" Height="18"/>
+                                    </Button>
+                                    <Button Tag="{Binding}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="Edit_Click">
+                                        <Image Source="../Asset/Images/edit.png" ToolTipService.ToolTip="Edit" Width="18" Height="18"/>
+                                    </Button>
+                                </StackPanel>
                             </DataTemplate>
                         </ig:TemplateColumn.ItemTemplate>
                     </ig:TemplateColumn>
                     <ig:TextColumn Key="Name" HeaderText="Name" />
                     <ig:TextColumn Key="AuthName" HeaderText="AuthName" />
-                    <ig:TemplateColumn Key="Password" HeaderText="Password">
-                        <ig:TemplateColumn.ItemTemplate>
-                            <DataTemplate>
-                                <PasswordBox Password="1212"></PasswordBox>
-                            </DataTemplate>
-                        </ig:TemplateColumn.ItemTemplate>
-                    </ig:TemplateColumn>
+                    <ig:TextColumn Key="Password" HeaderText="Password" />
                 </ig:XamGrid.Columns>
-                <ig:XamGrid.EditingSettings>
-                    <ig:EditingSettings AllowEditing="Row" />
-                </ig:XamGrid.EditingSettings>
+                <ig:XamGrid.SelectionSettings>
+                    <ig:SelectionSettings CellClickAction="SelectRow"/>
+                </ig:XamGrid.SelectionSettings>
             </ig:XamGrid>
         </StackPanel>
         <ig:XamDialogWindow x:Name="AddNewDialog" StartupPosition="Center"
@@ -52,16 +61,16 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="23" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 <Label>Name:</Label>
-                <TextBox x:Name="NameTextBox" Grid.Column="1" Margin="0,0,0,2" />
+                <TextBox x:Name="NameTextBox" Text="{Binding Name}" TextChanged="EditText_TextChanged" Grid.Column="1" Margin="0,0,0,2" />
                 <Label Grid.Row="1" >AuthName:</Label>
-                <TextBox x:Name="AuthNameTextBox" Grid.Row="1" Grid.Column="1" Margin="0,0,0,2" />
+                <TextBox x:Name="AuthNameTextBox" Text="{Binding AuthName}" TextChanged="EditText_TextChanged" Grid.Row="1" Grid.Column="1" Margin="0,0,0,2" />
                 <Label Grid.Row="2" >Password:</Label>
-                <TextBox x:Name="PasswordTextBox" Grid.Row="2" Grid.Column="1" Margin="0,0,0,2" />
+                <TextBox x:Name="PasswordTextBox" Text="{Binding Password}" TextChanged="EditText_TextChanged" Grid.Row="2" Grid.Column="1" Margin="0,0,0,2" />
+                <TextBlock x:Name="HintTextBlock" Grid.Row="3" Grid.ColumnSpan="2" TextWrapping="Wrap"/>
 
                 <Button x:Name="OKButton" Content="OK" Grid.Row="5" Width="80" Click="OKButton_Click"/>
                 <Button x:Name="CancelButton" Content="Cancel" Grid.Row="5" Grid.Column="1" Width="80" Click="CancelButton_Click" />

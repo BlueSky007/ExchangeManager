@@ -49,6 +49,7 @@ namespace ManagerConsole.ViewModel
         private DateTime? _BestTime;
         private int? _ContractSize;
         private ManagerCommon.OrderType _OrderType;
+        private string _OrderTypeString;
         private DateTime? _ExpireTime;
         private string _OpenPrice;
         private bool _IsExecutedStatus = false;
@@ -338,6 +339,12 @@ namespace ManagerConsole.ViewModel
             set { this._OrderType = value; this.OnPropertyChanged("OrderType"); }
         }
 
+        public string OrderTypeString
+        {
+            get { return this._OrderTypeString; }
+            set { this._OrderTypeString = value; }
+        }
+
         public DateTime? ExpireTime
         {
             get { return this._ExpireTime; }
@@ -445,6 +452,9 @@ namespace ManagerConsole.ViewModel
         public void SetCellDataDefine(OrderStatus orderStatus)
         {
             this._OrderStatuString = OrderStatusHelper.GetOrderStatusString(orderStatus);
+            this._DQCellDataDefine1.IsVisibility = Visibility.Collapsed;
+            this._DQCellDataDefine2.IsVisibility = Visibility.Collapsed;
+            this.DQCellDataDefine2.IsVisibility = Visibility.Collapsed;
             this._CellDataDefine1.IsVisibility = Visibility.Collapsed;
             this._CellDataDefine2.IsVisibility = Visibility.Collapsed;
             this._CellDataDefine3.IsVisibility = Visibility.Collapsed;
@@ -453,11 +463,11 @@ namespace ManagerConsole.ViewModel
             {
                 if (this.OrderType ==ManagerCommon.OrderType.SpotTrade)
                 {
-                    this._DQCellDataDefine1.ColumnWidth = 60;
+                    this._DQCellDataDefine1.ColumnWidth = 25;
                     this._DQCellDataDefine1.Action = HandleAction.OnOrderAccept;
                     this._DQCellDataDefine1.Caption = "Accept";
                     this._DQCellDataDefine1.IsVisibility = Visibility.Visible;
-                    this._DQCellDataDefine2.ColumnWidth = 60;
+                    this._DQCellDataDefine2.ColumnWidth = 25;
                     this._DQCellDataDefine2.Action = HandleAction.OnOrderReject;
                     this._DQCellDataDefine2.Caption = "Reject";
                     this._DQCellDataDefine2.IsVisibility = Visibility.Visible;
@@ -476,11 +486,11 @@ namespace ManagerConsole.ViewModel
                     this._CellDataDefine2.FontColor = new SolidColorBrush(Colors.Red);
                     this._CellDataDefine2.IsVisibility = Visibility.Visible;
 
-                    this._DQCellDataDefine1.ColumnWidth = 60;
+                    this._DQCellDataDefine1.ColumnWidth = 25;
                     this._DQCellDataDefine1.Action = HandleAction.OnOrderAcceptPlace;
                     this._DQCellDataDefine1.Caption = "Accept";
                     this._DQCellDataDefine1.IsVisibility = Visibility.Visible;
-                    this._DQCellDataDefine2.ColumnWidth = 60;
+                    this._DQCellDataDefine2.ColumnWidth = 25;
                     this._DQCellDataDefine2.Action = HandleAction.OnOrderRejectPlace;
                     this._DQCellDataDefine2.Caption = "Reject";
                     this._DQCellDataDefine2.FontColor = new SolidColorBrush(Colors.Red);
@@ -494,12 +504,12 @@ namespace ManagerConsole.ViewModel
             {
                 var btnAcceptIsEnable = (this.OrderStatus == OrderStatus.WaitAutoExecuteDQ) ? false : true;
                 var btnRejectIsEnable = (this.OrderStatus == OrderStatus.WaitAutoExecuteDQ) ? false : true;
-                this._DQCellDataDefine1.ColumnWidth = 60;
+                this._DQCellDataDefine1.ColumnWidth = 25;
                 this._DQCellDataDefine1.Action = HandleAction.OnOrderAccept;
                 this._DQCellDataDefine1.Caption = "Accept";
                 this._DQCellDataDefine1.IsEnable = btnAcceptIsEnable;
                 this._DQCellDataDefine1.IsVisibility = Visibility.Visible;
-                this._DQCellDataDefine2.ColumnWidth = 60;
+                this._DQCellDataDefine2.ColumnWidth = 25;
                 this._DQCellDataDefine2.Action = HandleAction.OnOrderReject;
                 this._DQCellDataDefine2.Caption = "Reject";
                 this._DQCellDataDefine2.IsVisibility = Visibility.Visible;
@@ -549,11 +559,17 @@ namespace ManagerConsole.ViewModel
                 }
                 else if (this.OrderType == ManagerCommon.OrderType.Limit)
                 {
-                    this._DQCellDataDefine1.ColumnWidth = 120;
-                    this._DQCellDataDefine1.Action = HandleAction.OnOrderCancel;
-                    this._DQCellDataDefine1.Caption = "Cancel";
-                    this._DQCellDataDefine1.IsEnable = true;
-                    this._DQCellDataDefine1.IsVisibility = Visibility.Visible;
+                    this._DQCellDataDefine2.ColumnWidth = 100;
+                    this._DQCellDataDefine2.Action = HandleAction.OnOrderCancel;
+                    this._DQCellDataDefine2.Caption = "Cancel";
+                    this._DQCellDataDefine2.IsEnable = true;
+                    this._DQCellDataDefine2.IsVisibility = Visibility.Visible;
+
+                    this._CellDataDefine2.ColumnWidth = 240;
+                    this._CellDataDefine2.Action = HandleAction.OnOrderCancel;
+                    this._CellDataDefine2.Caption = "Cancel";
+                    this._CellDataDefine2.IsEnable = true;
+                    this._CellDataDefine2.IsVisibility = Visibility.Visible;
                 }
                 else if (this.OrderType == ManagerCommon.OrderType.Market)
                 {
@@ -612,6 +628,7 @@ namespace ManagerConsole.ViewModel
             this._IsOPen = order.OpenClose;
             this._Lot = order.Lot;
             this._OrderType = order.Transaction.OrderType;
+            this._OrderTypeString = order.Type;
             this._SetPrice = order.SetPrice;
             this._SubmitDateTime = order.Transaction.SubmitTime;
             this._ExpireTime = order.Transaction.SubmitTime;

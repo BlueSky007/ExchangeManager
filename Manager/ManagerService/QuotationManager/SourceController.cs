@@ -80,28 +80,41 @@ namespace ManagerService.Quotation
 
     public class ActiveSource
     {
-        public int Id;
-        public TimeSpan TimeoutSpan;
-        public DateTime TimeoutTime;
-        public bool IsTimeout;
+        private int _Id;
+        private TimeSpan _TimeoutSpan;
+        private DateTime _TimeoutTime;
+        private bool _IsTimeout;
+
+        public ActiveSource(int id, TimeSpan timeoutSpan)
+        {
+            this._Id = id;
+            this._TimeoutSpan = timeoutSpan;
+            this._TimeoutTime = DateTime.Now.Add(this._TimeoutSpan).AddMinutes(10);  // 系统启动时，未收到价格前的TimeoutTime. 暂时多加10分钟。
+            this._IsTimeout = false;
+        }
+
+        public int Id { get { return this._Id; } }
+        public TimeSpan TimeoutSpan { get { return this._TimeoutSpan; } }
+        public DateTime TimeoutTime { get { return this._TimeoutTime; } }
+        public bool IsTimeout { get { return this._IsTimeout; } }
 
         public void QuotationArrived()
         {
-            this.IsTimeout = false;
-            this.TimeoutTime = DateTime.Now + this.TimeoutSpan;
+            this._IsTimeout = false;
+            this._TimeoutTime = DateTime.Now + this._TimeoutSpan;
         }
 
         public void ChangeSource(InstrumentSourceRelation relation)
         {
-            this.Id = relation.SourceId;
-            this.TimeoutSpan = TimeSpan.FromSeconds(relation.SwitchTimeout);
+            this._Id = relation.SourceId;
+            this._TimeoutSpan = TimeSpan.FromSeconds(relation.SwitchTimeout);
             this.QuotationArrived();
         }
 
         public void Timeout()
         {
-            this.IsTimeout = true;
-            this.TimeoutTime = DateTime.MaxValue;
+            this._IsTimeout = true;
+            this._TimeoutTime = DateTime.Now.AddDays(10);  // Add 10 days to avoid be selected by SourceController Timer.
         }
     }
 
@@ -127,15 +140,9 @@ namespace ManagerService.Quotation
             
             int activeSourceId = this._Sources.Values.Single(s => s.IsActive).SourceId;
             TimeSpan timeoutTimeSpan = TimeSpan.FromSeconds(this._Sources[activeSourceId].SwitchTimeout);
-            this._ActiveSource = new ActiveSource()
-            {
-                Id = activeSourceId,
-                TimeoutSpan = timeoutTimeSpan,
-                IsTimeout = false,
-                TimeoutTime = DateTime.MaxValue
-            };
+            this._ActiveSource = new ActiveSource(activeSourceId, timeoutTimeSpan);
 
-            this._Instrument = Manager.QuotationManager.ConfigMetadata.Instruments.Values.Single(i => i.Id == pair.Key);
+            this._Instrument = MainService.QuotationManager.ConfigMetadata.Instruments[pair.Key];
             this._AgioCalculator = new AgioCalculator(this._Instrument.AgioSeconds.Value, this._Instrument.LeastTicks.Value, pair.Value.Keys);
         }
 
@@ -182,10 +189,10 @@ namespace ManagerService.Quotation
 
             if (quotation.SourceId == this._ActiveSource.Id)
             {
-                // TODO: calculate price and adjust here.
+                // calculate price and adjust
                 if (this._Instrument.UseWeightedPrice)
                 {
-                    WeightedPriceRule rule = Manager.QuotationManager.ConfigMetadata.WeightedPriceRules[this._Instrument.Id];
+                    WeightedPriceRule rule = MainService.QuotationManager.ConfigMetadata.WeightedPriceRules[this._Instrument.Id];
                     quotation.Ask = (quotation.Ask * rule.AskAskWeight + quotation.Bid * rule.BidAskWeight + (quotation.Last.HasValue ? quotation.Last.Value * rule.AskLastWeight : 0) + (quotation.Ask + quotation.Bid) / 2 * rule.AskAvarageWeight + (double)rule.AskAdjust) * (double)rule.Multiplier;
                     quotation.Bid = (quotation.Ask * rule.BidAskWeight + quotation.Bid * rule.BidBidWeight + (quotation.Last.HasValue ? quotation.Last.Value * rule.BidLastWeight : 0) + (quotation.Ask + quotation.Bid) / 2 * rule.BidAvarageWeight + (double)rule.BidAdjust) * (double)rule.Multiplier;
                 }
@@ -235,18 +242,18 @@ namespace ManagerService.Quotation
 
         public void Start()
         {
-            /* Convert: [SourceId - (SourceSymbol - InstrumentSourceRelation)] To [InstrumentId - (SourceId - InstrumentSourceRelation)] */
+            /* Convert: From [SourceId - (SourceSymbol - InstrumentSourceRelation)] To [InstrumentId - (SourceId - InstrumentSourceRelation)] */
 
             // Map for: InstrumentId - (SourceId - InstrumentSourceRelation)
             Dictionary<int, Dictionary<int, InstrumentSourceRelation>> instrumentSourceRelations = new Dictionary<int, Dictionary<int, InstrumentSourceRelation>>();
 
-            foreach (Dictionary<string, InstrumentSourceRelation> symbolRelation in Manager.QuotationManager.ConfigMetadata.InstrumentSourceRelations.Values)
+            foreach (Dictionary<string, InstrumentSourceRelation> symbolRelation in MainService.QuotationManager.ConfigMetadata.InstrumentSourceRelations.Values)
             {
                 foreach (InstrumentSourceRelation relation in symbolRelation.Values)
                 {
                     // Map for SourceId - InstrumentSourceRelation
                     Dictionary<int, InstrumentSourceRelation> sourceIdRelation;
-                    if (!instrumentSourceRelations.TryGetValue(relation.SourceId, out sourceIdRelation))
+                    if (!instrumentSourceRelations.TryGetValue(relation.InstrumentId, out sourceIdRelation))
                     {
                         sourceIdRelation = new Dictionary<int, InstrumentSourceRelation>();
                         instrumentSourceRelations.Add(relation.InstrumentId, sourceIdRelation);
@@ -262,8 +269,11 @@ namespace ManagerService.Quotation
                 this._SourceInstruments.Add(pair.Key, new SourceInstrument(pair));
             }
 
-            TimeSpan minTimeSpan = this._SourceInstruments.Values.Select(s => s.ActiveSourceTimeoutSpan).Min();
-            this._Timer = new Timer(this.TimerCallback, null, minTimeSpan, SourceController.Infinite);
+            if (this._SourceInstruments.Count > 0)
+            {
+                TimeSpan minTimeSpan = this._SourceInstruments.Values.Select(s => s.ActiveSourceTimeoutSpan).Min();
+                this._Timer = new Timer(this.TimerCallback, null, minTimeSpan, SourceController.Infinite);
+            }
         }
 
         public bool QuotationArrived(SourceQuotation quotation)

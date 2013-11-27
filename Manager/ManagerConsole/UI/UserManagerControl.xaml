@@ -8,6 +8,11 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300" Loaded="UserControl_Loaded">
     <UserControl.Resources>
+        <Style x:Key="CellStylePadding" TargetType="ig:CellControl">
+            <Setter Property="Padding" Value="2,0,0,0"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+            <Setter Property="BorderBrush" Value="Gray"/>
+        </Style>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibility"/>
         <Style x:Key="MetroButton" TargetType="{x:Type Button}">
             <Setter Property="Background" Value="#EEEEEE"/>
@@ -84,7 +89,7 @@
                                                     <StackPanel Orientation="Horizontal" Background="{TemplateBinding Background}" HorizontalAlignment="Right">
                                                         <Button x:Name="PreviouspageButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" >
                                                             <Button.Content>
-                                                                <Image Source="../Asset/Images/TopToolBar/back.png" ToolTipService.ToolTip="Prev"/>
+                                                                <Image Source="../Asset/Images/back.png" ToolTipService.ToolTip="Prev"/>
                                                             </Button.Content>
                                                             <ig:Commanding.Command>
                                                                 <ig:XamGridPagingControlsCommandSource EventName="Click" CommandType="PreviousPage"  ></ig:XamGridPagingControlsCommandSource>
@@ -102,7 +107,7 @@
                                                         </ComboBox>
                                                         <Button x:Name="NextPageButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
                                                             <Button.Content>
-                                                                <Image Source="../Asset/Images/TopToolBar/forward.png" ToolTipService.ToolTip="Next"/>
+                                                                <Image Source="../Asset/Images/forward.png" ToolTipService.ToolTip="Next"/>
                                                             </Button.Content>
                                                             <ig:Commanding.Command>
                                                                 <ig:XamGridPagingControlsCommandSource EventName="Click" CommandType="NextPage"  ></ig:XamGridPagingControlsCommandSource>
@@ -123,7 +128,7 @@
     </UserControl.Resources>
     <Grid x:Name="UseManagerFrame">
         <Border Margin="0 0 5 0" BorderBrush="Black" Grid.Row="0">
-        <ig:XamGrid x:Name="UserManager" Loaded="UserControl_Loaded">
+            <ig:XamGrid x:Name="UserManager" Loaded="UserControl_Loaded" RowHeight="19" IsAlternateRowsEnabled="False" AutoGenerateColumns="False" CellStyle="{StaticResource CellStylePadding}">      
                     <ig:XamGrid.PagerSettings>
                     <ig:PagerSettings AllowPaging="Top" PageSize="30" DisplayPagerWhenOnlyOnePage="True">
                     </ig:PagerSettings>
@@ -140,19 +145,20 @@
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal">
                                     <Button x:Name="Edit" Tag="{Binding UserId}" Visibility="{Binding IsAllowEdit, Converter={StaticResource BooleanToVisibility}}"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"  Click="Button_Click">
                                         <Button.Content>
-                                            <Image Source="../Asset/Images/post.png" Width="20" Height="20" ToolTipService.ToolTip="Edit"/>
+                                            <Image Source="../Asset/Images/edit.png" Width="14" Height="14" ToolTipService.ToolTip="Edit"/>
                                         </Button.Content>
                                     </Button>
                                     <Button x:Name="Delete" Tag="{Binding UserId}" Visibility="{Binding IsAllowDelete, Converter={StaticResource BooleanToVisibility}}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"  Click="Button_Click">
                                         <Button.Content>
-                                            <Image Source="../Asset/Images/cancel.png" Width="20" Height="20" ToolTipService.ToolTip="Delete"/>
+                                            <Image Source="../Asset/Images/delete.png" Width="14" Height="14" ToolTipService.ToolTip="Delete"/>
                                         </Button.Content>
                                     </Button>
                                 </StackPanel>
                             </DataTemplate>
                         </ig:TemplateColumn.ItemTemplate>
                     </ig:TemplateColumn>
-                    <ig:TextColumn Key="UserName" Width="200"></ig:TextColumn>
+                    <ig:TextColumn Key="UserName" Width="200">
+                    </ig:TextColumn>
                     <ig:TemplateColumn Key="Password" Width="AUTO">
                         <ig:TemplateColumn.ItemTemplate>
                             <DataTemplate>

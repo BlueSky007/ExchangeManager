@@ -257,5 +257,83 @@ namespace WCFServiceTest
             ManagerClient.AddCommand(hitCommand);
             HitIndex++;
         }
+
+        //成交单Command
+        int ExecuteIndex = 0;
+        private void ExecutedCommandBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (ExecuteIndex > 7) return;
+            string xmlPath = string.Empty;
+            ComboBoxItem item = (ComboBoxItem)this.OrderTypeComboBox.SelectedItem;
+            string seletName = item.Content.ToString();
+            switch (seletName)
+            {
+                case "DQ":
+                    xmlPath = this.GetCommandXmlPath("AutoExecute_DQ");
+                    break;
+                case "LMT":
+                    xmlPath = this.GetCommandXmlPath("AutoExecute_DQ");
+                    break;
+            }
+            XmlDocument doc = new XmlDocument();
+            doc.Load(xmlPath);
+            XmlNode xmlTran = doc.ChildNodes[1].ChildNodes[ExecuteIndex];
+            XmlNode xmlAccount = doc.ChildNodes[1].ChildNodes[1];
+
+            ExecuteCommand executeCommand;
+            executeCommand = new ExecuteCommand(ExecuteIndex);
+            executeCommand.InstrumentID = XmlConvert.ToGuid(xmlTran.Attributes["InstrumentID"].Value);
+            executeCommand.AccountID = XmlConvert.ToGuid(xmlTran.Attributes["AccountID"].Value);
+
+            XmlDocument xmlDoc = new XmlDocument();
+            XmlNode content = xmlDoc.CreateElement("Execute");
+            xmlDoc.AppendChild(content);
+            executeCommand.Content = content;
+
+            content.AppendChild(xmlDoc.ImportNode(xmlTran, true));
+            content.AppendChild(xmlDoc.ImportNode(xmlAccount, true));
+
+            ManagerClient.AddCommand(executeCommand);
+            ExecuteIndex++;
+        }
+
+        //RiskMonitor删除单通知
+        int DeletedIndex = 0;
+        private void DeletedCommandBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (DeletedIndex > 7) return;
+            string xmlPath = string.Empty;
+            ComboBoxItem item = (ComboBoxItem)this.DeleteOrderTypeCmb.SelectedItem;
+            string seletName = item.Content.ToString();
+            switch (seletName)
+            {
+                case "Open":
+                    xmlPath = this.GetCommandXmlPath("Deleted_Open");
+                    break;
+                case "Close":
+                    xmlPath = this.GetCommandXmlPath("Deleted_Close");
+                    break;
+            }
+            XmlDocument doc = new XmlDocument();
+            doc.Load(xmlPath);
+            XmlNode orderxml = doc.ChildNodes[1].ChildNodes[0];
+            XmlNode xmlAccount = doc.ChildNodes[1].ChildNodes[1];
+
+            DeleteCommand deletedCommand;
+            deletedCommand = new DeleteCommand(DeletedIndex);
+            deletedCommand.InstrumentID = XmlConvert.ToGuid(orderxml.Attributes["InstrumentID"].Value);
+            deletedCommand.AccountID = XmlConvert.ToGuid(orderxml.Attributes["AccountID"].Value);
+
+            XmlDocument xmlDoc = new XmlDocument();
+            XmlNode content = xmlDoc.CreateElement("Delete");
+            xmlDoc.AppendChild(content);
+            deletedCommand.Content = content;
+
+            content.AppendChild(xmlDoc.ImportNode(orderxml, true));
+            content.AppendChild(xmlDoc.ImportNode(xmlAccount, true));
+
+            ManagerClient.AddCommand(deletedCommand);
+            DeletedIndex++;
+        }
     }
 }

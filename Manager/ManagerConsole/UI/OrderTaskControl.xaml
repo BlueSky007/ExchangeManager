@@ -7,10 +7,6 @@
              mc:Ignorable="d" 
               d:DesignHeight="500" d:DesignWidth="1000">
     <UserControl.Resources>
-        <Style x:Key="CellStyle" TargetType="igGrid:CellControl">
-            <Setter Property="BorderBrush" Value="#FFDEDEDE" />
-            <Setter Property="BorderThickness" Value="1,1,1,1" />
-        </Style>
         <Style x:Key="InActiveCellStyle" TargetType="igGrid:CellControl">
             <Setter Property="BorderBrush" Value="#FFDEDEDE" />
             <Setter Property="BorderThickness" Value="1,1,1,1" />
@@ -32,6 +28,12 @@
             <Setter Property="Opacity" Value="0.6"/>
         </Style>
 
+        <Style x:Key="CellStyle" TargetType="igGrid:CellControl">
+            <Setter Property="Padding" Value="0,0,0,0"/>
+            <!--<Setter Property="BorderThickness" Value="0,0,1,1"/>-->
+            <Setter Property="BorderBrush" Value="#FFDEDEDE" />
+            <Setter Property="BorderThickness" Value="1,1,1,1" />
+        </Style>
     </UserControl.Resources>
     <Grid x:Name="LayRootGrid">
         <Grid.RowDefinitions>
@@ -104,7 +106,7 @@
             </StackPanel>
         </Border>
         <Border Margin="0 3 0 0" BorderBrush="Black" Grid.Row="1">
-            <igGrid:XamGrid Margin="0" x:Name="_OrderTaskGrid" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto"  Foreground="{Binding IsBuyBrush}"  ><!--CellControlAttached="OrderTaskGrid_CellControlAttached"-->
+            <igGrid:XamGrid Margin="0" x:Name="_OrderTaskGrid" RowHeight="25" CellStyle="{StaticResource CellStyle}" AutoGenerateColumns="False" IsAlternateRowsEnabled="True"><!--CellControlAttached="OrderTaskGrid_CellControlAttached"-->
                 <igGrid:XamGrid.EditingSettings>
                     <igGrid:EditingSettings IsEnterKeyEditingEnabled="True" IsF2EditingEnabled="True"/>
                 </igGrid:XamGrid.EditingSettings>
@@ -127,21 +129,25 @@
 
                 <!--Column Setting-->
                 <igGrid:XamGrid.Columns>
-                    <igGrid:TemplateColumn Key="DQHandle" IsFixed="Left" HeaderText="DQ Action" IsFilterable="False" IsMovable="False" IsHideable="False">
+                    <igGrid:TemplateColumn Key="DQHandle" Width="53" IsFixed="Left" HeaderText="Action" IsFilterable="False" IsMovable="False" IsHideable="False">
                         <igGrid:TemplateColumn.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal" Width="122" Margin="-6">
-                                    <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" BorderBrush="Black" x:Name="DQAcceptBtn" Margin="0" Background="#FF92D3F4" Width="{Binding DQCellDataDefine1.ColumnWidth}"   Content="{Binding DQCellDataDefine1.Caption}"  Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine1.IsVisibility}" IsEnabled="{Binding DQCellDataDefine1.IsEnable}"/>
-                                    <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Margin="1,0,0,0" BorderBrush="Black" x:Name="DQRejectBtn"  Background="#FF92D3F4" Width="{Binding DQCellDataDefine2.ColumnWidth}"   Content="{Binding DQCellDataDefine2.Caption}" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine2.IsVisibility}" IsEnabled="{Binding DQCellDataDefine2.IsEnable}" Foreground="{Binding DQCellDataDefine2.FontColor}"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="DQAcceptBtn" Margin="0" Width="25" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine1.IsVisibility}" IsEnabled="{Binding DQCellDataDefine1.IsEnable}">
+                                        <Image Source="../Asset/Images/Accept.png" ToolTipService.ToolTip="{Binding DQCellDataDefine1.Caption}"  Width="18" Height="18"/>
+                                    </Button>
+                                    <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Margin="1,0,0,0" x:Name="DQRejectBtn" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine2.IsVisibility}" IsEnabled="{Binding DQCellDataDefine2.IsEnable}" Foreground="{Binding DQCellDataDefine2.FontColor}">
+                                        <Image Source="../Asset/Images/Reject.png" Visibility="{Binding DQCellDataDefine2.IsVisibility}" ToolTipService.ToolTip="{Binding DQCellDataDefine2.Caption}"  Width="18" Height="18"/>
+                                    </Button>
                                 </StackPanel>
                             </DataTemplate>
                         </igGrid:TemplateColumn.ItemTemplate>
                     </igGrid:TemplateColumn>
 
-                    <igGrid:TemplateColumn Key="LMTHandle" IsFixed="Left" HeaderText="Action" IsFilterable="False" IsMovable="False" IsHideable="False">
+                    <igGrid:TemplateColumn Key="LMTHandle" IsFixed="Left" HeaderText="Action" IsFilterable="False" IsMovable="False" IsHideable="True">
                         <igGrid:TemplateColumn.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal" Width="240" Margin="-5">
+                                <StackPanel Orientation="Horizontal" Width="240">
                                     <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" BorderBrush="Black" x:Name="UpdateBtn" Margin="0"  Width="{Binding CellDataDefine1.ColumnWidth}" Background="#FF92D3F4"  Content="{Binding CellDataDefine1.Caption}"  Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine1.IsVisibility}" IsEnabled="{Binding CellDataDefine1.IsEnable}"/>
                                     <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" BorderBrush="Black" x:Name="ModiFyBtn" Margin="0"  Width="{Binding CellDataDefine2.ColumnWidth}" Background="#FF92D3F4"  Content="{Binding CellDataDefine2.Caption}" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine2.IsVisibility}" IsEnabled="{Binding CellDataDefine1.IsEnable}" />
                                     <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" BorderBrush="Black" x:Name="CancelBtn" Margin="0" Background="#FF92D3F4" Width="{Binding CellDataDefine3.ColumnWidth}"   Content="{Binding CellDataDefine3.Caption}"  Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine3.IsVisibility}"/>
@@ -175,7 +181,7 @@
                     </igGrid:TemplateColumn>
                     <igGrid:TextColumn Key="Lot" Width="60" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Lot" IsFilterable="False"/>
                     <igGrid:TemplateColumn Key="QuotePolicyCode" HorizontalContentAlignment="Center" HeaderText="Quote Policy" IsReadOnly="True" IsFilterable="False"/>
-                    <igGrid:TextColumn Key="OrderType" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True"  HeaderText="Type" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="OrderTypeString" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True"  HeaderText="Type" IsFilterable="False"/>
                     <igGrid:TextColumn Key="SetPrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Set Price" IsFilterable="False"/>
                     <igGrid:TextColumn Key="BestPrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Best Price" IsFilterable="False"/>
                     <igGrid:TextColumn Key="ReferencePrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Ref. Price"  IsFilterable="False"/>

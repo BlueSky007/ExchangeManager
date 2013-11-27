@@ -9,6 +9,7 @@ using Manager.Common;
 using Manager.Common.QuotationEntities;
 using CommonTransactionError = Manager.Common.TransactionError;
 using CommonCancelReason = Manager.Common.CancelReason;
+using ManagerService.QuotationExchange;
 
 namespace ManagerService.Exchange
 {
@@ -17,7 +18,7 @@ namespace ManagerService.Exchange
         private string _SessionId;
         private IStateServer _StateServer;
         private ExchangeSystemSetting _ExchangeSystemSetting;
-
+        private QuotationServer _QuotationServer;
         private RelayEngine<Command> _CommandRelayEngine;
 
         private ConnectionState _ConnectionState = ConnectionState.Unknown;
@@ -26,6 +27,7 @@ namespace ManagerService.Exchange
         {
             this._ExchangeSystemSetting = exchangeSystemSetting;
             this._CommandRelayEngine = new RelayEngine<Command>(this.Dispatch, this.HandlEngineException);
+            this._QuotationServer = new QuotationServer(exchangeSystemSetting);
         }
 
         public string ExchangeCode { get { return this._ExchangeSystemSetting.Code; } }
@@ -56,26 +58,41 @@ namespace ManagerService.Exchange
         public void SetQuotation(List<GeneralQuotation> quotations)
         {
             // TODO: Override Quotation here.
+            bool isSucceed = false;
+            iExchange.Common.OriginQuotation[] originQs = null;
+            iExchange.Common.OverridedQuotation[] overridedQs = null;
+            Token token = new Token(Guid.Empty, UserType.System, AppType.QuotationCollector);
+            try
+            {
+                isSucceed = this._QuotationServer.SetQuotation(token, quotations, out originQs, out overridedQs);
+            }
+            catch (Exception e)
+            {
+                AppDebug.LogEvent("StateServer", e.ToString(), EventLogEntryType.Error);
+            }
             return;
         }
 
         public void SwitchPriceState(string instrumentCode, bool enable)
         {
             // Enable/Disable Instrument price state
-            List<Tuple<Guid, bool?, bool?>> updatedStates = new List<Tuple<Guid, bool?, bool?>>();
-            List<Tuple<Guid, bool, bool>> states = DataAccess.ExchangeData.GetInstrumentPriceEnableStates(this.ExchangeCode, instrumentCode);
-            foreach (var state in states)
+            if(this._ConnectionState == Manager.Common.ConnectionState.Connected)
             {
-                if (state.Item2 != enable || state.Item3 != enable)
+                List<Tuple<Guid, bool?, bool?>> updatedStates = new List<Tuple<Guid, bool?, bool?>>();
+                List<Tuple<Guid, bool, bool>> states = DataAccess.ExchangeData.GetInstrumentPriceEnableStates(this.ExchangeCode, instrumentCode);
+                foreach (var state in states)
                 {
-                    updatedStates.Add(new Tuple<Guid, bool?, bool?>(state.Item1, state.Item2 == enable ? null : (bool?)enable, state.Item3 == enable ? null : (bool?)enable));
+                    if (state.Item2 != enable || state.Item3 != enable)
+                    {
+                        updatedStates.Add(new Tuple<Guid, bool?, bool?>(state.Item1, state.Item2 == enable ? null : (bool?)enable, state.Item3 == enable ? null : (bool?)enable));
+                    }
                 }
-            }
-            if (updatedStates.Count > 0)
-            {
-                if (this._StateServer.SwitchPriceState(updatedStates))
+                if (updatedStates.Count > 0)
                 {
-                    // TODO: Write Audit Log here.
+                    if (this._StateServer.SwitchPriceState(updatedStates))
+                    {
+                        // TODO: Write Audit Log here.
+                    }
                 }
             }
         }
@@ -85,7 +102,7 @@ namespace ManagerService.Exchange
             try
             {
                 Message message = CommandConvertor.Convert(this.ExchangeCode, command);
-                Manager.ClientManager.Dispatch(message);
+                MainService.ClientManager.Dispatch(message);
                 return true;
             }
             catch (Exception ex)

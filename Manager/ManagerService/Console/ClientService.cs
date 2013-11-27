@@ -15,6 +15,7 @@ namespace ManagerService.Console
     {
         private Client _Client;
 
+        private List<DataPermission> _DataPermissions;
         #region MainWindowFunction
         
         public LoginResult Login(string userName, string password, string oldSessionId, Language language)
@@ -26,40 +27,41 @@ namespace ManagerService.Console
                 User user = UserDataAccess.Login(userName, password,out dataPermissions);
                 if (user.UserId != Guid.Empty)
                 {
-                    Dictionary<string, List<Guid>> accountPermissions = new Dictionary<string, List<Guid>>();
-                    Dictionary<string, List<Guid>> instrumentPermissions = new Dictionary<string, List<Guid>>();
-                    foreach (ExchangeSystemSetting item in Manager.ManagerSettings.ExchangeSystems)
-                    {
-                        List<Guid> accountMemberIds = new List<Guid>();
-                        List<Guid> instrumentMemberIds = new List<Guid>();
-                        bool accountDeafultStatus;
-                        bool instrumentDeafultStatus;
+                    //Dictionary<string, List<Guid>> accountPermissions = new Dictionary<string, List<Guid>>();
+                    //Dictionary<string, List<Guid>> instrumentPermissions = new Dictionary<string, List<Guid>>();
+                    //foreach (ExchangeSystemSetting item in Manager.ManagerSettings.ExchangeSystems)
+                    //{
+                    //    List<Guid> accountMemberIds = new List<Guid>();
+                    //    List<Guid> instrumentMemberIds = new List<Guid>();
+                    //    bool accountDeafultStatus;
+                    //    bool instrumentDeafultStatus;
                         
-                        List<DataPermission> systemPermissions = dataPermissions.FindAll(delegate(DataPermission data)
-                        {
-                            return data.ExchangeSystemCode == item.Code;
-                        });
-                        UserDataAccess.GetGroupDeafultStatus(item.Code, systemPermissions, out accountDeafultStatus, out instrumentDeafultStatus);
-                        if (user.IsInRole(1))
-                        {
-                            accountDeafultStatus = true;
-                            instrumentDeafultStatus = true;
-                            systemPermissions.Clear();
-                        }
-                        InitializeData initializeData = ExchangeData.GetInitData(item.Code, user.UserId, systemPermissions, accountDeafultStatus, instrumentDeafultStatus);
-                        initializeData.SettingParameters.Add(item.Code, ExchangeData.GetSettingParameters(item));
+                    //    List<DataPermission> systemPermissions = dataPermissions.FindAll(delegate(DataPermission data)
+                    //    {
+                    //        return data.ExchangeSystemCode == item.Code;
+                    //    });
+                    //    UserDataAccess.GetGroupDeafultStatus(item.Code, systemPermissions, out accountDeafultStatus, out instrumentDeafultStatus);
+                    //    if (user.IsInRole(1))
+                    //    {
+                    //        accountDeafultStatus = true;
+                    //        instrumentDeafultStatus = true;
+                    //        systemPermissions.Clear();
+                    //    }
+                    //    InitializeData initializeData = ExchangeData.GetInitData(item.Code, user.UserId, systemPermissions, accountDeafultStatus, instrumentDeafultStatus);
+                    //    initializeData.SettingParameters.Add(item.Code, ExchangeData.GetSettingParameters(item));
 
-                        initializeData.ValidAccounts.TryGetValue(item.Code, out accountMemberIds);
-                        initializeData.ValidInstruments.TryGetValue(item.Code, out instrumentMemberIds);
+                    //    initializeData.ValidAccounts.TryGetValue(item.Code, out accountMemberIds);
+                    //    initializeData.ValidInstruments.TryGetValue(item.Code, out instrumentMemberIds);
 
-                        accountPermissions.Add(item.Code, accountMemberIds);
-                        instrumentPermissions.Add(item.Code, instrumentMemberIds);
+                    //    accountPermissions.Add(item.Code, accountMemberIds);
+                    //    instrumentPermissions.Add(item.Code, instrumentMemberIds);
 
-                        loginResult.InitializeDatas.Add(initializeData);
-                    }
+                    //    loginResult.InitializeDatas.Add(initializeData);
+                    //}
+                    this._DataPermissions = dataPermissions;
                     string sessionId = OperationContext.Current.SessionId;
                     IClientProxy clientProxy = OperationContext.Current.GetCallbackChannel<IClientProxy>();
-                    this._Client = Manager.ClientManager.AddClient(oldSessionId, sessionId, user, clientProxy, language,accountPermissions,instrumentPermissions);
+                    this._Client = MainService.ClientManager.AddClient(oldSessionId, sessionId, user, clientProxy, language);
 
                     OperationContext.Current.Channel.Faulted += this._Client.Channel_Broken;
                     OperationContext.Current.Channel.Closed += this._Client.Channel_Broken;
@@ -81,6 +83,52 @@ namespace ManagerService.Console
                 Logger.TraceEvent(TraceEventType.Error, "userName:{0}, login failed:\r\n{1}", userName, ex.ToString());
             }
             return loginResult;
+        }
+
+        public List<InitializeData> GetInitializeData()
+        {
+            List<InitializeData> initializeDatas = new List<InitializeData>();
+            try
+            {
+                    Dictionary<string, List<Guid>> accountPermissions = new Dictionary<string, List<Guid>>();
+                    Dictionary<string, List<Guid>> instrumentPermissions = new Dictionary<string, List<Guid>>();
+                    foreach (ExchangeSystemSetting item in MainService.ManagerSettings.ExchangeSystems)
+                    {
+                        List<Guid> accountMemberIds = new List<Guid>();
+                        List<Guid> instrumentMemberIds = new List<Guid>();
+                        bool accountDeafultStatus;
+                        bool instrumentDeafultStatus;
+                        
+                    List<DataPermission> systemPermissions = this._DataPermissions.FindAll(delegate(DataPermission data)
+                        {
+                            return data.ExchangeSystemCode == item.Code;
+                        });
+                        UserDataAccess.GetGroupDeafultStatus(item.Code, systemPermissions, out accountDeafultStatus, out instrumentDeafultStatus);
+                    if (this._Client.user.IsInRole(1))
+                        {
+                            accountDeafultStatus = true;
+                            instrumentDeafultStatus = true;
+                            systemPermissions.Clear();
+                        }
+                    InitializeData initializeData = ExchangeData.GetInitData(item.Code, this._Client.user.UserId, systemPermissions, accountDeafultStatus, instrumentDeafultStatus);
+                        initializeData.SettingParameters.Add(item.Code, ExchangeData.GetSettingParameters(item));
+
+                        initializeData.ValidAccounts.TryGetValue(item.Code, out accountMemberIds);
+                        initializeData.ValidInstruments.TryGetValue(item.Code, out instrumentMemberIds);
+
+                        accountPermissions.Add(item.Code, accountMemberIds);
+                        instrumentPermissions.Add(item.Code, instrumentMemberIds);
+
+                    initializeDatas.Add(initializeData);
+
+                }
+                this._Client.UpdatePermission(accountPermissions, instrumentPermissions);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "GetInitializeData Error:\r\n{0}", ex.ToString());
+            }
+            return initializeDatas;
         }
 
         public void Logout()
@@ -115,7 +163,7 @@ namespace ManagerService.Console
             return this._Client.ChangePassword(currentPassword, newPassword);
         }
 
-        public Dictionary<string,string> GetAccessPermissions()
+        public Dictionary<string, Tuple<string, bool>> GetAccessPermissions()
         {
             return this._Client.GetAccessPermissions();
         }
@@ -248,38 +296,52 @@ namespace ManagerService.Console
         {
             return this._Client.GetConfigMetadata();
         }
-
+        
 
         public List<LogQuote> GetQuoteLogData(DateTime fromDate, DateTime toDate)
         {
             throw new NotImplementedException();
         }
 
-        public int AddMetadataObject(MetadataType type, Dictionary<string, string> fields)
+        public int AddMetadataObject(IMetadataObject metadataObject)
         {
             try
             {
-                return this._Client.AddMetadataObject(type, fields);
+                return this._Client.AddMetadataObject(metadataObject);
             }
             catch (Exception ex)
             {
-                Logger.AddEvent(TraceEventType.Error,
-                    "[ManagerService.AddMetadataObject]type:{0}, fields:\r\n{1}{2}", type, Helper.DumpDictionary(fields), ex.ToString());
+                Logger.AddEvent(TraceEventType.Error, "[ManagerService.AddMetadataObject]{0}\r\n{1}", metadataObject, ex.ToString());
             }
             return 0;
         }
 
-        public bool UpdateMetadataObject(MetadataType type, int objectId, Dictionary<string, string> fields)
+        public int[] AddMetadataObjects(IMetadataObject[] metadataObjects)
         {
             try
             {
-                this._Client.UpdateMetadataObject(type, objectId, fields);
+                return this._Client.AddMetadataObjects(metadataObjects);
+            }
+            catch (Exception ex)
+            {
+                string objects = string.Empty;
+                for (int i = 0; i < metadataObjects.Length; i++) objects += "[" + metadataObjects[i].ToString() + "]";
+                Logger.AddEvent(TraceEventType.Error, "[ManagerService.AddMetadataObjects]{0}\r\n{1}", objects, ex.ToString());
+            }
+            return null;
+        }
+
+        public bool UpdateMetadataObject(MetadataType type, int objectId, Dictionary<string, object> fieldAndValues)
+        {
+            try
+            {
+                this._Client.UpdateMetadataObject(type, objectId, fieldAndValues);
                 return true;
             }
             catch (Exception ex)
             {
                 Logger.AddEvent(TraceEventType.Error,
-                    "[ManagerService.UpdateMetadataObject]type:{0}, objectId:{1}\r\nfields:\r\n{2}{3}", type, objectId, Helper.DumpDictionary(fields), ex.ToString());
+                    "[ManagerService.UpdateMetadataObject]type:{0}, objectId:{1}\r\nfields:\r\n{2}{3}", type, objectId, ServiceHelper.DumpDictionary(fieldAndValues), ex.ToString());
             }
             return false;
         }
@@ -297,6 +359,20 @@ namespace ManagerService.Console
                     "[ManagerService.DeleteMetadataObject]type:{0}, objectId:{1}\r\n{2}", type, objectId, ex.ToString());
             }
             return false;
+        }
+
+
+        public void SendQuotation(int instrumentSourceRelationId, double ask, double bid)
+        {
+            try
+            {
+                this._Client.SendQuotation(instrumentSourceRelationId, ask, bid);
+            }
+            catch (Exception ex)
+            {
+                Logger.AddEvent(TraceEventType.Error,
+                    "[ManagerService.SendQuotation]instrumentSourceRelationId:{0}, ask:{1}, bid:{2}\r\n{3}", instrumentSourceRelationId, ask, bid, ex.ToString());
+            }
         }
     }
 }

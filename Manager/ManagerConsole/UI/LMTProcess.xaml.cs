@@ -151,10 +151,10 @@ namespace ManagerConsole.UI
         #region Grid Event
         private void OrderTaskGrid_InitializeRow(object sender, Infragistics.Controls.Grids.InitializeRowEventArgs e)
         {
-            Color bgColor = Colors.Transparent;
-            Style style = new Style(typeof(Infragistics.Controls.Grids.CellControl));
-            style.Setters.Add(new Setter(BackgroundProperty, new SolidColorBrush(bgColor)));
-            e.Row.CellStyle = style;
+            //Color bgColor = Colors.Transparent;
+            //Style style = new Style(typeof(Infragistics.Controls.Grids.CellControl));
+            //style.Setters.Add(new Setter(BackgroundProperty, new SolidColorBrush(bgColor)));
+            //e.Row.CellStyle = style;
         }
         #endregion
 

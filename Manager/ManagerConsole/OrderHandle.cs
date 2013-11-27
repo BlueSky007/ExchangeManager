@@ -33,6 +33,7 @@ namespace ManagerConsole
         private ConfirmOrderDialogWin ConfirmOrderDialogWin;
         private ManagerConsole.MainWindow _App;
         private Transaction _RejectTran;
+        private TranPhaseManager _TranPhaseManager;
 
         public OrderHandle()
         {
@@ -43,6 +44,13 @@ namespace ManagerConsole
             this.ConfirmOrderDialogWin.OnConfirmDialogResult += new ConfirmOrderDialogWin.ConfirmDialogResultHandle(ExecuteOrderHandle);
             this.ConfirmOrderDialogWin.OnModifyPriceDialogResult += new ConfirmOrderDialogWin.ConfirmModifyPriceResultHandle(ModifyPriceHandle);
             this.ConfirmOrderDialogWin.OnRejectOrderDialogResult += new ConfirmOrderDialogWin.RejectOrderResultHandle(RejectOrderHandle);
+            this._TranPhaseManager = this._App.InitDataManager.TranPhaseManager;
+        }
+
+        public TranPhaseManager TranPhaseManager
+        {
+            get { return this._TranPhaseManager; }
+            set { this._TranPhaseManager = value; }
         }
 
         #region Order Action
@@ -490,7 +498,7 @@ namespace ManagerConsole
                 if (transactionError == TransactionError.OK)
                 {
                     tran.Phase = Manager.Common.Phase.Placed;
-                    TranPhaseManager.SetOrderStatus(tran,true);
+                    TranPhaseManager.UpdateTransaction(tran);
                 }
             });
         }
@@ -548,6 +556,8 @@ namespace ManagerConsole
                         }
                     }
                     this.RemoveTransaction(tran);
+
+                    this.TranPhaseManager.UpdateTransaction(tran);
                 }
             });
         }

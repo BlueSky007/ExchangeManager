@@ -8,6 +8,7 @@
                 <ResourceDictionary Source="Asset/Colors.xaml"/>
                 <ResourceDictionary Source="Asset/IG.xamDateTimeInput.xaml"/>
                 <ResourceDictionary Source="Asset/Styles.xaml"/>
+                <ResourceDictionary Source="Asset/Office2010Blue.xamGrid.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
 

@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Quotation = Manager.Common.Settings.Quotation;
 using Price = Manager.Common.Price;
+using CommonInstrument = Manager.Common.Settings.Instrument;
 
 namespace ManagerConsole.Model
 {
@@ -13,10 +14,18 @@ namespace ManagerConsole.Model
     {
         public delegate void PriceChangedHandler(string priceType, string price);
         public event PriceChangedHandler OnPriceChangedHandler;
+
+        public InstrumentClient() { }
+        public InstrumentClient(CommonInstrument instrument)
+        {
+            this.Update(instrument);
+        }
+
         #region Private Property
         private string _Origin;
         private string _LastOrigin;
         private string _OriginCode = string.Empty;
+        private bool _IsActive;
         private string _Bid;
         private string _Ask;
         private int _AlertPoint;
@@ -30,7 +39,11 @@ namespace ManagerConsole.Model
         private int _PenetrationPoint;
         private int _DailyMaxMove;
         private string _PreviousClosePrice;
+        private decimal _BuyLot;
+        private decimal _SellLot;
         #endregion
+
+        #region Public Property
         public Guid Id
         {
             get;
@@ -82,6 +95,17 @@ namespace ManagerConsole.Model
 
             }
         }
+        public bool IsActive
+        {
+            get { return this._IsActive; }
+            set
+            {
+                this._IsActive = value;
+                this.OnPropertyChanged("IsActive");
+
+            }
+        }
+
         public string Bid
         {
             get { return this._Bid; }
@@ -228,7 +252,41 @@ namespace ManagerConsole.Model
             set { this._PreviousClosePrice = value; }
         }
 
+        public decimal BuyLot
+        {
+            get { return this._BuyLot; }
+            set
+            {
+                this._BuyLot = value; this.OnPropertyChanged("BuyLot");
+            }
+        }
+        public decimal SellLot 
+        {
+            get { return this._SellLot; }
+            set
+            {
+                this._SellLot = value; this.OnPropertyChanged("SellLot");
+            }
+        }
 
+        public decimal LastLot
+        {
+            get;
+            set;
+        }
+
+        public string LastSales
+        {
+            get;
+            set;
+        }
+        #endregion
+
+        internal void Update(CommonInstrument instrument)
+        {
+            if (instrument.AcceptDQVariation != null) this.AcceptDQVariation = instrument.AcceptDQVariation.Value;
+            this.Id = instrument.Id;
+        }
 
         //
         public bool CheckVariation(decimal variation)

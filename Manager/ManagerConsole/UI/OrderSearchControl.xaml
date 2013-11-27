@@ -9,18 +9,6 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="800">
     <Grid>
-        <Grid.Resources>
-            <Style TargetType="CalendarDayButton" x:Key="CalendarDayBtnStyle">
-                <Setter Property="Background">
-                    <Setter.Value>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="White" Offset="0"/>
-                            <GradientStop Color="Green" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="65"/>
             <RowDefinition Height="500*"/>
@@ -40,7 +28,7 @@
 
                     <Button x:Name="_QueryButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"  Click="ToolBar_Click" Width="25" Height="25" Margin="2" >
                         <Button.Content>
-                            <Image Source="../Asset/Images/Query.png" ToolTipService.ToolTip="Query Log"  Margin="1"/>
+                            <Image Source="../Asset/Images/Search.png" ToolTipService.ToolTip="Query Log"  Margin="1"/>
                         </Button.Content>
                     </Button>
                 </StackPanel>

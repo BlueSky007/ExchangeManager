@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Manager.Common.QuotationEntities;
+using System.Reflection;
 
 namespace ManagerService
 {
-    public class Helper
+    public class ServiceHelper
     {
         public static string DumpDictionary(IDictionary dict)
         {
@@ -48,5 +49,6 @@ namespace ManagerService
                     break;
             }
         }
+
     }
 }

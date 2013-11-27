@@ -12,12 +12,16 @@ namespace ManagerService.Quotation
         private PrimitiveQuotation _PrimitiveQuotation;
         private GeneralQuotation _Quotation;
 
-        public SourceQuotation(PrimitiveQuotation primitiveQuotation, double ask, double bid)
+        public SourceQuotation(PrimitiveQuotation primitiveQuotation, double ask, double bid, string instrumentCode)
         {
             this._PrimitiveQuotation = primitiveQuotation;
             this._Quotation = new GeneralQuotation();
+            this._Quotation.InstrumentId = primitiveQuotation.InstrumentId;
+            this._Quotation.SourceId = primitiveQuotation.SourceId;
+            this._Quotation.OriginCode = instrumentCode;
             this._Quotation.Ask = ask;
             this._Quotation.Bid = bid;
+            this._Quotation.Timestamp = primitiveQuotation.Timestamp;
 
             double price;
             if (PrimitiveQuotation.TryGetPriceValue(primitiveQuotation.Last, out price)) this._Quotation.Last = price; 

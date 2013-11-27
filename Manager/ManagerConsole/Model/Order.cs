@@ -7,8 +7,10 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Windows.Media;
 using CommonOrder = Manager.Common.Order;
 using OrderType = Manager.Common.OrderType;
+using Helper = Manager.Common.Helper;
 
 namespace ManagerConsole.Model
 {
@@ -33,6 +35,58 @@ namespace ManagerConsole.Model
         public event OrderStatusChangedHandler OnOrderStatusChangedHandler;
 
         public event OrderPhaseChangedEventHandler OnOrderPhaseChanged;
+        public static string GetOrderTypeString(OrderType orderType, TradeOption tradeOption, TransactionType transactionType, TransactionSubType transactionSubType)
+        {
+            //special process
+            if (orderType == OrderType.Limit)
+            {
+                if (transactionType == TransactionType.OneCancelOther)
+                {
+                    if (tradeOption == TradeOption.Better)
+                    {
+                        return "LimitOfOCO";
+                    }
+                    else if (tradeOption == TradeOption.Stop)
+                    {
+                        return "StopOfOCO";
+                    }
+                    else
+                    {
+                        return "OCO";
+                    }
+                }
+                else
+                {
+                    if (tradeOption == TradeOption.Better)
+                    {
+                        return "LMT";
+                    }
+                    else
+                    {
+                        return "STP";
+                    }
+                }
+            }
+            else if (orderType == OrderType.OneCancelOther)
+            {
+                if (tradeOption == TradeOption.Better)
+                {
+                    return "LimitOfOCO";
+                }
+                else if (tradeOption == TradeOption.Stop)
+                {
+                    return "StopOfOCO";
+                }
+                else
+                {
+                    return "OCO";
+                }
+            }
+            else
+            {
+                return orderType.GetCaption();
+            }
+        }
 
         public Order(Transaction transaction,CommonOrder commonOrder)
         {
@@ -46,6 +100,12 @@ namespace ManagerConsole.Model
 
         #region Property
         public Transaction Transaction
+        {
+            get;
+            private set;
+        }
+
+        public ObservableCollection<CloseOrder> CloseOrders
         {
             get;
             private set;
@@ -261,6 +321,13 @@ namespace ManagerConsole.Model
             }
         }
 
+        private DateTime _SubmitDateTime;
+        public DateTime SubmitDateTime
+        {
+            get { return this._SubmitDateTime; }
+            set { this._SubmitDateTime = value; this.OnPropertyChanged("SubmitDateTime"); }
+        }
+
         private int _HitCount;
         public int HitCount
         {
@@ -318,6 +385,56 @@ namespace ManagerConsole.Model
         {
             get;
             set;
+        }
+
+        public string QuotePolicyCode
+        {
+            get { return "Default"; }
+        }
+
+        public string RelationString
+        {
+            get;
+            set;
+        }
+
+        public string Dealer
+        {
+            get;
+            set;
+        }
+
+        public string Type
+        {
+            get
+            {
+                return GetOrderTypeString(this.Transaction.OrderType, this.TradeOption, this.Transaction.Type, this.Transaction.SubType);
+            }
+        }
+
+        public string IsBuyString
+        {
+            get { return this.BuySell == BuySell.Buy ? "B" : "S"; }
+        }
+
+        public string IsOpenString
+        {
+            get { return this.OpenClose == OpenClose.Open ? "N" : "C"; }
+        }
+
+        public SolidColorBrush IsOpenBrush
+        {
+            get
+            {
+                return this.OpenClose == OpenClose.Open ? new SolidColorBrush(Colors.Blue) : new SolidColorBrush(Colors.Red);
+            }
+        }
+        public SolidColorBrush IsBuyBrush
+        {
+            get
+            {
+                return this.BuySell == BuySell.Buy ? new SolidColorBrush(Colors.Blue) : new SolidColorBrush(Colors.Red);
+            }
         }
 
         #endregion
@@ -442,5 +559,70 @@ namespace ManagerConsole.Model
 
 
         #endregion
+    }
+
+    public class OrderComparerByCode : IComparer<Order>
+    {
+        int IComparer<Order>.Compare(Order left, Order right)
+        {
+            return left.Code.CompareTo(right.Code);
+        }
+    }
+
+    public class CloseOrder
+    {
+        public CloseOrder(Order order, decimal closeLot)
+        {
+            this.Order = order;
+            this.CloseLot = closeLot;
+        }
+
+        public Order Order
+        {
+            get;
+            private set;
+        }
+
+        public decimal CloseLot
+        {
+            get;
+            private set;
+        }
+    }
+
+    public static class OrderTypeHelper
+    {
+        public static string GetCaption(this OrderType orderType)
+        {
+            switch (orderType)
+            {
+                case OrderType.FAK_Market:
+                    return "FAK_Market";
+                case OrderType.Limit:
+                    return "LMT";
+                case OrderType.Market:
+                    return "MKT";
+                case OrderType.MarketOnClose:
+                    return "MOC";
+                case OrderType.MarketOnOpen:
+                    return "MOO";
+                case OrderType.MarketToLimit:
+                    return "MarketToLimit";
+                case OrderType.MultipleClose:
+                    return "MPC";
+                case OrderType.OneCancelOther:
+                    return "OCO";
+                case OrderType.Risk:
+                    return "SYS";
+                case OrderType.SpotTrade:
+                    return "SPT";
+                case OrderType.Stop:
+                    return "STP";
+                case OrderType.StopLimit:
+                    return "StopLimit";
+                default:
+                    return orderType.ToString();
+            }
+        }
     }
 }

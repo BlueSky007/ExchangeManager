@@ -74,9 +74,25 @@ namespace ManagerConsole.Model
             }, null);
         }
 
-        public bool HasPermission(AccessPermission function)
+        public void GetInitializeData(Action<List<InitializeData>> EndGetInitializeData)
         {
-            return this._AccessPermissions.HasPermission(function);
+            try
+            {
+                this._ServiceProxy.BeginGetInitializeData(delegate(IAsyncResult result)
+                { 
+                    List<InitializeData> initializeDatas = this._ServiceProxy.EndGetInitializeData(result);
+                    EndGetInitializeData(initializeDatas);
+                }, null);
+            }
+            catch(Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "GetInitializeData.\r\n{0}", ex.ToString());
+            }
+        }
+
+        public bool HasPermission(ModuleCategoryType category, ModuleType module, string operationCode)
+        {
+            return this._AccessPermissions.HasPermission(category,module,operationCode);
         }
 
         public FunctionTree GetFunctionTree()
@@ -148,14 +164,14 @@ namespace ManagerConsole.Model
             }, null);
         }
 
-        private void GetAccessPermissions(Action<Dictionary<string, string>> endGetPermissions)
+        private void GetAccessPermissions(Action<Dictionary<string, Tuple<string, bool>>> endGetPermissions)
         {
             try
             {
 
                 this._ServiceProxy.BeginGetAccessPermissions(delegate(IAsyncResult ar)
                 {
-                    Dictionary<string, string> permissions = this._ServiceProxy.EndGetAccessPermissions(ar);
+                    Dictionary<string, Tuple<string, bool>> permissions = this._ServiceProxy.EndGetAccessPermissions(ar);
                     endGetPermissions(permissions);
                 }, null);
             }
@@ -165,7 +181,7 @@ namespace ManagerConsole.Model
             }
         }
 
-        private void EndGetPermissions(Dictionary<string,string> permissions)
+        private void EndGetPermissions(Dictionary<string, Tuple<string, bool>> permissions)
         {
             try
             {
@@ -355,8 +371,50 @@ namespace ManagerConsole.Model
         {
             this._ServiceProxy.BeginGetConfigMetadata(delegate(IAsyncResult ar)
             {
-                ConfigMetadata metaData = this._ServiceProxy.EndGetConfigMetadata(ar);
-                setMetadata(metaData);
+                App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+                {
+                    ConfigMetadata metaData = this._ServiceProxy.EndGetConfigMetadata(ar);
+                    setMetadata(metaData);
+                });
+            }, null);
+        }
+
+
+        public void AddMetadataObject(IMetadataObject metadataObject, Action<int> SetAddObjectId)
+        {
+            this._ServiceProxy.BeginAddMetadataObject(metadataObject, delegate(IAsyncResult ar)
+            {
+                int objectId = this._ServiceProxy.EndAddMetadataObject(ar);
+                SetAddObjectId(objectId);
+            }, null);
+        }
+
+        public void UpdateMetadataObject(MetadataType type, int objectId, Dictionary<string, object> fieldAndValues, Action<bool> NotifyResult)
+        {
+            this._ServiceProxy.BeginUpdateMetadataObject(type, objectId, fieldAndValues, delegate(IAsyncResult ar)
+            {
+                bool result = this._ServiceProxy.EndUpdateMetadataObject(ar);
+                App.MainWindow.Dispatcher.BeginInvoke((Action<bool>)delegate(bool success)
+                {
+                    NotifyResult(success);
+                }, result);
+            }, null);
+        }
+
+        public void DeleteMetadataObject(MetadataType type, int objectId, Action<bool> NotifyResult)
+        {
+            this._ServiceProxy.BeginDeleteMetadataObject(type, objectId, delegate(IAsyncResult ar)
+            {
+                bool deleted = this._ServiceProxy.EndDeleteMetadataObject(ar);
+                NotifyResult(deleted);
+            }, null);
+        }
+
+        public void SendQuotation(int instrumentSourceRelationId, double ask, double bid)
+        {
+            this._ServiceProxy.BeginSendQuotation(instrumentSourceRelationId, ask, bid, delegate(IAsyncResult ar)
+            {
+                this._ServiceProxy.EndSendQuotation(ar);
             }, null);
         }
         #endregion

@@ -98,24 +98,21 @@ namespace ManagerService.DataAccess
 
         }
 
-        public static Dictionary<string, string> GetAccessPermissions(Guid userId, Language language)
+        public static Dictionary<string,Tuple<string,bool>> GetAccessPermissions(Guid userId, Language language)
         {
-            Dictionary<string, string> permissions = new Dictionary<string, string>();
+            Dictionary<string, Tuple<string, bool>> permissions = new Dictionary<string, Tuple<string, bool>>();
             string sql = "SELECT DISTINCT pt.Id,pt2.Code AS Parent,pt.Code,rp.[Status],pt.[Level] FROM dbo.RolePermission rp INNER JOIN dbo.UserInRole uir ON uir.RoleId = rp.RoleId INNER JOIN dbo.PermissionTarget pt ON pt.Id=rp.TargetId LEFT JOIN dbo.PermissionTarget pt2 ON pt2.Id = pt.ParentId WHERE pt.TargetType = 1 AND uir.UserId = @userId";
             DataAccess.GetInstance().ExecuteReader(sql, CommandType.Text, delegate(SqlDataReader reader)
             {
                 while (reader.Read())
                 {
-                    if ((bool)reader["Status"])
+                    if (int.Parse(reader["Level"].ToString()) == 1)
                     {
-                        if (int.Parse(reader["Level"].ToString()) == 1)
-                        {
-                            permissions.Add("root", reader["Code"].ToString());
-                        }
-                        else
-                        {
-                            permissions.Add(reader["Parent"].ToString(), reader["Code"].ToString());
-                        }
+                        permissions.Add("root", Tuple.Create(reader["Code"].ToString(), (bool)reader["Status"]));
+                    }
+                    else
+                    {
+                        permissions.Add(reader["Parent"].ToString(),Tuple.Create(reader["Code"].ToString(),(bool)reader["Status"]));
                     }
                 }
             }, new SqlParameter("@userId", userId));

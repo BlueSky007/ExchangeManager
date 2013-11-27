@@ -4,6 +4,8 @@ using System.Windows.Controls;
 using QuoteMessage = Manager.Common.QuoteMessage;
 using PlaceMessage = Manager.Common.PlaceMessage;
 using HitMessage = Manager.Common.HitMessage;
+using ExecuteMessage = Manager.Common.ExecuteMessage;
+using DeleteMessage = Manager.Common.DeleteMessage;
 
 
 namespace ManagerConsole
@@ -31,14 +33,15 @@ namespace ManagerConsole
         {
             ConsoleClient.Instance.MessageClient.QuotePriceToDealerEvent += this.MessageClient_QuotePriceReceived;
             ConsoleClient.Instance.MessageClient.QuoteOrderToDealerEvent += this.MessageClient_QuoteOrderReceived;
+            ConsoleClient.Instance.MessageClient.ExecutedOrderToDealerEvent += this.MessageClient_ExecutedOrderReceived;
             ConsoleClient.Instance.MessageClient.HitPriceEvent += this.MessageClient_HitPriceReceived;
+            ConsoleClient.Instance.MessageClient.DeletedOrderEvent += this.MessageClient_DeletedOrderReceived;
         }
 
         void MessageClient_QuotePriceReceived(QuoteMessage quoteMessage)
         {
             App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
-                //声音处理
                 MediaManager.PlayMedia(this._MediaElement, MediaManager._EnquiryMediaSource);
                 this.InitDataManager.ProcessQuoteMessage(quoteMessage);
             });
@@ -52,10 +55,27 @@ namespace ManagerConsole
             });
         }
 
+        void MessageClient_ExecutedOrderReceived(ExecuteMessage executedMessage)
+        {
+            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+            {
+                this.InitDataManager.ProcessExecuteMessage(executedMessage);
+            });
+        }
+
         void MessageClient_HitPriceReceived(HitMessage hitMessage)
         {
-            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate() {
+            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate() 
+            {
                 this.InitDataManager.ProcessHitMessage(hitMessage);
+            });
+        }
+
+        void MessageClient_DeletedOrderReceived(DeleteMessage deleteMessage)
+        {
+            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+            {
+                this.InitDataManager.ProcessDeleteMessage(deleteMessage);
             });
         }
     }

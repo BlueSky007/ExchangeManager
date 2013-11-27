@@ -23,17 +23,17 @@ namespace ManagerService.Console
             this._ConsoleServiceHost.Open();
         }
 
-        public Client AddClient(string oldSessionId, string sessionId, User user, IClientProxy clientProxy, Language language, Dictionary<string, List<Guid>> accountPermissions, Dictionary<string, List<Guid>> instrumentPermissions)
+        public Client AddClient(string oldSessionId, string sessionId, User user, IClientProxy clientProxy, Language language)
         {
             Client client;
             if (!string.IsNullOrEmpty(oldSessionId) && this._Clients.TryGetValue(oldSessionId, out client))
             {
-                client.Replace(sessionId, clientProxy, accountPermissions, instrumentPermissions);
+                client.Replace(sessionId, clientProxy);
                 this._Clients.Remove(oldSessionId);
             }
             else
             {
-                client = new Client(sessionId, user, clientProxy, language, accountPermissions, instrumentPermissions);
+                client = new Client(sessionId, user, clientProxy, language);
             }
             this._Clients.Add(client.SessionId, client);
             return client;
@@ -48,7 +48,7 @@ namespace ManagerService.Console
                     List<DataPermission> dataPermissions = new List<DataPermission>();
                     Dictionary<string, List<Guid>> accountPermissions = new Dictionary<string, List<Guid>>();
                     Dictionary<string, List<Guid>> instrumentPermissions = new Dictionary<string, List<Guid>>();
-                    foreach (ExchangeSystemSetting item in Manager.ManagerSettings.ExchangeSystems)
+                    foreach (ExchangeSystemSetting item in MainService.ManagerSettings.ExchangeSystems)
                     {
                         bool deafultStatus = false;
                         List<Guid> accountMemberIds = new List<Guid>();

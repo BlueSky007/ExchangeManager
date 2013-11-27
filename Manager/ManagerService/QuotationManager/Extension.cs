@@ -12,7 +12,7 @@ namespace ManagerService.Quotation
         public static void Load(this ConfigMetadata metaData)
         {
             metaData.QuotationSources = new Dictionary<string, QuotationSource>();
-            metaData.Instruments = new Dictionary<string, Instrument>();
+            metaData.Instruments = new Dictionary<int, Instrument>();
             metaData.InstrumentSourceRelations = new Dictionary<int, Dictionary<string, InstrumentSourceRelation>>();
             metaData.DerivativeRelations = new Dictionary<int, DerivativeRelation>();
             metaData.PriceRangeCheckRules = new Dictionary<int, PriceRangeCheckRule>();

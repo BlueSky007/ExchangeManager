@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ManagerConsole.Helper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,8 +8,12 @@ using PriceType = Manager.Common.PriceType;
 
 namespace ManagerConsole.Model
 {
-    public class QuotePolicyDetail
+    public class QuotePolicyDetail : PropertyChangedNotifier
     {
+        #region private Property
+        private decimal _BuyLot;
+        private decimal _SellLot;
+        #endregion
         public QuotePolicyDetail(CommonQuotePolicyDetail quotePolicyDetail)
         {
             this.Update(quotePolicyDetail);
@@ -48,6 +53,23 @@ namespace ManagerConsole.Model
         {
             get;
             set;
+        }
+
+        public decimal BuyLot
+        {
+            get { return this._BuyLot; }
+            set
+            {
+                this._BuyLot = value; this.OnPropertyChanged("BuyLot");
+            }
+        }
+        public decimal SellLot
+        {
+            get { return this._SellLot; }
+            set
+            {
+                this._SellLot = value; this.OnPropertyChanged("SellLot");
+            }
         }
 
 

@@ -23,14 +23,12 @@ namespace ManagerService.Console
         private Dictionary<string, List<Guid>> _AccountPermission;
         private Dictionary<string, List<Guid>> _InstrumentPermission;
 
-        public Client(string sessionId, User user, IClientProxy clientProxy, Language language, Dictionary<string, List<Guid>> accountPermissions, Dictionary<string, List<Guid>> instrumentPermissions)
+        public Client(string sessionId, User user, IClientProxy clientProxy, Language language)
         {
             this._SessionId = sessionId;
             this._User = user;
             this._ClientProxy = clientProxy;
             this._Language = language;
-            this._AccountPermission = accountPermissions;
-            this._InstrumentPermission = instrumentPermissions;
             this._MessageRelayEngine = new RelayEngine<Message>(this.SendMessage, this.HandlEngineException);
         }
 
@@ -39,15 +37,13 @@ namespace ManagerService.Console
         public User user { get { return this._User; } }
         public Language language { get { return this._Language; } }
 
-        public void Replace(string sessionId, IClientProxy clientProxy, Dictionary<string, List<Guid>> accountPermissions, Dictionary<string, List<Guid>> instrumentPermissions)
+        public void Replace(string sessionId, IClientProxy clientProxy)
         {
             this._SessionId = sessionId;
             this._ClientProxy = clientProxy;
-            this._AccountPermission = accountPermissions;
-            this._InstrumentPermission = instrumentPermissions;
             this._MessageRelayEngine.Resume();
         }
-
+        
         public void UpdatePermission(Dictionary<string, List<Guid>> accountPermissions, Dictionary<string, List<Guid>> instrumentPermission)
         {
             this._AccountPermission = accountPermissions;
@@ -81,7 +77,7 @@ namespace ManagerService.Console
 
         public ConfigMetadata GetConfigMetadata()
         {
-            return Manager.QuotationManager.ConfigMetadata;
+            return MainService.QuotationManager.ConfigMetadata;
         }
 
         private bool SendMessage(Message message)
@@ -105,15 +101,31 @@ namespace ManagerService.Console
 
         private Message Filter(Message message)
         {
+            //just test
+            return message;
             IFilterable filterableMessage = message as IFilterable;
-            // TODO: perform filter here
-            if (filterableMessage.AccountId != null)
+            if (filterableMessage != null)
             {
-            }
-            if (filterableMessage.InstrumentId != null)
-            {
-            }
+                List<Guid> accountPermissions = new List<Guid>();
+                List<Guid> instrumentPermissions = new List<Guid>();
+                this._AccountPermission.TryGetValue(message.ExchangeCode, out accountPermissions);
+                this._InstrumentPermission.TryGetValue(message.ExchangeCode, out instrumentPermissions);
 
+                if (filterableMessage.AccountId != null)
+                {
+                    if (!accountPermissions.Contains(filterableMessage.AccountId.Value))
+                    {
+                        message = null;
+                    }
+                }
+                if (filterableMessage.InstrumentId != null)
+                {
+                    if (!instrumentPermissions.Contains(filterableMessage.InstrumentId.Value))
+                    {
+                        message = null;
+                    }
+                }
+            }
             return message;
         }
 
@@ -194,14 +206,15 @@ namespace ManagerService.Console
             }
         }
 
-        public Dictionary<string, string> GetAccessPermissions()
+        public Dictionary<string, Tuple<string,bool>> GetAccessPermissions()
         {
             try
             {
-                Dictionary<string, string> permissions = UserDataAccess.GetAccessPermissions(this.userId, this.language);
+                Dictionary<string, Tuple<string, bool>> permissions = UserDataAccess.GetAccessPermissions(this.userId, this.language);
                 if (this.user.IsInRole("admin"))
                 {
-                    permissions.Add("admin", "admin");
+                    permissions.Clear();
+                    permissions.Add("admin", Tuple.Create("admin",true));
                 }
                 return permissions;
             }
@@ -300,7 +313,7 @@ namespace ManagerService.Console
         {
             try
             {
-                List<RoleDataPermission> allData = UserDataAccess.GetAllDataPermissions(Manager.ManagerSettings.ExchangeSystems, this.language.ToString());
+                List<RoleDataPermission> allData = UserDataAccess.GetAllDataPermissions(MainService.ManagerSettings.ExchangeSystems, this.language.ToString());
                 return allData;
             }
             catch (Exception ex)
@@ -329,7 +342,7 @@ namespace ManagerService.Console
 
                     Thread updatePermission = new Thread(delegate()
                     {
-                        Manager.ClientManager.UpdatePermission(role);
+                        MainService.ClientManager.UpdatePermission(role);
                         return;
                     });
                     updatePermission.IsBackground = true;
@@ -340,7 +353,7 @@ namespace ManagerService.Console
                     List<DataPermission> dataPermissions = new List<DataPermission>();
                     Dictionary<string, List<Guid>> accountPermissions = new Dictionary<string, List<Guid>>();
                     Dictionary<string, List<Guid>> instrumentPermissions = new Dictionary<string, List<Guid>>();
-                    foreach (ExchangeSystemSetting item in Manager.ManagerSettings.ExchangeSystems)
+                    foreach (ExchangeSystemSetting item in MainService.ManagerSettings.ExchangeSystems)
                     {
                         bool deafultStatus = false;
                         List<Guid> accountMemberIds = new List<Guid>();
@@ -416,7 +429,7 @@ namespace ManagerService.Console
         #endregion
 
         #region DealingConsole
-        public void AbandonQuote(List<Answer> abandQuotations)
+        internal void AbandonQuote(List<Answer> abandQuotations)
         {
             try
             {
@@ -424,7 +437,7 @@ namespace ManagerService.Console
                 foreach (IGrouping<string, Answer> group in query)
                 {
                     List<Answer> newAbandQuotations = group.ToList<Answer>();
-                    ExchangeSystem exchangeSystem = Manager.ExchangeManager.GetExchangeSystem(newAbandQuotations[0].ExchangeCode);
+                    ExchangeSystem exchangeSystem = MainService.ExchangeManager.GetExchangeSystem(newAbandQuotations[0].ExchangeCode);
                     exchangeSystem.AbandonQuote(newAbandQuotations);
 
                     //Write Log QuotePrice
@@ -440,7 +453,7 @@ namespace ManagerService.Console
             }
         }
 
-        public void SendQuotePrice(List<Answer> sendQuotations)
+        internal void SendQuotePrice(List<Answer> sendQuotations)
         {
             try
             {
@@ -448,7 +461,7 @@ namespace ManagerService.Console
                 foreach (IGrouping<string, Answer> group in query)
                 {
                     List<Answer> newSendQuotations = group.ToList<Answer>();
-                    ExchangeSystem exchangeSystem = Manager.ExchangeManager.GetExchangeSystem(newSendQuotations[0].ExchangeCode);
+                    ExchangeSystem exchangeSystem = MainService.ExchangeManager.GetExchangeSystem(newSendQuotations[0].ExchangeCode);
                     exchangeSystem.Answer(newSendQuotations);
 
                     //Write Log QuotePrice
@@ -464,13 +477,13 @@ namespace ManagerService.Console
             }
         }
 
-        public TransactionError AcceptPlace(Guid transactionId, LogOrder logEntity)
+        internal TransactionError AcceptPlace(Guid transactionId, LogOrder logEntity)
         {
             TransactionError transactionError = TransactionError.OK;
             string exchangeCode = "WF01";
             try
             {
-                ExchangeSystem exchangeSystem = Manager.ExchangeManager.GetExchangeSystem(exchangeCode);
+                ExchangeSystem exchangeSystem = MainService.ExchangeManager.GetExchangeSystem(exchangeCode);
                 transactionError = exchangeSystem.AcceptPlace(transactionId);
                 //Write Log
                 if (transactionError == TransactionError.OK)
@@ -485,13 +498,13 @@ namespace ManagerService.Console
             return transactionError;
         }
 
-        public TransactionError CancelPlace(Guid transactionId, CancelReason cancelReason)
+        internal TransactionError CancelPlace(Guid transactionId, CancelReason cancelReason)
         {
             TransactionError transactionError = TransactionError.OK;
             string exchangeCode = "WF01";
             try
             {
-                ExchangeSystem exchangeSystem = Manager.ExchangeManager.GetExchangeSystem(exchangeCode);
+                ExchangeSystem exchangeSystem = MainService.ExchangeManager.GetExchangeSystem(exchangeCode);
                 transactionError = exchangeSystem.CancelPlace(transactionId, cancelReason);
             }
             catch (Exception ex)
@@ -501,13 +514,13 @@ namespace ManagerService.Console
             return transactionError;
         }
 
-        public TransactionError Execute(Guid transactionId, string buyPrice, string sellPrice, decimal lot, Guid orderId, LogOrder logEntity)
+        internal TransactionError Execute(Guid transactionId, string buyPrice, string sellPrice, decimal lot, Guid orderId, LogOrder logEntity)
         {
             TransactionError transactionError = TransactionError.OK;
             string exchangeCode = logEntity.ExchangeCode;
             try
             {
-                ExchangeSystem exchangeSystem = Manager.ExchangeManager.GetExchangeSystem(exchangeCode);
+                ExchangeSystem exchangeSystem = MainService.ExchangeManager.GetExchangeSystem(exchangeCode);
                 transactionError = exchangeSystem.Execute(transactionId, buyPrice, sellPrice, lot, orderId);
 
                 if (transactionError == TransactionError.OK)
@@ -522,13 +535,13 @@ namespace ManagerService.Console
             return transactionError;
         }
 
-        public TransactionError Cancel(Guid transactionId, CancelReason cancelReason, LogOrder logEntity)
+        internal TransactionError Cancel(Guid transactionId, CancelReason cancelReason, LogOrder logEntity)
         {
             TransactionError transactionError = TransactionError.OK;
             string exchangeCode = logEntity.ExchangeCode;
             try
             {
-                ExchangeSystem exchangeSystem = Manager.ExchangeManager.GetExchangeSystem(exchangeCode);
+                ExchangeSystem exchangeSystem = MainService.ExchangeManager.GetExchangeSystem(exchangeCode);
                 transactionError = exchangeSystem.Cancel(transactionId, cancelReason);
 
                 if (transactionError == TransactionError.OK)
@@ -543,7 +556,7 @@ namespace ManagerService.Console
             return transactionError;
         }
 
-        public void ResetHit(Guid[] orderIds)
+        internal void ResetHit(Guid[] orderIds)
         {
             try
             {
@@ -555,7 +568,7 @@ namespace ManagerService.Console
             }
         }
 
-        public AccountInformation GetAcountInfo(Guid transactionId)
+        internal AccountInformation GetAcountInfo(Guid transactionId)
         {
             AccountInformation accountInfor = new AccountInformation();
             try
@@ -579,7 +592,7 @@ namespace ManagerService.Console
         #endregion
 
         #region Report
-        public List<OrderQueryEntity> GetOrderByInstrument(Guid instrumentId, Guid accountGroupId, OrderType orderType,
+        internal List<OrderQueryEntity> GetOrderByInstrument(Guid instrumentId, Guid accountGroupId, OrderType orderType,
            bool isExecute, DateTime fromDate, DateTime toDate)
         {
             return ExchangeData.GetOrderByInstrument(this.userId,instrumentId, accountGroupId, orderType, isExecute, fromDate, toDate);
@@ -588,7 +601,7 @@ namespace ManagerService.Console
 
         #region Log Audit
 
-        public List<LogQuote> GetQuoteLogData(DateTime fromDate, DateTime toDate, LogType logType)
+        internal List<LogQuote> GetQuoteLogData(DateTime fromDate, DateTime toDate, LogType logType)
         {
             List<LogQuote> logQuotes = new List<LogQuote>();
             try
@@ -602,7 +615,7 @@ namespace ManagerService.Console
             return logQuotes;
         }
 
-        public List<LogOrder> GetLogOrderData(DateTime fromDate, DateTime toDate, LogType logType)
+        internal List<LogOrder> GetLogOrderData(DateTime fromDate, DateTime toDate, LogType logType)
         {
             List<LogOrder> logOrders = new List<LogOrder>();
             try
@@ -616,7 +629,7 @@ namespace ManagerService.Console
             return logOrders;
         }
 
-        public List<LogSetting> GetLogSettingData(DateTime fromDate, DateTime toDate, LogType logType)
+        internal List<LogSetting> GetLogSettingData(DateTime fromDate, DateTime toDate, LogType logType)
         {
             List<LogSetting> logSettings = new List<LogSetting>();
             try
@@ -631,7 +644,7 @@ namespace ManagerService.Console
         }
 
 
-        public List<LogPrice> GetLogPriceData(DateTime fromDate, DateTime toDate, LogType logType)
+        internal List<LogPrice> GetLogPriceData(DateTime fromDate, DateTime toDate, LogType logType)
         {
             List<LogPrice> logPricies = new List<LogPrice>();
             try
@@ -645,7 +658,7 @@ namespace ManagerService.Console
             return logPricies;
         }
 
-        public List<LogSourceChange> GetLogSourceChangeData(DateTime fromDate, DateTime toDate, LogType logType)
+        internal List<LogSourceChange> GetLogSourceChangeData(DateTime fromDate, DateTime toDate, LogType logType)
         {
             List<LogSourceChange> logSourceChanges = new List<LogSourceChange>();
             try
@@ -660,35 +673,51 @@ namespace ManagerService.Console
         }
         #endregion
 
-        internal int AddMetadataObject(MetadataType type, Dictionary<string, string> fields)
+        internal int AddMetadataObject(IMetadataObject metadataObject)
         {
-            IMetadataObject addedObject = QuotationData.AddMetadataObject(type, fields);
-            if (addedObject.Id > 0)
+            int objectId = QuotationData.AddMetadataObject((dynamic)metadataObject);
+            if (objectId > 0)
             {
-                Manager.QuotationManager.AddMetadataObject(addedObject);
-                MetadataUpdateMessage message = new MetadataUpdateMessage() { ObjectId = addedObject.Id, MetadataType = type, UpdateAction = UpdateAction.Add, Fields = fields };
-                // dispatch message to other clients here
-                Manager.ClientManager.DispatchExcept(message, this);
+                metadataObject.Id = objectId;
+                MainService.QuotationManager.AddMetadataObject((dynamic)metadataObject);
+                AddMetadataObjectMessage message = new AddMetadataObjectMessage() { MetadataObject = metadataObject };
+                MainService.ClientManager.DispatchExcept(message, this);
             }
-            return addedObject.Id;
+            return objectId;
         }
 
-        internal void UpdateMetadataObject(MetadataType type, int objectId, Dictionary<string, string> fields)
+        internal int[] AddMetadataObjects(IMetadataObject[] metadataObjects)
         {
-            QuotationData.UpdateMetadataObject(type, objectId, fields);
-            Manager.QuotationManager.UpdateMetadataObject(type, objectId, fields);
-            MetadataUpdateMessage message = new MetadataUpdateMessage() { ObjectId = objectId, MetadataType = type, UpdateAction = UpdateAction.Modify, Fields = fields };
-            // dispatch message to other clients here
-            Manager.ClientManager.DispatchExcept(message, this);
+            int[] objectIds = QuotationData.AddMetadataObjects(metadataObjects);
+            for (int i = 0; i < objectIds.Length; i++)
+            {
+                metadataObjects[i].Id = objectIds[i];
+                MainService.QuotationManager.AddMetadataObject((dynamic)metadataObjects[i]);
+            }
+            AddMetadataObjectsMessage message = new AddMetadataObjectsMessage() { MetadataObjects = metadataObjects };
+            MainService.ClientManager.DispatchExcept(message, this);
+            return objectIds;
+        }
+
+        internal void UpdateMetadataObject(MetadataType type, int objectId, Dictionary<string, object> fieldAndValues)
+        {
+            QuotationData.UpdateMetadataObject(type, objectId, fieldAndValues);
+            MainService.QuotationManager.UpdateMetadataObject(type, objectId, fieldAndValues);
+            UpdateMetadataMessage message = new UpdateMetadataMessage() { ObjectId = objectId, MetadataType = type, FieldAndValues = fieldAndValues };
+            MainService.ClientManager.DispatchExcept(message, this);
         }
 
         internal void DeleteMetadataObject(MetadataType type, int objectId)
         {
             QuotationData.DeleteMetadataObject(type, objectId);
-            Manager.QuotationManager.DeleteMetadataObject(type, objectId);
-            MetadataUpdateMessage message = new MetadataUpdateMessage() { ObjectId = objectId, MetadataType = type, UpdateAction = UpdateAction.Delete, Fields = null };
-            // dispatch message to other clients here
-            Manager.ClientManager.DispatchExcept(message, this);
+            MainService.QuotationManager.DeleteMetadataObject(type, objectId);
+            DeleteMetadataObjectMessage message = new DeleteMetadataObjectMessage() { ObjectId = objectId, MetadataType = type };
+            MainService.ClientManager.DispatchExcept(message, this);
+        }
+
+        internal void SendQuotation(int instrumentSourceRelationId, double ask, double bid)
+        {
+            MainService.QuotationManager.SendQuotation(instrumentSourceRelationId, ask, bid);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using iExchange.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,10 @@ namespace iExchange.StateServer.Manager
         internal bool UpdateInstrument(Common.Token token, System.Xml.XmlNode instruments)
         {
             throw new NotImplementedException();
+        }
+
+        internal void Broadcast(Common.Token token, OriginQuotation[] originQs, OverridedQuotation[] overridedQs)
+        {
         }
     }
 }

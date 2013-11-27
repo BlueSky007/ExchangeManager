@@ -8,45 +8,80 @@ namespace ManagerConsole.Model
 {
     public class Function
     {
-        public Dictionary<string, string> FunctionPermissions { get; set; }
+        public Dictionary<string, Tuple<string, bool>> FunctionPermissions { get; set; }
 
         public Function()
         {
-            FunctionPermissions = new Dictionary<string, string>();
+            FunctionPermissions = new Dictionary<string, Tuple<string, bool>>();
         }
 
-        public bool HasPermission(AccessPermission function)
+        public bool HasPermission(ModuleCategoryType categoryType, ModuleType moduleType, string operationCode)
         {
             bool isOwn = false;
             if (FunctionPermissions.ContainsKey("admin"))
             {
                 return true;
             }
-            string category = "";
-            if (FunctionPermissions.TryGetValue("root",out category))
+            Tuple<string, bool> category;
+            
+            if (FunctionPermissions.TryGetValue("root", out category))
             {
-                if (category == Enum.GetName(typeof(ModuleCategoryType),function.CategotyType))
+                if (category.Item1 == Enum.GetName(typeof(ModuleCategoryType), categoryType))
                 {
-                    isOwn = true;
+                    isOwn = category.Item2;
                 }
             }
-            string module = "";
-            if (FunctionPermissions.TryGetValue(Enum.GetName(typeof(ModuleCategoryType),function.CategotyType),out module))
+            Tuple<string, bool> module;
+            if (FunctionPermissions.TryGetValue(Enum.GetName(typeof(ModuleCategoryType), categoryType), out module))
             {
-                if (module == Enum.GetName(typeof(ModuleType),function.ModuleType))
+                if (module.Item1 == Enum.GetName(typeof(ModuleType), moduleType))
                 {
-                    isOwn = true;
+                    isOwn = module.Item2;
                 }
             }
-            string value = "";
-            if (FunctionPermissions.TryGetValue(Enum.GetName(typeof(ModuleType), function.ModuleType), out value))
+            Tuple<string, bool> operation;
+            if (FunctionPermissions.TryGetValue(Enum.GetName(typeof(ModuleType), moduleType), out operation))
             {
-                if (value==function.OperationName)
+                if (operation.Item1 ==  operationCode)
                 {
-                    isOwn = true;
+                    isOwn = operation.Item2;
                 }
             }
             return isOwn;
         }
+
+        //public bool HasPermission(AccessPermission function)
+        //{
+        //    bool isOwn = false;
+        //    if (FunctionPermissions.ContainsKey("admin"))
+        //    {
+        //        return true;
+        //    }
+        //    string category = "";
+        //    if (FunctionPermissions.TryGetValue("root",out category))
+        //    {
+        //        if (category == Enum.GetName(typeof(ModuleCategoryType),function.CategotyType))
+        //        {
+        //            isOwn = true;
+        //        }
+        //    }
+        //    string module = "";
+        //    if (FunctionPermissions.TryGetValue(Enum.GetName(typeof(ModuleCategoryType),function.CategotyType),out module))
+        //    {
+        //        if (module == Enum.GetName(typeof(ModuleType),function.ModuleType))
+        //        {
+        //            isOwn = true;
+        //        }
+        //    }
+        //    string value = "";
+        //    if (FunctionPermissions.TryGetValue(Enum.GetName(typeof(ModuleType), function.ModuleType), out value))
+        //    {
+        //        if (value==function.OperationName)
+        //        {
+        //            isOwn = true;
+        //        }
+        //    }
+        //    return isOwn;
+        //}
     }
 }

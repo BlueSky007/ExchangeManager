@@ -30,5 +30,10 @@ namespace ManagerService.Exchange
 
         //[OperationContract]
         //void Answer(QuoteQuotation quotation);
+        [OperationContract]
+        void Update(Token token, XmlNode udpateNode);
+
+        [OperationContract]
+        void BroadcastQuotation(Token token, OriginQuotation[] originQs, OverridedQuotation[] overridedQs);
     }
 }

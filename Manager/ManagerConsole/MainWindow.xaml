@@ -16,25 +16,33 @@
                 <ig:XamMenuItem Header="File">
                     <ig:XamMenuItem Header="Load Layout" Click="XamMenuItem_Click"/>
                     <ig:XamMenuItem Header="Change Password" Click="ChangePassword_Click"/>
-                    <ig:XamMenuItem Header="test" Click="XamMenuItem_Click_1"/>
                     <ig:XamMenuItem Header="Exit"/>
                 </ig:XamMenuItem>
                 <ig:XamMenuItem x:Name="layout" Header="布局">
                     <ig:XamMenuItem Header="Save Layout" Click="SaveLayout_Click"></ig:XamMenuItem>
                     <ig:XamMenuItem Header="Reset" Click="Reset_Click"/>
+                    <ig:XamMenuItem Header="test" Click="XamMenuItem_Click_2"/>
                     <ig:XamMenuSeparator/>
                 </ig:XamMenuItem>
             </ig:XamMenu>
-            <igWPF:XamDockManager Theme="Royale" x:Name="DockManager" Grid.Row="1">
+            <igWPF:XamDockManager Theme="IGTheme" x:Name="DockManager" Grid.Row="1">
                 <igWPF:XamDockManager.Panes>
                     <igWPF:SplitPane igWPF:XamDockManager.InitialLocation="DockedLeft">
                         <igWPF:ContentPane Name="FunctionTreePane" Header="Functions">
                             <TreeView x:Name="FunctionTree" MinWidth="200"/>
                         </igWPF:ContentPane>
                     </igWPF:SplitPane>
+                    <igWPF:SplitPane igWPF:XamDockManager.InitialLocation="FloatingOnly" igWPF:XamDockManager.FloatingLocation="300,300">
+                        <igWPF:ContentPane x:Name="FloatPane" Header="Confirm Abnormal Quotation" MinHeight="80" MinWidth="60" Visibility="Collapsed" CloseAction="HidePane" >
+                            <igWPF:ContentPane.Content>
+                                <Grid>
+                                    <TextBlock Text="Show a"/>
+                                </Grid>
+                            </igWPF:ContentPane.Content>
+                        </igWPF:ContentPane>
+                    </igWPF:SplitPane>
                 </igWPF:XamDockManager.Panes>
                 <igWPF:DocumentContentHost>
-
                 </igWPF:DocumentContentHost>
             </igWPF:XamDockManager>
             <MediaElement x:Name="_Media" Volume="1" Grid.Row="2"/>

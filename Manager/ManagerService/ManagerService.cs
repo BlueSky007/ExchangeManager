@@ -12,7 +12,7 @@ namespace ManagerService
 {
     public partial class ManagerService : ServiceBase
     {
-        private Manager _Manager = new Manager();
+        private MainService _Manager = new MainService();
 
         public ManagerService()
         {

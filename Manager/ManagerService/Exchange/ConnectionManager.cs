@@ -47,7 +47,7 @@ namespace ManagerService.Exchange
                 binding.Elements.Add(new TextMessageEncodingBindingElement(MessageVersion.Soap12, Encoding.UTF8));
                 binding.Elements.Add(new HttpTransportBindingElement());
                 IStateServerWebService stateServer = ChannelFactory<IStateServerWebService>.CreateChannel(binding, address);
-                stateServer.NotifyManagerStarted(Manager.ManagerSettings.ServiceAddressForExchange, exchangeSystemCode);
+                stateServer.NotifyManagerStarted(MainService.ManagerSettings.ServiceAddressForExchange, exchangeSystemCode);
             }
             catch (EndpointNotFoundException)
             {
