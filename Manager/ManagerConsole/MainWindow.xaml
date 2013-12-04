@@ -25,10 +25,10 @@
                     <ig:XamMenuSeparator/>
                 </ig:XamMenuItem>
             </ig:XamMenu>
-            <igWPF:XamDockManager Theme="IGTheme" x:Name="DockManager" Grid.Row="1">
+            <igWPF:XamDockManager Theme="IGTheme" x:Name="DockManager" Grid.Row="1" >
                 <igWPF:XamDockManager.Panes>
                     <igWPF:SplitPane igWPF:XamDockManager.InitialLocation="DockedLeft">
-                        <igWPF:ContentPane Name="FunctionTreePane" Header="Functions">
+                        <igWPF:ContentPane Name="FunctionTreePane" Header="Functions" >
                             <TreeView x:Name="FunctionTree" MinWidth="200"/>
                         </igWPF:ContentPane>
                     </igWPF:SplitPane>

@@ -154,7 +154,7 @@ namespace ManagerService.Exchange
                 accountId = new Guid(deletedOrderNode.Attributes["AccountID"].Value);
             }
 
-            DeleteMessage deleteMessage = new DeleteMessage(exchangeCode,deletedOrderId,
+            DeleteMessage deleteMessage = new DeleteMessage(exchangeCode,deletedOrderId,instrumentId,
                 transactionList.ToArray(), orderList.ToArray(), orderRelationList.ToArray());
             return  deleteMessage;
         }

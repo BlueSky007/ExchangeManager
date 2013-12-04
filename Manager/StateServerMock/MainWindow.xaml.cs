@@ -262,7 +262,7 @@ namespace WCFServiceTest
         int ExecuteIndex = 0;
         private void ExecutedCommandBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (ExecuteIndex > 7) return;
+            if (ExecuteIndex > 10) return;
             string xmlPath = string.Empty;
             ComboBoxItem item = (ComboBoxItem)this.OrderTypeComboBox.SelectedItem;
             string seletName = item.Content.ToString();
@@ -277,8 +277,8 @@ namespace WCFServiceTest
             }
             XmlDocument doc = new XmlDocument();
             doc.Load(xmlPath);
-            XmlNode xmlTran = doc.ChildNodes[1].ChildNodes[ExecuteIndex];
-            XmlNode xmlAccount = doc.ChildNodes[1].ChildNodes[1];
+            XmlNode xmlTran = doc.ChildNodes[1].ChildNodes[2 * ExecuteIndex];
+            XmlNode xmlAccount = doc.ChildNodes[1].ChildNodes[2 * ExecuteIndex + 1];
 
             ExecuteCommand executeCommand;
             executeCommand = new ExecuteCommand(ExecuteIndex);

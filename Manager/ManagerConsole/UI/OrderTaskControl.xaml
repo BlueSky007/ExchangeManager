@@ -30,9 +30,8 @@
 
         <Style x:Key="CellStyle" TargetType="igGrid:CellControl">
             <Setter Property="Padding" Value="0,0,0,0"/>
-            <!--<Setter Property="BorderThickness" Value="0,0,1,1"/>-->
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
             <Setter Property="BorderBrush" Value="#FFDEDEDE" />
-            <Setter Property="BorderThickness" Value="1,1,1,1" />
         </Style>
     </UserControl.Resources>
     <Grid x:Name="LayRootGrid">
@@ -90,7 +89,7 @@
                         <TextBlock  Background="{x:Null}" VerticalAlignment="Top" Margin="1,2,1,1"  Foreground="Blue" Text="1.588" TextAlignment="Center"  FontWeight="Bold" FontSize="15" x:Name="_OriginLable" Height="25"/>
                     </Border>
 
-                    <TextBlock Text="Variation" FontWeight="Bold" FontSize="12" Margin="5,0,0,0" VerticalAlignment="Center" />
+                    <TextBlock Text="Variation" FontFamily="Hei" FontWeight="Bold" FontSize="12" Margin="5,0,0,0" VerticalAlignment="Center" />
                     <TextBox Style="{StaticResource TextBoxStyle}" Margin="5,0,0,0" x:Name="_VariationText"  KeyDown="VariationText_KeyDown" Text="{Binding Variation,Mode=TwoWay}" Height="23" Width="80" LostFocus="AdjustVariationText_LostFocus"/>
                    
                     <Button BorderBrush="Black" Foreground="White" Margin="1,0,0,0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="UpButton" Content="+" Background="#FFE16941" Height="23" Width="23" Click="AdjustVariation_Click"/>

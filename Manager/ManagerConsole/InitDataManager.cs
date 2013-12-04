@@ -32,8 +32,11 @@ namespace ManagerConsole
         public delegate void OrderHitPriceNotifyHandler(OrderTask orderTask);
         public event OrderHitPriceNotifyHandler OnOrderHitPriceNotifyEvent;
 
-        public delegate void DeleteOrderFromExecuteOrderGridHandler(Order deletedOrder);
-        public event DeleteOrderFromExecuteOrderGridHandler OnDeleteOrderSetRowBackColorEvent;
+        public delegate void DeleteOrderNotifyHandler(Order deletedOrder);
+        public event DeleteOrderNotifyHandler OnDeleteOrderNotifyEvent;
+
+        public delegate void ExecutedOrderNotifyHandler(Order order);
+        public event ExecutedOrderNotifyHandler OnExecutedOrderNotifyEvent;
 
         private Dictionary<Guid, Account> _Accounts = new Dictionary<Guid, Account>();
         private Dictionary<Guid, InstrumentClient> _Instruments = new Dictionary<Guid, InstrumentClient>();
@@ -47,6 +50,7 @@ namespace ManagerConsole
         private OrderTaskModel _OrderTaskModel = new OrderTaskModel();
         private LMTProcessModel _LMTProcessModel = new LMTProcessModel();
         private ObservableCollection<Order> _ExecutedOrders = new ObservableCollection<Order>();
+        private ExecuteOrderSummaryItemModel _ExecuteOrderSummaryItemModel = new ExecuteOrderSummaryItemModel();
 
         //询价
         private ObservableCollection<QuotePriceForInstrument> _ClientQuotePriceForInstrument = new ObservableCollection<QuotePriceForInstrument>();
@@ -54,6 +58,11 @@ namespace ManagerConsole
         private TranPhaseManager _TranPhaseManager;
 
         #region Public Property
+        public ExecuteOrderSummaryItemModel ExecuteOrderSummaryItemModel
+        {
+            get { return this._ExecuteOrderSummaryItemModel; }
+            set { this._ExecuteOrderSummaryItemModel = value; }
+        }
         public TranPhaseManager TranPhaseManager
         {
             get { return this._TranPhaseManager; }
@@ -169,6 +178,7 @@ namespace ManagerConsole
         #endregion
 
         #region Received Notify Convert
+        
         public void ProcessQuoteMessage(QuoteMessage quoteMessage)
         {
             int waiteTime = 50;     //取初始化数据系统参数
@@ -280,9 +290,11 @@ namespace ManagerConsole
                     this.TranPhaseManager.DeleteOrderNotifyUpdateLot(deleteMessage.InstrumentID, deletedOrder);
                 }
 
-                if (this.OnDeleteOrderSetRowBackColorEvent != null)
+                this.TranPhaseManager.DeletedExecutedOrderSummaryItem(deletedOrder);
+
+                if (this.OnDeleteOrderNotifyEvent != null)
                 {
-                    this.OnDeleteOrderSetRowBackColorEvent(deletedOrder);
+                    this.OnDeleteOrderNotifyEvent(deletedOrder);
                 }
             }
             //Sound.PlayDelete();
@@ -291,12 +303,10 @@ namespace ManagerConsole
             {
                 this.Process(commonTransaction);
             }
-
             foreach (CommonOrder commonOrder in deleteMessage.Orders)
             {
                 this.Process(commonOrder,false);
             }
-
             foreach (CommonOrderRelation commonOrderRelation in deleteMessage.OrderRelations)
             {
                 this.Process(commonOrderRelation);
@@ -496,6 +506,14 @@ namespace ManagerConsole
         internal ICollection<InstrumentClient> GetInstruments()
         {
             return new List<InstrumentClient>(this._Instruments.Values);
+        }
+
+        public void AddExecutedOrderSummaryItem(Order order)
+        {
+            if (this.OnExecutedOrderNotifyEvent != null)
+            {
+                this.OnExecutedOrderNotifyEvent(order);
+            }
         }
 
         #region Empty OrderTask Event

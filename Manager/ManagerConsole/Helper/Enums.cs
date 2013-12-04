@@ -63,4 +63,15 @@ namespace ManagerConsole
         Open,
         Close
     }
+    public enum ExecuteOrderSummaryType
+    {
+        Instrument = 0,
+        Range = 1,
+        Order = 2,
+    }
+    public enum RangeType
+    {
+        Time = 0,
+        Price = 1,
+    }
 }

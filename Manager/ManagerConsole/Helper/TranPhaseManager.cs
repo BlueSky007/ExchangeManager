@@ -84,7 +84,14 @@ namespace ManagerConsole.Helper
         public void AddExecutedOrder(Order order)
         {
             this._InitDataManager.ExecutedOrders.Add(order);
+            this._InitDataManager.AddExecutedOrderSummaryItem(order);
         }
+
+        public void DeletedExecutedOrderSummaryItem(Order order)
+        {
+            this._InitDataManager.ExecuteOrderSummaryItemModel.DeletedExecutedOrderFromGrid(order);
+        }
+
         #endregion
 
         #region Lot Changed

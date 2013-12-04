@@ -139,10 +139,10 @@ namespace ManagerConsole
             {
                 this._Modules.Add((int)functionTree.Modules[i].Type, functionTree.Modules[i]);
             }
-            if (result.DockLayout != null)
+            if (!string.IsNullOrEmpty(result.DockLayout))
             {
                 XDocument xdocument = XDocument.Parse(result.DockLayout);
-                var panes = xdocument.Element("xamDockManager").Element("contentPanes").Elements("contentPane");
+                var panes = xdocument.Element("xamDockManager").Element("contentPanes").Elements("contentPane").Where(p => p.Attribute("name").Value != "FunctionTreePane" && p.Attribute("name").Value != "FloatPane");
                 foreach (XElement pane in panes)
                 {
                     if (pane.Attribute("name").Value == "FunctionTreePane" || pane.Attribute("name").Value == "FloatPane") continue;

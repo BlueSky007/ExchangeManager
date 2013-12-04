@@ -107,6 +107,11 @@ namespace ManagerConsole.Model
             this.ExecutedOrderToDealerEvent(executeMessage);
         }
 
+        private void Process(DeleteMessage deleteMessage)
+        {
+            this.DeletedOrderEvent(deleteMessage);
+        }
+
         private void Process(HitMessage hitMessage)
         {
             if (hitMessage != null)

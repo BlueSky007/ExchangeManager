@@ -133,6 +133,7 @@
       <DependentUpon>SourceManagerLogControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Helper\CommonDialogWin.cs" />
+    <Compile Include="Helper\Converters.cs" />
     <Compile Include="Helper\Enums.cs" />
     <Compile Include="Helper\LogEntityConvert.cs" />
     <Compile Include="Helper\TranPhaseManager.cs" />
@@ -176,6 +177,7 @@
     <Compile Include="UI\QuotationSourceControl.xaml.cs">
       <DependentUpon>QuotationSourceControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModel\ExecuteOrderSummaryItem.cs" />
     <Compile Include="ViewModel\VmPriceRangeCheckRule.cs" />
     <Compile Include="ViewModel\VmQuotation.cs" />
     <Compile Include="ViewModel\VmQuotationManager.cs" />

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xamDockManager version="13.1.20131.1009">
   <contentPanes>
-    <contentPane name="module13" location="Document" lastActivatedTime="2013-11-27T08:04:35.9787761Z" />
-    <contentPane name="FunctionTreePane" location="DockedLeft" lastActivatedTime="2013-11-27T01:30:19.3986972Z" />
     <contentPane name="module12" location="Document" lastActivatedTime="2013-11-27T00:19:37.6210814Z" />
+    <contentPane name="FunctionTreePane" location="DockedLeft" lastActivatedTime="2013-11-27T00:19:36.636025Z" />
+    <contentPane name="module13" location="Document" lastActivatedTime="2013-11-27T00:19:30.5416764Z" visibility="Collapsed" />
     <contentPane name="FloatPane" location="FloatingOnly" visibility="Collapsed" />
   </contentPanes>
   <panes>
@@ -16,7 +16,7 @@
   </panes>
   <documents splitterOrientation="Vertical">
     <splitPane name="Z9818fa6d6b2e47d7bade76717d36acad" splitterOrientation="Vertical">
-      <tabGroup name="Z0356bb61aa554241b72cd2eafc8ea4d1" selectedIndex="1">
+      <tabGroup name="Z0356bb61aa554241b72cd2eafc8ea4d1" selectedIndex="0">
         <contentPane name="module12" />
         <contentPane name="module13" />
       </tabGroup>

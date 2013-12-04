@@ -26,23 +26,24 @@
         </Border>
         <Border x:Name="_SummaryToolbar"  Visibility="Collapsed" CornerRadius="5" Background="{StaticResource BackGroundForPanel}" Grid.Row="0">
             <StackPanel Orientation="Horizontal">
-                <RadioButton x:Name="_TimeRangeRadio" IsChecked="True" Margin="15,0,0,0" VerticalAlignment="Center"/>
+                <RadioButton x:Name="_TimeRangeRadio" IsChecked="True" Margin="15,0,0,0" Checked="RadioButton_Click" VerticalAlignment="Center"/>
                 <TextBlock Text="Time Range:" Margin="10,0,0,0" Foreground="White" VerticalAlignment="Center"/>
-                <TextBox Style="{StaticResource TextBoxStyle}" Margin="5,0,0,0" x:Name="_TimeRangeText"  KeyDown="VariationText_KeyDown"  Height="23" Width="80"/>
-                <TextBlock Text="Minutes" Margin="5,0,0,0" Foreground="White" VerticalAlignment="Center"/>
                 
-                <RadioButton x:Name="_PriceRangeRadio" Margin="15,0,0,0" VerticalAlignment="Center"/>
+                <TextBox Style="{StaticResource TextBoxStyle}" Margin="5,0,0,0" x:Name="_TimeRangeText" Text="10" KeyDown="VariationText_KeyDown"  Height="23" Width="80"/>
+                <TextBlock Text="Minutes" Margin="5,0,0,0" Foreground="White" VerticalAlignment="Center"/>
+
+                <RadioButton x:Name="_PriceRangeRadio" Margin="15,0,0,0" VerticalAlignment="Center" Checked="RadioButton_Click"/>
                 <TextBlock Text="Price Range:" Margin="10,0,0,0" Foreground="White" VerticalAlignment="Center"/>
-                <TextBox Style="{StaticResource TextBoxStyle}" Margin="5,0,0,0" x:Name="_PriceRangeText"  KeyDown="VariationText_KeyDown"  Height="23" Width="80"/>
+                <TextBox Style="{StaticResource TextBoxStyle}" Margin="5,0,0,0" x:Name="_PriceRangeText" Text="100" KeyDown="VariationText_KeyDown"  Height="23" Width="80"/>
                 <TextBlock Text="Pips" Margin="5,0,0,0" Foreground="White" VerticalAlignment="Center"/>
 
-                <Button x:Name="_QueryBtn" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Width="25" Height="25"  Margin="10 0 0 0">
+                <Button x:Name="_QuerySummaryBtn" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="QuerySummaryBtn_Click" Width="25" Height="25"  Margin="10 0 0 0">
                     <Button.Content>
                         <Image Source="../Asset/Images/Search.png" ToolTipService.ToolTip="Print"  Margin="1"/>
                     </Button.Content>
                 </Button>
-                
-                <Button x:Name="_PrintSummaryOrderBtn" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Width="25" Height="25"  Margin="10 0 0 0">
+
+                <Button x:Name="_PrintSummaryOrderBtn" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Width="25" Height="25" Click="Print_Click"  Margin="10 0 0 0">
                     <Button.Content>
                         <Image Source="../Asset/Images/Print.png" ToolTipService.ToolTip="Print"  Margin="1"/>
                     </Button.Content>
@@ -80,7 +81,7 @@
                 </igGrid:XamGrid>
             </TabItem>
             <TabItem x:Name="_OrderSummary" Header="Summary" Style="{StaticResource TableItemStyle}">
-                <igGrid:XamGrid x:Name="_ExecutedOrderSummaryGrid" Grid.Row="1" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto"  Foreground="{Binding IsBuyBrush}">
+                <igGrid:XamGrid x:Name="_ExecutedOrderSummaryGrid" FontFamily="Hei" Grid.Row="1" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto" InitializeRow="ExecutedOrderSummaryGrid_InitializeRow">
                     <igGrid:XamGrid.FixedColumnSettings>
                         <igGrid:FixedColumnSettings AllowFixedColumns="DropArea"/>
                     </igGrid:XamGrid.FixedColumnSettings>
@@ -90,23 +91,67 @@
 
                     <!--Column Setting-->
                     <igGrid:XamGrid.Columns>
-                        <igGrid:TextColumn Key="InstrumentCode" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Item"/>
-                        <igGrid:TextColumn Key="ExchangeCode"  Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="ExchangeCode" />
+                        <igGrid:ColumnLayout Key="ChildSummaryItems" HeaderVisibility="Collapsed">
+                            <igGrid:ColumnLayout.Columns>
+                                <igGrid:ColumnLayout Key="ChildSummaryItems" HeaderVisibility="Collapsed">
+                                    <igGrid:ColumnLayout.Columns>
+                                        <igGrid:TextColumn Key="Code" Width="150" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Execute Time"/>
+                                        <igGrid:TextColumn Key="AccountCode" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Account Code" />
+                                        <igGrid:TextColumn Key="SellAvgPrice"  Width="90" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Average Sell" />
+                                        <igGrid:TemplateColumn Key="SellLot" Width="60" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Sell Lot" IsFilterable="False">
+                                            <igGrid:TemplateColumn.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding SellLot,Converter={StaticResource _LotNullValueConverter}}" Foreground="Red"/>
+                                                </DataTemplate>
+                                            </igGrid:TemplateColumn.ItemTemplate>
+                                        </igGrid:TemplateColumn>
+                                        <igGrid:TextColumn Key="BuyAvgPrice"  Width="90" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Average Buy" />
+                                        <igGrid:TemplateColumn Key="BuyLot" Width="60" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Buy Lot" IsFilterable="False">
+                                            <igGrid:TemplateColumn.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding BuyLot,Converter={StaticResource _LotNullValueConverter}}" Foreground="Blue"/>
+                                                </DataTemplate>
+                                            </igGrid:TemplateColumn.ItemTemplate>
+                                        </igGrid:TemplateColumn>
+                                    </igGrid:ColumnLayout.Columns>
+                                </igGrid:ColumnLayout>
+                                <igGrid:TextColumn Key="Code" Width="150" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Range"/>
+                                <igGrid:TextColumn Key="OrderCount" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Order Count" />
+                                <igGrid:TextColumn Key="SellAvgPrice"  Width="90" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Average Sell" />
+                                <igGrid:TemplateColumn Key="SellLot" Width="60" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Sell Lot" IsFilterable="False">
+                                    <igGrid:TemplateColumn.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding SellLot,Converter={StaticResource _LotNullValueConverter}}" Foreground="Red"/>
+                                        </DataTemplate>
+                                    </igGrid:TemplateColumn.ItemTemplate>
+                                </igGrid:TemplateColumn>
+                                <igGrid:TextColumn Key="BuyAvgPrice"  Width="90" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Average Buy" />
+                                <igGrid:TemplateColumn Key="BuyLot" Width="60" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Buy Lot" IsFilterable="False">
+                                    <igGrid:TemplateColumn.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding BuyLot,Mode=TwoWay,Converter={StaticResource _LotNullValueConverter}}" Foreground="Blue"/>
+                                        </DataTemplate>
+                                    </igGrid:TemplateColumn.ItemTemplate>
+                                </igGrid:TemplateColumn>
+                            </igGrid:ColumnLayout.Columns>
+                        </igGrid:ColumnLayout>
+                        
+                        <igGrid:TextColumn Key="InstrumentCode" Width="180" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Item"/>
                         <igGrid:TextColumn Key="OrderCount" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Order Count" />
-                        <igGrid:TextColumn Key="AverageSell"  Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Average Sell" />
+                        <igGrid:TextColumn Key="SellAvgPrice"  Width="90" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Average Sell" />
                         <igGrid:TemplateColumn Key="SellLot" Width="60" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Sell Lot" IsFilterable="False">
                             <igGrid:TemplateColumn.ItemTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding SellLot}" Foreground="Red"/>
+                                    <TextBlock Text="{Binding SellLot,Converter={StaticResource _LotNullValueConverter}}" Foreground="Red"/>
                                 </DataTemplate>
                             </igGrid:TemplateColumn.ItemTemplate>
                         </igGrid:TemplateColumn>
 
-                        <igGrid:TextColumn Key="AverageBuy"  Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Average Buy" />
+                        <igGrid:TextColumn Key="BuyAvgPrice"  Width="90" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Average Buy" />
                         <igGrid:TemplateColumn Key="BuyLot" Width="60" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Buy Lot" IsFilterable="False">
                             <igGrid:TemplateColumn.ItemTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding BuyLot}" Foreground="Blue"/>
+                                    <TextBlock Text="{Binding BuyLot,Mode=TwoWay,Converter={StaticResource _LotNullValueConverter}}" Foreground="Blue"/>
                                 </DataTemplate>
                             </igGrid:TemplateColumn.ItemTemplate>
                         </igGrid:TemplateColumn>

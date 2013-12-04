@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Delete xmlns="">
-  <DeletedOrder ID="0fe571e2-e1c9-461f-9717-02821125d7f0" AccountID="297b720f-c0c3-4af0-808d-609ae29e5c16" InstrumentID="be4d1cd0-5f1d-44ea-8b69-d74f1540b725" />
+  <DeletedOrder ID="79d9604d-881e-4928-9220-955f9d9cba15" AccountID="9538eb6e-57b1-45fa-8595-58df7aabcfc9" InstrumentID="66adc06c-c5fe-4428-867f-be97650eb3b1" />
   <Account ID="297b720f-c0c3-4af0-808d-609ae29e5c16" Balance="380227.82" Necessary="0.00" Necessary0="0.00" Necessary1="0.00" Necessary2="0.00" Necessary3="0.00" Equity="380227.82" MinUpkeepEquity="0.00" InterestPLNotValued="0.0" StoragePLNotValued="0.0" TradePLNotValued="0.0" InterestPLFloat="0.00" StoragePLFloat="0.00" TradePLFloat="0.00" ValueAsMargin="0.0" FrozenFund="0.0" PartialPaymentPhysicalNecessary="0.00" TotalPaidAmount="0.0" AlertLevel="0" xmlns="">
     <Currency ID="adf04c39-3837-4858-8849-8c4adc53d250" Balance="300254.0000" Necessary="0.00" InterestPLNotValued="0" StoragePLNotValued="0" TradePLNotValued="0" InterestPLFloat="0.00" StoragePLFloat="0.00" TradePLFloat="0.00" ValueAsMargin="0" FrozenFund="0" PartialPaymentPhysicalNecessary="0.00000000" TotalPaidAmount="0" />
     <Currency ID="0da665b5-9aa5-49d7-a301-048f1428ca4a" Balance="19923.0200" Necessary="0" InterestPLNotValued="0" StoragePLNotValued="0" TradePLNotValued="0" InterestPLFloat="0" StoragePLFloat="0" TradePLFloat="0" ValueAsMargin="0" FrozenFund="0" PartialPaymentPhysicalNecessary="0" TotalPaidAmount="0" />

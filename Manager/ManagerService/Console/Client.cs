@@ -101,7 +101,6 @@ namespace ManagerService.Console
 
         private Message Filter(Message message)
         {
-            //just test
             return message;
             IFilterable filterableMessage = message as IFilterable;
             if (filterableMessage != null)
