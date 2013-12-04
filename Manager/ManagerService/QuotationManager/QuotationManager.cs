@@ -51,7 +51,8 @@ namespace ManagerService.Quotation
 
         public void ProcessQuotation(PrimitiveQuotation primitiveQuotation)
         {
-            if (this._ConfigMetadata.EnsureIsKnownQuotation(primitiveQuotation))
+            bool inverted;
+            if (this._ConfigMetadata.EnsureIsKnownQuotation(primitiveQuotation, out inverted))
             {
                 double ask, bid;
                 if (this._LastQuotationManager.LastReceived.Fix(primitiveQuotation, out ask, out bid))
@@ -61,7 +62,7 @@ namespace ManagerService.Quotation
                         MainService.ClientManager.Dispatch(new PrimitiveQuotationMessage() { Quotation = primitiveQuotation });
 
                         string instrumentCode = this._ConfigMetadata.Instruments[primitiveQuotation.InstrumentId].Code;
-                        SourceQuotation quotation = new SourceQuotation(primitiveQuotation, ask, bid, instrumentCode);
+                        SourceQuotation quotation = new SourceQuotation(primitiveQuotation, ask, bid, instrumentCode, inverted);
                         bool quotationAccepted = true;
                         bool needUpdate = true;
                         if (this._SourceController.QuotationArrived(quotation))
@@ -120,6 +121,7 @@ namespace ManagerService.Quotation
                 this._ConfigMetadata.InstrumentSourceRelations.Add(relation.SourceId, relations);
             }
             relations.Add(relation.SourceSymbol, relation);
+            this._SourceController.OnAddInstrumentSourceRelation(relation);
         }
 
         public void AddMetadataObject(DerivativeRelation derivativeRelation)
@@ -137,52 +139,6 @@ namespace ManagerService.Quotation
             this._ConfigMetadata.WeightedPriceRules.Add(weightedPriceRule.Id, weightedPriceRule);
         }
 
-        //public void AddMetadataObject(IMetadataObject metadataObject)
-        //{
-        //    QuotationSource quotationSource = metadataObject as QuotationSource;
-        //    if (quotationSource != null)
-        //    {
-        //        this._ConfigMetadata.QuotationSources.Add(quotationSource.Name, quotationSource);
-        //        return;
-        //    }
-
-        //    ManagerInstrument instrument = metadataObject as ManagerInstrument;
-        //    if (instrument != null)
-        //    {
-        //        this._ConfigMetadata.Instruments.Add(instrument.Code, instrument);
-        //    }
-
-        //    InstrumentSourceRelation relation = metadataObject as InstrumentSourceRelation;
-        //    if (relation != null)
-        //    {
-        //         Dictionary<string, InstrumentSourceRelation> relations;
-        //        if(!this._ConfigMetadata.InstrumentSourceRelations.TryGetValue(relation.SourceId, out relations))
-        //        {
-        //            relations = new Dictionary<string,InstrumentSourceRelation>();
-        //            this._ConfigMetadata.InstrumentSourceRelations.Add(relation.SourceId, relations);
-        //        }
-        //        relations.Add(relation.SourceSymbol, relation);
-        //    }
-
-        //    DerivativeRelation derivativeRelation = metadataObject as DerivativeRelation;
-        //    if (derivativeRelation != null)
-        //    {
-        //        this._ConfigMetadata.DerivativeRelations.Add(derivativeRelation.InstrumentId, derivativeRelation);
-        //    }
-
-        //    PriceRangeCheckRule priceRangeCheckRule = metadataObject as PriceRangeCheckRule;
-        //    if (priceRangeCheckRule != null)
-        //    {
-        //        this._ConfigMetadata.PriceRangeCheckRules.Add(priceRangeCheckRule.InstrumentId, priceRangeCheckRule);
-        //    }
-
-        //    WeightedPriceRule weightedPriceRule = metadataObject as WeightedPriceRule;
-        //    if (weightedPriceRule != null)
-        //    {
-        //        this._ConfigMetadata.WeightedPriceRules.Add(weightedPriceRule.InstrumentId, weightedPriceRule);
-        //    }
-        //}
-
         internal void DeleteMetadataObject(MetadataType type, int objectId)
         {
             switch (type)
@@ -192,14 +148,28 @@ namespace ManagerService.Quotation
                     if (source != null) this._ConfigMetadata.QuotationSources.Remove(source.Name);
                     break;
                 case MetadataType.Instrument:
+                    this._ConfigMetadata.Instruments.Remove(objectId);
                     break;
                 case MetadataType.InstrumentSourceRelation:
+                    foreach(Dictionary<string, InstrumentSourceRelation> relations in this._ConfigMetadata.InstrumentSourceRelations.Values)
+                    {
+                        InstrumentSourceRelation relation = relations.Values.SingleOrDefault(r => r.Id == objectId);
+                        if(relation != null)
+                        {
+                            relations.Remove(relation.SourceSymbol);
+                            break;
+                        }
+                    }
+                    this._SourceController.OnRemoveInstrumentSourceRelation(objectId);
                     break;
                 case MetadataType.DerivativeRelation:
+                    this._ConfigMetadata.DerivativeRelations.Remove(objectId);
                     break;
                 case MetadataType.PriceRangeCheckRule:
+                    this._ConfigMetadata.PriceRangeCheckRules.Remove(objectId);
                     break;
                 case MetadataType.WeightedPriceRule:
+                    this._ConfigMetadata.WeightedPriceRules.Remove(objectId);
                     break;
                 default:
                     break;
@@ -211,16 +181,32 @@ namespace ManagerService.Quotation
             switch (type)
             {
                 case MetadataType.QuotationSource:
+                    QuotationSource quotationSource = this._ConfigMetadata.QuotationSources.Values.Single(s => s.Id == objectId);
+                    quotationSource.Update(fieldAndValues);
                     break;
                 case MetadataType.Instrument:
+                    ManagerInstrument instrument = this._ConfigMetadata.Instruments[objectId];
+                    instrument.Update(fieldAndValues);
                     break;
                 case MetadataType.InstrumentSourceRelation:
+                    foreach (Dictionary<string, InstrumentSourceRelation> relations in this._ConfigMetadata.InstrumentSourceRelations.Values)
+                    {
+                        InstrumentSourceRelation relation = relations.Values.SingleOrDefault(r => r.Id == objectId);
+                        if (relation != null)
+                        {
+                            relations[relation.SourceSymbol].Update(fieldAndValues);
+                            break;
+                        }
+                    }    
                     break;
                 case MetadataType.DerivativeRelation:
+                    this._ConfigMetadata.DerivativeRelations[objectId].Update(fieldAndValues);
                     break;
                 case MetadataType.PriceRangeCheckRule:
+                    this._ConfigMetadata.PriceRangeCheckRules[objectId].Update(fieldAndValues);
                     break;
                 case MetadataType.WeightedPriceRule:
+                    this._ConfigMetadata.WeightedPriceRules[objectId].Update(fieldAndValues);
                     break;
                 default:
                     break;

@@ -93,8 +93,8 @@ namespace ManagerConsole.UI
                     {
                         if (objectId > 0)
                         {
-                            VmQuotationSource viewModelObject = new VmQuotationSource(new QuotationSource { Id = objectId, Name = source.Name, AuthName = source.AuthName, Password = source.Password });
-                            this._QuotationConfigData.Add(viewModelObject);
+                            source.Id = objectId;
+                            this._QuotationConfigData.Add(source);
                             this.HintTextBlock.Foreground = Brushes.Green;
                             this.HintTextBlock.Text = "Add success.";
                             this.NameTextBox.Text = string.Empty;

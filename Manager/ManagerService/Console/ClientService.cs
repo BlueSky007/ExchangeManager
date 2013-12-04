@@ -7,6 +7,7 @@ using System.Diagnostics;
 using Manager.Common.QuotationEntities;
 using Manager.Common.LogEntities;
 using Manager.Common.ReportEntities;
+using iExchange.Common.Manager;
 
 namespace ManagerService.Console
 {
@@ -259,6 +260,11 @@ namespace ManagerService.Console
         {
             return this._Client.GetOrderByInstrument(instrumentId, accountGroupId, orderType, isExecute, fromDate, toDate);
         }
+
+        public List<AccountGroupGNP> GetGroupNetPosition()
+        {
+            return this._Client.GetGroupNetPosition();
+        }
         #endregion
 
         #region Log Audit
@@ -316,19 +322,17 @@ namespace ManagerService.Console
             return 0;
         }
 
-        public int[] AddMetadataObjects(IMetadataObject[] metadataObjects)
+        public int AddInstrument(InstrumentData instrumentData)
         {
             try
             {
-                return this._Client.AddMetadataObjects(metadataObjects);
+                return this._Client.AddInstrument(instrumentData);
             }
             catch (Exception ex)
             {
-                string objects = string.Empty;
-                for (int i = 0; i < metadataObjects.Length; i++) objects += "[" + metadataObjects[i].ToString() + "]";
-                Logger.AddEvent(TraceEventType.Error, "[ManagerService.AddMetadataObjects]{0}\r\n{1}", objects, ex.ToString());
+                Logger.AddEvent(TraceEventType.Error, "[ManagerService.AddMetadataObjects]{0}", ex.ToString());
             }
-            return null;
+            return 0;
         }
 
         public bool UpdateMetadataObject(MetadataType type, int objectId, Dictionary<string, object> fieldAndValues)
@@ -342,6 +346,21 @@ namespace ManagerService.Console
             {
                 Logger.AddEvent(TraceEventType.Error,
                     "[ManagerService.UpdateMetadataObject]type:{0}, objectId:{1}\r\nfields:\r\n{2}{3}", type, objectId, ServiceHelper.DumpDictionary(fieldAndValues), ex.ToString());
+            }
+            return false;
+        }
+
+        public bool UpdateMetadataObjectField(MetadataType type, int objectId, string field, object value)
+        {
+            try
+            {
+                this._Client.UpdateMetadataObject(type, objectId, field, value);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Logger.AddEvent(TraceEventType.Error,
+                    "[ManagerService.UpdateMetadataObject]type:{0}, objectId:{1}, field:{2}, value:{3}\r\n{4}", type, objectId, field, value, ex.ToString());
             }
             return false;
         }
@@ -372,6 +391,20 @@ namespace ManagerService.Console
             {
                 Logger.AddEvent(TraceEventType.Error,
                     "[ManagerService.SendQuotation]instrumentSourceRelationId:{0}, ask:{1}, bid:{2}\r\n{3}", instrumentSourceRelationId, ask, bid, ex.ToString());
+            }
+        }
+
+        public void SwitchDefaultSource(SwitchRelationBooleanPropertyMessage message)
+        {
+            try
+            {
+                this._Client.SwitchDefaultSource(message);
+            }
+            catch (Exception ex)
+            {
+                Logger.AddEvent(TraceEventType.Error,
+                    "[ManagerService.SwitchActiveSource] InstrumentId:{0}, OldRelationId:{1}, NewRelationId:{2}\r\n{3}",
+                    message.InstrumentId, message.OldRelationId, message.NewRelationId, ex.ToString());
             }
         }
     }

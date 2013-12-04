@@ -1,0 +1,80 @@
+﻿<UserControl x:Class="ManagerConsole.UI.DerivedInstrumentControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" Background="White"
+             d:DesignHeight="200" d:DesignWidth="530">
+    <Control.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Margin" Value="3,0"/>
+            <Setter Property="Height" Value="23"/>
+        </Style>
+    </Control.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="100"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="AdjustPoints" Margin="10,0"/>
+            <TextBox x:Name="AdjustPointsBox" Text="{Binding AdjustPoints}" Width="60"/>
+            <TextBlock Text="AdjustIncrement" Margin="10,0"/>
+            <TextBox x:Name="AdjustIncrementBox" Text="{Binding AdjustIncrement}" Width="60"/>
+        </StackPanel>
+        <GroupBox Grid.Row="1" Header="From Instruments">
+            <StackPanel Orientation="Horizontal" Height="25">
+                <TextBlock Text="Instrument1"/>
+                <ComboBox x:Name="Instrument1Box" Width="80" Height="23" Margin="10,0" />
+                <TextBlock Text="Inverted" />
+                <CheckBox x:Name="InvertedCheckBox" VerticalAlignment="Center" Margin="2,0"/>
+                <TextBlock Text="Instrument2" Margin="15,0,0,0"/>
+                <ComboBox x:Name="Instrument2Box" Width="80" Height="23" Margin="10,0" />
+            </StackPanel>
+        </GroupBox>
+
+        <GroupBox Header="Derivative Rule" Grid.Row="2">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="25"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="30"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="100"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Ask"/>
+                <ComboBox Grid.Column="1" x:Name="AskOperand1TypeComboBox" />
+                <ComboBox Grid.Column="2" x:Name="AskOperator1TypeComboBox" />
+                <ComboBox Grid.Column="3" x:Name="AskOperand2TypeComboBox" />
+                <ComboBox Grid.Column="4" x:Name="AskOperator2TypeComboBox" />
+                <TextBox Grid.Column="5" x:Name="AskOperand3ComboBox" />
+                <TextBlock Text="Bid" Grid.Row="1"/>
+                <ComboBox Grid.Column="1" Grid.Row="1" x:Name="BidOperand1TypeComboBox" />
+                <ComboBox Grid.Column="2" Grid.Row="1" x:Name="BidOperator1TypeComboBox" />
+                <ComboBox Grid.Column="3" Grid.Row="1" x:Name="BidOperand2TypeComboBox" />
+                <ComboBox Grid.Column="4" Grid.Row="1" x:Name="BidOperator2TypeComboBox" />
+                <TextBox Grid.Column="5" Grid.Row="1"  x:Name="BidOperand3ComboBox" />
+                <TextBlock Text="Last" Grid.Row="2"/>
+                <ComboBox Grid.Column="1" Grid.Row="2" x:Name="LastOperand1TypeComboBox" />
+                <ComboBox Grid.Column="2" Grid.Row="2" x:Name="LastOperator1TypeComboBox" />
+                <ComboBox Grid.Column="3" Grid.Row="2" x:Name="LastOperand2TypeComboBox" />
+                <ComboBox Grid.Column="4" Grid.Row="2" x:Name="LastOperator2TypeComboBox" />
+                <TextBox Grid.Column="5" Grid.Row="2"  x:Name="LastOperand3ComboBox" />
+            </Grid>
+        </GroupBox>
+    </Grid>
+</UserControl>

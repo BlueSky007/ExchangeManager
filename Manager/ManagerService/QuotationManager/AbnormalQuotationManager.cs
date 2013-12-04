@@ -66,7 +66,7 @@ namespace ManagerService.Quotation
                         this._WaitQueue.Dequeue();
                     }
                     SourceQuotation confirmedQuotation = this._WaitQueue.Dequeue();
-                    MainService.ExchangeManager.SwitchPriceEnableState(confirmedQuotation.PrimitiveQuotation.Symbol, true);
+                    MainService.ExchangeManager.SwitchPriceEnableState(confirmedQuotation.InstrumentId, true);
                     if (accepted)
                     {
                         MainService.QuotationManager.ProcessNormalQuotation(confirmedQuotation);
@@ -93,7 +93,7 @@ namespace ManagerService.Quotation
                     SourceQuotation quotation = this._WaitQueue.Dequeue();
                     if (this._TimeoutCount > this._PriceRangeCheckRule.OutOfRangeCount)
                     {
-                        MainService.ExchangeManager.SwitchPriceEnableState(quotation.PrimitiveQuotation.Symbol, true);
+                        MainService.ExchangeManager.SwitchPriceEnableState(quotation.InstrumentId, true);
                         MainService.QuotationManager.ProcessNormalQuotation(quotation);
                         this.ProcessSubsequentQuotation();
                         this._TimeoutCount = 0;
@@ -121,7 +121,7 @@ namespace ManagerService.Quotation
 
                 if (quotation.IsAbnormal)
                 {
-                    MainService.ExchangeManager.SwitchPriceEnableState(quotation.PrimitiveQuotation.Symbol, false);
+                    MainService.ExchangeManager.SwitchPriceEnableState(quotation.InstrumentId, false);
                     this._AbnormalQuotationManager.StartConfirm(quotation);
                     break;
                 }
@@ -172,7 +172,7 @@ namespace ManagerService.Quotation
                 {
                     if (!this._PriceRangeCheckRules[quotation.InstrumentId].DiscardOutOfRangePrice)
                     {
-                        MainService.ExchangeManager.SwitchPriceEnableState(quotation.PrimitiveQuotation.Symbol, false);
+                        MainService.ExchangeManager.SwitchPriceEnableState(quotation.InstrumentId, false);
                         abnormalInstrument = new AbnormalInstrument(quotation, this, this._PriceRangeCheckRules[quotation.InstrumentId]);
                         this._AbnormalInstruments.Add(quotation.InstrumentId, abnormalInstrument);
                         this.StartConfirm(quotation);

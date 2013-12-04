@@ -47,6 +47,11 @@ namespace ManagerConsole.Model
             return true;
         }
 
+        private void Process(SwitchRelationBooleanPropertyMessage message)
+        {
+            this._QuotationMessageProcessor.Process(message);
+        }
+
         private void Process(PrimitiveQuotationMessage primitiveQuotationMessage)
         {
             this._QuotationMessageProcessor.Process(primitiveQuotationMessage);
@@ -58,6 +63,11 @@ namespace ManagerConsole.Model
         }
 
         private void Process(AddMetadataObjectMessage message)
+        {
+            this._QuotationMessageProcessor.Process(message);
+        }
+
+        private void Process(AddMetadataObjectsMessage message)
         {
             this._QuotationMessageProcessor.Process(message);
         }

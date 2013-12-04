@@ -39,7 +39,8 @@ namespace ManagerConsole.ViewModel
         {
             App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
-                App.MainWindow.ShowAbnormalQuotation(message);
+                VmQuotationManager.Instance.AddAbnormalQuotation(message);
+                App.MainWindow.ShowAbnormalQuotation();
             });
         }
 
@@ -52,11 +53,17 @@ namespace ManagerConsole.ViewModel
         {
             App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
-                throw new NotImplementedException();
-                //QuotationConfigData.Instance.Add(message.MetadataObject);
+                VmQuotationManager.Instance.Add((dynamic)message.MetadataObject);
             });
         }
 
+        internal void Process(AddMetadataObjectsMessage message)
+        {
+            for (int i = 0; i < message.MetadataObjects.Length; i++)
+            {
+                VmQuotationManager.Instance.Add((dynamic)message.MetadataObjects[i]);
+            }
+        }
 
         internal void Process(UpdateMetadataMessage message)
         {
@@ -70,6 +77,14 @@ namespace ManagerConsole.ViewModel
             App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
                 VmQuotationManager.Instance.Delete(message);
+            });
+        }
+
+        internal void Process(SwitchRelationBooleanPropertyMessage switchRelationPropertyMessage)
+        {
+            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+            {
+                VmQuotationManager.Instance.SwitchActiveSource(switchRelationPropertyMessage);
             });
         }
     }

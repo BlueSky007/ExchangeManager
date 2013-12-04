@@ -7,14 +7,17 @@ using ManagerConsole.Helper;
 
 namespace ManagerConsole.ViewModel
 {
-    public class VmWeightedPriceRule : PropertyChangedNotifier
+    public class VmWeightedPriceRule : VmBase
     {
         private WeightedPriceRule _WeightedPriceRule;
 
         public VmWeightedPriceRule(WeightedPriceRule weightedPriceRule)
+            : base(weightedPriceRule)
         {
             this._WeightedPriceRule = weightedPriceRule;
         }
+
+        public WeightedPriceRule WeightedPriceRule { get { return this._WeightedPriceRule; } }
 
         public int Id { get { return this._WeightedPriceRule.Id; } set { this._WeightedPriceRule.Id = value; } }
         public decimal Multiplier
@@ -171,13 +174,13 @@ namespace ManagerConsole.ViewModel
         {
             get
             {
-                return this._WeightedPriceRule.AskAvarageWeight;
+                return this._WeightedPriceRule.AskAverageWeight;
             }
             set
             {
-                if (this._WeightedPriceRule.AskAvarageWeight != value)
+                if (this._WeightedPriceRule.AskAverageWeight != value)
                 {
-                    this._WeightedPriceRule.AskAvarageWeight = value;
+                    this._WeightedPriceRule.AskAverageWeight = value;
                     this.OnPropertyChanged(FieldSR.AskAvarageWeight);
                 }
             }
@@ -186,13 +189,13 @@ namespace ManagerConsole.ViewModel
         {
             get
             {
-                return this._WeightedPriceRule.BidAvarageWeight;
+                return this._WeightedPriceRule.BidAverageWeight;
             }
             set
             {
-                if (this._WeightedPriceRule.BidAvarageWeight != value)
+                if (this._WeightedPriceRule.BidAverageWeight != value)
                 {
-                    this._WeightedPriceRule.BidAvarageWeight = value;
+                    this._WeightedPriceRule.BidAverageWeight = value;
                     this.OnPropertyChanged(FieldSR.BidAvarageWeight);
                 }
             }
@@ -201,13 +204,13 @@ namespace ManagerConsole.ViewModel
         {
             get
             {
-                return this._WeightedPriceRule.LastAvarageWeight;
+                return this._WeightedPriceRule.LastAverageWeight;
             }
             set
             {
-                if (this._WeightedPriceRule.LastAvarageWeight != value)
+                if (this._WeightedPriceRule.LastAverageWeight != value)
                 {
-                    this._WeightedPriceRule.LastAvarageWeight = value;
+                    this._WeightedPriceRule.LastAverageWeight = value;
                     this.OnPropertyChanged(FieldSR.LastAvarageWeight);
                 }
             }

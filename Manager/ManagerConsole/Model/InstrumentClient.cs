@@ -41,6 +41,8 @@ namespace ManagerConsole.Model
         private string _PreviousClosePrice;
         private decimal _BuyLot;
         private decimal _SellLot;
+        private Guid? _SummaryGroupId;
+        private string _SummaryGroupCode;
         #endregion
 
         #region Public Property
@@ -279,6 +281,18 @@ namespace ManagerConsole.Model
         {
             get;
             set;
+        }
+
+        public Guid? SummaryGroupId
+        { 
+            get{return this._SummaryGroupId;}
+            set{this._SummaryGroupId = value;}
+        }
+            
+        public string SummaryGroupCode
+        {
+            get { return this._SummaryGroupCode; }
+            set { this._SummaryGroupCode = value; }
         }
         #endregion
 

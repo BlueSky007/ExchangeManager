@@ -1,4 +1,4 @@
-﻿<Window x:Class="ManagerConsole.MainWindow"
+﻿<Window xmlns:UI="clr-namespace:ManagerConsole.UI"  x:Class="ManagerConsole.MainWindow"
         xmlns:igWPF="http://schemas.infragistics.com/xaml/wpf"
         xmlns:ig="http://schemas.infragistics.com/xaml"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -35,9 +35,7 @@
                     <igWPF:SplitPane igWPF:XamDockManager.InitialLocation="FloatingOnly" igWPF:XamDockManager.FloatingLocation="300,300">
                         <igWPF:ContentPane x:Name="FloatPane" Header="Confirm Abnormal Quotation" MinHeight="80" MinWidth="60" Visibility="Collapsed" CloseAction="HidePane" >
                             <igWPF:ContentPane.Content>
-                                <Grid>
-                                    <TextBlock Text="Show a"/>
-                                </Grid>
+                                <UI:AbnormalQuotationProcessControl x:Name="AbnormalQuotationProcessControl" />
                             </igWPF:ContentPane.Content>
                         </igWPF:ContentPane>
                     </igWPF:SplitPane>

@@ -5,34 +5,31 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using ManagerConsole.Helper;
-using CommonPrimitiveQuotation = Manager.Common.QuotationEntities.PrimitiveQuotation;
+using Manager.Common.QuotationEntities;
 
 namespace ManagerConsole.ViewModel
 {
-    //public class VmSourceQuotation
-    //{
-    //    private ObservableCollection<PrimitiveQuotation> _Quotations = new ObservableCollection<PrimitiveQuotation>();
+    public class VmSourceQuotation
+    {
+        private PrimitiveQuotation _PrimitiveQuotation;
 
-    //    public VmSourceQuotation(int sourceId, string sourceName)
-    //    {
-    //        this.Id = sourceId;
-    //        this.Name = sourceName;
-    //    }
+        public VmSourceQuotation(PrimitiveQuotation primitiveQuotation, string instrumentCode)
+        {
+            this._PrimitiveQuotation = primitiveQuotation;
+            this.InstrumentCode = instrumentCode;
+        }
+        public string InstrumentCode { get; private set; }
 
-    //    public int Id { get; set; }
-    //    public string Name { get; set; }
+        public int SourceId { get { return this._PrimitiveQuotation.SourceId; } }
+        public int InstrumentId { get { return this._PrimitiveQuotation.InstrumentId; } }
+        public string SourceName { get { return this._PrimitiveQuotation.SourceName; } }
+        public string Symbol { get { return this._PrimitiveQuotation.Symbol; } }
+        public string Bid { get { return this._PrimitiveQuotation.Bid; } }
+        public string Ask { get { return this._PrimitiveQuotation.Ask; } }
+        public string Last { get { return this._PrimitiveQuotation.Last; } }
+        public string High { get { return this._PrimitiveQuotation.High; } }
+        public string Low { get { return this._PrimitiveQuotation.Low; } }
+        public DateTime Timestamp { get { return this._PrimitiveQuotation.Timestamp; } }
+    }
 
-    //    public ObservableCollection<PrimitiveQuotation> Quotations { get { return this._Quotations; } }
-    //}
-
-    //public class PrimitiveQuotation
-    //{
-    //    public string InstrumentCode { get; set; }
-    //    public string Bid { get; set; }
-    //    public string Ask { get; set; }
-    //    public string Last { get; set; }
-    //    public string High { get; set; }
-    //    public string Low { get; set; }
-    //    public DateTime Timestamp { get; set; }
-    //}
 }

@@ -1,4 +1,5 @@
-﻿using Manager.Common;
+﻿using iExchange.Common.Manager;
+using Manager.Common;
 using Manager.Common.LogEntities;
 using ManagerService.Console;
 using System;
@@ -6,6 +7,8 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Net;
+using System.ServiceModel;
+using System.ServiceModel.Channels;
 
 namespace ManagerService.DataAccess
 {
@@ -236,6 +239,14 @@ namespace ManagerService.DataAccess
 
     public class WriteLogManager
     {
+        public static string GetIpAdreess()
+        {
+            OperationContext context = OperationContext.Current;
+            MessageProperties properties = context.IncomingMessageProperties;
+            RemoteEndpointMessageProperty endpoint = properties[RemoteEndpointMessageProperty.Name] as RemoteEndpointMessageProperty;
+
+            return string.Format("{0}:{1}", endpoint.Address, endpoint.Port);
+        }
         public static void WriteQuotePriceLog(Answer answer, Client client, string eventType)
         {
             LogQuote logQuote = new LogQuote();
@@ -244,6 +255,7 @@ namespace ManagerService.DataAccess
             IPHostEntry localhost = Dns.GetHostEntry(hostname);
             IPAddress localaddr = localhost.AddressList[0];
             logQuote.IP = localaddr.ToString();
+            string id = GetIpAdreess();
 
             logQuote.UserId = client.userId;
             logQuote.UserName = client.user.UserName;

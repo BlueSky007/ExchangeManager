@@ -1,0 +1,65 @@
+﻿<UserControl x:Class="ManagerConsole.UI.WeightedRuleControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="118" d:DesignWidth="330">
+    <Control.Resources>
+        <Style TargetType="TextBox">
+            <Setter Property="Margin" Value="3,2,3,2"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="TextAlignment" Value="Right"/>
+        </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </Control.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="30" />
+            <ColumnDefinition Width="60" />
+            <ColumnDefinition Width="60" />
+            <ColumnDefinition Width="60" />
+            <ColumnDefinition Width="60" />
+            <ColumnDefinition Width="60" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="18" />
+            <RowDefinition Height="25" />
+            <RowDefinition Height="25" />
+            <RowDefinition Height="25" />
+            <RowDefinition Height="25" />
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="1" Text="Ask"/>
+        <TextBlock Grid.Row="2" Text="Bid"/>
+        <TextBlock Grid.Row="3" Text="Last"/>
+        <TextBlock Grid.Column="1" Text="AskWeight"/>
+        <TextBlock Grid.Column="2" Text="BidWeight"/>
+        <TextBlock Grid.Column="3" Text="LastWeight"/>
+        <TextBlock Grid.Column="4" Text="AverageWeight" ToolTipService.ToolTip="AverageWeight" />
+        <TextBlock Grid.Column="5" Text="Adjust"/>
+
+        <TextBox x:Name="AskAskWeightBox" Text="{Binding AskAskWeight}" Grid.Column="1" Grid.Row="1"/>
+        <TextBox x:Name="AskBidWeightBox" Text="{Binding AskBidWeight}" Grid.Column="2" Grid.Row="1"/>
+        <TextBox x:Name="AskLastWeightBox" Text="{Binding AskLastWeight}" Grid.Column="3" Grid.Row="1"/>
+        <TextBox x:Name="AskAverageWeightBox" Text="{Binding AskAverageWeight}" Grid.Column="4" Grid.Row="1"/>
+        <TextBox x:Name="AskAdjustBox" Text="{Binding AskAdjust}" Grid.Column="5" Grid.Row="1"/>
+
+        <TextBox x:Name="BidAskWeightBox" Text="{Binding BidAskWeight}" Grid.Column="1" Grid.Row="2"/>
+        <TextBox x:Name="BidBidWeightBox" Text="{Binding BidBidWeight}" Grid.Column="2" Grid.Row="2"/>
+        <TextBox x:Name="BidLastWeightBox" Text="{Binding BidLastWeight}" Grid.Column="3" Grid.Row="2"/>
+        <TextBox x:Name="BidAverageWeightBox" Text="{Binding BidAverageWeight}" Grid.Column="4" Grid.Row="2"/>
+        <TextBox x:Name="BidAdjustBox" Text="{Binding BidAdjust}" Grid.Column="5" Grid.Row="2"/>
+
+        <TextBox x:Name="LastAskWeightBox" Text="{Binding LastAskWeight}" Grid.Column="1" Grid.Row="3"/>
+        <TextBox x:Name="LastBidWeightBox" Text="{Binding LastBidWeight}" Grid.Column="2" Grid.Row="3"/>
+        <TextBox x:Name="LastLastWeightBox" Text="{Binding LastLastWeight}" Grid.Column="3" Grid.Row="3"/>
+        <TextBox x:Name="LastAverageWeightBox" Text="{Binding LastAverageWeight}" Grid.Column="4" Grid.Row="3"/>
+        <TextBox x:Name="LastAdjustBox" Text="{Binding LastAdjust}" Grid.Column="5" Grid.Row="3"/>
+
+        <TextBlock Grid.Column="1" Grid.Row="4" Text="Multiplier"/>
+        <TextBox x:Name="MultiplierBox" Text="{Binding Multiplier}" Grid.Row="4" Grid.Column="2"/>
+    </Grid>
+</UserControl>

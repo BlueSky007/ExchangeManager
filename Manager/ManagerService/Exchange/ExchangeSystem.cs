@@ -10,6 +10,7 @@ using Manager.Common.QuotationEntities;
 using CommonTransactionError = Manager.Common.TransactionError;
 using CommonCancelReason = Manager.Common.CancelReason;
 using ManagerService.QuotationExchange;
+using iExchange.Common.Manager;
 
 namespace ManagerService.Exchange
 {
@@ -112,11 +113,8 @@ namespace ManagerService.Exchange
             return false;
         }
 
-        private void HandlEngineException(Exception ex)
-        {
-            Logger.TraceEvent(TraceEventType.Error, "ExchangeSystem.HandlEngineException RelayEngine stopped:\r\n" + ex.ToString());
-        }
 
+        #region DealingConsole
         public void AbandonQuote(List<Answer> abandonQutes)
         {
             try
@@ -132,6 +130,7 @@ namespace ManagerService.Exchange
                 Logger.TraceEvent(TraceEventType.Error, "ExchangeSystem.Answer Error:\r\n" + ex.ToString());
             }
         }
+
         public void Answer(List<Answer> answerQutos)
         {
             try
@@ -174,6 +173,18 @@ namespace ManagerService.Exchange
 
             //errorCode = this._StateServer.AcceptPlace(transactionId);
             return errorCode;
+        }
+        #endregion
+
+        #region Report
+        public List<AccountGroupGNP> GetGroupNetPosition()
+        {
+            return NetGroupManager.GetNetPosition();
+        }
+        #endregion
+        private void HandlEngineException(Exception ex)
+        {
+            Logger.TraceEvent(TraceEventType.Error, "ExchangeSystem.HandlEngineException RelayEngine stopped:\r\n" + ex.ToString());
         }
         
     }

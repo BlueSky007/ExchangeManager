@@ -21,6 +21,7 @@ using ManagerConsole.UI;
 using Infragistics.Controls.Menus;
 using System.Collections.ObjectModel;
 using System.Threading;
+using ManagerConsole.ViewModel;
 
 namespace ManagerConsole
 {
@@ -38,6 +39,7 @@ namespace ManagerConsole
         private ObservableCollection<string> _Layouts;
         private OrderHandle _OrderHandle;
         private MessageProcessor MessageProcessor;
+        private SourceQuotationControl _SourceQuotationControl;
 
         public MainWindow()
         {
@@ -48,6 +50,8 @@ namespace ManagerConsole
             this.ConfirmOrderDialogWin = new ConfirmOrderDialogWin(this.MainFrame);
             this._OrderHandle = new OrderHandle();
         }
+
+        public SourceQuotationControl SourceQuotationControl { get { return this._SourceQuotationControl; } }
 
         public InitDataManager InitDataManager
         {
@@ -61,9 +65,10 @@ namespace ManagerConsole
             set { this._OrderHandle = value; }
         }
 
-        public void ShowAbnormalQuotation(AbnormalQuotationMessage message)
+        public void ShowAbnormalQuotation()
         {
             this.FloatPane.Visibility = Visibility.Visible;
+            this.AbnormalQuotationProcessControl.ItemsSource = VmQuotationManager.Instance.AbnormalQuotations;
         }
 
         private void treeViewItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -174,11 +179,15 @@ namespace ManagerConsole
 
         private ContentPane AddContentPane(int moduleType)
         {
-            ContentPane contentPane = this.DockManager.AddDocument(this._Modules[moduleType].ModuleDescription, MainWindowHelper.GetControl((ModuleType)moduleType));
+            UserControl userControl = MainWindowHelper.GetControl((ModuleType)moduleType);
+            ContentPane contentPane = this.DockManager.AddDocument(this._Modules[moduleType].ModuleDescription, userControl);
             contentPane.Name = MainWindowHelper.GetPaneName(moduleType);
-            Thickness zeroThickness = new Thickness(0);
-            contentPane.Padding = zeroThickness;
-            contentPane.BorderThickness = zeroThickness;
+            contentPane.Padding = contentPane.BorderThickness = new Thickness(0);
+
+            if ((ModuleType)moduleType == ModuleType.SourceQuotation)
+            {
+                this._SourceQuotationControl = (SourceQuotationControl)userControl;
+            }
             return contentPane;
         }
 

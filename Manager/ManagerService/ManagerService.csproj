@@ -87,6 +87,7 @@
     <Compile Include="Exchange\ConnectionManager.cs" />
     <Compile Include="Exchange\ExchangeSystem.cs" />
     <Compile Include="Exchange\IExchangeService.cs" />
+    <Compile Include="Exchange\NetGroupManager.cs" />
     <Compile Include="Exchange\QuotationGenerator.cs" />
     <Compile Include="Exchange\ExchangeService.cs" />
     <Compile Include="Helper.cs" />
@@ -151,6 +152,7 @@
     <Content Include="Configuration\Manifest.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Xml\NetPosition.xml" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="ManagerService.resx">

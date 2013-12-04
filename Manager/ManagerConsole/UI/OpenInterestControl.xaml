@@ -1,0 +1,159 @@
+﻿<UserControl x:Class="ManagerConsole.UI.OpenInterestControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:igWindows="http://infragistics.com/Windows"
+             xmlns:igGrid="http://schemas.infragistics.com/xaml"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="600">
+    <UserControl.Resources>
+        <Style x:Key="CellStyle" TargetType="igGrid:CellControl">
+            <Setter Property="BorderBrush" Value="#FFDEDEDE" />
+            <Setter Property="BorderThickness" Value="0,0,1,1" />
+            <Setter Property="Foreground" Value="Blue"/>
+        </Style>
+        <Style x:Key="BuyCellStyle" TargetType="igGrid:CellControl">
+            <Setter Property="BorderBrush" Value="#FFDEDEDE" />
+            <Setter Property="Padding" Value="0,0,0,0"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+            <Setter Property="Foreground" Value="Blue"/>
+        </Style>
+        <Style x:Key="SellCellStyle" TargetType="igGrid:CellControl">
+            <Setter Property="BorderBrush" Value="#FFDEDEDE" />
+            <Setter Property="Padding" Value="0,0,0,0"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+            <Setter Property="Foreground" Value="Red"/>
+        </Style>
+        <Style x:Key="BuySummaryGroupCellStyle" TargetType="igGrid:CellControl">
+            <Setter Property="BorderBrush" Value="#FFDEDEDE" />
+            <Setter Property="Padding" Value="0,0,0,0"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+            <Setter Property="Background" Value="#FF90EE90"/>
+            <Setter Property="Foreground" Value="Blue"/>
+        </Style>
+        <Style x:Key="SellSummaryGroupStyle" TargetType="igGrid:CellControl">
+            <Setter Property="BorderBrush" Value="#FFDEDEDE" />
+            <Setter Property="Padding" Value="0,0,0,0"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+            <Setter Property="Background" Value="#FF90EE90"/>
+            <Setter Property="Foreground" Value="Red"/>
+        </Style>
+        
+        
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="500*"/>
+        </Grid.RowDefinitions>
+        <Border x:Name="_NetPositionToolbar" CornerRadius="3" Background="{StaticResource BackGroundForPanel}" Grid.Row="0">
+            <StackPanel Orientation="Horizontal" Margin="15,0,0,0">
+                <TextBlock  Margin="10,0,0,0" Text="Show Actual Quantity" Foreground="White" VerticalAlignment="Center"/>
+                <CheckBox x:Name="_ShowQuantityChk" VerticalAlignment="Center" Margin="8,0,0,0"/>
+
+                <Button x:Name="_BlotterSelectBtn" Foreground="White" Content="Selection Blotter" Width="90" Height="25" BorderBrush="Black" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                <Button x:Name="_QueryNetPostionBtn" Click="QueryData" Foreground="White" Content="Go" Width="25" Height="25" BorderBrush="Black" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Margin="3,0,0,0" VerticalAlignment="Center"/>
+                
+
+            </StackPanel>
+        </Border>
+        <Border x:Name="_SummaryToolbar" Visibility="Collapsed"  CornerRadius="5" Background="{StaticResource BackGroundForPanel}" Grid.Row="0">
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="_BlotterSelectButton" Foreground="White" Content="Selection Blotter" Width="90" Height="25" BorderBrush="Black" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                <Button x:Name="_QuerySummaryBtn" Foreground="White" Content="Go" Width="25" Height="25" BorderBrush="Black" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Margin="3,0,0,0" VerticalAlignment="Center"/>
+
+            </StackPanel>
+        </Border>
+
+        <igWindows:XamTabControl x:Name="_OpenInterestTab" Grid.Row="1" 
+                                 TabStripPlacement="Top"
+                                 Theme="IGTheme"
+                                 TabLayoutStyle="MultiRowAutoSize"
+                                 AllowTabClosing="True"
+                                 SelectionChanged="tabControl_SelectionChanged">
+            <igWindows:XamTabControl.PreTabItemContent>
+                <Button x:Name="_AddTable" Margin="0" Click="AddTable_Click" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Width="25" Height="25">
+                    <Button.Content>
+                       <Image Source="../Asset/Images/Add.png" ToolTipService.ToolTip="Add Tab"></Image>
+                    </Button.Content>
+                </Button>
+            </igWindows:XamTabControl.PreTabItemContent>
+            <igWindows:XamTabControl.PostTabItemContent>
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="_PrintGroupSummaryBtn" Foreground="White" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="Print_Click" Width="25" Height="25"  >
+                        <Button.Content>
+                            <Image Source="../Asset/Images/Print.png" ToolTipService.ToolTip="Print"  Margin="1"></Image>
+                        </Button.Content>
+                    </Button>
+                </StackPanel>
+            </igWindows:XamTabControl.PostTabItemContent>
+            <igWindows:TabItemEx CloseButtonVisibility="WhenSelectedOrHotTracked" Header="Group Net Position" 
+                                 x:Name="NetPositionItem" Height="25">
+                <!--#BEGIN SNIPPET#-->
+                <igGrid:XamGrid KeyboardNavigation="AllLayouts" x:Name="_GroupNetPositionGrid" FontWeight="Bold" FontFamily="hei" FontStyle="Italic" Foreground="Black" AutoGenerateColumns="false" Grid.Row="1"
+                                ColumnLayoutAssigned="GroupNetPositionGrid_ColumnLayoutAssigned" 
+                                InitializeRow="GroupNetPositionGrid_InitializeRow"
+                                CellExitedEditMode="GroupNetPositionGrid_CellExitedEditMode"
+                                CellExitingEditMode="GroupNetPositionGrid_CellExitingEditMode">
+                    <igGrid:XamGrid.CellStyle>
+                        <Style TargetType="igGrid:CellControl">
+                            <Setter Property="Padding" Value="0,0,0,0"/>
+                            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                        </Style>
+                    </igGrid:XamGrid.CellStyle>
+                    <igGrid:XamGrid.ColumnResizingSettings>
+                        <igGrid:ColumnResizingSettings
+                            AllowCellAreaResizing="False"
+                            AllowColumnResizing="Disabled"
+                            AllowDoubleClickToSize="False"
+                            AllowMultipleColumnResize="False" />
+                    </igGrid:XamGrid.ColumnResizingSettings>
+                    <igGrid:XamGrid.EditingSettings>
+                        <igGrid:EditingSettings AllowEditing="Cell"/>
+                    </igGrid:XamGrid.EditingSettings>
+                    <igGrid:XamGrid.Columns>
+                        <igGrid:ColumnLayout Key="AccountGroupGNPs">
+                            <igGrid:ColumnLayout.Columns>
+                                <igGrid:ColumnLayout Key="AccountGNPs">
+                                    <igGrid:ColumnLayout.Columns>
+                                        <igGrid:ColumnLayout Key="DetailGNPs" HeaderVisibility="Hidden">
+                                            <igGrid:ColumnLayout.Columns>
+                                                <igGrid:TextColumn Key="OrderRelation" HorizontalContentAlignment="Center" Width="90" IsReadOnly="True" HeaderText="Detail"/>
+                                                <igGrid:TextColumn Key="EmptyColumn1" HorizontalContentAlignment="Left" Width="50" IsReadOnly="True" HeaderText="X"/>
+                                                <igGrid:TextColumn Key="EmptyColumn2" HorizontalContentAlignment="Left" Width="50" IsReadOnly="True" HeaderText="%"/>
+                                            </igGrid:ColumnLayout.Columns>
+                                        </igGrid:ColumnLayout>
+                                        <igGrid:TextColumn Key="Code" HorizontalContentAlignment="Center" Width="90" IsReadOnly="True" HeaderText="Account"/>
+                                        <igGrid:TextColumn Key="EmptyColumn1" HorizontalContentAlignment="Left" Width="50" IsReadOnly="True" HeaderText="X"/>
+                                        <igGrid:TextColumn Key="EmptyColumn2" HorizontalContentAlignment="Left" Width="50" IsReadOnly="True" HeaderText="%"/>
+                                    </igGrid:ColumnLayout.Columns>
+                                </igGrid:ColumnLayout>
+                                <!--Column Setting-->
+                                <igGrid:TextColumn Key="Code" HorizontalContentAlignment="Left" Width="120" IsReadOnly="True" HeaderText="Group"/>
+                                <igGrid:TemplateColumn Key="IsSelected" Width="50" HorizontalContentAlignment="Center" IsReadOnly="False" HeaderText="X">
+                                    <igGrid:TemplateColumn.ItemTemplate>
+                                        <DataTemplate>
+                                            <CheckBox x:Name="SelectChk" Click="SelectChk_Click" IsChecked="{Binding IsSelected,Mode=TwoWay}" />
+                                        </DataTemplate>
+                                    </igGrid:TemplateColumn.ItemTemplate>
+                                </igGrid:TemplateColumn>
+                                <igGrid:TextColumn Key="OiPercent" Width="50" HorizontalContentAlignment="Center" IsReadOnly="False" HeaderText="%"/>
+   
+                            </igGrid:ColumnLayout.Columns>
+                        </igGrid:ColumnLayout>
+
+                        <!--Column Setting-->
+                        <igGrid:TextColumn Key="Code" HorizontalContentAlignment="Left" Width="150" IsReadOnly="True" HeaderText="Group"/>
+                        <igGrid:TextColumn Key="EmptyColumn1" HorizontalContentAlignment="Left" Width="50" IsReadOnly="True" HeaderText="X"/>
+                        <igGrid:TextColumn Key="EmptyColumn2" HorizontalContentAlignment="Left" Width="50" IsReadOnly="True" HeaderText="%"/>
+                    </igGrid:XamGrid.Columns>
+                </igGrid:XamGrid>
+                <!--#END SNIPPET#-->
+            </igWindows:TabItemEx>
+            <igWindows:TabItemEx Header="Net Summary" x:Name="SummaryItem" CloseButtonVisibility="WhenSelectedOrHotTracked" Height="23">
+
+            </igWindows:TabItemEx>
+        </igWindows:XamTabControl>
+    </Grid>
+</UserControl>

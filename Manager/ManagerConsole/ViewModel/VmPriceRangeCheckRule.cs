@@ -7,13 +7,16 @@ using ManagerConsole.Helper;
 
 namespace ManagerConsole.ViewModel
 {
-    public class VmPriceRangeCheckRule : PropertyChangedNotifier
+    public class VmPriceRangeCheckRule : VmBase
     {
         private PriceRangeCheckRule _PriceRangeCheckRule;
         public VmPriceRangeCheckRule(PriceRangeCheckRule priceRangeCheckRule)
+            : base(priceRangeCheckRule)
         {
             this._PriceRangeCheckRule = priceRangeCheckRule;
         }
+
+        public PriceRangeCheckRule PriceRangeCheckRule { get { return this._PriceRangeCheckRule; } }
 
         public int Id { get { return this._PriceRangeCheckRule.Id; } set { this._PriceRangeCheckRule.Id = value; } }
         public bool DiscardOutOfRangePrice

@@ -64,6 +64,16 @@ namespace ManagerConsole.Model
                 instrument.AutoPoint = 10;
                 instrument.Origin = "1.555";
                 instrument.IsNormal = true;
+                if (i < 3)
+                {
+                    instrument.SummaryGroupId = new Guid();
+                    instrument.SummaryGroupCode = "AAA";
+                }
+                else if(i == 4)
+                {
+                    instrument.SummaryGroupId = new Guid();
+                    instrument.SummaryGroupCode = "BBB";
+                }
                 instruments.Add(instrument.Id, instrument);
 
 

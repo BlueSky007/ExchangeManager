@@ -36,9 +36,8 @@ namespace ManagerConsole
                     break;
                 case ModuleType.QuotationSource:
                     return new QuotationSourceControl();
-                case ModuleType.SourceQuotation:  // this module will be removed.
-                    //return new SourceQuotationControl(); 
-                    break;
+                case ModuleType.SourceQuotation:
+                    return new SourceQuotationControl(); 
                 case ModuleType.QuotationMonitor:
                     return new QuotationMonitorControl();
                 case ModuleType.AbnormalQuotation:
@@ -57,6 +56,8 @@ namespace ManagerConsole
                     return new OrderSearchControl();
                 case ModuleType.ExecutedOrder:
                     return new ExecutedOrders();
+                case ModuleType.OpenInterest:
+                    return new OpenInterestControl();
                 default:
                     break;
             }

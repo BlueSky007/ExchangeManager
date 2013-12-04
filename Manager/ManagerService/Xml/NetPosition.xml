@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<GetGroupNetPositionResult xmlns="http://www.omnicare.com/iExchange/DealingConsole/">
+  <Groups xmlns="">
+    <Group ID="8dca90b4-3166-465f-b38d-1a039f6c9ee7" Code="Test Account">
+      <Accounts>
+        <Account ID="f4054f86-ab2d-42fe-86b4-98271e9e2d0a" Code="ACCT37" Type="0">
+          <Instruments>
+            <Instrument ID="66adc06c-c5fe-4428-867f-be97650eb3b1" LotBalance="-0.0100" Quantity="-0.01000000" BuyQuantity="-0.0100" BuyAveragePrice="19.86" BuyMultiplyValue="-0.198600" SellQuantity="0" SellAveragePrice="" SellMultiplyValue="0"/>
+          </Instruments>
+        </Account>
+        <Account ID="89eda540-b11e-4414-9600-16079d8a4c5b" Code="ACCT47" Type="0">
+          <Instruments>
+            <Instrument ID="66adc06c-c5fe-4428-867f-be97650eb3b1" LotBalance="0.1100" Quantity="0.11000000" BuyQuantity="0.1100" BuyAveragePrice="1204.0" BuyMultiplyValue="132.43500" SellQuantity="0" SellAveragePrice="" SellMultiplyValue="0"/>
+            <Instrument ID="66adc06c-c5fe-4428-867f-be97650eb3b2" LotBalance="172.0000" Quantity="172.00000000" BuyQuantity="172.0000" BuyAveragePrice="19.89" BuyMultiplyValue="3421.370000" SellQuantity="0" SellAveragePrice="" SellMultiplyValue="0"/>
+          </Instruments>
+        </Account>
+        <Account ID="a5b25466-535d-4f34-94f2-80ee322085cc" Code="ACCT38" Type="0">
+          <Instruments>
+            <Instrument ID="66adc06c-c5fe-4428-867f-be97650eb3b3" LotBalance="6.2100" Quantity="6.21000000" BuyQuantity="6.2100" BuyAveragePrice="1257.8" BuyMultiplyValue="7810.77400" SellQuantity="0" SellAveragePrice="" SellMultiplyValue="0"/>
+            <Instrument ID="66adc06c-c5fe-4428-867f-be97650eb3b4" LotBalance="0.1000" Quantity="0.10000000" BuyQuantity="0.1000" BuyAveragePrice="19.21" BuyMultiplyValue="1.921000" SellQuantity="0" SellAveragePrice="" SellMultiplyValue="0"/>
+          </Instruments>
+        </Account>
+        <Account ID="690b154e-1952-43b6-96eb-cb22651e5eef" Code="A2" Type="0">
+          <Instruments>
+            <Instrument ID="66adc06c-c5fe-4428-867f-be97650eb3b4" LotBalance="3.0000" Quantity="3.00000000" BuyQuantity="3.0000" BuyAveragePrice="1321.4" BuyMultiplyValue="3964.20000" SellQuantity="0" SellAveragePrice="" SellMultiplyValue="0"/>
+          </Instruments>
+        </Account>
+        <Account ID="aef757fd-1f4f-403b-b8d9-01c1060269ec" Code="ACCT35" Type="0">
+          <Instruments>
+            <Instrument ID="66adc06c-c5fe-4428-867f-be97650eb3b4" LotBalance="456.9800" Quantity="456.98000000" BuyQuantity="456.9900" BuyAveragePrice="1284.2" BuyMultiplyValue="586866.55800" SellQuantity="0.0100" SellAveragePrice="1244.6" SellMultiplyValue="12.44600"/>
+            <Instrument ID="66adc06c-c5fe-4428-867f-be97650eb3b1" LotBalance="0.2800" Quantity="0.28000000" BuyQuantity="0.2800" BuyAveragePrice="20.03" BuyMultiplyValue="5.608400" SellQuantity="0" SellAveragePrice="" SellMultiplyValue="0"/>
+          </Instruments>
+        </Account>
+      </Accounts>
+    </Group>
+    <Group ID="1b8ba7ee-0b39-4f60-8153-962407763497" Code="phy demo">
+      <Accounts>
+        <Account ID="b3175131-19c2-45b2-8939-a1b1e7ce3746" Code="phy010" Type="0">
+          <Instruments>
+            <Instrument ID="66adc06c-c5fe-4428-867f-be97650eb3b4" LotBalance="0.0100" Quantity="0.01000000" BuyQuantity="0.0100" BuyAveragePrice="1395.8" BuyMultiplyValue="13.95800" SellQuantity="0" SellAveragePrice="" SellMultiplyValue="0"/>
+            <Instrument ID="66adc06c-c5fe-4428-867f-be97650eb3b2" LotBalance="-0.1000" Quantity="-0.10000000" BuyQuantity="0" BuyAveragePrice="" BuyMultiplyValue="0" SellQuantity="0.1000" SellAveragePrice="23.56" SellMultiplyValue="2.356000"/>
+          </Instruments>
+        </Account>
+      </Accounts>
+    </Group>
+    <Group ID="970dd9e9-82eb-4185-8307-2e400979d614" Code="Demo1">
+      <Accounts>
+        <Account ID="a769c3e4-6d86-4605-a0d0-e10ff7e633d3" Code="B001112" Type="0">
+          <Instruments>
+            <Instrument ID="66adc06c-c5fe-4428-867f-be97650eb3b1" LotBalance="-5.0000" Quantity="-5.0000" BuyQuantity="0" BuyAveragePrice="" BuyMultiplyValue="23.310000" SellQuantity="5" SellAveragePrice="23.31" SellMultiplyValue="0"/>
+          </Instruments>
+        </Account>
+        <Account ID="c86d31f6-9f4a-483f-b914-44378cec7401" Code="B001127" Type="0">
+          <Instruments>
+            <Instrument ID="66adc06c-c5fe-4428-867f-be97650eb3b5" LotBalance="1.0000" Quantity="1.00000000" BuyQuantity="1.0000" BuyAveragePrice="23.31" BuyMultiplyValue="23.310000" SellQuantity="0" SellAveragePrice="" SellMultiplyValue="0"/>
+          </Instruments>
+        </Account>
+        <Account ID="81f6cf11-81b5-41d9-aa34-7ebb9977713e" Code="B001121" Type="0">
+          <Instruments>
+            <Instrument ID="66adc06c-c5fe-4428-867f-be97650eb3b1" LotBalance="1.0000" Quantity="1.00000000" BuyQuantity="1.0000" BuyAveragePrice="23.31" BuyMultiplyValue="23.310000" SellQuantity="0" SellAveragePrice="" SellMultiplyValue="0"/>
+          </Instruments>
+        </Account>
+        <Account ID="5b2a9fa3-8ba3-494f-aa53-5c46d5b10a0a" Code="B001105" Type="0">
+          <Instruments>
+            <Instrument ID="66adc06c-c5fe-4428-867f-be97650eb3b5" LotBalance="1.0000" Quantity="1.00000000" BuyQuantity="1.0000" BuyAveragePrice="23.31" BuyMultiplyValue="23.310000" SellQuantity="0" SellAveragePrice="" SellMultiplyValue="0"/>
+          </Instruments>
+        </Account>
+        <Account ID="58dab0ef-da27-425d-82b0-38edfc2786dc" Code="A001019" Type="0">
+          <Instruments>
+            <Instrument ID="66adc06c-c5fe-4428-867f-be97650eb3b5" LotBalance="1.0000" Quantity="1.00000000" BuyQuantity="1.0000" BuyAveragePrice="23.31" BuyMultiplyValue="23.310000" SellQuantity="0" SellAveragePrice="" SellMultiplyValue="0"/>
+          </Instruments>
+        </Account>
+        <Account ID="39f02e87-becc-4d58-b23e-1dc558d07f33" Code="B001120" Type="0">
+          <Instruments>
+            <Instrument ID="66adc06c-c5fe-4428-867f-be97650eb3b5" LotBalance="1.0000" Quantity="1.00000000" BuyQuantity="1.0000" BuyAveragePrice="23.31" BuyMultiplyValue="23.310000" SellQuantity="0" SellAveragePrice="" SellMultiplyValue="0"/>
+          </Instruments>
+        </Account>
+      </Accounts>
+    </Group>
+  </Groups>
+</GetGroupNetPositionResult>

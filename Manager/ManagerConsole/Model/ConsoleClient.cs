@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.ServiceModel;
-using System.Text;
-using System.Xml;
 using Manager.Common;
-using ManagerConsole.ViewModel;
 using Manager.Common.QuotationEntities;
 using Manager.Common.LogEntities;
 using Manager.Common.ReportEntities;
+using iExchange.Common.Manager;
 
 namespace ManagerConsole.Model
 {
@@ -315,6 +312,15 @@ namespace ManagerConsole.Model
                 EndGetOrderByInstrument(queryOrders);
             }, null);
         }
+
+        public void GetGroupNetPosition(Action<List<AccountGroupGNP>> EndGetGroupNetPosition)
+        {
+            this._ServiceProxy.BeginGetGroupNetPosition(delegate(IAsyncResult result) 
+            {
+                List<iExchange.Common.Manager.AccountGroupGNP> accountGroupGNPs = this._ServiceProxy.EndGetGroupNetPosition(result);
+                EndGetGroupNetPosition(accountGroupGNPs);
+            }, null);
+        }
         #endregion
 
         #region Log Audit
@@ -389,11 +395,33 @@ namespace ManagerConsole.Model
             }, null);
         }
 
+        public void AddInstrument(InstrumentData instrumentData, Action<int> SetInstrumentId)
+        {
+            this._ServiceProxy.BeginAddInstrument(instrumentData, delegate(IAsyncResult ar)
+            {
+                int instrumentId = this._ServiceProxy.EndAddInstrument(ar);
+                SetInstrumentId(instrumentId);
+            }, null);
+        }
+
+
         public void UpdateMetadataObject(MetadataType type, int objectId, Dictionary<string, object> fieldAndValues, Action<bool> NotifyResult)
         {
             this._ServiceProxy.BeginUpdateMetadataObject(type, objectId, fieldAndValues, delegate(IAsyncResult ar)
             {
                 bool result = this._ServiceProxy.EndUpdateMetadataObject(ar);
+                App.MainWindow.Dispatcher.BeginInvoke((Action<bool>)delegate(bool success)
+                {
+                    NotifyResult(success);
+                }, result);
+            }, null);
+        }
+
+        public void UpdateMetadataObjectField(MetadataType type, int objectId, string field, object value, Action<bool> NotifyResult)
+        {
+            this._ServiceProxy.BeginUpdateMetadataObjectField(type, objectId, field, value, delegate(IAsyncResult ar)
+            {
+                bool result = this._ServiceProxy.EndUpdateMetadataObjectField(ar);
                 App.MainWindow.Dispatcher.BeginInvoke((Action<bool>)delegate(bool success)
                 {
                     NotifyResult(success);
@@ -419,5 +447,13 @@ namespace ManagerConsole.Model
         }
         #endregion
 
+
+        public void SwitchDefaultSource(SwitchRelationBooleanPropertyMessage switchMessage)
+        {
+            this._ServiceProxy.BeginSwitchDefaultSource(switchMessage, delegate(IAsyncResult ar)
+            {
+                this._ServiceProxy.EndSwitchDefaultSource(ar);
+            }, null);
+        }
     }
 }

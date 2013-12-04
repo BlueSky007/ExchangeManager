@@ -3,15 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ManagerConsole.Helper;
+using Manager.Common.QuotationEntities;
 
 namespace ManagerConsole.ViewModel
 {
-    public class VmQuotationBase : PropertyChangedNotifier
+    public class VmQuotationBase : VmBase
     {
         private DateTime _Timestamp;
         private string _Ask;
         private string _Bid;
         private string _Last;
+
+        public VmQuotationBase(IMetadataObject metadataObject)
+            : base(metadataObject)
+        {
+
+        }
 
         public DateTime Timestamp
         {

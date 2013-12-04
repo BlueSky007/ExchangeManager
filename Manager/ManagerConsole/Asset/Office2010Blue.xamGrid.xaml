@@ -420,6 +420,10 @@
         </Setter>
     </Style>
     <Style TargetType="igPrim:FixedRowSeparator" BasedOn="{StaticResource FixedRowSeparatorStyle}"/>
+    
+    <Style x:Key="CommonCellStyle" TargetType="ig:CellControl">
+        <Setter Property="Padding" Value="5"/>
+    </Style>
 
     <!-- *********************************  XamGrid Style  ********************************* -->
     <Style TargetType="ig:XamGrid">
@@ -427,6 +431,7 @@
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="BorderBrush" Value="{StaticResource XamGridBorderBrush}"/>
         <Setter Property="FixedRowSeparatorStyle" Value="{StaticResource FixedRowSeparatorStyle}"/>
+        <Setter Property="CellStyle" Value="{StaticResource CommonCellStyle}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ig:XamGrid">

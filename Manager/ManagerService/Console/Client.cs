@@ -10,6 +10,7 @@ using System.Threading;
 using System.IO;
 using Manager.Common.LogEntities;
 using Manager.Common.ReportEntities;
+using iExchange.Common.Manager;
 
 namespace ManagerService.Console
 {
@@ -103,12 +104,13 @@ namespace ManagerService.Console
         {
             return message;
             IFilterable filterableMessage = message as IFilterable;
-            if (filterableMessage != null)
+            ExchangeMessage exchangeMessage = message as ExchangeMessage;
+            if (filterableMessage != null && exchangeMessage != null)
             {
                 List<Guid> accountPermissions = new List<Guid>();
                 List<Guid> instrumentPermissions = new List<Guid>();
-                this._AccountPermission.TryGetValue(message.ExchangeCode, out accountPermissions);
-                this._InstrumentPermission.TryGetValue(message.ExchangeCode, out instrumentPermissions);
+                this._AccountPermission.TryGetValue(exchangeMessage.ExchangeCode, out accountPermissions);
+                this._InstrumentPermission.TryGetValue(exchangeMessage.ExchangeCode, out instrumentPermissions);
 
                 if (filterableMessage.AccountId != null)
                 {
@@ -596,6 +598,23 @@ namespace ManagerService.Console
         {
             return ExchangeData.GetOrderByInstrument(this.userId,instrumentId, accountGroupId, orderType, isExecute, fromDate, toDate);
         }
+
+        internal List<AccountGroupGNP> GetGroupNetPosition()
+        {
+            string exchangeCode = "WF01";
+            List<AccountGroupGNP> accountGroupGNPs = null;
+            try
+            {
+                ExchangeSystem exchangeSystem = MainService.ExchangeManager.GetExchangeSystem(exchangeCode);
+                accountGroupGNPs = exchangeSystem.GetGroupNetPosition();
+
+            }
+            catch (Exception ex)
+            {
+                Logger.AddEvent(TraceEventType.Error, "Client.Cancel error:\r\n{0}", ex.ToString());
+            }
+            return accountGroupGNPs;
+        }
         #endregion
 
         #region Log Audit
@@ -685,17 +704,34 @@ namespace ManagerService.Console
             return objectId;
         }
 
-        internal int[] AddMetadataObjects(IMetadataObject[] metadataObjects)
+        internal int AddInstrument(InstrumentData instrumentData)
         {
-            int[] objectIds = QuotationData.AddMetadataObjects(metadataObjects);
-            for (int i = 0; i < objectIds.Length; i++)
+            instrumentData.Instrument.Id = QuotationData.AddInstrument(instrumentData);
+
+            List<IMetadataObject> metadataObjects = new List<IMetadataObject>();
+
+            MainService.QuotationManager.AddMetadataObject(instrumentData.Instrument);
+            metadataObjects.Add(instrumentData.Instrument);
+            if (instrumentData.Instrument.IsDerivative)
             {
-                metadataObjects[i].Id = objectIds[i];
-                MainService.QuotationManager.AddMetadataObject((dynamic)metadataObjects[i]);
+                MainService.QuotationManager.AddMetadataObject(instrumentData.DerivativeRelation);
+                metadataObjects.Add(instrumentData.DerivativeRelation);
             }
-            AddMetadataObjectsMessage message = new AddMetadataObjectsMessage() { MetadataObjects = metadataObjects };
+            else
+            {
+                MainService.QuotationManager.AddMetadataObject(instrumentData.PriceRangeCheckRule);
+                metadataObjects.Add(instrumentData.PriceRangeCheckRule);
+                if(instrumentData.WeightedPriceRule != null)
+                {
+                    MainService.QuotationManager.AddMetadataObject(instrumentData.WeightedPriceRule);
+                    metadataObjects.Add(instrumentData.WeightedPriceRule);
+                }
+            }
+
+            AddMetadataObjectsMessage message = new AddMetadataObjectsMessage() { MetadataObjects = metadataObjects.ToArray() };
             MainService.ClientManager.DispatchExcept(message, this);
-            return objectIds;
+
+            return instrumentData.Instrument.Id;
         }
 
         internal void UpdateMetadataObject(MetadataType type, int objectId, Dictionary<string, object> fieldAndValues)
@@ -704,6 +740,13 @@ namespace ManagerService.Console
             MainService.QuotationManager.UpdateMetadataObject(type, objectId, fieldAndValues);
             UpdateMetadataMessage message = new UpdateMetadataMessage() { ObjectId = objectId, MetadataType = type, FieldAndValues = fieldAndValues };
             MainService.ClientManager.DispatchExcept(message, this);
+        }
+
+        internal void UpdateMetadataObject(MetadataType type, int objectId, string field, object value)
+        {
+            Dictionary<string, object> fieldAndValues = new Dictionary<string, object>();
+            fieldAndValues.Add(field, value);
+            this.UpdateMetadataObject(type, objectId, fieldAndValues);
         }
 
         internal void DeleteMetadataObject(MetadataType type, int objectId)
@@ -717,6 +760,12 @@ namespace ManagerService.Console
         internal void SendQuotation(int instrumentSourceRelationId, double ask, double bid)
         {
             MainService.QuotationManager.SendQuotation(instrumentSourceRelationId, ask, bid);
+        }
+
+        internal void SwitchDefaultSource(SwitchRelationBooleanPropertyMessage message)
+        {
+            QuotationData.SwitchDefaultSource(message.OldRelationId, message.NewRelationId);
+            MainService.ClientManager.Dispatch(message);
         }
     }
 }

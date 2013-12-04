@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace ManagerConsole
 {
@@ -33,6 +34,13 @@ namespace ManagerConsole
             {
                 return false;
             }
+        }
+
+        public static bool IsNumber(string input)
+        {
+            string pattern = "^-?\\d+$|^(-?\\d+)(\\.\\d+)?$";
+            Regex regex = new Regex(pattern);
+            return regex.IsMatch(input);
         }
 
     }

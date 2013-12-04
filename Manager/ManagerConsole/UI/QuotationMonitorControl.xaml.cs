@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Infragistics.Controls.Grids;
 using Manager.Common.QuotationEntities;
 using ManagerConsole.ViewModel;
 using ManagerConsole.Model;
@@ -25,24 +26,9 @@ namespace ManagerConsole.UI
         public QuotationMonitorControl()
         {
             InitializeComponent();
-            this.Loaded += QuotationMonitorControl_Loaded;
-        }
-
-        void QuotationMonitorControl_Loaded(object sender, RoutedEventArgs e)
-        {
-            this.PropertyDataGrid.DataSource = new[] { new VmWeightedPriceRule(new WeightedPriceRule(){
-                 Id=1, AskAdjust=2, AskAskWeight=22, AskAvarageWeight=20, AskBidWeight=89, AskLastWeight=87,
-                 BidAdjust=56, BidAskWeight=43, BidAvarageWeight=9, BidBidWeight=3, BidLastWeight=8,
-                 LastAdjust=34, LastAskWeight=5, LastAvarageWeight=2, LastBidWeight=5, LastLastWeight=6, Multiplier=63
-            }) };
             this.MonitorGrid.ItemsSource = VmQuotationManager.Instance.Instruments;
             this.MonitorGrid.SelectionSettings.CellClickAction = Infragistics.Controls.Grids.CellSelectionAction.SelectRow;
         }
-        private void Add_Click(object sender, RoutedEventArgs e)
-        {
-            
-        }
-
         private void Edit_Click(object sender, RoutedEventArgs e)
         {
             Button deleteButton = (Button)sender;
@@ -103,6 +89,66 @@ namespace ManagerConsole.UI
             {
                 textBox.Text = textBox.Tag.ToString();
             }
+        }
+
+        private void MonitorGrid_CellDoubleClicked(object sender, Infragistics.Controls.Grids.CellClickedEventArgs e)
+        {
+            if (e.Cell.Column.Key == FieldSR.Code)
+            {
+                VmInstrument vmInstrument = (VmInstrument)e.Cell.Row.Data;
+                App.MainWindow.SourceQuotationControl.BindToInstrument(vmInstrument);
+            }
+        }
+
+        private void SendBid_KeyDown(object sender, KeyEventArgs e)
+        {
+            if(e.Key == Key.Enter)
+            {
+                TextBox bidTextBox = (TextBox)sender;
+                Button sendButton = (Button)LogicalTreeHelper.FindLogicalNode(LogicalTreeHelper.GetParent(bidTextBox), "SendButton");
+                this.SendButton_Click(sendButton, null);
+            }
+        }
+
+        private void SendAsk_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                TextBox askTextBox = (TextBox)sender;
+                TextBox bidTextBox = (TextBox)LogicalTreeHelper.FindLogicalNode(LogicalTreeHelper.GetParent(askTextBox), "SendBid");
+                bidTextBox.Focus();
+            }
+        }
+
+        private void MonitorGrid_SelectedRowsCollectionChanged(object sender, SelectionCollectionChangedEventArgs<SelectedRowsCollection> e)
+        {
+            if (e.NewSelectedItems.Count > 0)
+            {
+                VmInstrument instrument = e.NewSelectedItems[0].Data as VmInstrument;
+                if (instrument != null)
+                {
+                    this.InstrumentCodeTextBlock.Text = instrument.Code;
+                    this.RangeCheckRuleControl.DataContext = instrument.VmPriceRangeCheckRule;
+                    this.WeightedRuleControl.DataContext = instrument.VmWeightedPriceRule;
+                }
+            }
+        }
+
+        private void AddInstrument_Click(object sender, RoutedEventArgs e)
+        {
+            InstrumentWindow window = new InstrumentWindow();
+            App.MainWindow.MainFrame.Children.Add(window);
+            window.IsModal = true;
+            window.Show();
+        }
+
+        private void AddRelation_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = (Button)sender;
+            InstrumentSourceRelationWindow window = new InstrumentSourceRelationWindow((VmInstrument)button.Tag);
+            App.MainWindow.MainFrame.Children.Add(window);
+            window.IsModal = true;
+            window.Show();
         }
     }
 }

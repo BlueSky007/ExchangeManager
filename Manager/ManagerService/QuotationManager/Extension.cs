@@ -34,8 +34,9 @@ namespace ManagerService.Quotation
             return metaData.QuotationSources.Values.Any(s => s.Name == sourceName && s.AuthName == loginName && s.Password == password);
         }
 
-        public static bool EnsureIsKnownQuotation(this ConfigMetadata metaData, PrimitiveQuotation quotation)
+        public static bool EnsureIsKnownQuotation(this ConfigMetadata metaData, PrimitiveQuotation quotation, out bool inverted)
         {
+            inverted = false;
             QuotationSource quotationSource;
             if (metaData.QuotationSources.TryGetValue(quotation.SourceName, out quotationSource))
             {
@@ -47,6 +48,7 @@ namespace ManagerService.Quotation
                     if (relations.TryGetValue(quotation.Symbol, out relation))
                     {
                         quotation.InstrumentId = relation.InstrumentId;
+                        inverted = relation.Inverted;
                         return true;
                     }
                 }

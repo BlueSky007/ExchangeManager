@@ -20,5 +20,20 @@ namespace Manager.UnitTest
             //QuotationData.UpdateMetadata(source);
             Assert.IsTrue(source.Id > 0);
         }
+
+        [TestMethod]
+        public void TestMethod2()
+        {
+            PriceRangeCheckRule entity = new PriceRangeCheckRule()
+            {
+                Id = 1,
+                DiscardOutOfRangePrice = true,
+                OutOfRangeCount = 0,
+                OutOfRangeType = OutOfRangeType.Bid,
+                OutOfRangeWaitTime = 0,
+                ValidVariation = 0
+            };
+            QuotationData.AddMetadataObject(entity);
+        }
     }
 }

@@ -12,15 +12,19 @@ namespace ManagerConsole.ViewModel
     {
         private Instrument _Instrument;
         public VmInstrument(Instrument instrument)
+            : base(instrument)
         {
             this._Instrument = instrument;
             this.SourceRelations = new ObservableCollection<VmInstrumentSourceRelation>();
         }
 
         public ObservableCollection<VmInstrumentSourceRelation> SourceRelations { get; set; }
-        public VmPriceRangeCheckRule PriceRangeCheckRule { get; set; }
-        public VmWeightedPriceRule WeightedPriceRule { get; set; }
+        public VmPriceRangeCheckRule VmPriceRangeCheckRule { get; set; }
+        public VmWeightedPriceRule VmWeightedPriceRule { get; set; }
 
+        public VmDerivativeRelation DerivativeRelation { get; set; }
+
+        public Instrument Instrument { get { return this._Instrument; } }
         public int Id { get { return this._Instrument.Id; } set { this._Instrument.Id = value; } }
 
         public string Code
@@ -35,70 +39,6 @@ namespace ManagerConsole.ViewModel
                 {
                     this._Instrument.Code = value;
                     this.OnPropertyChanged(FieldSR.Code);
-                }
-            }
-        }
-
-        public int DecimalPlace
-        {
-            get
-            {
-                return this._Instrument.DecimalPlace;
-            }
-            set
-            {
-                if (this._Instrument.DecimalPlace != value)
-                {
-                    this._Instrument.DecimalPlace = value;
-                    this.OnPropertyChanged(FieldSR.DecimalPlace);
-                }
-            }
-        }
-
-        public bool Inverted
-        {
-            get
-            {
-                return this._Instrument.Inverted;
-            }
-            set
-            {
-                if (this._Instrument.Inverted != value)
-                {
-                    this._Instrument.Inverted = value;
-                    this.OnPropertyChanged(FieldSR.Inverted);
-                }
-            }
-        }
-
-        public int InactiveTime
-        {
-            get
-            {
-                return this._Instrument.InactiveTime;
-            }
-            set
-            {
-                if (this._Instrument.InactiveTime != value)
-                {
-                    this._Instrument.InactiveTime = value;
-                    this.OnPropertyChanged(FieldSR.InactiveTime);
-                }
-            }
-        }
-
-        public bool UseWeightedPrice
-        {
-            get
-            {
-                return this._Instrument.UseWeightedPrice;
-            }
-            set
-            {
-                if (this._Instrument.UseWeightedPrice != value)
-                {
-                    this._Instrument.UseWeightedPrice = value;
-                    this.OnPropertyChanged(FieldSR.UseWeightedPrice);
                 }
             }
         }
@@ -119,7 +59,55 @@ namespace ManagerConsole.ViewModel
             }
         }
 
-        public bool IsSwitchUseAgio
+        public int DecimalPlace
+        {
+            get
+            {
+                return this._Instrument.DecimalPlace;
+            }
+            set
+            {
+                if (this._Instrument.DecimalPlace != value)
+                {
+                    this._Instrument.DecimalPlace = value;
+                    this.OnPropertyChanged(FieldSR.DecimalPlace);
+                }
+            }
+        }
+
+        public int? InactiveTime
+        {
+            get
+            {
+                return this._Instrument.InactiveTime;
+            }
+            set
+            {
+                if (this._Instrument.InactiveTime != value)
+                {
+                    this._Instrument.InactiveTime = value;
+                    this.OnPropertyChanged(FieldSR.InactiveTime);
+                }
+            }
+        }
+
+        public bool? UseWeightedPrice
+        {
+            get
+            {
+                return this._Instrument.UseWeightedPrice;
+            }
+            set
+            {
+                if (this._Instrument.UseWeightedPrice != value)
+                {
+                    this._Instrument.UseWeightedPrice = value;
+                    this.OnPropertyChanged(FieldSR.UseWeightedPrice);
+                }
+            }
+        }
+
+        public bool? IsSwitchUseAgio
         {
             get
             {

@@ -11,7 +11,8 @@
     <RootNamespace>ManagerConsole</RootNamespace>
     <AssemblyName>ManagerConsole</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
@@ -60,6 +61,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Accessibility" />
+    <Reference Include="iExchange.Common">
+      <HintPath>..\..\iExchange3\Common\bin\Debug\iExchange.Common.dll</HintPath>
+    </Reference>
     <Reference Include="infragisticswpf4.controls.charts.xamdatachart.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
     <Reference Include="InfragisticsWPF4.Controls.Editors.XamCalendar.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -159,11 +163,27 @@
     <Compile Include="Model\MessageClient.cs" />
     <Compile Include="Model\Order.cs" />
     <Compile Include="Model\TestData.cs" />
+    <Compile Include="UI\AbnormalQuotationProcessControl.xaml.cs">
+      <DependentUpon>AbnormalQuotationProcessControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\DerivedInstrumentControl.xaml.cs">
+      <DependentUpon>DerivedInstrumentControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\DerivedInstrumentWindow.xaml.cs">
+      <DependentUpon>DerivedInstrumentWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\ExecutedOrders.xaml.cs">
       <DependentUpon>ExecutedOrders.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\HintMessage.cs" />
+    <Compile Include="UI\InstrumentSourceRelationWindow.xaml.cs">
+      <DependentUpon>InstrumentSourceRelationWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\InstrumentWindow.xaml.cs">
       <DependentUpon>InstrumentWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\OpenInterestControl.xaml.cs">
+      <DependentUpon>OpenInterestControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\QuotationMonitorControl.xaml.cs">
       <DependentUpon>QuotationMonitorControl.xaml</DependentUpon>
@@ -178,6 +198,18 @@
       <DependentUpon>QuotationSourceControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\ExecuteOrderSummaryItem.cs" />
+    <Compile Include="UI\RangeCheckRuleControl.xaml.cs">
+      <DependentUpon>RangeCheckRuleControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\SourceQuotationControl.xaml.cs">
+      <DependentUpon>SourceQuotationControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\WeightedRuleControl.xaml.cs">
+      <DependentUpon>WeightedRuleControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModel\VmAbnormalQuotation.cs" />
+    <Compile Include="ViewModel\VmDerivativeRelation.cs" />
+    <Compile Include="ViewModel\GroupNetPosition.cs" />
     <Compile Include="ViewModel\VmPriceRangeCheckRule.cs" />
     <Compile Include="ViewModel\VmQuotation.cs" />
     <Compile Include="ViewModel\VmQuotationManager.cs" />
@@ -235,6 +267,34 @@
     <Compile Include="ViewModel\QuotePriceForInstrument.cs" />
     <Compile Include="ViewModel\UserModel.cs" />
     <Compile Include="ViewModel\VmWeightedPriceRule.cs" />
+    <Page Include="UI\AbnormalQuotationProcessControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\DerivedInstrumentControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\DerivedInstrumentWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\InstrumentSourceRelationWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\RangeCheckRuleControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\SourceQuotationControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\WeightedRuleControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Resource Include="Asset\IG.xamDateTimeInput.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -307,6 +367,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\InstrumentWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\OpenInterestControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

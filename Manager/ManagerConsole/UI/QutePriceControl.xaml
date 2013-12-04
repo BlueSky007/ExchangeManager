@@ -20,8 +20,6 @@
             <Setter Property="Foreground" Value="Red" />
             <Setter Property="FontSize" Value="15"></Setter>
         </Style>
-        
-        
     </UserControl.Resources>
 
     <Grid x:Name="LayoutRoot">

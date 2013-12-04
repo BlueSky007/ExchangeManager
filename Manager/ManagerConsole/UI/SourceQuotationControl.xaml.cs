@@ -23,7 +23,12 @@ namespace ManagerConsole.UI
         public SourceQuotationControl()
         {
             InitializeComponent();
-            this.dataGrid.ItemsSource = QuotationMessageProcessor.Instance.QuotationSources;
+        }
+
+        public void BindToInstrument(VmInstrument instrument)
+        {
+            this.DataContext = instrument;
+            //this.QuotationControl.ItemsSource = instrument.SourceRelations;
         }
     }
 }

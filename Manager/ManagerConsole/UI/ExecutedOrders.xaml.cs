@@ -1,20 +1,14 @@
-﻿using Infragistics.Windows.Reporting;
+﻿using Infragistics;
+using Infragistics.Controls.Grids;
+using Infragistics.Windows.Reporting;
 using ManagerConsole.Model;
 using ManagerConsole.ViewModel;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace ManagerConsole.UI
 {
@@ -224,6 +218,30 @@ namespace ManagerConsole.UI
             style.Setters.Add(new Setter(ForegroundProperty, deletedOrder.IsBuyBrush));
             int index = this._App.InitDataManager.ExecutedOrders.IndexOf(deletedOrder);
             this._ExecutedOrderListGrid.Rows[index].CellStyle = style;
+        }
+
+        private void _AccountGroupCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            AccountGroup group = (AccountGroup)this._AccountGroupCombo.SelectedItem;
+            if (group == null) return;
+
+            this.FilterExecutedOrder(group.Id, "Transaction.Account.GroupId", ComparisonOperator.Equals);
+        }
+
+        private void FilterExecutedOrder(Guid filterValue, string columnName, ComparisonOperator comparisonOperator)
+        {
+            this._ExecutedOrderListGrid.FilteringSettings.AllowFiltering = Infragistics.Controls.Grids.FilterUIType.FilterMenu;
+            this._ExecutedOrderListGrid.FilteringSettings.FilteringScope = FilteringScope.ColumnLayout;
+
+            this._ExecutedOrderListGrid.Columns.DataColumns[columnName].FilterColumnSettings.FilterCellValue = filterValue;
+            foreach (FilterOperand f in this._ExecutedOrderListGrid.Columns.DataColumns[columnName].FilterColumnSettings.RowFilterOperands)
+            {
+                if (f.ComparisonOperatorValue == comparisonOperator)
+                {
+                    this._ExecutedOrderListGrid.Columns.DataColumns[columnName].FilterColumnSettings.FilteringOperand = f;
+                    break;
+                }
+            }
         }
     }
 }

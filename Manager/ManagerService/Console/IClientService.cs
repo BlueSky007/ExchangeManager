@@ -1,4 +1,5 @@
-﻿using Manager.Common;
+﻿using iExchange.Common.Manager;
+using Manager.Common;
 using Manager.Common.LogEntities;
 using Manager.Common.QuotationEntities;
 using Manager.Common.ReportEntities;
@@ -65,6 +66,7 @@ namespace ManagerService.Console
         bool DeleteRole(int roleId);
         #endregion
 
+        #region DealingConsole
         [OperationContract(IsInitiating = false)]
         void AbandonQuote(List<Answer> abandonQuotePrices);
 
@@ -88,7 +90,9 @@ namespace ManagerService.Console
 
         [OperationContract(IsInitiating = false)]
         AccountInformation GetAcountInfo(Guid transactionId);
+        #endregion 
 
+        #region LogAudit
         [OperationContract(IsInitiating = false)]
         List<LogQuote> GetQuoteLogData(DateTime fromDate, DateTime toDate, LogType logType);
 
@@ -103,11 +107,15 @@ namespace ManagerService.Console
 
         [OperationContract(IsInitiating = false)]
         List<LogSourceChange> GetLogSourceChangeData(DateTime fromDate, DateTime toDate, LogType logType);
+        #endregion
 
         #region Report
         [OperationContract(IsInitiating = false)]
         List<OrderQueryEntity> GetOrderByInstrument(Guid instrumentId, Guid accountGroupId, OrderType orderType,
             bool isExecute, DateTime fromDate, DateTime toDate);
+
+        [OperationContract(IsInitiating = false)]
+        List<AccountGroupGNP> GetGroupNetPosition();
         #endregion
 
         #region QuotationManager
@@ -121,10 +129,13 @@ namespace ManagerService.Console
         int AddMetadataObject(IMetadataObject metadataObject);
 
         [OperationContract(IsInitiating = false)]
-        int[] AddMetadataObjects(IMetadataObject[] metadataObjects);
+        int AddInstrument(InstrumentData instrumentData);
 
         [OperationContract(IsInitiating = false)]
         bool UpdateMetadataObject(MetadataType type, int objectId, Dictionary<string, object> fieldAndValues);
+
+        [OperationContract(IsInitiating = false)]
+        bool UpdateMetadataObjectField(MetadataType type, int objectId, string field, object value);
 
         [OperationContract(IsInitiating = false)]
         bool DeleteMetadataObject(MetadataType type, int objectId);
@@ -132,6 +143,8 @@ namespace ManagerService.Console
         [OperationContract(IsInitiating = false)]
         void SendQuotation(int instrumentSourceRelationId, double ask, double bid);
 
+        [OperationContract(IsInitiating = false)]
+        void SwitchDefaultSource(SwitchRelationBooleanPropertyMessage message);
         #endregion
     }
 

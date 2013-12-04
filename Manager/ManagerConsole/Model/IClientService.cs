@@ -2,12 +2,14 @@
 using Manager.Common.LogEntities;
 using Manager.Common.QuotationEntities;
 using Manager.Common.ReportEntities;
+using ManagerConsole.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
 using System.Text;
 using System.Xml;
+using AccountGroupGNP = iExchange.Common.Manager.AccountGroupGNP;
 
 namespace ManagerConsole.Model
 {
@@ -114,6 +116,11 @@ namespace ManagerConsole.Model
         IAsyncResult BeginGetOrderByInstrument(Guid instrumentId,Guid accountGroupId,OrderType orderType,
             bool isExecute, DateTime fromDate, DateTime toDate,AsyncCallback  callback, object asyncState);
         List<OrderQueryEntity> EndGetOrderByInstrument(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginGetGroupNetPosition(AsyncCallback callback, object asyncState);
+        List<AccountGroupGNP> EndGetGroupNetPosition(IAsyncResult result);
+
         #endregion
 
         #region Log Audit
@@ -149,22 +156,29 @@ namespace ManagerConsole.Model
         IAsyncResult BeginAddMetadataObject(IMetadataObject metadataObject, AsyncCallback callback, object asyncState);
         int EndAddMetadataObject(IAsyncResult result);
 
-        
         [OperationContract(AsyncPattern=true)]
-        IAsyncResult BeginAddMetadataObjects(IMetadataObject[] metadataObjects, AsyncCallback callback, object asyncState);
-        int[] EndAddMetadataObjects(IAsyncResult result);
+        IAsyncResult BeginAddInstrument(InstrumentData instrumentData, AsyncCallback callback, object asyncState);
+        int EndAddInstrument(IAsyncResult result);
 
         [OperationContract(AsyncPattern=true)]
         IAsyncResult BeginUpdateMetadataObject(MetadataType type, int objectId, Dictionary<string, object> fieldAndValues, AsyncCallback callback, object asyncState);
         bool EndUpdateMetadataObject(IAsyncResult result);
 
-        [OperationContract(AsyncPattern=true)]
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginUpdateMetadataObjectField(MetadataType type, int objectId, string field, object value, AsyncCallback callback, object asyncState);
+        bool EndUpdateMetadataObjectField(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginDeleteMetadataObject(MetadataType type, int objectId, AsyncCallback callback, object asyncState);
         bool EndDeleteMetadataObject(IAsyncResult result);
 
         [OperationContract(AsyncPattern=true)]
         IAsyncResult BeginSendQuotation(int instrumentSourceRelationId, double ask, double bid, AsyncCallback callback, object asyncState);
         void EndSendQuotation(IAsyncResult result);
+
+        [OperationContract(AsyncPattern=true)]
+        IAsyncResult BeginSwitchDefaultSource(SwitchRelationBooleanPropertyMessage message, AsyncCallback callback, object asyncState);
+        void EndSwitchDefaultSource(IAsyncResult result);
       
         #endregion
         [OperationContract(IsInitiating = false)]

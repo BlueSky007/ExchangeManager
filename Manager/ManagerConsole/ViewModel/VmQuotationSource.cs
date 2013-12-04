@@ -8,15 +8,36 @@ using ManagerConsole.Helper;
 namespace ManagerConsole.ViewModel
 {
     //public interface IMetadataViewModelObject { }
+    public class VmBase : PropertyChangedNotifier
+    {
+        private IMetadataObject _MetadataObject;
 
-    public class VmQuotationSource : PropertyChangedNotifier//, IMetadataViewModelObject
+        public VmBase(IMetadataObject metadataObject)
+        {
+            this._MetadataObject = metadataObject;
+        }
+        public void Update(Dictionary<string, object> fieldAndValues)
+        {
+            this._MetadataObject.Update(fieldAndValues);
+            foreach (string key in fieldAndValues.Keys)
+            {
+                this.OnPropertyChanged(key);
+            }
+        }
+
+        public void Update(string field, object value)
+        {
+            this._MetadataObject.Update(field, value);
+            this.OnPropertyChanged(field);
+        }
+    }
+
+    public class VmQuotationSource : VmBase
     {
         private QuotationSource _QuotationSource;
-        //private string _Name;
-        //private string _AuthName;
-        //private string _Password;
 
         public VmQuotationSource(QuotationSource quotationSource)
+            : base(quotationSource)
         {
             this._QuotationSource = quotationSource;
         }
@@ -63,16 +84,6 @@ namespace ManagerConsole.ViewModel
         {
             QuotationSource source = new QuotationSource() { Id = this._QuotationSource.Id, Name = this._QuotationSource.Name, AuthName = this._QuotationSource.AuthName, Password = this._QuotationSource.Password };
             return new VmQuotationSource(source);
-        }
-
-        public void Update(Dictionary<string, object> fieldAndValues)
-        {
-            foreach (string key in fieldAndValues.Keys)
-            {
-                if (key == FieldSR.Name) this.Name = (string)fieldAndValues[key];
-                else if (key == FieldSR.AuthName) this.AuthName = (string)fieldAndValues[key];
-                else if (key == FieldSR.Password) this.Password = (string)fieldAndValues[key];
-            }
         }
     }
 }
