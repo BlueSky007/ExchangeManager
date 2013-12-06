@@ -20,6 +20,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using CommonAccountGroupGNP = iExchange.Common.Manager.AccountGroupGNP;
+using CommonOpenInterestSummary = iExchange.Common.Manager.OpenInterestSummary;
 
 namespace ManagerConsole.UI
 {
@@ -29,10 +30,12 @@ namespace ManagerConsole.UI
     public partial class OpenInterestControl : UserControl
     {
         private ObservableCollection<RootGNP> _RootGNP = new ObservableCollection<RootGNP>();
+        private ObservableCollection<OpenInterestSummary> _OpenInterestSummarys = new ObservableCollection<OpenInterestSummary>();
         private static IComparer<InstrumentGNP> _InstrumentGNPSummaryCompare = new InstrumentGNPSummaryCompare();
         private static IComparer<InstrumentGNP> _InstrumentGNPCompare = new InstrumentGNPCompare();
         private Hashtable _AllColumns = new Hashtable();
         private Hashtable _SummaryColumns = new Hashtable();
+        private List<Guid> _InstrumentSummaryLoadings = new List<Guid>();
         private List<InstrumentGNP> _ColumnsList;
         private MainWindow _App;
         private Style _BuyCellStyle;
@@ -43,6 +46,7 @@ namespace ManagerConsole.UI
         {
             InitializeComponent();
             this.InitializeData();
+            //this.AttachEvent();
         }
 
         private void InitializeData()
@@ -175,26 +179,55 @@ namespace ManagerConsole.UI
             }
         }
 
-        private void GroupNetPositionGrid_CellExitedEditMode(object sender, CellExitedEditingEventArgs e)
+        private void GroupNetPositionGrid_CellExitingEditMode(object sender, ExitEditingCellEventArgs e)
         {
-            bool isNumber = false;
-            switch (e.Cell.Column.Key)
+            AccountGroupGNP accountGroupGNP = e.Cell.Row.Data as AccountGroupGNP;
+            if (accountGroupGNP != null)
             {
-                case "OiPercent":
-                    AccountGroupGNP accountGroupGNP = e.Cell.Row.Data as AccountGroupGNP;
-                    isNumber = Toolkit.IsNumber(accountGroupGNP.OiPercent.ToString());
-                    if (!isNumber || accountGroupGNP.OiPercent > 100 || accountGroupGNP.OiPercent < 0)
-                    {
-                        accountGroupGNP.OiPercent = 100;
-                        return;
-                    }
-                    var ss = e.Cell.Value;
-                    this.CalculateOIPercentQuantity(accountGroupGNP,false);
-                    break;
+                switch (e.Cell.Column.Key)
+                {
+                    case "OIPercent":
+                        decimal oldOiPercent = accountGroupGNP.OIPercent;
+                        bool isNumber = Toolkit.IsNumber(e.NewValue.ToString());
+                        if (!isNumber || decimal.Parse(e.NewValue.ToString()) > 100 || decimal.Parse(e.NewValue.ToString()) < 0)
+                        {
+                            accountGroupGNP.OIPercent = oldOiPercent;
+                            accountGroupGNP.OldOIPercent = oldOiPercent;
+                            e.Cancel = true;
+                            return;
+                        }
+                        //TextBox oiPercentEditor = e.Editor as TextBox;
+                        accountGroupGNP.OldOIPercent = oldOiPercent;
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
-       
+        private void GroupNetPositionGrid_CellExitedEditMode(object sender, CellExitedEditingEventArgs e)
+        {
+            AccountGroupGNP accountGroupGNP = e.Cell.Row.Data as AccountGroupGNP;
+            if (accountGroupGNP != null)
+            {
+                switch (e.Cell.Column.Key)
+                {
+                    case "OIPercent":
+                        decimal oldOiPercent = accountGroupGNP.OIPercent;
+                        bool isNumber = Toolkit.IsNumber(accountGroupGNP.OIPercent.ToString());
+                        if (!isNumber || accountGroupGNP.OIPercent > 100 || accountGroupGNP.OIPercent < 0)
+                        {
+                            accountGroupGNP.OIPercent = oldOiPercent;
+                            accountGroupGNP.OldOIPercent = oldOiPercent;
+                            return;
+                        }
+                        this.CalculateOIPercentQuantity(accountGroupGNP, false, accountGroupGNP.OldOIPercent);
+                        break;
+                    default:
+                        break;
+                }  
+            }
+        }
 
         #endregion
         private void tabControl_SelectionChanged(object sender, RoutedEventArgs e)
@@ -239,38 +272,47 @@ namespace ManagerConsole.UI
             CheckBox chk = (CheckBox)sender;
             AccountGroupGNP accountGroupGNP = chk.DataContext as AccountGroupGNP;
 
-            this.CalculateOIPercentQuantity(accountGroupGNP,true);
+            this.CalculateOIPercentQuantity(accountGroupGNP,true,decimal.Zero);
         }
 
-        private void CalculateOIPercentQuantity(AccountGroupGNP accountGroupGNP,bool isCheckBoxColumn)
+        private void CalculateOIPercentQuantity(AccountGroupGNP accountGroupGNP, bool isCheckBoxColumn, decimal oldOiPercent)
         {
-            bool isCheck = accountGroupGNP.IsSelected;
-            decimal oIPercent = accountGroupGNP.OiPercent;
-
-            RootGNP rootGNP = this._RootGNP[0];
-            foreach (InstrumentGNP de in this._AllColumns.Values)
+            try
             {
-                string key = "MyColumn" + de.ColumnIndex;
+                bool isCheck = accountGroupGNP.IsSelected;
+                decimal newOIPercent = accountGroupGNP.OIPercent;
 
-                if (rootGNP.Columns[key] == null || accountGroupGNP.Columns[key] == null) continue;
-                if (isCheck)
+                RootGNP rootGNP = this._RootGNP[0];
+                foreach (InstrumentGNP de in this._AllColumns.Values)
                 {
-                    if (isCheckBoxColumn)
+                    string key = "MyColumn" + de.ColumnIndex;
+
+                    if (rootGNP.Columns[key] == null || accountGroupGNP.Columns[key] == null) continue;
+                    decimal totalSum = (decimal)rootGNP.Columns[key];
+                    decimal groupSum = (decimal)accountGroupGNP.Columns[key];
+                    if (isCheck)
                     {
-                        rootGNP.Columns[key] = (decimal)rootGNP.Columns[key] + (decimal)accountGroupGNP.Columns[key] * oIPercent / 100;
+                        if (isCheckBoxColumn)
+                        {
+                            rootGNP.Columns[key] = totalSum + groupSum * newOIPercent / 100;
+                        }
+                        else
+                        {
+                            rootGNP.Columns[key] = totalSum + groupSum * (newOIPercent - oldOiPercent) / 100;
+                        }
                     }
                     else
                     {
-                        rootGNP.Columns[key] = (decimal)rootGNP.Columns[key] - (decimal)accountGroupGNP.Columns[key] * (1 - oIPercent / 100);
+                        rootGNP.Columns[key] = totalSum - groupSum * newOIPercent;
                     }
                 }
-                else
-                {
-                    rootGNP.Columns[key] = (decimal)rootGNP.Columns[key] - (decimal)accountGroupGNP.Columns[key] * oIPercent;
-                }
+                this._GroupNetPositionGrid.ItemsSource = null;
+                this._GroupNetPositionGrid.ItemsSource = this._RootGNP;
             }
-            this._GroupNetPositionGrid.ItemsSource = null;
-            this._GroupNetPositionGrid.ItemsSource = this._RootGNP;
+            catch(Exception ex)
+            { 
+                
+            }
         }
 
         private void Print_Click(object sender, RoutedEventArgs e)
@@ -427,7 +469,126 @@ namespace ManagerConsole.UI
             }
         }
 
+        #region OpenInsterest SummaryItem
 
+        private void AttachEvent()
+        {
+            this._SummaryItemGrid.RowSelectorClicked += new EventHandler<RowSelectorClickedEventArgs>(SummaryItemGrid_RowSelectorClicked);
+        }
+
+        private void SummaryItemGrid_RowSelectorClicked(object sender, RowSelectorClickedEventArgs e)
+        {
+            var ss = e.Row.Cells[1].Value;
+            OpenInterestSummary sss = e.Row.Data as OpenInterestSummary;
+        }
+
+        private void SummaryItemGrid_RowExpansionChanging(object sender, RowExpansionChangedEventArgs e)
+        {
+            OpenInterestSummary openInterestSummary = e.Row.Data as OpenInterestSummary;
+            
+            string[] blotterCodes = new string[] { "123" };
+
+
+            if (openInterestSummary.Type == OpenInterestSummaryType.Instrument)
+            {
+                Guid instrumentId = openInterestSummary.Id;
+                if (this._InstrumentSummaryLoadings.Contains(instrumentId)) return;
+                this.QueryAccountSummary(instrumentId, blotterCodes);
+            }
+            else if (openInterestSummary.Type == OpenInterestSummaryType.Account)
+            {
+                Guid accountId = openInterestSummary.Id;
+                Guid instrumentId = openInterestSummary.InstrumentId;
+                this.QueryOrderSummary(openInterestSummary, blotterCodes);
+            }
+        }
+
+        private void QuerySummaryBtn_Click(object sender, RoutedEventArgs e)
+        {
+            this._OpenInterestSummarys.Clear();
+            bool isGroupByOriginCode = this._OriginCodeRadio.IsChecked.Value;
+            string[] blotterCodes = new string[] { "123"};
+            this.QueryInstrumentSummary(isGroupByOriginCode, blotterCodes);
+        }
+        private void QueryInstrumentSummary(bool isGroupByOriginCode, string[] blotterCodes)
+        {
+            ConsoleClient.Instance.GetInstrumentSummary(isGroupByOriginCode,blotterCodes,this.GetInstrumentSummaryCallback);
+        }
+        private void QueryAccountSummary(Guid instrumentId, string[] blotterCodes)
+        {
+            ConsoleClient.Instance.GetAccountSummary(instrumentId, blotterCodes, this.GetAccountSummaryCallback);
+        }
+        private void QueryOrderSummary(OpenInterestSummary accountSumamry, string[] blotterCodes)
+        {
+            ConsoleClient.Instance.GetOrderSummary(accountSumamry, blotterCodes, this.GetOrderSummaryCallback);
+        }
+
+        private void GetInstrumentSummaryCallback(List<CommonOpenInterestSummary> openInterestSummarys)
+        {
+            this.Dispatcher.BeginInvoke((Action)delegate() 
+            {
+                foreach (CommonOpenInterestSummary openInterestSummary in openInterestSummarys)
+                {
+                    OpenInterestSummary entity = new OpenInterestSummary(openInterestSummary,OpenInterestSummaryType.Instrument);
+                    this._OpenInterestSummarys.Add(entity);
+                }
+                this.BindingSummaryGridData();
+            });
+        }
+
+        private void GetAccountSummaryCallback(Guid instrumentId, List<CommonOpenInterestSummary> openInterestSummarys)
+        {
+            this.Dispatcher.BeginInvoke((Action)delegate()
+            {
+                ObservableCollection<OpenInterestSummary> accountGroupSummarys = new ObservableCollection<OpenInterestSummary>();
+                
+                foreach (CommonOpenInterestSummary openInterestSummary in openInterestSummarys)
+                {
+                    OpenInterestSummary entity = new OpenInterestSummary(openInterestSummary, OpenInterestSummaryType.Account);
+                    entity.InstrumentId = instrumentId;
+                    accountGroupSummarys.Add(entity);
+                }
+
+                OpenInterestSummary  instrumentSummary = this._OpenInterestSummarys.SingleOrDefault(P => P.Id == instrumentId);
+                instrumentSummary.ChildSummaryItems.Clear();
+
+                IEnumerable<IGrouping<string, OpenInterestSummary>> query = accountGroupSummarys.GroupBy(P => P.GroupCode, P => P);
+                foreach (IGrouping<string, OpenInterestSummary> group in query)
+                {
+                   OpenInterestSummary groupSummary = new OpenInterestSummary(OpenInterestSummaryType.Group);
+                   groupSummary.Code = accountGroupSummarys[0].GroupCode;
+                   groupSummary.Id = accountGroupSummarys[0].GroupId;
+
+                   List<OpenInterestSummary> accountSummarys = group.ToList<OpenInterestSummary>();
+                   foreach (OpenInterestSummary item in accountGroupSummarys)
+                   {
+                       groupSummary.SetItem(item,true);
+                       groupSummary.ChildSummaryItems.Add(item);
+                   }
+                   groupSummary.SetAvgPrice();
+                   instrumentSummary.ChildSummaryItems.Add(groupSummary);
+               }
+            });
+        }
+
+        private void GetOrderSummaryCallback(OpenInterestSummary accountSumamry, List<CommonOpenInterestSummary> openInterestSummarys)
+        {
+            this.Dispatcher.BeginInvoke((Action)delegate()
+            {
+                accountSumamry.ChildSummaryItems.Clear();
+                foreach (CommonOpenInterestSummary openInterestSummary in openInterestSummarys)
+                {
+                    OpenInterestSummary entity = new OpenInterestSummary(openInterestSummary, OpenInterestSummaryType.Order);
+                    accountSumamry.ChildSummaryItems.Add(entity);
+                }
+            });
+        }
+
+        private void BindingSummaryGridData()
+        {
+            this._SummaryItemGrid.ItemsSource = this._OpenInterestSummarys;
+        }
+        #endregion
 
 
     }

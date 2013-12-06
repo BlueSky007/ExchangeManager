@@ -74,4 +74,13 @@ namespace ManagerConsole
         Time = 0,
         Price = 1,
     }
+
+    public enum OpenInterestSummaryType
+    {
+        Empty = -1,
+        Instrument = 0,
+        Group = 1,
+        Account = 2,
+        Order = 3,
+    }
 }

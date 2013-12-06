@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Instruments xmlns="">
+  <Instrument ID="783feff4-f65a-44e4-9e06-48d9fc534394" Code="P LLG" MinNumeratorUnit="1" MaxDenominator="100" BuyLot="0" AvgBuyPrice="0" BuyContractSize="0" SellLot="1.1000" AvgSellPrice="19.56" SellContractSize="110.00000000" NetLot="-1.1000" AvgNetPrice="19.56" NetContractSize="-110.00000000" />
+  <Instrument ID="66adc06c-c5fe-4428-867f-be97650eb3b4" Code="P LLS" MinNumeratorUnit="1" MaxDenominator="10" BuyLot="105.0100" AvgBuyPrice="1284.2" BuyContractSize="3150.30000000" SellLot="0" AvgSellPrice="0" SellContractSize="0" NetLot="105.0100" AvgNetPrice="1284.2" NetContractSize="3150.30000000" />
+</Instruments>

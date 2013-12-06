@@ -321,6 +321,35 @@ namespace ManagerConsole.Model
                 EndGetGroupNetPosition(accountGroupGNPs);
             }, null);
         }
+
+        public void GetInstrumentSummary(bool isGroupByOriginCode, string[] blotterCodeSelecteds, Action<List<OpenInterestSummary>> EndGetInstrumentSummary)
+        {
+            this._ServiceProxy.BeginGetInstrumentSummary(isGroupByOriginCode, blotterCodeSelecteds, delegate(IAsyncResult result)
+            {
+                List<iExchange.Common.Manager.OpenInterestSummary> openInterestSummarys = this._ServiceProxy.EndGetInstrumentSummary(result);
+                EndGetInstrumentSummary(openInterestSummarys);
+            }, null);
+        }
+
+        public void GetAccountSummary(Guid instrumentId,string[] blotterCodeSelecteds, Action<Guid,List<OpenInterestSummary>> EndGetAccountSummary)
+        {
+            this._ServiceProxy.BeginGetAccountSummary(instrumentId,blotterCodeSelecteds, delegate(IAsyncResult result)
+            {
+                List<iExchange.Common.Manager.OpenInterestSummary> openInterestSummarys = this._ServiceProxy.EndGetAccountSummary(result);
+                EndGetAccountSummary(instrumentId,openInterestSummarys);
+            }, null);
+        }
+
+        public void GetOrderSummary(ManagerConsole.ViewModel.OpenInterestSummary accountSumamry, string[] blotterCodeSelecteds, Action<ManagerConsole.ViewModel.OpenInterestSummary, List<OpenInterestSummary>> EndGetOrderSummary)
+        {
+            Guid accountId = accountSumamry.Id;
+            Guid instrumentId = accountSumamry.InstrumentId;
+            this._ServiceProxy.BeginGetOrderSummary(accountId,instrumentId,accountSumamry.AccountType,blotterCodeSelecteds, delegate(IAsyncResult result)
+            {
+                List<iExchange.Common.Manager.OpenInterestSummary> openInterestSummarys = this._ServiceProxy.EndGetOrderSummary(result);
+                EndGetOrderSummary(accountSumamry,openInterestSummarys);
+            }, null);
+        }
         #endregion
 
         #region Log Audit

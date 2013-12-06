@@ -9,6 +9,7 @@ using System.Linq;
 using System.ServiceModel;
 using System.Text;
 using System.Xml;
+using AccountType = iExchange.Common.AccountType;
 
 namespace ManagerService.Console
 {
@@ -116,6 +117,15 @@ namespace ManagerService.Console
 
         [OperationContract(IsInitiating = false)]
         List<AccountGroupGNP> GetGroupNetPosition();
+
+        [OperationContract(IsInitiating = false)]
+        List<OpenInterestSummary> GetInstrumentSummary(bool isGroupByOriginCode, string[] blotterCodeSelecteds);
+
+        [OperationContract(IsInitiating = false)]
+        List<OpenInterestSummary> GetAccountSummary(Guid instrumentId,string[] blotterCodeSelecteds);
+
+        [OperationContract(IsInitiating = false)]
+        List<OpenInterestSummary> GetOrderSummary(Guid instrumentId, Guid accountId,AccountType accountType, string[] blotterCodeSelecteds);
         #endregion
 
         #region QuotationManager

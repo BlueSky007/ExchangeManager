@@ -207,6 +207,7 @@
     <Compile Include="UI\WeightedRuleControl.xaml.cs">
       <DependentUpon>WeightedRuleControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModel\OpenInterestSummary.cs" />
     <Compile Include="ViewModel\VmAbnormalQuotation.cs" />
     <Compile Include="ViewModel\VmDerivativeRelation.cs" />
     <Compile Include="ViewModel\GroupNetPosition.cs" />

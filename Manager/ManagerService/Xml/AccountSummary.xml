@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Accounts xmlns="">
+  <Account ID="3643a469-3ab5-41d2-bd29-bdd68cc03b4f" Type="0" MinNumeratorUnit="1" MaxDenominator="10" BuyLot="105.0100" AvgBuyPrice="1284.2" BuyContractSize="200" SellLot="0" AvgSellPrice="0" SellContractSize="0" NetLot="105.0100" AvgNetPrice="1284.2" NetContractSize="3150.30000000" />
+  <Account ID="3643a469-3ab5-41d2-bd29-bdd68cc03b3f" Type="0" MinNumeratorUnit="1" MaxDenominator="10" BuyLot="44" AvgBuyPrice="1200.5" BuyContractSize="400" SellLot="0" AvgSellPrice="0" SellContractSize="0" NetLot="105.0100" AvgNetPrice="1284.2" NetContractSize="3150.30000000" />
+</Accounts>

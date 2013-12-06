@@ -264,8 +264,29 @@ namespace ManagerService.DataAccess
             return queryOrders;
         }
 
+        public static Tuple<string,Guid, string> GetAccountGroup(string exchangeCode,Guid accountId)
+        {
+            Tuple<string,Guid, string> group = null;
+            try
+            {
+                string sql = @"SELECT a.Code,gm.GroupID, g.Code As GroupCode FROM Account a
+		                    INNER JOIN GroupMembership gm ON gm.MemberID = a.ID
+		                    INNER JOIN [Group] g ON g.[ID] = gm.GroupID
+                            WHERE a.ID=@accountId";
 
-
+                DataAccess.GetInstance(exchangeCode).ExecuteReader(sql, CommandType.Text, delegate(SqlDataReader reader)
+                {
+                    while (reader.Read())
+                    {
+                        group = new Tuple<string,Guid, string>( (string)reader["Code"],(Guid)reader["GroupID"], (string)reader["GroupCode"]);
+                    }
+                }, new SqlParameter("@accountId", accountId));
+            }
+            catch (Exception ex)
+            { 
+            }
+            return group;
+        }
 
 
     }

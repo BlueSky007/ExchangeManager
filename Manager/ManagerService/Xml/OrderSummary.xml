@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Transactions xmlns="">
+  <Transaction ID="57cc0c4e-ec54-4f1e-9d96-8f104f4126ca" ContractSize="100.0000" InstrumentID="783feff4-f65a-44e4-9e06-48d9fc534394" ExecuteTime="2013-11-12 10:39:17">
+    <Order ID="a8fc6ea7-c15b-406b-a8b2-a722e0f25e55" IsBuy="false" LotBalance="0.1000" ExecutePrice="21.20"/>
+  </Transaction>
+  <Transaction ID="3d2c609d-c6dc-4d50-ab7e-48b3920db402" ContractSize="100.0000" InstrumentID="783feff4-f65a-44e4-9e06-48d9fc534394" ExecuteTime="2013-11-12 11:36:51">
+    <Order ID="3debc3d5-d43b-4502-b8c6-ec533872b565" IsBuy="false" LotBalance="0.1000" ExecutePrice="21.10"/>
+  </Transaction>
+</Transactions>

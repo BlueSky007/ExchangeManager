@@ -181,6 +181,21 @@ namespace ManagerService.Exchange
         {
             return NetGroupManager.GetNetPosition();
         }
+
+        public List<OpenInterestSummary> GetInstrumentSummary(bool isGroupByOriginCode, string[] blotterCodeSelecteds)
+        {
+            return NetGroupManager.GetInstrumentSummary();
+        }
+
+        public List<OpenInterestSummary> GetAccountSummary(Guid instrumentId,string[] blotterCodeSelecteds)
+        {
+            return NetGroupManager.GetAccountSummary();
+        }
+
+        public List<OpenInterestSummary> GetOrderSummary(Guid instrumentId, Guid accountId,iExchange.Common.AccountType accountType, string[] blotterCodeSelecteds)
+        {
+            return NetGroupManager.GetOrderSummary(accountType);
+        }
         #endregion
         private void HandlEngineException(Exception ex)
         {

@@ -51,7 +51,8 @@ namespace ManagerConsole.ViewModel
         private Guid _Id;
         private string _Code;
         private bool _IsSelected = true;
-        private decimal _OiPercent = 100;
+        private decimal _OIPercent = 100;
+        private decimal _OldOIPercent = 100;
         private Dictionary<string, decimal> _GroupSummaryDic = new Dictionary<string, decimal>();
 
         private ObservableCollection<AccountGNP> _AccountGNPs;
@@ -82,10 +83,23 @@ namespace ManagerConsole.ViewModel
                 this.OnPropertyChanged("IsSelected");
             }
         }
-        public decimal OiPercent
+        public decimal OldOIPercent
         {
-            get { return this._OiPercent; }
-            set { this._OiPercent = value; }
+            get { return this._OldOIPercent; }
+            set
+            {
+                this._OldOIPercent = value;
+                this.OnPropertyChanged("OldOIPercent");
+            }
+        }
+        public decimal OIPercent
+        {
+            get { return this._OIPercent; }
+            set
+            {
+                this._OIPercent = value;
+                this.OnPropertyChanged("OIPercent");
+            }
         }
         public ObservableCollection<AccountGNP> AccountGNPs
         {

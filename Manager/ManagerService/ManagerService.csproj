@@ -152,7 +152,11 @@
     <Content Include="Configuration\Manifest.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Exchange\AccountSummary.xml" />
+    <Content Include="Xml\AccountSummary.xml" />
+    <Content Include="Xml\InstrumentSummary.xml" />
     <Content Include="Xml\NetPosition.xml" />
+    <Content Include="Xml\OrderSummary.xml" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="ManagerService.resx">

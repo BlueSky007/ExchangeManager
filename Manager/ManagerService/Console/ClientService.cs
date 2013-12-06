@@ -265,6 +265,21 @@ namespace ManagerService.Console
         {
             return this._Client.GetGroupNetPosition();
         }
+
+        public List<OpenInterestSummary> GetInstrumentSummary(bool isGroupByOriginCode, string[] blotterCodeSelecteds)
+        {
+            return this._Client.GetInstrumentSummary(isGroupByOriginCode, blotterCodeSelecteds);
+        }
+
+        public List<OpenInterestSummary> GetAccountSummary(Guid instrumentId,string[] blotterCodeSelecteds)
+        {
+            return this._Client.GetAccountSummary(instrumentId,blotterCodeSelecteds);
+        }
+
+        public List<OpenInterestSummary> GetOrderSummary(Guid instrumentId, Guid accountId,iExchange.Common.AccountType accountType, string[] blotterCodeSelecteds)
+        {
+            return this._Client.GetOrderSummary(instrumentId, accountId, accountType, blotterCodeSelecteds);
+        }
         #endregion
 
         #region Log Audit

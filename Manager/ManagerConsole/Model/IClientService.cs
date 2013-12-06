@@ -10,6 +10,8 @@ using System.ServiceModel;
 using System.Text;
 using System.Xml;
 using AccountGroupGNP = iExchange.Common.Manager.AccountGroupGNP;
+using AccountType = iExchange.Common.AccountType;
+using OpenInterestSummary = iExchange.Common.Manager.OpenInterestSummary;
 
 namespace ManagerConsole.Model
 {
@@ -120,6 +122,18 @@ namespace ManagerConsole.Model
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginGetGroupNetPosition(AsyncCallback callback, object asyncState);
         List<AccountGroupGNP> EndGetGroupNetPosition(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginGetInstrumentSummary(bool isGroupByOriginCode, string[] blotterCodeSelecteds, AsyncCallback callback, object asyncState);
+        List<OpenInterestSummary> EndGetInstrumentSummary(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginGetAccountSummary(Guid instrumentId,string[] blotterCodeSelecteds, AsyncCallback callback, object asyncState);
+        List<OpenInterestSummary> EndGetAccountSummary(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginGetOrderSummary(Guid instrumentId,Guid accountId,AccountType accountType,string[] blotterCodeSelecteds, AsyncCallback callback, object asyncState);
+        List<OpenInterestSummary> EndGetOrderSummary(IAsyncResult result);
 
         #endregion
 

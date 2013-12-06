@@ -11,6 +11,7 @@ using System.IO;
 using Manager.Common.LogEntities;
 using Manager.Common.ReportEntities;
 using iExchange.Common.Manager;
+using Account = Manager.Common.Settings.Account;
 
 namespace ManagerService.Console
 {
@@ -611,9 +612,57 @@ namespace ManagerService.Console
             }
             catch (Exception ex)
             {
-                Logger.AddEvent(TraceEventType.Error, "Client.Cancel error:\r\n{0}", ex.ToString());
+                Logger.AddEvent(TraceEventType.Error, "Client.GetGroupNetPosition error:\r\n{0}", ex.ToString());
             }
             return accountGroupGNPs;
+        }
+
+        internal List<OpenInterestSummary> GetInstrumentSummary(bool isGroupByOriginCode, string[] blotterCodeSelecteds)
+        {
+            string exchangeCode = "WF01";
+            List<OpenInterestSummary> openInterestSummarys = null;
+            try
+            {
+                ExchangeSystem exchangeSystem = MainService.ExchangeManager.GetExchangeSystem(exchangeCode);
+                openInterestSummarys = exchangeSystem.GetInstrumentSummary(isGroupByOriginCode, blotterCodeSelecteds);
+            }
+            catch (Exception ex)
+            {
+                Logger.AddEvent(TraceEventType.Error, "Client.GetInstrumentSummary error:\r\n{0}", ex.ToString());
+            }
+            return openInterestSummarys;
+        }
+
+        internal List<OpenInterestSummary> GetAccountSummary(Guid instrumentId, string[] blotterCodeSelecteds)
+        {
+            string exchangeCode = "WF01";
+            List<OpenInterestSummary> openInterestSummarys = null;
+            try
+            {
+                ExchangeSystem exchangeSystem = MainService.ExchangeManager.GetExchangeSystem(exchangeCode);
+                openInterestSummarys = exchangeSystem.GetAccountSummary(instrumentId,blotterCodeSelecteds);
+            }
+            catch (Exception ex)
+            {
+                Logger.AddEvent(TraceEventType.Error, "Client.GetAccountSummary error:\r\n{0}", ex.ToString());
+            }
+            return openInterestSummarys;
+        }
+
+        internal List<OpenInterestSummary> GetOrderSummary(Guid instrumentId, Guid accountId, iExchange.Common.AccountType accountType, string[] blotterCodeSelecteds)
+        {
+            string exchangeCode = "WF01";
+            List<OpenInterestSummary> openInterestSummarys = null;
+            try
+            {
+                ExchangeSystem exchangeSystem = MainService.ExchangeManager.GetExchangeSystem(exchangeCode);
+                openInterestSummarys = exchangeSystem.GetOrderSummary(instrumentId, accountId, accountType, blotterCodeSelecteds);
+            }
+            catch (Exception ex)
+            {
+                Logger.AddEvent(TraceEventType.Error, "Client.GetOrderSummary error:\r\n{0}", ex.ToString());
+            }
+            return openInterestSummarys;
         }
         #endregion
 
