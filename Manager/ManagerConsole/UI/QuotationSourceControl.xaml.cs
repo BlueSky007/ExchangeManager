@@ -130,7 +130,7 @@ namespace ManagerConsole.UI
                     {
                         if (success)
                         {
-                            this._EditingOrigin.Update(fieldAndValues);
+                            this._EditingOrigin.ApplyModification(fieldAndValues);
                             this.ShowSuccessHint("Update Successful.");
                         }
                         else

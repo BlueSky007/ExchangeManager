@@ -24,7 +24,7 @@ namespace ManagerService.QuotationExchange
         private ReaderWriterLock rwLock = new ReaderWriterLock();
         private Scheduler scheduler = new Scheduler();
         private IStateServer _StateServer;
-        private string quotationServerID;
+        //private string quotationServerID;
         private string connectionString;
 
         //private StateServer.Service2 stateServer;
@@ -93,7 +93,7 @@ namespace ManagerService.QuotationExchange
                 }
 
                 //should initialize after cache construct completed.
-                this.Initialize(this.GetData(quotationServerID, connectionString));
+                this.Initialize(this.GetData(connectionString));
                 QuotaionExporterManager.Start(this.quotePolicies);
 
                 if (this._EnableChartGeneration)
@@ -116,6 +116,11 @@ namespace ManagerService.QuotationExchange
             }
         }
 
+        public void SetStateServer(IStateServer stateServer)
+        {
+            this._StateServer = stateServer;
+        }
+
         internal bool EnableChartGeneration
         {
             get { return this._EnableChartGeneration; }
@@ -128,7 +133,7 @@ namespace ManagerService.QuotationExchange
 
         public void Reset()
         {
-            this.Initialize(this.GetData(quotationServerID, connectionString));
+            this.Initialize(this.GetData(connectionString));
         }
 
         public string GetQuotation(Token token)
@@ -657,7 +662,7 @@ namespace ManagerService.QuotationExchange
 
                 DateTime nextDay = tradeDay.Day.AddDays(1);
                 AppDebug.LogEvent("QuotationnServer", string.Format("OnTradeDayClose: TradeDay {0:yyyy-MM-dd}) Initialize Begin", nextDay), EventLogEntryType.Information);
-                this.Initialize(this.GetData(this.quotationServerID, this.connectionString, nextDay));
+                this.Initialize(this.GetData( this.connectionString, nextDay));
                 AppDebug.LogEvent("QuotationnServer", string.Format("OnTradeDayClose: TradeDay {0:yyyy-MM-dd} Initialize End", nextDay), EventLogEntryType.Information);
             }
             catch (Exception e)
@@ -670,12 +675,12 @@ namespace ManagerService.QuotationExchange
             }
         }
 
-        private DataSet GetData(string quotationServerID, string connectionString)
+        private DataSet GetData(string connectionString)
         {
-            return this.GetData(quotationServerID, connectionString, DateTime.MinValue);
+            return this.GetData( connectionString, DateTime.MinValue);
         }
 
-        private DataSet GetData(string quotationServerID, string connectionString, DateTime tradeDay)
+        private DataSet GetData(string connectionString, DateTime tradeDay)
         {
             //QuotationServer initCommand
             InitCommand initCommand;
@@ -683,8 +688,8 @@ namespace ManagerService.QuotationExchange
             initCommand.Command = new SqlCommand("dbo.P_GetInitDataForQuotationServer");
             initCommand.Command.CommandType = System.Data.CommandType.StoredProcedure;
             initCommand.Parameters = new String[] { "@quotationServerID", "@tradeDay" };
-            initCommand.Command.Parameters.Add("@quotationServerID", null);
-            initCommand.Command.Parameters.Add("@tradeDay", null);
+            initCommand.Command.Parameters.Add(new SqlParameter("@quotationServerID", null));
+            initCommand.Command.Parameters.Add( new SqlParameter("@tradeDay", null));
 
             initCommand.TableNames = new string[]{
 												   "TradeDay",
@@ -702,7 +707,7 @@ namespace ManagerService.QuotationExchange
 
             //data set
             SqlCommand command = initCommand.Command;
-            command.Parameters[initCommand.Parameters[0]].Value = quotationServerID;
+            command.Parameters[initCommand.Parameters[0]].Value = string.Empty;
             if (tradeDay != DateTime.MinValue)
                 command.Parameters[initCommand.Parameters[1]].Value = tradeDay;
             command.Connection = new SqlConnection(connectionString);
@@ -2889,7 +2894,7 @@ namespace ManagerService.QuotationExchange
                 initCommand = new InitCommand();
                 initCommand.Command = new SqlCommand("dbo.P_GetFirstHighLowPrice");
                 initCommand.Command.CommandType = System.Data.CommandType.StoredProcedure;
-                initCommand.Command.Parameters.Add("@quotePolicyId", quotePolicyId);
+                initCommand.Command.Parameters.Add(new SqlParameter("@quotePolicyId", quotePolicyId));
 
                 //data set
                 SqlCommand command = initCommand.Command;

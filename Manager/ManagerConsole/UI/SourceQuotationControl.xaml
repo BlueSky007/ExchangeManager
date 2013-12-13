@@ -6,66 +6,162 @@
              mc:Ignorable="d" 
              d:DesignHeight="500" d:DesignWidth="600">
     <UserControl.Resources>
-        <Style TargetType="TextBlock">
+        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
+        <Style x:Key="ActiveStyle" TargetType="ig:CellControl">
+            <Setter Property="Background" Value="Pink"/>
+        </Style>
     </UserControl.Resources>
-    <Grid>
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="10,5,0,0">
-            <TextBlock Text="Instrument Code:"/>
-            <TextBlock Text="{Binding Code}" Margin="10"/>
-        </StackPanel>
-        <ItemsControl x:Name="QuotationControl" Margin="0,20,0,0" ItemsSource="{Binding SourceRelations}">
-            <ItemsControl.Resources>
-                <Style TargetType="TextBlock">
-                    <Setter Property="Margin" Value="10,0"/>
-                    <Setter Property="VerticalAlignment" Value="Center"/>
+    <StackPanel Orientation="Horizontal">
+        <Grid>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="10,5,0,0">
+                <TextBlock Text="Instrument Code:" />
+                <TextBlock Text="{Binding Code}" Margin="10"/>
+                <Button x:Name="AddRelationButton" Content="Add Relation" Click="AddRelationButton_Click" Height="22" BorderThickness="1"/>
+            </StackPanel>
+            <Grid Margin="{Binding Margin,ElementName=QuotationControl}" Width="110" HorizontalAlignment="Left" >
+                <Grid.Resources>
+                    <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                        <Setter Property="Margin" Value="20,0,0,0"/>
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                    </Style>
+                </Grid.Resources>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="25"/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="Source Name" />
+                <TextBlock Grid.Row="1" Text="Symbol"/>
+                <TextBlock Grid.Row="2" Text="IsDefault"/>
+                <TextBlock Grid.Row="3" Text="Priority"/>
+            </Grid>
+            <ItemsControl x:Name="QuotationControl" Margin="20,40,0,0" ItemsSource="{Binding SourceRelations}">
+                <ItemsControl.Resources>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Margin" Value="10,0"/>
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                    </Style>
+                </ItemsControl.Resources>
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="Panel.ZIndex" Value="{Binding ZIndex}"/>
+                        <Setter Property="Margin" Value="-120,0,0,0"/>
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" Margin="120,0,0,0" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Vertical">
+                            <Grid Width="{Binding ElementName=PriceGrid,Path=ActualWidth}">
+                                <Grid.Resources>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Margin" Value="10,0"/>
+                                        <Setter Property="VerticalAlignment" Value="Center"/>
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    </Style>
+                                    <Style TargetType="TextBox">
+                                        <Setter Property="Height" Value="20"/>
+                                    </Style>
+                                </Grid.Resources>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="80"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="25"/>
+                                    <RowDefinition Height="25"/>
+                                    <RowDefinition Height="25"/>
+                                    <RowDefinition Height="25"/>
+                                </Grid.RowDefinitions>
+
+                                <Border Grid.Column="1" Grid.RowSpan="4" BorderThickness="1" BorderBrush="#FF8CA6C9" Margin="-2,0,0,0" />
+
+                                <TextBlock Grid.Column="1" Text="{Binding QuotationSource.Name}" Margin="0"/>
+                                <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding SourceSymbol}" />
+                                <CheckBox Grid.Column="1" Grid.Row="2" IsChecked="{Binding IsDefault}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                <TextBox Grid.Column="1" Grid.Row="3" Text="{Binding Priority}" Width="33" TextAlignment="Right" HorizontalAlignment="Center" VerticalAlignment="Center" KeyDown="TextBox_KeyDown"/>
+                            </Grid>
+                            <ig:XamGrid x:Name="PriceGrid" AutoGenerateColumns="False" ItemsSource="{Binding SourceQuotations}" Width="200" ScrollViewer.PanningMode="None"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                                    SelectedRowsCollectionChanged="XamGrid_SelectedRowsCollectionChanged" RowHeight="20">
+                                <ig:XamGrid.CellStyle>
+                                    <Style TargetType="ig:CellControl" BasedOn="{StaticResource {x:Type ig:CellControl}}">
+                                        <Setter Property="Padding" Value="1"/>
+                                    </Style>
+                                </ig:XamGrid.CellStyle>
+                                <ig:XamGrid.SortingSettings>
+                                    <ig:SortingSettings AllowSorting="False"/>
+                                </ig:XamGrid.SortingSettings>
+                                <ig:XamGrid.ColumnResizingSettings>
+                                    <ig:ColumnResizingSettings AllowColumnResizing="Disabled" AllowCellAreaResizing="False" AllowDoubleClickToSize="False" AllowMultipleColumnResize="False"/>
+                                </ig:XamGrid.ColumnResizingSettings>
+                                <ig:XamGrid.ColumnMovingSettings>
+                                    <ig:ColumnMovingSettings AllowColumnMoving="Disabled" />
+                                </ig:XamGrid.ColumnMovingSettings>
+                                <ig:XamGrid.SelectionSettings>
+                                    <ig:SelectionSettings CellClickAction="SelectRow"/>
+                                </ig:XamGrid.SelectionSettings>
+                                <ig:XamGrid.Columns>
+                                    <ig:TextColumn Key="Timestamp" HeaderText="Timestamp" Width="118" />
+                                    <ig:TextColumn Key="Ask" HeaderText="Ask" Width="40"/>
+                                    <ig:TextColumn Key="Bid" HeaderText="Bid" Width="40"/>
+                                </ig:XamGrid.Columns>
+                            </ig:XamGrid>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+        </Grid>
+
+        <ig:XamGrid x:Name="RelationGrid" AutoGenerateColumns="False" Margin="10,10,0,0" CellDoubleClicked="RelationGrid_CellDoubleClicked" KeyDown="RelationGrid_KeyDown">
+            <ig:XamGrid.CellStyle>
+                <Style TargetType="ig:CellControl" BasedOn="{StaticResource {x:Type ig:CellControl}}">
+                    <Setter Property="Padding" Value="1"/>
                 </Style>
-            </ItemsControl.Resources>
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <StackPanel Orientation="Horizontal" />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Vertical" Margin="10,0" Width="330">
-                        <Grid>
-                            <Grid.Resources>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Margin" Value="10,0"/>
-                                    <Setter Property="VerticalAlignment" Value="Center"/>
-                                </Style>
-                                <Style TargetType="TextBox">
-                                    <Setter Property="Height" Value="20"/>
-                                </Style>
-                            </Grid.Resources>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="25"/>
-                                <RowDefinition Height="25"/>
-                            </Grid.RowDefinitions>
-                            <StackPanel Grid.Row="1" Orientation="Horizontal">
-                                <TextBlock Text="Source Name:" Margin="0,0,10,0"/>
-                                <TextBlock Text="{Binding QuotationSource.Name}" Margin="0" />
-                                <TextBlock Text="IsDefault"/>
-                                <CheckBox IsChecked="{Binding IsDefault}" VerticalAlignment="Center" />
-                                <TextBlock Text="Priority"/>
-                                <TextBox Text="{Binding Priority}" Width="33" TextAlignment="Right" />
+            </ig:XamGrid.CellStyle>
+            <ig:XamGrid.SelectionSettings>
+                <ig:SelectionSettings CellClickAction="SelectRow"/>
+            </ig:XamGrid.SelectionSettings>
+            <ig:XamGrid.EditingSettings>
+                <ig:EditingSettings AllowEditing="Cell" IsEnterKeyEditingEnabled="True" IsMouseActionEditingEnabled="DoubleClick" />
+            </ig:XamGrid.EditingSettings>
+            <ig:XamGrid.Columns>
+                <ig:TextColumn Key="QuotationSource.Name" HeaderText="Source" IsReadOnly="True" />
+                <ig:TextColumn Key="Timestamp" HeaderText="Timestamp" IsReadOnly="True" />
+                <ig:TextColumn Key="Ask" HeaderText="Ask" IsReadOnly="True" HorizontalContentAlignment="Right" />
+                <ig:TextColumn Key="Bid" HeaderText="Bid" IsReadOnly="True" HorizontalContentAlignment="Right" />
+                <ig:TextColumn Key="ActiveState" HeaderText="State" IsReadOnly="True">
+                    <ig:TextColumn.ConditionalFormatCollection>
+                        <ig:BeginningWithConditionalFormatRule Value="WORKING" StyleToApply="{StaticResource ResourceKey=ActiveStyle}" />
+                    </ig:TextColumn.ConditionalFormatCollection>
+                </ig:TextColumn>
+                <ig:TemplateColumn Key="AdjustPoints" HeaderText="AdjustPoints" IsReadOnly="True">
+                    <ig:TemplateColumn.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Button x:Name="DecButton" Content="-" Background="Red" Foreground="White" Width="20" Tag="{Binding}" Click="AdjustButton_Click"/>
+                                <TextBox Text="{Binding AdjustPoints}" TextAlignment="Right" Width="60" KeyDown="TextBox_KeyDown"/>
+                                <Button x:Name="IncButton" Content="+" Background="Green" Foreground="White" Width="20" Tag="{Binding}" Click="AdjustButton_Click" />
                             </StackPanel>
-                        </Grid>
-                        <ig:XamGrid AutoGenerateColumns="False" ItemsSource="{Binding SourceQuotations}">
-                            <ig:XamGrid.Columns>
-                                <ig:TextColumn Key="Symbol" HeaderText="Symbol"/>
-                                <ig:TextColumn Key="Timestamp" HeaderText="Timestamp"/>
-                                <ig:TextColumn Key="Ask" HeaderText="Ask"/>
-                                <ig:TextColumn Key="Bid" HeaderText="Bid"/>
-                                <ig:TextColumn Key="High" HeaderText="High"/>
-                                <ig:TextColumn Key="Low" HeaderText="Low"/>
-                            </ig:XamGrid.Columns>
-                        </ig:XamGrid>
-                    </StackPanel>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
-    </Grid>
+                        </DataTemplate>
+                    </ig:TemplateColumn.ItemTemplate>
+                </ig:TemplateColumn>
+                <ig:TextColumn Key="AdjustIncrement" HeaderText="Inc" HorizontalContentAlignment="Right" />
+                <ig:CheckBoxColumn Key="IsDefault" HeaderText="IsDefault" IsReadOnly="True" />
+                <ig:TextColumn Key="Priority" HeaderText="Priority" IsReadOnly="True" HorizontalContentAlignment="Right" />
+                <ig:TextColumn Key="SwitchTimeout" HeaderText="SwitchTimeout" HorizontalContentAlignment="Right" />
+                <ig:CheckBoxColumn Key="Inverted" HeaderText="Inverted" IsReadOnly="True" />
+                <ig:TextColumn Key="SourceSymbol" HeaderText="SourceSymbol" IsReadOnly="True" />
+            </ig:XamGrid.Columns>
+        </ig:XamGrid>
+    </StackPanel>
 </UserControl>

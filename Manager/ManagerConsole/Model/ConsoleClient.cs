@@ -7,6 +7,7 @@ using Manager.Common.QuotationEntities;
 using Manager.Common.LogEntities;
 using Manager.Common.ReportEntities;
 using iExchange.Common.Manager;
+using System.Xml;
 
 namespace ManagerConsole.Model
 {
@@ -446,6 +447,18 @@ namespace ManagerConsole.Model
             }, null);
         }
 
+        public void UpdateMetadataObjects(UpdateData[] updateDatas, Action<bool> NotifyResult)
+        {
+            this._ServiceProxy.BeginUpdateMetadataObjects(updateDatas, delegate(IAsyncResult ar)
+            {
+                bool result = this._ServiceProxy.EndUpdateMetadataObjects(ar);
+                App.MainWindow.Dispatcher.BeginInvoke((Action<bool>)delegate(bool success)
+                {
+                    NotifyResult(success);
+                }, result);
+            }, null);
+        }
+
         public void UpdateMetadataObjectField(MetadataType type, int objectId, string field, object value, Action<bool> NotifyResult)
         {
             this._ServiceProxy.BeginUpdateMetadataObjectField(type, objectId, field, value, delegate(IAsyncResult ar)
@@ -472,6 +485,40 @@ namespace ManagerConsole.Model
             this._ServiceProxy.BeginSendQuotation(instrumentSourceRelationId, ask, bid, delegate(IAsyncResult ar)
             {
                 this._ServiceProxy.EndSendQuotation(ar);
+            }, null);
+        }
+
+        public void UpdateExchangeQuotation(QuotePolicyDetailSet set)
+        {
+            this._ServiceProxy.BeginUpdateQuotationPolicy(set, delegate(IAsyncResult ar)
+            {
+                this._ServiceProxy.EndUpdateQuotationPolicy(ar);
+            }, null);
+        }
+
+        public void SetQuotePolicyDetail(Guid relationId, QuotePolicyDetailsSetAction action, int changeValue)
+        {
+            this._ServiceProxy.BeginSetQuotationPolicyDetail(relationId, action, changeValue, delegate(IAsyncResult ar)
+            {
+                this._ServiceProxy.EndSetQuotationPolicyDetail(ar);
+            }, null);
+        }
+
+        public void GetQuotePolicyRelation(Action<List<QuotePolicyRelation>> GetDataResult)
+        {
+            this._ServiceProxy.BeginGetQuotePolicyRelation(delegate(IAsyncResult ar)
+            {
+                List<QuotePolicyRelation> VMRelation = this._ServiceProxy.EndGetQuotePolicyRelation(ar);
+                GetDataResult(VMRelation);
+            }, null);
+        }
+
+        public void AddNewRelation(Guid id, string code, List<int> instruments,Action<bool> callBack)
+        {
+            this._ServiceProxy.BeginAddNewRelation(id, code, instruments, delegate(IAsyncResult ar)
+            {
+                bool result = this._ServiceProxy.EndAddNewRelation(ar);
+                callBack(result);
             }, null);
         }
         #endregion

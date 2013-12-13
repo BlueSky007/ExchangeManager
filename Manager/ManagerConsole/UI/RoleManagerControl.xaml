@@ -128,16 +128,16 @@
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
-                <RowDefinition Height="8*"/>
-                <RowDefinition Height="8*"/>
-                <RowDefinition Height="84*"/>
+                <RowDefinition Height="5*"/>
+                <RowDefinition Height="5*"/>
+                <RowDefinition Height="90*"/>
             </Grid.RowDefinitions>
             <StackPanel Orientation="Horizontal" Grid.Row="0">
                 <Button x:Name="Submit" Content="Submit" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Visibility="Visible" Click="Submit_Click" Margin="15,0,0,0"/>
                 <Button x:Name="Cancel" Content="Cancel" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="Cancel_Click" Margin="20,0,0,0"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Grid.Row="1">
-                <Label Content="RoleName" Width="AUTO"/>
+                <Label Content="RoleName" Width="AUTO" HorizontalContentAlignment="Left" VerticalContentAlignment="Center"/>
                 <TextBox x:Name="RoleName" IsReadOnly="True" Width="200" Height="25" Margin="30,0,0,0" />
             </StackPanel>
             <igWPF:XamDockManager Theme="IGTheme" Grid.Row="2" AllowDrop="True" BorderThickness="0" Margin="0" Padding="0">
@@ -151,7 +151,7 @@
                                     </ig:XamGrid.ColumnResizingSettings>
                                     <ig:XamGrid.Columns>
                                         <ig:TemplateColumn Key="CategoryId" Visibility="Hidden"/>
-                                        <ig:TemplateColumn Key="CategoryName" HeaderText="Name" Width="400">
+                                        <ig:TemplateColumn Key="CategoryName" HeaderText="Name" Width="400" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
                                         </ig:TemplateColumn>
                                         <ig:TemplateColumn Key="IsCategoryAllow" HeaderText="Allow" Width="80">
                                             <ig:TemplateColumn.ItemTemplate>

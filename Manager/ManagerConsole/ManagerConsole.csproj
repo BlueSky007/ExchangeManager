@@ -121,6 +121,10 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="Xceed.Wpf.Toolkit, Version=2.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\Xceed.Wpf.Toolkit.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -140,6 +144,7 @@
     <Compile Include="Helper\Converters.cs" />
     <Compile Include="Helper\Enums.cs" />
     <Compile Include="Helper\LogEntityConvert.cs" />
+    <Compile Include="Helper\SolidColorBrushes.cs" />
     <Compile Include="Helper\TranPhaseManager.cs" />
     <Compile Include="Helper\OrderTaskManager.cs" />
     <Compile Include="Helper\PropertyChangedNotifier.cs" />
@@ -163,6 +168,12 @@
     <Compile Include="Model\MessageClient.cs" />
     <Compile Include="Model\Order.cs" />
     <Compile Include="Model\TestData.cs" />
+    <Compile Include="UI\AdjustAndSpreadSettingControl.xaml.cs">
+      <DependentUpon>AdjustAndSpreadSettingControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\ExchangeQuotationControl.xaml.cs">
+      <DependentUpon>ExchangeQuotationControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\AbnormalQuotationProcessControl.xaml.cs">
       <DependentUpon>AbnormalQuotationProcessControl.xaml</DependentUpon>
     </Compile>
@@ -182,6 +193,9 @@
     <Compile Include="UI\InstrumentWindow.xaml.cs">
       <DependentUpon>InstrumentWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\NewRelationWindow.xaml.cs">
+      <DependentUpon>NewRelationWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\OpenInterestControl.xaml.cs">
       <DependentUpon>OpenInterestControl.xaml</DependentUpon>
     </Compile>
@@ -197,6 +211,10 @@
     <Compile Include="UI\QuotationSourceControl.xaml.cs">
       <DependentUpon>QuotationSourceControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\QuotePriceWindow.xaml.cs">
+      <DependentUpon>QuotePriceWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModel\AdjustRelationViewModel.cs" />
     <Compile Include="ViewModel\ExecuteOrderSummaryItem.cs" />
     <Compile Include="UI\RangeCheckRuleControl.xaml.cs">
       <DependentUpon>RangeCheckRuleControl.xaml</DependentUpon>
@@ -208,15 +226,16 @@
       <DependentUpon>WeightedRuleControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\OpenInterestSummary.cs" />
+    <Compile Include="ViewModel\QuotePriceClient.cs" />
     <Compile Include="ViewModel\VmAbnormalQuotation.cs" />
     <Compile Include="ViewModel\VmDerivativeRelation.cs" />
+    <Compile Include="ViewModel\ExchangeQuotationViewModel.cs" />
     <Compile Include="ViewModel\GroupNetPosition.cs" />
     <Compile Include="ViewModel\VmPriceRangeCheckRule.cs" />
     <Compile Include="ViewModel\VmQuotation.cs" />
     <Compile Include="ViewModel\VmQuotationManager.cs" />
     <Compile Include="ViewModel\QuotationMessageProcessor.cs" />
     <Compile Include="Model\QuotePolicyDetail.cs" />
-    <Compile Include="Model\QuotePriceClient.cs" />
     <Compile Include="Model\SystemParameter.cs" />
     <Compile Include="Model\SystemParameterClient.cs" />
     <Compile Include="Model\TradePolicy.cs" />
@@ -272,6 +291,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UI\AdjustAndSpreadSettingControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\DerivedInstrumentControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -281,6 +304,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\InstrumentSourceRelationWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\QuotePriceWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\NewRelationWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -356,6 +387,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="UI\DQOrderTaskControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\ExchangeQuotationControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

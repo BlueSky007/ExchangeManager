@@ -159,38 +159,45 @@ namespace ManagerConsole
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             Button btn = sender as Button;
-            Guid userId = (Guid)btn.Tag;
-            UserModel userModel = this._users.Single(u => u.UserId == userId);
-            if (userId != Guid.Empty)
+            try
             {
-                if (btn.Name == "Edit")
+                Guid userId = (Guid)btn.Tag;
+                UserModel userModel = this._users.Single(u => u.UserId == userId);
+                if (userId != Guid.Empty)
                 {
-                    UserData user = new UserData();
-                    user.UserId = userModel.UserId;
-                    user.UserName = userModel.UserName;
-                    string[] roles = userModel.Roles.Split(';');
-                    foreach (string item in roles)
+                    if (btn.Name == "Edit")
                     {
-                        RoleData role = this._roles.SingleOrDefault(r => r.RoleName == item);
-                        if (role != null)
+                        UserData user = new UserData();
+                        user.UserId = userModel.UserId;
+                        user.UserName = userModel.UserName;
+                        string[] roles = userModel.Roles.Split(';');
+                        foreach (string item in roles)
                         {
-                            user.Roles.Add(role);
+                            RoleData role = this._roles.SingleOrDefault(r => r.RoleName == item);
+                            if (role != null)
+                            {
+                                user.Roles.Add(role);
+                            }
+                        }
+                        UserTileControl tile = new UserTileControl(user, this._roles, false, this.AddUserSuccess);
+                        this.UseManagerFrame.Children.Add(tile);
+                        tile.IsModal = true;
+                        tile.Show();
+                        tile.BringToFront();
+                    }
+                    else if (btn.Name == "Delete")
+                    {
+
+                        if (MessageBox.Show(App.MainWindow, string.Format("确认删除{0}用户吗", userModel.UserName), "Warnning", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes)
+                        {
+                            ConsoleClient.Instance.DeleteUser(userId, this.DeleteUser);
                         }
                     }
-                    UserTileControl tile = new UserTileControl(user, this._roles, false, this.AddUserSuccess);
-                    this.UseManagerFrame.Children.Add(tile);
-                    tile.IsModal = true;
-                    tile.Show();
-                    tile.BringToFront();
                 }
-                else if (btn.Name == "Delete")
-                {
-                    
-                    if (MessageBox.Show(App.MainWindow,string.Format("确认删除{0}用户吗",userModel.UserName), "", MessageBoxButton.YesNo,MessageBoxImage.Question,MessageBoxResult.No,MessageBoxOptions.DefaultDesktopOnly) == MessageBoxResult.Yes)
-                    {
-                        ConsoleClient.Instance.DeleteUser(userId, this.DeleteUser);
-                    }
-                }
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "UserManagerButton_Click.\r\n{0}{1}",btn.Name, ex.ToString());
             }
         }
 

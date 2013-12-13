@@ -21,6 +21,7 @@ using InitializeData = Manager.Common.InitializeData;
 using SettingParameters = Manager.Common.Settings.SettingParameters;
 using Phase = Manager.Common.Phase;
 using OrderRelationType = Manager.Common.OrderRelationType;
+using Manager.Common.QuotationEntities;
 
 namespace ManagerConsole
 {
@@ -43,7 +44,7 @@ namespace ManagerConsole
         private Dictionary<Guid, Transaction> _Transactions = new Dictionary<Guid, Transaction>();
         private Dictionary<Guid, Order> _Orders = new Dictionary<Guid, Order>();
         private Dictionary<string, SettingParameters> _SettingParameters = new Dictionary<string, SettingParameters>();
-
+        private Dictionary<string, List<ExchangeQuotation>> _ExchangeQuotations = new Dictionary<string,List<ExchangeQuotation>>();
         private ObservableCollection<OrderTask> _OrderTaskEntities = new ObservableCollection<OrderTask>();
         private DQOrderTaskForInstrumentModel _DQOrderTaskForInstrumentModel = new DQOrderTaskForInstrumentModel();
         private MooMocOrderForInstrumentModel _MooMocOrderForInstrumentModel = new MooMocOrderForInstrumentModel();
@@ -53,7 +54,7 @@ namespace ManagerConsole
         private ExecuteOrderSummaryItemModel _ExecuteOrderSummaryItemModel = new ExecuteOrderSummaryItemModel();
 
         //询价
-        private ObservableCollection<QuotePriceForInstrument> _ClientQuotePriceForInstrument = new ObservableCollection<QuotePriceForInstrument>();
+        private QuotePriceClientModel _QuotePriceClientModel = new QuotePriceClientModel();
 
         private TranPhaseManager _TranPhaseManager;
 
@@ -69,10 +70,10 @@ namespace ManagerConsole
             set { this._TranPhaseManager = value; }
         }
 
-        public ObservableCollection<QuotePriceForInstrument> ClientQuotePriceForInstrument
+        public QuotePriceClientModel QuotePriceClientModel
         {
-            get { return this._ClientQuotePriceForInstrument; }
-            set { this._ClientQuotePriceForInstrument = value; }
+            get { return this._QuotePriceClientModel; }
+            set { this._QuotePriceClientModel = value; }
         }
 
         public SettingsManager SettingsManager
@@ -130,6 +131,12 @@ namespace ManagerConsole
             get { return this._ExecutedOrders; }
             set { this._ExecutedOrders = value; }
         }
+
+        public Dictionary<string, List<ExchangeQuotation>> ExchangeQuotations
+        {
+            get { return this._ExchangeQuotations; }
+            set { this._ExchangeQuotations = value; }
+        }
         #endregion
 
         public InitDataManager()
@@ -148,6 +155,7 @@ namespace ManagerConsole
                 this.SettingsManager.Initialize(initializeData.SettingSet);
                 this._SettingParameters = initializeData.SettingParameters;
                 this.UpdateTradingSetting();
+                this._ExchangeQuotations.Add(initializeData.ExchangeCode, this.InitExchangeQuotation(initializeData.SettingSet));
             }
         }
 
@@ -175,36 +183,75 @@ namespace ManagerConsole
                 
             }
         }
+
+        private List<ExchangeQuotation> InitExchangeQuotation(SettingSet set)
+        {
+            try
+            {
+                List<ExchangeQuotation> quotations = new List<ExchangeQuotation>();
+                foreach (Manager.Common.Settings.QuotePolicyDetail item in set.QuotePolicyDetails)
+                {
+                    ExchangeQuotation quotation = new ExchangeQuotation(item);
+                    quotation.QuotationPolicyCode = set.QuotePolicies.SingleOrDefault(q => q.Id == item.QuotePolicyId).Code;
+                    quotation.InstrumentCode = set.Instruments.SingleOrDefault(i => i.Id == item.InstrumentId).Code;
+                    quotation.OriginInstrumentCode = set.Instruments.SingleOrDefault(i => i.Id == item.InstrumentId).OriginCode;
+                    Manager.Common.Settings.OverridedQuotation overridedQuotation = set.OverridedQuotations.SingleOrDefault(o => o.QuotePolicyId == item.QuotePolicyId && o.InstrumentId == item.InstrumentId);
+                    if (overridedQuotation != null)
+                    {
+                        quotation.Ask = overridedQuotation.Ask;
+                        quotation.Bid = overridedQuotation.Bid;
+                        quotation.High = overridedQuotation.High;
+                        quotation.Low = overridedQuotation.Low;
+                        quotation.Origin = overridedQuotation.Origin;
+                        quotation.Timestamp = overridedQuotation.Timestamp;
+                    }
+                    quotations.Add(quotation);
+                }
+
+                return quotations;
+            }
+            catch (Exception ex)
+            {
+               Manager.Common.Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "InitExchangeQuotation.\r\n{0}", ex.ToString());
+               return null;
+            }
+        }
+
         #endregion
 
         #region Received Notify Convert
         
         public void ProcessQuoteMessage(QuoteMessage quoteMessage)
         {
-            int waiteTime = 50;     //取初始化数据系统参数
+            int waiteTime = 5000;     //取初始化数据系统参数
             Guid customerId = quoteMessage.CustomerID;
             //通过CustomerId获取Customer对象
             //var customer = this._Customers.SingleOrDefault(P => P.id == customerId);
             var customer = new Customer();
             customer.Id = quoteMessage.CustomerID;
             customer.Code = "WF007";
-            QuotePriceClient quotePriceClient = new QuotePriceClient(quoteMessage, waiteTime, customer);
+
+            if (!this._Instruments.ContainsKey(quoteMessage.InstrumentID)) return;
+            InstrumentClient instrument = this._Instruments[quoteMessage.InstrumentID];
+
+            QuotePriceClient quotePriceClient = new QuotePriceClient(quoteMessage,waiteTime,instrument,customer);
+
+            this._QuotePriceClientModel.AddSendQuotePrice(quotePriceClient);
             QuotePriceForInstrument clientQuotePriceForInstrument = null;
-            clientQuotePriceForInstrument = this.ClientQuotePriceForInstrument.SingleOrDefault(P => P.InstrumentClient.Id == quotePriceClient.InstrumentId);
-            if (clientQuotePriceForInstrument == null)
-            {
-                //从内存中获取Instrument
-                //var instrumentEntity = this._Instruments.SingleOrDefault(P => P.InstrumentId == clientQuotePriceForAccount.InstrumentId);
-                clientQuotePriceForInstrument = new QuotePriceForInstrument();
-                var instrument = TestData.GetInstrument(quotePriceClient);
-                clientQuotePriceForInstrument.InstrumentClient = instrument;
-                clientQuotePriceForInstrument.Origin = instrument.Origin;
-                clientQuotePriceForInstrument.Adjust = decimal.Parse(instrument.Origin);
-                clientQuotePriceForInstrument.AdjustLot = quotePriceClient.QuoteLot;
-                this.ClientQuotePriceForInstrument.Add(clientQuotePriceForInstrument);
-            }
-            clientQuotePriceForInstrument.OnEmptyQuotePriceClient += new QuotePriceForInstrument.EmptyQuotePriceHandle(ClientQuotePriceForInstrument_OnEmptyClientQuotePriceClient);
-            clientQuotePriceForInstrument.AddNewQuotePrice(quotePriceClient);
+            //clientQuotePriceForInstrument = this.ClientQuotePriceForInstrument.SingleOrDefault(P => P.InstrumentClient.Id == quotePriceClient.InstrumentId);
+            //if (clientQuotePriceForInstrument == null)
+            //{
+            //    //从内存中获取Instrument
+            //    //var instrumentEntity = this._Instruments.SingleOrDefault(P => P.InstrumentId == clientQuotePriceForAccount.InstrumentId);
+            //    clientQuotePriceForInstrument = new QuotePriceForInstrument();
+            //    var instrument = TestData.GetInstrument(quotePriceClient);
+            //    clientQuotePriceForInstrument.InstrumentClient = instrument;
+            //    clientQuotePriceForInstrument.Adjust = decimal.Parse(instrument.Origin);
+            //    //clientQuotePriceForInstrument.AdjustLot = quotePriceClient.QuoteLot;
+            //    this.ClientQuotePriceForInstrument.Add(clientQuotePriceForInstrument);
+            //}
+            //clientQuotePriceForInstrument.OnEmptyQuotePriceClient += new QuotePriceForInstrument.EmptyQuotePriceHandle(ClientQuotePriceForInstrument_OnEmptyClientQuotePriceClient);
+            //clientQuotePriceForInstrument.AddNewQuotePrice(quotePriceClient);
         }
 
         public void ProcessPlaceMessage(PlaceMessage placeMessage)
@@ -523,7 +570,7 @@ namespace ManagerConsole
         }
         void ClientQuotePriceForInstrument_OnEmptyClientQuotePriceClient(QuotePriceForInstrument clientQuotePriceForInstrument)
         {
-            this.ClientQuotePriceForInstrument.Remove(clientQuotePriceForInstrument);
+            //this.ClientQuotePriceForInstrument.Remove(clientQuotePriceForInstrument);
         }
         #endregion
     }

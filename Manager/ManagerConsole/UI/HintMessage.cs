@@ -32,4 +32,10 @@ namespace ManagerConsole.UI
             this._MessageBlock.Text = string.Empty;
         }
     }
+
+    public enum EditMode
+    {
+        AddNew,
+        Modify
+    }
 }

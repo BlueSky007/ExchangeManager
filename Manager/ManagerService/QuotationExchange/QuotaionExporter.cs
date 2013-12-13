@@ -422,6 +422,7 @@ namespace ManagerService.QuotationExchange
                     AppDebug.LogEvent("QuotaionExporterManager.Stop", exception.ToString(), EventLogEntryType.Error);
                 }
             }
+
         }
 
         internal static void AddQuotation(ICollection<OverridedQuotation> quotations)

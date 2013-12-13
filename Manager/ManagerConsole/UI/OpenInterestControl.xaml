@@ -74,9 +74,9 @@
 
         <igWindows:XamTabControl x:Name="_OpenInterestTab" Grid.Row="1" 
                                  TabStripPlacement="Top"
-                                 Theme="IGTheme"
+                                 Theme="Office2010Blue"
                                  TabLayoutStyle="MultiRowAutoSize"
-                                 AllowTabClosing="True"
+                                 AllowTabClosing="False"
                                  SelectionChanged="tabControl_SelectionChanged">
             <igWindows:XamTabControl.PreTabItemContent>
                 <Button x:Name="_AddTable" Margin="0" Click="AddTable_Click" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Width="25" Height="25">
@@ -94,7 +94,7 @@
                     </Button>
                 </StackPanel>
             </igWindows:XamTabControl.PostTabItemContent>
-            <igWindows:TabItemEx CloseButtonVisibility="WhenSelectedOrHotTracked" Header="Group Net Position" 
+            <igWindows:TabItemEx CloseButtonVisibility="Hidden"  Header="Group Net Position" 
                                  x:Name="NetPositionItem" Height="25">
                 <!--#BEGIN SNIPPET#-->
                 <igGrid:XamGrid KeyboardNavigation="AllLayouts" x:Name="_GroupNetPositionGrid" FontWeight="Bold" FontFamily="hei" FontStyle="Italic" Foreground="Black" AutoGenerateColumns="false" Grid.Row="1"
@@ -157,11 +157,11 @@
                 </igGrid:XamGrid>
                 <!--#END SNIPPET#-->
             </igWindows:TabItemEx>
-            <igWindows:TabItemEx Header="Net Summary" x:Name="SummaryItem" CloseButtonVisibility="WhenSelectedOrHotTracked" Height="23">
+            <igWindows:TabItemEx Header="Net Summary" x:Name="SummaryItem" CloseButtonVisibility="Hidden" Height="23">
                 <!--#BEGIN SNIPPET#-->
                 <igGrid:XamGrid KeyboardNavigation="AllLayouts" x:Name="_SummaryItemGrid" FontWeight="Bold" FontFamily="hei" FontStyle="Italic" Foreground="Black" AutoGenerateColumns="false" Grid.Row="1"
                                  RowSelectorClicked="SummaryItemGrid_RowSelectorClicked"
-                                RowExpansionChanged="SummaryItemGrid_RowExpansionChanging">
+                                 RowExpansionChanged="SummaryItemGrid_RowExpansionChanging">
                     <igGrid:XamGrid.CellStyle>
                         <Style TargetType="igGrid:CellControl">
                             <Setter Property="Padding" Value="0,0,5,0"/>

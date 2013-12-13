@@ -6,6 +6,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Transactions;
 using Manager.Common.QuotationEntities;
+using System.Xml;
 
 namespace ManagerService.DataAccess
 {
@@ -40,6 +41,8 @@ namespace ManagerService.DataAccess
                     Instrument instrument = new Instrument();
                     instrument.Id = (int)reader["Id"];
                     instrument.Code = (string)reader["Code"];
+                    instrument.AdjustPoints = (double)reader["AdjustPoints"];
+                    instrument.AdjustIncrement = (double)reader["AdjustIncrement"];
                     instrument.DecimalPlace = (int)reader["DecimalPlace"];
                     instrument.IsDerivative = (bool)reader["IsDerivative"];
                     instrument.InactiveTime = reader["InactiveTime"] == DBNull.Value ? null : (int?)reader["InactiveTime"];
@@ -62,8 +65,8 @@ namespace ManagerService.DataAccess
                     relation.IsDefault = (bool)reader["IsDefault"];
                     relation.Priority = (int)reader["Priority"];
                     relation.SwitchTimeout = (int)reader["SwitchTimeout"];
-                    relation.AdjustPoints = (int)reader["AdjustPoints"];
-                    relation.AdjustIncrement = (int)reader["AdjustIncrement"];
+                    relation.AdjustPoints = (double)reader["AdjustPoints"];
+                    relation.AdjustIncrement = (double)reader["AdjustIncrement"];
                     //Dictionary<int, InstrumentSourceRelation> sources;
                     //if (!instrumentSourceRelations.TryGetValue(relation.InstrumentId, out sources))
                     //{
@@ -187,11 +190,9 @@ namespace ManagerService.DataAccess
                 {
                     instrumentData.PriceRangeCheckRule.Id = instrumentId;
                     QuotationData.AddMetadataObject(instrumentData.PriceRangeCheckRule);
-                    if (instrumentData.WeightedPriceRule != null)
-                    {
-                        instrumentData.WeightedPriceRule.Id = instrumentId;
-                        QuotationData.AddMetadataObject(instrumentData.WeightedPriceRule);
-                    }
+
+                    instrumentData.WeightedPriceRule.Id = instrumentId;
+                    QuotationData.AddMetadataObject(instrumentData.WeightedPriceRule);
                 }
                 scope.Complete();
             }
@@ -210,9 +211,11 @@ namespace ManagerService.DataAccess
 
         public static int AddMetadataObject(Instrument entity)
         {
-            string sql = "INSERT Instrument(Code,DecimalPlace,InactiveTime,UseWeightedPrice,IsDerivative,IsSwitchUseAgio,AgioSeconds,LeastTicks) VALUES (@code,@decimalPlace,@inactiveTime,@useWeightedPrice,@isDerivative,@isSwitchUseAgio,@agioSeconds,@leastTicks);SELECT SCOPE_IDENTITY()";
+            string sql = "INSERT Instrument(Code,AdjustPoints,AdjustIncrement,DecimalPlace,InactiveTime,UseWeightedPrice,IsDerivative,IsSwitchUseAgio,AgioSeconds,LeastTicks) VALUES (@code,@adjustPoints,@adjustIncrement,@decimalPlace,@inactiveTime,@useWeightedPrice,@isDerivative,@isSwitchUseAgio,@agioSeconds,@leastTicks);SELECT SCOPE_IDENTITY()";
             int objectId = (int)(decimal)DataAccess.GetInstance().ExecuteScalar(sql, CommandType.Text,
                 new SqlParameter("@code", entity.Code),
+                new SqlParameter("@adjustPoints", entity.AdjustPoints),
+                new SqlParameter("@adjustIncrement", entity.AdjustIncrement),
                 new SqlParameter("@decimalPlace", entity.DecimalPlace),
                 new SqlParameter("@inactiveTime", entity.InactiveTime.HasValue ? (object)entity.InactiveTime : DBNull.Value),
                 new SqlParameter("@useWeightedPrice", entity.UseWeightedPrice.HasValue ? (object)entity.UseWeightedPrice : DBNull.Value),
@@ -280,7 +283,8 @@ namespace ManagerService.DataAccess
         
         public static void AddMetadataObject(WeightedPriceRule entity)
         {
-            string sql = "INSERT WeightedPriceRule(InstrumentId,Multiplier,AskAskWeight,AskBidWeight,AskLastWeight,BidAskWeight,BidBidWeight,BidLastWeight,LastAskWeight,LastBidWeight,LastLastWeight,AskAvarageWeight,BidAvarageWeight,LastAvarageWeight,AskAdjust,BidAdjust,LastAdjust) VALUES (@instrumentId,@multiplier,@askAskWeight,@askBidWeight,@askLastWeight,@bidAskWeight,@bidBidWeight,@bidLastWeight,@lastAskWeight,@lastBidWeight,@lastLastWeight,@askAvarageWeight,@bidAvarageWeight,@lastAvarageWeight,@askAdjust,@bidAdjust,@lastAdjust);SELECT SCOPE_IDENTITY()";
+            string sql = "INSERT WeightedPriceRule(InstrumentId,Multiplier,AskAskWeight,AskBidWeight,AskLastWeight,BidAskWeight,BidBidWeight,BidLastWeight,LastAskWeight,LastBidWeight,LastLastWeight,AskAverageWeight,BidAverageWeight,LastAverageWeight,AskAdjust,BidAdjust,LastAdjust) ";
+            sql += "VALUES (@instrumentId,@multiplier,@askAskWeight,@askBidWeight,@askLastWeight,@bidAskWeight,@bidBidWeight,@bidLastWeight,@lastAskWeight,@lastBidWeight,@lastLastWeight,@askAverageWeight,@bidAverageWeight,@lastAverageWeight,@askAdjust,@bidAdjust,@lastAdjust);SELECT SCOPE_IDENTITY()";
             DataAccess.GetInstance().ExecuteScalar(sql, CommandType.Text,
                 new SqlParameter("@instrumentId", entity.Id),
                 new SqlParameter("@multiplier", entity.Multiplier),
@@ -293,9 +297,9 @@ namespace ManagerService.DataAccess
                 new SqlParameter("@lastAskWeight", entity.LastAskWeight),
                 new SqlParameter("@lastBidWeight", entity.LastBidWeight),
                 new SqlParameter("@lastLastWeight", entity.LastLastWeight),
-                new SqlParameter("@askAvarageWeight", entity.AskAverageWeight),
-                new SqlParameter("@bidAvarageWeight", entity.BidAverageWeight),
-                new SqlParameter("@lastAvarageWeight", entity.LastAverageWeight),
+                new SqlParameter("@askAverageWeight", entity.AskAverageWeight),
+                new SqlParameter("@bidAverageWeight", entity.BidAverageWeight),
+                new SqlParameter("@lastAverageWeight", entity.LastAverageWeight),
                 new SqlParameter("@askAdjust", entity.AskAdjust),
                 new SqlParameter("@bidAdjust", entity.BidAdjust),
                 new SqlParameter("@lastAdjust", entity.LastAdjust));
@@ -316,6 +320,18 @@ namespace ManagerService.DataAccess
             DataAccess.GetInstance().ExecuteNonQuery(sql, CommandType.Text, sqlParameters.ToArray());
         }
 
+        internal static void UpdateMetadataObjects(UpdateData[] updateDatas)
+        {
+            using (TransactionScope scope = new TransactionScope())
+            {
+                foreach (UpdateData item in updateDatas)
+                {
+                    QuotationData.UpdateMetadataObject(item.MetadataType, item.ObjectId, item.FieldsAndValues);
+                }
+                scope.Complete();
+            }
+        }
+
         internal static void DeleteMetadataObject(MetadataType type, int objectId)
         {
             string tableName, keyFieldName;
@@ -334,6 +350,133 @@ namespace ManagerService.DataAccess
         {
             string sql = "BEGIN TRAN; UPDATE InstrumentSourceRelation SET IsDefault = 1 WHERE Id = @newRelationId; UPDATE InstrumentSourceRelation SET IsDefault = 0 WHERE Id = @oldRelationId; COMMIT;";
             DataAccess.GetInstance().ExecuteNonQuery(sql, CommandType.Text, new SqlParameter("@oldRelationId", oldRelationId), new SqlParameter("@newRelationId", newRelationId));
+        }
+
+        public static List<string> GetRelationInstrumentOriginCodes(Guid relationId)
+        {
+            List<string> originCodes = new List<string>();
+            string sql = "SELECT i.Code FROM AdjustRelation ar INNER JOIN Instrument i ON I.Id=AR.InstrumentId WHERE AR.Id = @relationId";
+            DataAccess.GetInstance().ExecuteReader(sql,CommandType.Text,delegate(SqlDataReader reader){
+                while (reader.Read())
+                {
+                    string originCode = reader["Code"].ToString();
+                    originCodes.Add(originCode);
+                }
+            },new SqlParameter("@relationId",relationId));
+            return originCodes;
+        }
+
+        public static bool UpdateQuotationPolicy(string exchangeCode, string node)
+        {
+            bool isSuccess = false;
+            string sql = "[dbo].[P_UpdateQuotePolicyDetail]";
+            using (SqlConnection con = DataAccess.GetInstance(exchangeCode).GetSqlConnection())
+            {
+                using (SqlTransaction tran = con.BeginTransaction())
+                {
+                    using (SqlCommand command = con.CreateCommand())
+                    {
+                        command.Transaction = tran;
+                        command.CommandText = sql;
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@dealerID", Guid.Empty));
+                        command.Parameters.Add(new SqlParameter("@xmlQuotePolicy", node));
+                        command.Parameters.Add(new SqlParameter("@RETURN_VALUE", SqlDbType.Int) { Direction = ParameterDirection.ReturnValue });
+                        command.ExecuteNonQuery();
+                        int returnValue = (int)command.Parameters["@RETURN_VALUE"].Value;
+                        if (returnValue == 0)
+                        {
+                            tran.Commit();
+                            isSuccess = true;
+                        }
+                    }
+                }
+            }
+            return isSuccess;
+        }
+
+        public static List<QuotePolicyDetailSet> UpdateQuotePolicyDetails(string exchangeCode, string originCodes, string action, int value)
+        {
+            List<QuotePolicyDetailSet> QuotePolicyChangeDetails = new List<QuotePolicyDetailSet>();
+            string sql = "[dbo].[SetQuotePolicyDetail]";
+            using (SqlConnection con = DataAccess.GetInstance(exchangeCode).GetSqlConnection())
+            {
+                using (SqlTransaction tran = con.BeginTransaction())
+                {
+                    using (SqlCommand command = con.CreateCommand())
+                    {
+                        command.Transaction = tran;
+                        command.CommandText = sql;
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@XmlOriginCode", originCodes));
+                        command.Parameters.Add(new SqlParameter("@Action", action));
+                        command.Parameters.Add(new SqlParameter("@changeValue", value));
+                        command.Parameters.Add(new SqlParameter("@RETURN_VALUE", SqlDbType.Int) { Direction = ParameterDirection.ReturnValue });
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                QuotePolicyDetailSet quotePolicyChange = new QuotePolicyDetailSet();
+                                quotePolicyChange.ExchangeCode = exchangeCode;
+                                quotePolicyChange.QoutePolicyId = (Guid)reader["QuotePolicyID"];
+                                quotePolicyChange.InstrumentId = (Guid)reader["instrumentId"];
+                                if (action == "AdjustUp" || action == "AdjustDn" || action == "AdjustReplace")
+                                {
+                                    quotePolicyChange.type = QuotePolicyEditType.AutoAdjustPoints;
+                                }
+                                else
+                                {
+                                    quotePolicyChange.type = QuotePolicyEditType.SpreadPoints;
+                                }
+                                quotePolicyChange.Value = (int)reader["ChangeValue"];
+                                QuotePolicyChangeDetails.Add(quotePolicyChange);
+                            }
+                            int returnValue = (int)command.Parameters["@RETURN_VALUE"].Value;
+                            if (returnValue == 0)
+                            {
+                                tran.Commit();
+                            }
+                            else
+                            {
+                                QuotePolicyChangeDetails.Clear();
+                            }
+                        }
+                    }
+                }
+            }
+            return QuotePolicyChangeDetails;
+        }
+
+        public static List<QuotePolicyRelation> GetQuotePolicyRelation()
+        {
+            List<QuotePolicyRelation> relations = new List<QuotePolicyRelation>();
+            string sql = "SELECT DISTINCT Id,Code FROM [dbo].[AdjustRelation]";
+            DataAccess.GetInstance().ExecuteReader(sql, CommandType.Text, delegate(SqlDataReader reader)
+            {
+                while (reader.Read())
+                {
+                    QuotePolicyRelation relation = new QuotePolicyRelation();
+                    relation.RelationId = (Guid)reader["Id"];
+                    relation.RelationCode = reader["Code"].ToString();
+                    relations.Add(relation);
+                }
+            });
+            return relations;
+        }
+
+        public static bool AddNewRelation(Guid id, string code, List<int> instruments)
+        {
+            bool isSuccess = true;
+            StringBuilder str = new StringBuilder();
+            str.Append("BEGIN TRAN; ");
+            foreach (int instrumentId in instruments)
+            {
+                str.AppendFormat("INSERT INTO dbo.AdjustRelation(Id, Code, InstrumentId) VALUES('{0}','{1}',{2})", id, code, instrumentId);
+            }
+            str.Append("; COMMIT;");
+            string sql = str.ToString();
+            DataAccess.GetInstance().ExecuteNonQuery(sql, CommandType.Text);
+            return isSuccess;
         }
     }
 }

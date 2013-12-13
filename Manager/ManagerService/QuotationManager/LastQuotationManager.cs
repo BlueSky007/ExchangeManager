@@ -71,11 +71,7 @@ namespace ManagerService.Quotation
 
         public void Initialize(Dictionary<int, GeneralQuotation> lastQuotations)
         {
-            this._LastAcceptedQuotations = new Dictionary<int, GeneralQuotation>();
-            foreach (KeyValuePair<int, GeneralQuotation> pair in lastQuotations)
-            {
-                this._LastAcceptedQuotations.Add(pair.Key, (GeneralQuotation)pair.Value);
-            }
+            this._LastAcceptedQuotations = lastQuotations;
         }
         public bool TryGetLastQuotation(int instrumentId, out GeneralQuotation quotation)
         {
@@ -94,13 +90,16 @@ namespace ManagerService.Quotation
                 this._LastQuotationLock.ExitReadLock();
             }
         }
-        public void Accept(GeneralQuotation quotation)
+        public void Accept(List<GeneralQuotation> quotations)
         {
             this._LastQuotationLock.EnterWriteLock();
             try
             {
-                this._LastAcceptedQuotations[quotation.InstrumentId] = quotation;
-                QuotationData.SaveLastQuotation(quotation);
+                foreach (var quotation in quotations)
+                {
+                    this._LastAcceptedQuotations[quotation.InstrumentId] = quotation;
+                    QuotationData.SaveLastQuotation(quotation);
+                }
             }
             finally
             {
@@ -116,19 +115,5 @@ namespace ManagerService.Quotation
 
         public LastReceivedQuotation LastReceived { get { return this._LastReceivedQuotation; } }
         public LastAcceptedQuotation LastAccepted { get { return this._LastAcceptedQuotation; } }
-
-        public void Update(SourceQuotation quotation, bool accepted)
-        {
-            this._LastReceivedQuotation.Set(quotation);
-            if (accepted) this._LastAcceptedQuotation.Accept(quotation.Quotation);
-        }
-
-        public void UpdateDerivativeQuotations(List<GeneralQuotation> quotations)
-        {
-            foreach (var quotation in quotations)
-            {
-                this._LastAcceptedQuotation.Accept(quotation);
-            }
-        }
     }
 }

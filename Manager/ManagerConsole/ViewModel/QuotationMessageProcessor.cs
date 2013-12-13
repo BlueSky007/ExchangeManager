@@ -44,6 +44,22 @@ namespace ManagerConsole.ViewModel
             });
         }
 
+        public void Process(OverridedQuotationMessage message)
+        {
+            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+            {
+                ExchangeQuotationViewModel.Instance.Load(message.ExchangeCode, message.OverridedQs);
+            });
+        }
+
+        public void Process(UpdateQuotePolicyDetailMessage message)
+        {
+            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+            {
+                ExchangeQuotationViewModel.Instance.UpdateExchangeQuotationPolicy(message.QuotePolicyChangeDetails.ToList());
+            });
+        }
+
         public void Process(SourceStatusMessage sourceStatusMessage)
         {
 
@@ -80,11 +96,19 @@ namespace ManagerConsole.ViewModel
             });
         }
 
-        internal void Process(SwitchRelationBooleanPropertyMessage switchRelationPropertyMessage)
+        internal void Process(SwitchRelationBooleanPropertyMessage message)
         {
             App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
-                VmQuotationManager.Instance.SwitchActiveSource(switchRelationPropertyMessage);
+                VmQuotationManager.Instance.SwitchActiveSource(message);
+            });
+        }
+
+        internal void Process(QuotationsMessage message)
+        {
+            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+            {
+                VmQuotationManager.Instance.SetQuotation(message);
             });
         }
     }

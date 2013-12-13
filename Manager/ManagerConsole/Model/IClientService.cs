@@ -19,24 +19,24 @@ namespace ManagerConsole.Model
     [ServiceContract(CallbackContract = typeof(IClientProxy), SessionMode = SessionMode.Required)]
     public interface IClientService
     {
-        [OperationContract(AsyncPattern=true)]
+        [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginLogin(string userName, string password, string oldSessionId, Language language, AsyncCallback callback, object asyncState);
         LoginResult EndLogin(IAsyncResult result);
-      
+
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginGetInitializeData(AsyncCallback callback, object asyncState);
         List<InitializeData> EndGetInitializeData(IAsyncResult result);
-      
+
 
         [OperationContract(IsInitiating = false)]
-        FunctionTree GetFunctionTree();      
+        FunctionTree GetFunctionTree();
 
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginLogout(AsyncCallback callback, object asyncState);
         void EndLogout(IAsyncResult result);
 
         [OperationContract(IsInitiating = false)]
-        void SaveLayout(string layout,string content,string layoutName);
+        void SaveLayout(string layout, string content, string layoutName);
 
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginLoadLayout(string layoutName, AsyncCallback callback, object asyncState);
@@ -73,7 +73,7 @@ namespace ManagerConsole.Model
         bool EndDeleteUser(IAsyncResult result);
 
         [OperationContract(AsyncPattern = true)]
-        IAsyncResult BeginUpdateRole(RoleData role,bool isNewRole, AsyncCallback callback, object asyncState);
+        IAsyncResult BeginUpdateRole(RoleData role, bool isNewRole, AsyncCallback callback, object asyncState);
         bool EndUpdateRole(IAsyncResult result);
 
         [OperationContract(AsyncPattern = true)]
@@ -90,7 +90,7 @@ namespace ManagerConsole.Model
         void SendQuotePrice(List<Answer> sendQuotePrices);
 
         [OperationContract(AsyncPattern = true)]
-        IAsyncResult BeginAcceptPlace(Guid transactionId,LogOrder logEntity,AsyncCallback callback, object asyncState);
+        IAsyncResult BeginAcceptPlace(Guid transactionId, LogOrder logEntity, AsyncCallback callback, object asyncState);
         TransactionError EndAcceptPlace(IAsyncResult result);
 
         [OperationContract(AsyncPattern = true)]
@@ -104,19 +104,19 @@ namespace ManagerConsole.Model
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginCancel(Guid transactionId, CancelReason cancelReason, LogOrder logEntity, AsyncCallback callback, object asyncState);
         TransactionError EndCancel(IAsyncResult result);
-        
+
         [OperationContract(IsInitiating = false)]
         void ResetHit(Guid[] orderIds);
 
         [OperationContract(IsInitiating = false)]
         AccountInformation GetAcountInfo(Guid transactionId);
-        
+
         #endregion
 
         #region Report
         [OperationContract(AsyncPattern = true)]
-        IAsyncResult BeginGetOrderByInstrument(Guid instrumentId,Guid accountGroupId,OrderType orderType,
-            bool isExecute, DateTime fromDate, DateTime toDate,AsyncCallback  callback, object asyncState);
+        IAsyncResult BeginGetOrderByInstrument(Guid instrumentId, Guid accountGroupId, OrderType orderType,
+            bool isExecute, DateTime fromDate, DateTime toDate, AsyncCallback callback, object asyncState);
         List<OrderQueryEntity> EndGetOrderByInstrument(IAsyncResult result);
 
         [OperationContract(AsyncPattern = true)]
@@ -162,21 +162,25 @@ namespace ManagerConsole.Model
 
 
         #region Quotation
-        [OperationContract(AsyncPattern=true)]
+        [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginGetConfigMetadata(AsyncCallback callback, object asyncState);
         ConfigMetadata EndGetConfigMetadata(IAsyncResult result);
 
-        [OperationContract(AsyncPattern=true)]
+        [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginAddMetadataObject(IMetadataObject metadataObject, AsyncCallback callback, object asyncState);
         int EndAddMetadataObject(IAsyncResult result);
 
-        [OperationContract(AsyncPattern=true)]
+        [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginAddInstrument(InstrumentData instrumentData, AsyncCallback callback, object asyncState);
         int EndAddInstrument(IAsyncResult result);
 
-        [OperationContract(AsyncPattern=true)]
+        [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginUpdateMetadataObject(MetadataType type, int objectId, Dictionary<string, object> fieldAndValues, AsyncCallback callback, object asyncState);
         bool EndUpdateMetadataObject(IAsyncResult result);
+        
+        [OperationContract(AsyncPattern=true)]
+        IAsyncResult BeginUpdateMetadataObjects(UpdateData[] updateDatas, AsyncCallback callback, object asyncState);
+        bool EndUpdateMetadataObjects(IAsyncResult result);
 
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginUpdateMetadataObjectField(MetadataType type, int objectId, string field, object value, AsyncCallback callback, object asyncState);
@@ -186,17 +190,32 @@ namespace ManagerConsole.Model
         IAsyncResult BeginDeleteMetadataObject(MetadataType type, int objectId, AsyncCallback callback, object asyncState);
         bool EndDeleteMetadataObject(IAsyncResult result);
 
-        [OperationContract(AsyncPattern=true)]
+        [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginSendQuotation(int instrumentSourceRelationId, double ask, double bid, AsyncCallback callback, object asyncState);
         void EndSendQuotation(IAsyncResult result);
 
-        [OperationContract(AsyncPattern=true)]
+        [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginSwitchDefaultSource(SwitchRelationBooleanPropertyMessage message, AsyncCallback callback, object asyncState);
         void EndSwitchDefaultSource(IAsyncResult result);
-      
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginGetQuotePolicyRelation(AsyncCallback callback, object asyncState);
+        List<QuotePolicyRelation> EndGetQuotePolicyRelation(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginAddNewRelation(Guid id, string code, List<int> instruments, AsyncCallback callback, object asyncState);
+        bool EndAddNewRelation(IAsyncResult result);
         #endregion
-        [OperationContract(IsInitiating = false)]
-        void Updatetest();  
+        [OperationContract(AsyncPattern = false)]
+        void Updatetest();
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginUpdateQuotationPolicy(QuotePolicyDetailSet set, AsyncCallback callback, object asyncState);
+        void EndUpdateQuotationPolicy(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginSetQuotationPolicyDetail(Guid relationId, QuotePolicyDetailsSetAction action, int changeValue, AsyncCallback callback, object asyncState);
+        void EndSetQuotationPolicyDetail(IAsyncResult result);
     }
 
     [ServiceContract]

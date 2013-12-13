@@ -35,11 +35,12 @@ namespace ManagerConsole
         public CommonDialogWin CommonDialogWin;
         public ConfirmDialogWin ConfirmDialogWin;
         public ConfirmOrderDialogWin ConfirmOrderDialogWin;
-        private LMTProcess _LMTProcess;
+        private QuotePriceWindow _QuotePriceWindow;
         private ObservableCollection<string> _Layouts;
         private OrderHandle _OrderHandle;
         private MessageProcessor MessageProcessor;
         private SourceQuotationControl _SourceQuotationControl;
+        private int _WindowsCount = 0;
 
         public MainWindow()
         {
@@ -95,7 +96,14 @@ namespace ManagerConsole
             loginWindow.IsModal = true;
             loginWindow.Show();
             loginWindow.BringToFront();
-            App.MainWindow = this;
+            App.MainWindow = this;  
+        }
+
+        private void AddQuotePriceFrm()
+        {
+            this._QuotePriceWindow = new QuotePriceWindow();
+            this.MainFrame.Children.Add(this._QuotePriceWindow);
+            this._QuotePriceWindow.WindowState = Infragistics.Controls.Interactions.WindowState.Hidden;
         }
 
         private void StartMessageThread()
@@ -113,8 +121,8 @@ namespace ManagerConsole
             {
                 this.InitializeLayout(result);
                 ConsoleClient.Instance.GetInitializeData(this.GetInitializeDataCallback);
-                this.MessageProcessor = new MessageProcessor(this._Media, this.InitDataManager);
                 //this.StartMessageThread();
+                this.AddQuotePriceFrm();
             }
             catch (Exception ex)
             {
@@ -181,7 +189,18 @@ namespace ManagerConsole
         {
             UserControl userControl = MainWindowHelper.GetControl((ModuleType)moduleType);
             ContentPane contentPane = this.DockManager.AddDocument(this._Modules[moduleType].ModuleDescription, userControl);
-            contentPane.Name = MainWindowHelper.GetPaneName(moduleType);
+            if ((ModuleType)moduleType == ModuleType.IExchangeQuotation)
+            {
+                contentPane.CloseAction = PaneCloseAction.RemovePane;
+                string moduleName = MainWindowHelper.GetPaneName(moduleType);
+                moduleName = moduleName + "_" + this._WindowsCount.ToString();//Guid.NewGuid().ToString("N");
+                contentPane.Name = moduleName;
+                this._WindowsCount++;
+            }
+            else
+            {
+                contentPane.Name = MainWindowHelper.GetPaneName(moduleType);
+            }
             contentPane.Padding = contentPane.BorderThickness = new Thickness(0);
 
             if ((ModuleType)moduleType == ModuleType.SourceQuotation)

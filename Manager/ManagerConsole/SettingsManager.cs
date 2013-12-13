@@ -11,6 +11,7 @@ using CommonInstrument = Manager.Common.Settings.Instrument;
 using CommonTradePolicy = Manager.Common.Settings.TradePolicy;
 using CommonTradePolicyDetail = Manager.Common.Settings.TradePolicyDetail;
 using CommonAccountGroup = Manager.Common.Settings.AccountGroup;
+using Manager.Common.QuotationEntities;
 
 namespace ManagerConsole
 {
@@ -23,10 +24,11 @@ namespace ManagerConsole
         private Dictionary<Guid, AccountGroup> _AccountGroups = new Dictionary<Guid, AccountGroup>();
         private Dictionary<Guid, InstrumentClient> _Instruments = new Dictionary<Guid, InstrumentClient>();
         private Dictionary<Guid, Dictionary<Guid, QuotePolicyDetail>> _QuotePolicyDetails = new Dictionary<Guid, Dictionary<Guid, QuotePolicyDetail>>();
+        
         private Dictionary<Guid, TradePolicy> _TradePolicies = new Dictionary<Guid, TradePolicy>();
         private Dictionary<Guid, Dictionary<Guid, TradePolicyDetail>> _TradePolicyDetails = new Dictionary<Guid, Dictionary<Guid, TradePolicyDetail>>();
         private Dictionary<Guid, Dictionary<Guid, DealingPolicyDetail>> _DealingPolicyDetails = new Dictionary<Guid, Dictionary<Guid, DealingPolicyDetail>>();
-
+        
         public SettingsManager()
         {
             Toolkit.SettingsManager = this;
@@ -55,6 +57,7 @@ namespace ManagerConsole
             private set;
         }
 
+        
         #endregion
 
         public void Initialize(SettingSet settingSet)

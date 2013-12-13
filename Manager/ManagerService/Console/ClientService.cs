@@ -8,6 +8,7 @@ using Manager.Common.QuotationEntities;
 using Manager.Common.LogEntities;
 using Manager.Common.ReportEntities;
 using iExchange.Common.Manager;
+using System.Xml;
 
 namespace ManagerService.Console
 {
@@ -116,7 +117,7 @@ namespace ManagerService.Console
 
                         initializeData.ValidAccounts.TryGetValue(item.Code, out accountMemberIds);
                         initializeData.ValidInstruments.TryGetValue(item.Code, out instrumentMemberIds);
-
+                        initializeData.ExchangeCode = item.Code;
                         accountPermissions.Add(item.Code, accountMemberIds);
                         instrumentPermissions.Add(item.Code, instrumentMemberIds);
 
@@ -360,7 +361,25 @@ namespace ManagerService.Console
             catch (Exception ex)
             {
                 Logger.AddEvent(TraceEventType.Error,
-                    "[ManagerService.UpdateMetadataObject]type:{0}, objectId:{1}\r\nfields:\r\n{2}{3}", type, objectId, ServiceHelper.DumpDictionary(fieldAndValues), ex.ToString());
+                    "[ManagerService.UpdateMetadataObject]Type:{0}, Id:{1}\r\nfields:\r\n{2}{3}", type, objectId, ServiceHelper.DumpDictionary(fieldAndValues), ex.ToString());
+            }
+            return false;
+        }
+        public bool UpdateMetadataObjects(UpdateData[] updateDatas)
+        {
+            try
+            {
+                this._Client.UpdateMetadataObjects(updateDatas);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                string log = "[ManagerService.UpdateMetadataObjects]\r\n";
+                foreach (UpdateData item in updateDatas)
+                {
+                    log += string.Format("Type:{0}, Id:{1}\r\nfields:\r\n{2}\r\n", item.MetadataType, item.ObjectId, ServiceHelper.DumpDictionary(item.FieldsAndValues));
+                }
+                Logger.AddEvent(TraceEventType.Error, "{0}{1}", log, ex.ToString());
             }
             return false;
         }
@@ -375,7 +394,7 @@ namespace ManagerService.Console
             catch (Exception ex)
             {
                 Logger.AddEvent(TraceEventType.Error,
-                    "[ManagerService.UpdateMetadataObject]type:{0}, objectId:{1}, field:{2}, value:{3}\r\n{4}", type, objectId, field, value, ex.ToString());
+                    "[ManagerService.UpdateMetadataObject]type:{0}, Id:{1}, field:{2}, value:{3}\r\n{4}", type, objectId, field, value, ex.ToString());
             }
             return false;
         }
@@ -390,7 +409,7 @@ namespace ManagerService.Console
             catch (Exception ex)
             {
                 Logger.AddEvent(TraceEventType.Error,
-                    "[ManagerService.DeleteMetadataObject]type:{0}, objectId:{1}\r\n{2}", type, objectId, ex.ToString());
+                    "[ManagerService.DeleteMetadataObject]Type:{0}, Id:{1}\r\n{2}", type, objectId, ex.ToString());
             }
             return false;
         }
@@ -409,6 +428,43 @@ namespace ManagerService.Console
             }
         }
 
+        public void UpdateQuotationPolicy(QuotePolicyDetailSet set)
+        {
+            try
+            {
+                this._Client.UpdateQuotationPolicy(set);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "UpdateQuotationPolicy.\r\n{0}", ex.ToString());
+            }
+        }
+
+        public void SetQuotationPolicyDetail(Guid relationId, QuotePolicyDetailsSetAction action, int changeValue)
+        {
+            try
+            {
+                this._Client.SetQuotationPolicyDetail(relationId, action, changeValue);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "ManagerServer/SetQuotePolicyDetail.\r\n{0}", ex.ToString());
+            }
+        }
+
+        public bool AddNewRelation(Guid id, string code, List<int> instruments)
+        {
+            try
+            {
+                return this._Client.AddNewRelation(id, code, instruments);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "ManagerServer.AddNewRelation.\r\n{0}", ex.ToString());
+                return false;
+            }
+        }
+
         public void SwitchDefaultSource(SwitchRelationBooleanPropertyMessage message)
         {
             try
@@ -420,6 +476,19 @@ namespace ManagerService.Console
                 Logger.AddEvent(TraceEventType.Error,
                     "[ManagerService.SwitchActiveSource] InstrumentId:{0}, OldRelationId:{1}, NewRelationId:{2}\r\n{3}",
                     message.InstrumentId, message.OldRelationId, message.NewRelationId, ex.ToString());
+            }
+        }
+
+        public List<QuotePolicyRelation> GetQuotePolicyRelation()
+        {
+            try
+            {
+                return this._Client.GetQuotePolicyRelation();
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "[ManagerService.GetQuotePolicyRelation\r\n{0}", ex.ToString());
+                return new List<QuotePolicyRelation>();
             }
         }
     }

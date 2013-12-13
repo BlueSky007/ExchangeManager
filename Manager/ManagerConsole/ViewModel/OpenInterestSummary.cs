@@ -224,32 +224,5 @@ namespace ManagerConsole.ViewModel
             price = new Price(avgNetPriceValue.ToString(), this._MinNumeratorUnit, this._MaxDenominator);
             this._NetAvgPrice = price == null ? "0" : price.ToString();
         }
-
-        //        function orderSummaryItemSetItem(accountType, orderSummaryItem, executePrice, lotBalance, isBuy, contractSize, executeTime) {
-        //    var executePriceValue = XmlConvert.ToDecimal(executePrice);
-        //    var buyLot = isBuy ? lotBalance : 0.0;
-        //    var sellLot = !isBuy ? lotBalance : 0.0;
-        //    orderSummaryItem.code = executeTime;
-        //    orderSummaryItem.buyLot = buyLot;
-        //    orderSummaryItem.avgBuyPrice = isBuy ? executePrice : "0";
-        //    orderSummaryItem.avgBuyPriceValue = isBuy ? executePriceValue : 0.00;
-        //    orderSummaryItem.buyContractSize = buyLot * contractSize;
-        //    orderSummaryItem.sellLot = sellLot;
-        //    orderSummaryItem.avgSellPrice = !isBuy ? executePrice : "0";
-        //    orderSummaryItem.avgSellPriceValue = !isBuy ? executePriceValue : 0.00;
-        //    orderSummaryItem.sellContractSize = sellLot * contractSize;
-        //    if (accountType == 2)  //Company
-        //    {
-        //        orderSummaryItem.netLot = sellLot - buyLot;
-        //        orderSummaryItem.netContractSize = sellLot * contractSize - buyLot * contractSize;
-        //    }
-        //    else {
-        //        orderSummaryItem.netLot = buyLot - sellLot;
-        //        orderSummaryItem.netContractSize = buyLot * contractSize - sellLot * contractSize;
-        //    }
-        //    orderSummaryItem.avgNetPrice = isBuy ? executePrice : "-" + executePrice;
-        //    orderSummaryItem.avgNetPriceValue = isBuy ? executePriceValue : 0.00 - executePriceValue;
-        //    //orderSummaryItem.netContractSize = buyLot * contractSize - sellLot * contractSize;
-        //}
     }
 }

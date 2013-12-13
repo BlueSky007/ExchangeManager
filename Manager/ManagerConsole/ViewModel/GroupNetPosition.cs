@@ -357,29 +357,7 @@ namespace ManagerConsole.ViewModel
         }
     }
 
-    public class InstrumentGNPSummaryCompare : IComparer<InstrumentGNP>
-    {
-        #region IComparer<InstrumentGNP> Members
-
-        int IComparer<InstrumentGNP>.Compare(InstrumentGNP x, InstrumentGNP y)
-        {
-            int result = x.SummaryGroupCode.CompareTo(y.SummaryGroupCode);
-            return result;
-        }
-        #endregion
-    }
-    public class InstrumentGNPCompare : IComparer<InstrumentGNP>
-    {
-        #region IComparer<InstrumentGNP> Members
-
-        int IComparer<InstrumentGNP>.Compare(InstrumentGNP x, InstrumentGNP y)
-        {
-            return (x.SortIndex - y.SortIndex);
-        }
-        #endregion
-    }
-
-    public class DetailGNP:InstrumentColumn
+    public class DetailGNP : InstrumentColumn
     {
         public Guid Id { get; set; }
         public string Code { get; set; }
@@ -396,7 +374,6 @@ namespace ManagerConsole.ViewModel
         private ColumnKeys _Keys = new ColumnKeys();
         public ColumnKeys Columns { get { return _Keys; } }
     }
-
 
     public class ColumnKeys : DynamicObject, INotifyPropertyChanged
     {
@@ -454,5 +431,28 @@ namespace ManagerConsole.ViewModel
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         }
 
+    }
+
+    public class InstrumentGNPSummaryCompare : IComparer<InstrumentGNP>
+    {
+        #region IComparer<InstrumentGNP> Members
+
+        int IComparer<InstrumentGNP>.Compare(InstrumentGNP x, InstrumentGNP y)
+        {
+            int result = x.SummaryGroupCode.CompareTo(y.SummaryGroupCode);
+            return result;
+        }
+        #endregion
+    }
+
+    public class InstrumentGNPCompare : IComparer<InstrumentGNP>
+    {
+        #region IComparer<InstrumentGNP> Members
+
+        int IComparer<InstrumentGNP>.Compare(InstrumentGNP x, InstrumentGNP y)
+        {
+            return (x.SortIndex - y.SortIndex);
+        }
+        #endregion
     }
 }

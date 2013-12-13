@@ -63,6 +63,7 @@ namespace ManagerConsole.ViewModel
         private InstrumentSourceRelation _Relation;
         private VmInstrument _Instrument;
         private VmQuotationSource _QuotationSource;
+        private int _ZIndex;
 
         public VmInstrumentSourceRelation(InstrumentSourceRelation relation, VmInstrument instrument, VmQuotationSource quotationSource)
             : base(relation)
@@ -79,6 +80,19 @@ namespace ManagerConsole.ViewModel
 
         public VmInstrument Instrument { get { return this._Instrument; } }
         public VmQuotationSource QuotationSource { get { return this._QuotationSource; } }
+
+        public int ZIndex
+        {
+            get { return this._ZIndex; }
+            set
+            {
+                if(this._ZIndex != value)
+                {
+                    this._ZIndex = value;
+                    this.OnPropertyChanged("ZIndex");
+                }
+            }
+        }
 
         public int Id { get { return this._Relation.Id; } set { this._Relation.Id = value; } }
         public int SourceId
@@ -154,9 +168,19 @@ namespace ManagerConsole.ViewModel
                 {
                     this._Relation.IsActive = value;
                     this.OnPropertyChanged(FieldSR.IsActive);
+                    this.OnPropertyChanged("ActiveState");
                 }
             }
         }
+
+        public string ActiveState
+        {
+            get
+            {
+                return this.IsActive ? "WORKING" : "IDLE";
+            }
+        }
+
         public bool IsDefault
         {
             get
@@ -189,8 +213,11 @@ namespace ManagerConsole.ViewModel
                     {
                         ConsoleClient.Instance.UpdateMetadataObjectField(MetadataType.InstrumentSourceRelation, this.Id, FieldSR.IsDefault, value, delegate(bool success)
                         {
-                            this._Relation.IsDefault = value;
-                            this.OnPropertyChanged(FieldSR.IsDefault);
+                            if (success)
+                            {
+                                this._Relation.IsDefault = value;
+                                this.OnPropertyChanged(FieldSR.IsDefault);
+                            }
                         });
                     }
                 }
@@ -208,8 +235,11 @@ namespace ManagerConsole.ViewModel
                 {
                     ConsoleClient.Instance.UpdateMetadataObjectField(MetadataType.InstrumentSourceRelation, this.Id, FieldSR.Priority, value, delegate(bool success)
                     {
-                        this._Relation.Priority = value;
-                        this.OnPropertyChanged(FieldSR.Priority);
+                        if (success)
+                        {
+                            this._Relation.Priority = value;
+                            this.OnPropertyChanged(FieldSR.Priority);
+                        }
                     });
                 }
             }
@@ -224,12 +254,18 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._Relation.SwitchTimeout != value)
                 {
-                    this._Relation.SwitchTimeout = value;
-                    this.OnPropertyChanged(FieldSR.SwitchTimeout);
+                    ConsoleClient.Instance.UpdateMetadataObjectField(MetadataType.InstrumentSourceRelation, this.Id, FieldSR.SwitchTimeout, value, delegate(bool success)
+                    {
+                        if (success)
+                        {
+                            this._Relation.SwitchTimeout = value;
+                            this.OnPropertyChanged(FieldSR.SwitchTimeout);
+                        }
+                    });
                 }
             }
         }
-        public int AdjustPoints
+        public double AdjustPoints
         {
             get
             {
@@ -237,14 +273,21 @@ namespace ManagerConsole.ViewModel
             }
             set
             {
-                if (this._Relation.AdjustPoints != value)
+                double newValue = double.Parse(value.ToString('F' + this._Instrument.DecimalPlace.ToString()));   // 避免浮点数问题
+                if (this.AdjustPoints != newValue)
                 {
-                    this._Relation.AdjustPoints = value;
-                    this.OnPropertyChanged(FieldSR.AdjustPoints);
+                    ConsoleClient.Instance.UpdateMetadataObjectField(MetadataType.InstrumentSourceRelation, this.Id, FieldSR.AdjustPoints, newValue, delegate(bool success)
+                    {
+                        if (success)
+                        {
+                            this._Relation.AdjustPoints = newValue;
+                            this.OnPropertyChanged(FieldSR.AdjustPoints);
+                        }
+                    });
                 }
             }
         }
-        public int AdjustIncrement
+        public double AdjustIncrement
         {
             get
             {
@@ -254,24 +297,54 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._Relation.AdjustIncrement != value)
                 {
-                    this._Relation.AdjustIncrement = value;
-                    this.OnPropertyChanged(FieldSR.AdjustIncrement);
+                    ConsoleClient.Instance.UpdateMetadataObjectField(MetadataType.InstrumentSourceRelation, this.Id, FieldSR.AdjustIncrement, value, delegate(bool success)
+                    {
+                        if (success)
+                        {
+                            this._Relation.AdjustIncrement = value;
+                            this.OnPropertyChanged(FieldSR.AdjustIncrement);
+                        }
+                    });
                 }
             }
         }
 
-        public void SetSourceQuotation(VmSourceQuotation quotation)
+        public bool SetSourceQuotation(VmSourceQuotation quotation)
         {
-            int keepCount = 20;
-            if (this.SourceQuotations.Count > keepCount)
+            bool addedWithoutReplace = true;
+            if (this.SourceQuotations.Count > 0)
             {
-                this.SourceQuotations.RemoveAt(keepCount - 1);
+                VmSourceQuotation first = this.SourceQuotations[0];
+                if (quotation.Timestamp == first.Timestamp && first.Ask == null)
+                {
+                    // last is empty quotation, just update
+                    first.Ask = quotation.Ask;
+                    first.Bid = quotation.Bid;
+                    addedWithoutReplace = false;
+                }
+                else
+                {
+                    int keepCount = 20;
+                    if (this.SourceQuotations.Count > keepCount)
+                    {
+                        this.SourceQuotations.RemoveAt(keepCount);
+                    }
+                    this.SourceQuotations.Insert(0, quotation);
+                }
             }
-            this.Ask = quotation.Ask;
-            this.Bid = quotation.Bid;
-            this.Last = quotation.Last;
-            this.Timestamp = quotation.Timestamp;
-            this.SourceQuotations.Insert(0, quotation);
+            else
+            {
+                this.SourceQuotations.Add(quotation);
+            }
+
+            if (!string.IsNullOrEmpty(quotation.Ask))
+            {
+                this.Ask = quotation.Ask;
+                this.Bid = quotation.Bid;
+                this.Last = quotation.Last;
+                this.Timestamp = quotation.Timestamp;
+            }
+            return addedWithoutReplace;
         }
     }
 }

@@ -49,6 +49,7 @@ namespace ManagerService.Exchange
             this._SessionId = sessionId;
             this._StateServer = stateServer;
             this._ConnectionState = ConnectionState.Connected;
+            this._QuotationServer.SetStateServer(stateServer);
         }
 
         public void AddCommand(Command command)
@@ -66,6 +67,13 @@ namespace ManagerService.Exchange
             try
             {
                 isSucceed = this._QuotationServer.SetQuotation(token, quotations, out originQs, out overridedQs);
+                if (overridedQs.Length>0)
+                {
+                    OverridedQuotationMessage message = new OverridedQuotationMessage();
+                    message.ExchangeCode = this.ExchangeCode;
+                    message.OverridedQs = overridedQs.ToList();
+                    MainService.ClientManager.Dispatch(message);
+                }
             }
             catch (Exception e)
             {

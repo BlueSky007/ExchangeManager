@@ -12,6 +12,8 @@ using Manager.Common.LogEntities;
 using Manager.Common.ReportEntities;
 using iExchange.Common.Manager;
 using Account = Manager.Common.Settings.Account;
+using System.Xml;
+using System.Text;
 
 namespace ManagerService.Console
 {
@@ -98,7 +100,7 @@ namespace ManagerService.Console
 
         private void HandlEngineException(Exception ex)
         {
-            Logger.TraceEvent(TraceEventType.Error, "ExchangeSystem.HandlEngineException RelayEngine stopped:\r\n" + ex.ToString());
+            Logger.TraceEvent(TraceEventType.Error, "Client.HandlEngineException RelayEngine stopped:\r\n" + ex.ToString());
         }
 
         private Message Filter(Message message)
@@ -740,6 +742,55 @@ namespace ManagerService.Console
         }
         #endregion
 
+        public void SetQuotationPolicyDetail(Guid relationId, QuotePolicyDetailsSetAction action, int changeValue)
+        {
+            List<string> originCodes = QuotationData.GetRelationInstrumentOriginCodes(relationId);
+            StringBuilder str = new StringBuilder();
+            str.Append("<Instruments>");
+            foreach (string code in originCodes)
+            {
+                str.AppendFormat("<Instrument OriginCode=\"{0}\"/>", code);
+            }
+            str.Append("</Instruments>");
+            List<QuotePolicyDetailSet> quotePolicyChangeDetails = new List<QuotePolicyDetailSet>();
+            foreach (ExchangeSystemSetting set in MainService.ManagerSettings.ExchangeSystems)
+            {
+                List<QuotePolicyDetailSet> quotePolicyDetails = QuotationData.UpdateQuotePolicyDetails(set.Code, str.ToString(), action.ToString(), changeValue);
+                if (quotePolicyDetails.Count > 0)
+                {
+                    quotePolicyChangeDetails.AddRange(quotePolicyDetails);
+                }
+            }
+            UpdateQuotePolicyDetailMessage message = new UpdateQuotePolicyDetailMessage(quotePolicyChangeDetails);
+            MainService.ClientManager.Dispatch(message);
+        }
+
+        public List<QuotePolicyRelation> GetQuotePolicyRelation()
+        {
+            List<QuotePolicyRelation> relations = QuotationData.GetQuotePolicyRelation();
+            return relations;
+        }
+        public bool UpdateQuotationPolicy(QuotePolicyDetailSet set)
+        {
+            bool isSuccess = false;
+            string xmlUpdateStr = string.Format("<QuotePolicyDetail QuotePolicyID=\"{0}\" InstrumentID=\"{1}\" {2}=\"{3}\" xmlns=\"\" />", set.QoutePolicyId, set.InstrumentId, Enum.GetName(typeof(QuotePolicyEditType), set.type), set.Value);
+            isSuccess = QuotationData.UpdateQuotationPolicy(set.ExchangeCode, xmlUpdateStr);            
+            if (isSuccess)
+            {
+                List<QuotePolicyDetailSet> quotePolicyDetails = new List<QuotePolicyDetailSet>();
+                quotePolicyDetails.Add(set);
+                UpdateQuotePolicyDetailMessage message = new UpdateQuotePolicyDetailMessage(quotePolicyDetails);
+                MainService.ClientManager.DispatchExcept(message,this);
+            }
+            return isSuccess;
+        }
+        public bool AddNewRelation(Guid id, string code, List<int> instruments)
+        {
+            bool isSuccess = false;
+            isSuccess = QuotationData.AddNewRelation(id, code, instruments);
+            return isSuccess;
+        }
+
         internal int AddMetadataObject(IMetadataObject metadataObject)
         {
             int objectId = QuotationData.AddMetadataObject((dynamic)metadataObject);
@@ -787,7 +838,18 @@ namespace ManagerService.Console
         {
             QuotationData.UpdateMetadataObject(type, objectId, fieldAndValues);
             MainService.QuotationManager.UpdateMetadataObject(type, objectId, fieldAndValues);
-            UpdateMetadataMessage message = new UpdateMetadataMessage() { ObjectId = objectId, MetadataType = type, FieldAndValues = fieldAndValues };
+            UpdateData updateData = new UpdateData() { MetadataType = type, ObjectId = objectId, FieldsAndValues = fieldAndValues };
+            UpdateMetadataMessage message = new UpdateMetadataMessage() { UpdateDatas = new UpdateData[] { updateData } };
+            MainService.ClientManager.DispatchExcept(message, this);
+        }
+        internal void UpdateMetadataObjects(UpdateData[] updateDatas)
+        {
+            QuotationData.UpdateMetadataObjects(updateDatas);
+            foreach (UpdateData item in updateDatas)
+            {
+                MainService.QuotationManager.UpdateMetadataObject(item.MetadataType, item.ObjectId, item.FieldsAndValues);
+            }
+            UpdateMetadataMessage message = new UpdateMetadataMessage() { UpdateDatas = updateDatas };
             MainService.ClientManager.DispatchExcept(message, this);
         }
 

@@ -163,7 +163,10 @@ namespace ManagerService.Quotation
             this._ActiveSource = new ActiveSource(activeSourceId, timeoutTimeSpan);
 
             this._Instrument = MainService.QuotationManager.ConfigMetadata.Instruments[instrumentId];
-            this._AgioCalculator = new AgioCalculator(this._Instrument.AgioSeconds.Value, this._Instrument.LeastTicks.Value, relations.Keys);
+            if (this._Instrument.IsSwitchUseAgio.Value)
+            {
+                this._AgioCalculator = new AgioCalculator(this._Instrument.AgioSeconds.Value, this._Instrument.LeastTicks.Value, relations.Keys);
+            }
             TimeSpan inactiveTimeSpan = TimeSpan.FromSeconds(this._Instrument.InactiveTime.Value);
             this._Timer = new Timer(this.CheckInactiveTime, null, inactiveTimeSpan, inactiveTimeSpan);
             this._LastActiveTime = DateTime.Now;

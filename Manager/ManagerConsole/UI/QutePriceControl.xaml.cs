@@ -53,17 +53,17 @@ namespace ManagerConsole
             this._App = ((ManagerConsole.MainWindow)Application.Current.MainWindow);
             this._CommonDialogWin = this._App.CommonDialogWin;
             this._ConfirmDialogWin = this._App.ConfirmDialogWin;
-            this._ClientQuotePriceForInstrument = this._App.InitDataManager.ClientQuotePriceForInstrument;
+            this._ClientQuotePriceForInstrument = null;// this._App.InitDataManager.QuotePriceClients;
         }
         private void BindGridData()
         {
-            this.QuotePriceGrid.ItemsSource = this._App.InitDataManager.ClientQuotePriceForInstrument;// this._ClientQuotePriceForInstrument;
+            //this.QuotePriceGrid.ItemsSource = this._App.InitDataManager.QuotePriceClients;// this._ClientQuotePriceForInstrument;
         }
         private void TimerHandle()
         {
             this._QuoteTimer = new DispatcherTimer();
             this._QuoteTimer.Interval = new TimeSpan(0, 0, 1);
-            this._QuoteTimer.Tick += new EventHandler(Quote_Tick);
+            //this._QuoteTimer.Tick += new EventHandler(Quote_Tick);
         }
         
         #region 页面初始化过程
@@ -73,33 +73,33 @@ namespace ManagerConsole
         }
         #endregion
 
-        void Quote_Tick(object sender, EventArgs e)
-        {
-            if (this._App.InitDataManager.ClientQuotePriceForInstrument != null && this._App.InitDataManager.ClientQuotePriceForInstrument.Count > 0)
-            {
-                for (int i = 0; i < this._App.InitDataManager.ClientQuotePriceForInstrument.Count; i++)
-                {
-                    var quotePriceClients = this._App.InitDataManager.ClientQuotePriceForInstrument[i].QuotePriceClients;
-                    for (int j = 0; j < quotePriceClients.Count; j++)
-                    {
-                        QuotePriceClient quotePriceEntity = quotePriceClients[j];
-                        quotePriceEntity.WaitTimes = quotePriceEntity.WaitTimes > 0 ? quotePriceEntity.WaitTimes - 1 : quotePriceEntity.WaitTimes;
-                        if (quotePriceEntity.WaitTimes == 0)
-                        {
-                            this._App.InitDataManager.ClientQuotePriceForInstrument[i].RemoveSendQuotePrice(quotePriceEntity);
-                            j--;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                if (this._QuoteTimer.IsEnabled)
-                {
-                    this._QuoteTimer.Stop();
-                }
-            }
-        }
+        //void Quote_Tick(object sender, EventArgs e)
+        //{
+        //    if (this._App.InitDataManager.ClientQuotePriceForInstrument != null && this._App.InitDataManager.ClientQuotePriceForInstrument.Count > 0)
+        //    {
+        //        for (int i = 0; i < this._App.InitDataManager.ClientQuotePriceForInstrument.Count; i++)
+        //        {
+        //            var quotePriceClients = this._App.InitDataManager.ClientQuotePriceForInstrument[i].QuotePriceClients;
+        //            for (int j = 0; j < quotePriceClients.Count; j++)
+        //            {
+        //                QuotePriceClient quotePriceEntity = quotePriceClients[j];
+        //                quotePriceEntity.WaitTimes = quotePriceEntity.WaitTimes > 0 ? quotePriceEntity.WaitTimes - 1 : quotePriceEntity.WaitTimes;
+        //                if (quotePriceEntity.WaitTimes == 0)
+        //                {
+        //                    this._App.InitDataManager.ClientQuotePriceForInstrument[i].RemoveSendQuotePrice(quotePriceEntity);
+        //                    j--;
+        //                }
+        //            }
+        //        }
+        //    }
+        //    else
+        //    {
+        //        if (this._QuoteTimer.IsEnabled)
+        //        {
+        //            this._QuoteTimer.Stop();
+        //        }
+        //    }
+        //}
 
         #region Grid Event Hander
         void QuotePriceGrid_CellControlAttached(object sender, CellControlAttachedEventArgs e)
@@ -124,9 +124,9 @@ namespace ManagerConsole
             {
                 case "AdjustSingle":
                     QuotePriceClient quotePriceClient = e.Cell.Row.Data as QuotePriceClient;
-                    quotePriceForInstrument = this._ClientQuotePriceForInstrument.SingleOrDefault(P => P.InstrumentClient.Id == quotePriceClient.InstrumentId);
+                    quotePriceForInstrument = this._ClientQuotePriceForInstrument.SingleOrDefault(P => P.Instrument.Id == quotePriceClient.InstrumentId);
 
-                    isValidPrice = quotePriceForInstrument.IsValidPrice(quotePriceClient, quotePriceClient.AdjustSingle);
+                    isValidPrice = true;// quotePriceForInstrument.IsValidPrice(quotePriceClient, quotePriceClient.AdjustSingle);
 
                     if (isValidPrice.HasValue)
                     {
@@ -141,7 +141,7 @@ namespace ManagerConsole
                         this._CommonDialogWin.ShowDialogWin("Invalid price!", "Error");
                         return;
                     }
-                    quotePriceForInstrument.AdjustCurrentPrice(quotePriceClient.AdjustSingle, quotePriceClient, false);
+                    //quotePriceForInstrument.AdjustCurrentPrice(quotePriceClient.AdjustSingle, quotePriceClient, false);
                     break;
                 case "Adjust":
                     quotePriceForInstrument = e.Cell.Row.Data as QuotePriceForInstrument;
@@ -164,7 +164,7 @@ namespace ManagerConsole
                     break;
                 case "AdjustLot":
                     quotePriceForInstrument = e.Cell.Row.Data as QuotePriceForInstrument;
-                    quotePriceForInstrument.AdjustCurrentLot(quotePriceForInstrument.AdjustLot, true);
+                    //quotePriceForInstrument.AdjustCurrentLot(quotePriceForInstrument.AdjustLot, true);
                     break;
             }
         }
@@ -184,29 +184,29 @@ namespace ManagerConsole
                 {
                     case "AbandonSingleBtn":
                         quotePriceClient = ((UnboundColumnDataContext)btn.DataContext).RowData as QuotePriceClient;
-                        quotePriceForInstrument = this._ClientQuotePriceForInstrument.SingleOrDefault(P => P.InstrumentClient.Id == quotePriceClient.InstrumentId);
+                        quotePriceForInstrument = this._ClientQuotePriceForInstrument.SingleOrDefault(P => P.Instrument.Id == quotePriceClient.InstrumentId);
                         btn.IsEnabled = false;
                         this.AbandonQuotePrice(quotePriceClient, quotePriceForInstrument, true, btn);
-                        quotePriceForInstrument.RemoveSendQuotePrice(quotePriceClient);
+                        //quotePriceForInstrument.RemoveSendQuotePrice(quotePriceClient);
                         break;
                     case "UpdateSingleBtn":
                         quotePriceClient = ((UnboundColumnDataContext)btn.DataContext).RowData as QuotePriceClient;
-                        quotePriceForInstrument = this._ClientQuotePriceForInstrument.SingleOrDefault(P => P.InstrumentClient.Id == quotePriceClient.InstrumentId);
+                        quotePriceForInstrument = this._ClientQuotePriceForInstrument.SingleOrDefault(P => P.Instrument.Id == quotePriceClient.InstrumentId);
                         quotePriceForInstrument.UpdateCurrentPrice(quotePriceClient);
                         break;
                     case "SendSingleBtn":
                         quotePriceClient = ((UnboundColumnDataContext)btn.DataContext).RowData as QuotePriceClient;
-                        quotePriceForInstrument = this._ClientQuotePriceForInstrument.SingleOrDefault(P => P.InstrumentClient.Id == quotePriceClient.InstrumentId);
+                        quotePriceForInstrument = this._ClientQuotePriceForInstrument.SingleOrDefault(P => P.Instrument.Id == quotePriceClient.InstrumentId);
                         btn.IsEnabled = false;
                         quotePriceForInstrument.QuotePriceClients.Remove(quotePriceClient);
                         this.SendQuotePrice(quotePriceClient, quotePriceForInstrument, true, btn);
-                        quotePriceForInstrument.RemoveSendQuotePrice(quotePriceClient);
+                        //quotePriceForInstrument.RemoveSendQuotePrice(quotePriceClient);
                         break;
                     case "AbandonBtn":
                         quotePriceForInstrument = ((UnboundColumnDataContext)btn.DataContext).RowData as QuotePriceForInstrument;
                         btn.IsEnabled = false;
                         this.AbandonQuotePrice(null, quotePriceForInstrument, false, btn);
-                        quotePriceForInstrument.RemoveSendQuotePrice(quotePriceForInstrument.QuotePriceClients);
+                        //quotePriceForInstrument.RemoveSendQuotePrice(quotePriceForInstrument.QuotePriceClients);
                         this._ClientQuotePriceForInstrument.Remove(quotePriceForInstrument);
                         break;
                     case "UpdateBtn":
@@ -266,13 +266,13 @@ namespace ManagerConsole
                         quotePriceForInstrument = (chk.DataContext) as QuotePriceForInstrument;
                         if (chk.IsChecked.HasValue)
                         {
-                            quotePriceForInstrument.SelectAllQuotePrice(chk.IsChecked.Value);
+                            //quotePriceForInstrument.SelectAllQuotePrice(chk.IsChecked.Value);
                         }
                         break;
                     case "SelectSigleChk":
                         QuotePriceClient quotePriceClient = (chk.DataContext) as QuotePriceClient;
-                        quotePriceForInstrument = this._ClientQuotePriceForInstrument.SingleOrDefault(P => P.InstrumentClient.Id == quotePriceClient.InstrumentId);
-                        quotePriceForInstrument.OnEmptyCheckBoxEvent();
+                        quotePriceForInstrument = this._ClientQuotePriceForInstrument.SingleOrDefault(P => P.Instrument.Id == quotePriceClient.InstrumentId);
+                        //quotePriceForInstrument.OnEmptyCheckBoxEvent();
                         break;
                 }
             }
@@ -352,7 +352,7 @@ namespace ManagerConsole
                                 {
                                     //single
                                     quotePriceClient = row.Data as QuotePriceClient;
-                                    clientQuotePriceForInstrument = this._ClientQuotePriceForInstrument.SingleOrDefault(P => P.InstrumentClient.Id == quotePriceClient.InstrumentId);
+                                    clientQuotePriceForInstrument = this._ClientQuotePriceForInstrument.SingleOrDefault(P => P.Instrument.Id == quotePriceClient.InstrumentId);
                                     this.AbandonQuotePrice(quotePriceClient, clientQuotePriceForInstrument, true, btn);
                                 }
                                 else
@@ -376,7 +376,7 @@ namespace ManagerConsole
                                 {
                                     //single
                                     clientQuotePrice = row.Data as QuotePriceClient;
-                                    clientQuotePriceForInstrument = this._ClientQuotePriceForInstrument.SingleOrDefault(P => P.InstrumentClient.Id == clientQuotePrice.InstrumentId);
+                                    clientQuotePriceForInstrument = this._ClientQuotePriceForInstrument.SingleOrDefault(P => P.Instrument.Id == clientQuotePrice.InstrumentId);
                                     clientQuotePriceForInstrument.UpdateCurrentPrice(clientQuotePrice);
                                 }
                                 else
@@ -401,7 +401,7 @@ namespace ManagerConsole
                                 {
                                     //single
                                     quotePriceClient = row.Data as QuotePriceClient;
-                                    clientQuotePriceForInstrument = this._ClientQuotePriceForInstrument.SingleOrDefault(P => P.InstrumentClient.Id == quotePriceClient.InstrumentId);
+                                    clientQuotePriceForInstrument = this._ClientQuotePriceForInstrument.SingleOrDefault(P => P.Instrument.Id == quotePriceClient.InstrumentId);
                                     this.SendQuotePrice(quotePriceClient, clientQuotePriceForInstrument, true, btn);
                                 }
                                 else
@@ -427,8 +427,8 @@ namespace ManagerConsole
                 {
                     if (quotePrice != null)
                     {
-                        quotePrice.InstrumentCode = quotePriceForInstrument.InstrumentClient.Code;
-                        quoteQuotations.Add(quotePrice.ToSendQutoPrice());
+                    //    quotePrice.InstrumentCode = quotePriceForInstrument.InstrumentClient.Code;
+                    //    quoteQuotations.Add(quotePrice.ToSendQutoPrice());
                     }
                 }
                 else
@@ -456,7 +456,7 @@ namespace ManagerConsole
                 {
                     if (quotePrice != null)
                     {
-                        quotePrice.InstrumentCode = quotePriceForInstrument.InstrumentClient.Code;
+                        //quotePrice.InstrumentCode = quotePriceForInstrument.InstrumentClient.Code;
                         ToSendQutoPrices.Add(quotePrice.ToSendQutoPrice());
                     }
                 }

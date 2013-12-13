@@ -74,6 +74,10 @@
       <Project>{FD64B9C0-DA18-46F7-8EF7-AFB6B66CE932}</Project>
       <Name>Manager.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ManagerConsole\ManagerConsole.csproj">
+      <Project>{f5c40a2b-77d4-4e07-bacf-cf123d2b890c}</Project>
+      <Name>ManagerConsole</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ManagerService\ManagerService.csproj">
       <Project>{40393775-FDC3-4433-A144-8D248F855E91}</Project>
       <Name>ManagerService</Name>

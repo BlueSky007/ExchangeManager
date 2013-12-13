@@ -145,6 +145,9 @@ namespace ManagerService.Console
         bool UpdateMetadataObject(MetadataType type, int objectId, Dictionary<string, object> fieldAndValues);
 
         [OperationContract(IsInitiating = false)]
+        bool UpdateMetadataObjects(UpdateData[] updateDatas);
+
+        [OperationContract(IsInitiating = false)]
         bool UpdateMetadataObjectField(MetadataType type, int objectId, string field, object value);
 
         [OperationContract(IsInitiating = false)]
@@ -155,6 +158,18 @@ namespace ManagerService.Console
 
         [OperationContract(IsInitiating = false)]
         void SwitchDefaultSource(SwitchRelationBooleanPropertyMessage message);
+
+        [OperationContract(IsInitiating = false)]
+        void UpdateQuotationPolicy(QuotePolicyDetailSet set);
+
+        [OperationContract(IsInitiating = false)]
+        void SetQuotationPolicyDetail(Guid relationId, QuotePolicyDetailsSetAction action, int changeValue);
+
+        [OperationContract(IsInitiating = false)]
+        List<QuotePolicyRelation> GetQuotePolicyRelation();
+
+        [OperationContract(IsInitiating = false)]
+        bool AddNewRelation(Guid id, string code, List<int> instruments);
         #endregion
     }
 

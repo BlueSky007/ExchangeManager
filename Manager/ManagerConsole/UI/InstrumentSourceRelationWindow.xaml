@@ -36,15 +36,15 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <TextBlock Text="Instrument Code"/>
-        <TextBlock Grid.Column="1" Text="{Binding Instrument.Code}"/>
+        <TextBlock Grid.Column="1" x:Name="InstrumentCodeTextBlock"/>
         <TextBlock Grid.Row="1" Text="Source"/>
         <ComboBox Grid.Row="1" Grid.Column="1" x:Name="SourcesComboBox" VerticalAlignment="Center" SelectedValue="{Binding SourceId}" SelectedValuePath="Id" DisplayMemberPath="Name" />
         <TextBlock Grid.Row="1" Grid.Column="3" Text="Source Symbol"/>
         <TextBox Grid.Row="1" Grid.Column="4" x:Name="SourceSymbolBox" Text="{Binding SourceSymbol}" MaxLength="20" TextAlignment="Left"/>
-        <TextBlock Grid.Row="2" Text="Inverted"/>
-        <CheckBox Grid.Row="2" Grid.Column="1" IsChecked="{Binding Inverted}"/>
-        <TextBlock Grid.Row="2" Grid.Column="3" Text="IsDefault"/>
-        <CheckBox Grid.Row="2" Grid.Column="4" IsChecked="{Binding IsDefault}"/>
+        <TextBlock Grid.Row="2"  Text="IsDefault"/>
+        <CheckBox Grid.Row="2" Grid.Column="1" IsChecked="{Binding IsDefault}" x:Name="IsDefaultCheckBox"/>
+        <TextBlock Grid.Row="2" Grid.Column="3" Text="Inverted"/>
+        <CheckBox Grid.Row="2" Grid.Column="4" IsChecked="{Binding Inverted}"/>
         <TextBlock Grid.Row="3" Text="Priority"/>
         <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Priority}" />
         <TextBlock Grid.Row="3" Grid.Column="3" Text="Switch Timeout"/>

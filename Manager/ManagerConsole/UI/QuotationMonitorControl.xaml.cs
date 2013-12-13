@@ -18,6 +18,63 @@ using ManagerConsole.Model;
 
 namespace ManagerConsole.UI
 {
+    public class PriceHelper
+    {
+        public static void GetSendPrice(string adjustPriceText, int decimalPlace, string ask, string bid, out decimal sendAsk, out decimal sendBid)
+        {
+            sendAsk = sendBid = 0;
+            decimal spread = decimal.Parse(ask) - decimal.Parse(bid);
+            bid = new string('0', adjustPriceText.Length) + bid;
+            int offset = adjustPriceText.IndexOf('.');
+            if (decimalPlace > 0)
+            {
+                if (bid.IndexOf('.') < 0) bid += '.';
+                bid += new string('0', decimalPlace);
+                bid = PriceHelper.Cut(bid, decimalPlace);
+
+                if (offset < 0)
+                {
+                    if (adjustPriceText.Length > decimalPlace)
+                    {
+                        adjustPriceText = adjustPriceText.Substring(0, decimalPlace);
+                    }
+                    bid = bid.Substring(0, bid.Length - adjustPriceText.Length) + adjustPriceText;
+                }
+                else
+                {
+                    adjustPriceText = PriceHelper.Cut(adjustPriceText, decimalPlace);
+
+                    int startIndex = bid.IndexOf('.') - offset;
+                    bid = bid.Substring(0, startIndex) + adjustPriceText + bid.Substring(startIndex + adjustPriceText.Length);
+                }
+            }
+            else
+            {
+                if (offset == 0) throw new ArgumentException();
+                if (offset > 0) adjustPriceText = adjustPriceText.Substring(0, offset);
+                if (bid.IndexOf('.') >= 0)
+                {
+                    bid = bid.Substring(0, bid.IndexOf('.'));
+                }
+                bid = bid.Substring(0, bid.Length - adjustPriceText.Length) + adjustPriceText;
+            }
+            sendBid = decimal.Parse(bid);
+            sendAsk = sendBid + spread;
+        }
+
+        public static string Cut(string value, int decimalPlace)
+        {
+            int position = value.IndexOf('.') + 1;
+            if (position > 0)
+            {
+                if(value.Length - position > decimalPlace)
+                {
+                    value = value.Substring(0, position + decimalPlace);
+                }
+            }
+            return value;
+        }
+    }
     /// <summary>
     /// Interaction logic for QuotationMonitorControl.xaml
     /// </summary>
@@ -29,65 +86,58 @@ namespace ManagerConsole.UI
             this.MonitorGrid.ItemsSource = VmQuotationManager.Instance.Instruments;
             this.MonitorGrid.SelectionSettings.CellClickAction = Infragistics.Controls.Grids.CellSelectionAction.SelectRow;
         }
-        private void Edit_Click(object sender, RoutedEventArgs e)
-        {
-            Button deleteButton = (Button)sender;
-        }
-
-        private void Delete_Click(object sender, RoutedEventArgs e)
-        {
-            Button deleteButton = (Button)sender;
-        }
 
         private void SendButton_Click(object sender, RoutedEventArgs e)
         {
             Button sendButton = (Button)sender;
-            TextBox askTextBox = (TextBox)LogicalTreeHelper.FindLogicalNode(LogicalTreeHelper.GetParent(sendButton), "SendAsk");
-            TextBox bidTextBox = (TextBox)LogicalTreeHelper.FindLogicalNode(LogicalTreeHelper.GetParent(sendButton), "SendBid");
+            TextBox priceTextBox = (TextBox)LogicalTreeHelper.FindLogicalNode(LogicalTreeHelper.GetParent(sendButton), "AdjustPrice");
 
-            double ask, bid;
-            if (double.TryParse(askTextBox.Text, out ask))
+            string adjustPriceText = priceTextBox.Text.Trim();
+            double value;
+            if (double.TryParse(adjustPriceText, out value))
             {
-                if(double.TryParse(bidTextBox.Text, out bid))
+                VmInstrument instrument = (VmInstrument)priceTextBox.Tag;
+                VmInstrumentSourceRelation relation = instrument.SourceRelations.SingleOrDefault(r => r.IsActive);
+                if (relation != null)
                 {
-                    ConsoleClient.Instance.SendQuotation((int)sendButton.Tag, ask, bid);
-                }
-                else
-                {
-                    bidTextBox.BorderBrush = Brushes.Red;
+                    try
+                    {
+                        decimal sendAsk, sendBid;
+                        if (string.IsNullOrEmpty(instrument.Ask) || string.IsNullOrEmpty(instrument.Bid))
+                        {
+                            ConsoleClient.Instance.SendQuotation(relation.Id, value, value);
+                        }
+                        else
+                        {
+                            PriceHelper.GetSendPrice(adjustPriceText, instrument.DecimalPlace, instrument.Ask, instrument.Bid, out sendAsk, out sendBid);
+                            ConsoleClient.Instance.SendQuotation(relation.Id, (double)sendAsk, (double)sendBid);
+                        }
+                    }
+                    catch
+                    {
+                        priceTextBox.BorderBrush = Brushes.Red;
+                    }
                 }
             }
             else
             {
-                askTextBox.BorderBrush = Brushes.Red;
+                priceTextBox.BorderBrush = Brushes.Red;
             }
         }
 
-        private void SendTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void AdjustPrice_TextChanged(object sender, TextChangedEventArgs e)
         {
             TextBox textBox = (TextBox)sender;
             textBox.BorderBrush = Brushes.Gray;
         }
 
-        private void SendTextBox_GotFocus(object sender, RoutedEventArgs e)
-        {
-            TextBox textBox = (TextBox)sender;
-            double value;
-            if(!double.TryParse(textBox.Text, out value))
-            {
-                if (textBox.Tag != null)
-                {
-                    textBox.Text = textBox.Tag.ToString();
-                }
-            }
-        }
-
-        private void SendTextBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void AdjustPrice_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             TextBox textBox = (TextBox)sender;
             if (textBox.Tag != null)
             {
-                textBox.Text = textBox.Tag.ToString();
+                VmInstrument vmInstrument = (VmInstrument)textBox.Tag;
+                textBox.Text = vmInstrument.Bid;
             }
         }
 
@@ -100,23 +150,13 @@ namespace ManagerConsole.UI
             }
         }
 
-        private void SendBid_KeyDown(object sender, KeyEventArgs e)
+        private void AdjustPrice_KeyDown(object sender, KeyEventArgs e)
         {
-            if(e.Key == Key.Enter)
+            if (e.Key == Key.Enter)
             {
                 TextBox bidTextBox = (TextBox)sender;
                 Button sendButton = (Button)LogicalTreeHelper.FindLogicalNode(LogicalTreeHelper.GetParent(bidTextBox), "SendButton");
                 this.SendButton_Click(sendButton, null);
-            }
-        }
-
-        private void SendAsk_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                TextBox askTextBox = (TextBox)sender;
-                TextBox bidTextBox = (TextBox)LogicalTreeHelper.FindLogicalNode(LogicalTreeHelper.GetParent(askTextBox), "SendBid");
-                bidTextBox.Focus();
             }
         }
 
@@ -136,19 +176,47 @@ namespace ManagerConsole.UI
 
         private void AddInstrument_Click(object sender, RoutedEventArgs e)
         {
-            InstrumentWindow window = new InstrumentWindow();
+            InstrumentWindow window = new InstrumentWindow(EditMode.AddNew);
             App.MainWindow.MainFrame.Children.Add(window);
             window.IsModal = true;
             window.Show();
         }
 
-        private void AddRelation_Click(object sender, RoutedEventArgs e)
+        private void EditInstrument_Click(object sender, RoutedEventArgs e)
+        {
+            Row selectedRow = this.MonitorGrid.Rows.SingleOrDefault(r => r.IsSelected);
+            if (selectedRow != null)
+            {
+                VmInstrument vmInstrument = (VmInstrument)selectedRow.Data;
+                InstrumentWindow window = new InstrumentWindow(EditMode.Modify, vmInstrument);
+                App.MainWindow.MainFrame.Children.Add(window);
+                window.IsModal = true;
+                window.Show();
+            }
+        }
+
+        private void AdjustButton_Click(object sender, RoutedEventArgs e)
         {
             Button button = (Button)sender;
-            InstrumentSourceRelationWindow window = new InstrumentSourceRelationWindow((VmInstrument)button.Tag);
-            App.MainWindow.MainFrame.Children.Add(window);
-            window.IsModal = true;
-            window.Show();
+            VmInstrument vmInstrument = (VmInstrument)button.Tag;
+            if(button.Name == "IncButton")
+            {
+                vmInstrument.AdjustPoints += vmInstrument.AdjustIncrement;
+            }
+            else
+            {
+                vmInstrument.AdjustPoints -= vmInstrument.AdjustIncrement;
+            }
+        }
+
+        private void TextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                TextBox textBox = (TextBox)sender;
+                BindingExpression be = textBox.GetBindingExpression(TextBox.TextProperty);
+                be.UpdateSource();
+            }
         }
     }
 }

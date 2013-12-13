@@ -5,12 +5,15 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ManagerConsole.UI"
              mc:Ignorable="d"
-             d:DesignHeight="400" d:DesignWidth="650">
+             d:DesignHeight="400" d:DesignWidth="1350">
     <Grid>
         <ToolBar VerticalAlignment="Top" Margin="-3,-1,0,0" Padding="0">
-            <ToolBarPanel Height="26">
-                <Button x:Name="AddInstrument" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="AddInstrument_Click"  >
+            <ToolBarPanel Height="26" Orientation="Horizontal">
+                <Button x:Name="AddInstrument" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="AddInstrument_Click">
                     <Image Source="../Asset/Images/add.png" ToolTipService.ToolTip="Add Instrument" Width="20" Height="20"/>
+                </Button>
+                <Button x:Name="EditInstrument" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="EditInstrument_Click">
+                    <Image Source="../Asset/Images/edit.png" ToolTipService.ToolTip="Modify Instrument" Width="20" Height="20"/>
                 </Button>
             </ToolBarPanel>
         </ToolBar>
@@ -20,74 +23,74 @@
                 <ColumnDefinition x:Name="SplitterColumn" Width="5" />
                 <ColumnDefinition x:Name="LastTradeColumn" Width="330" />
             </Grid.ColumnDefinitions>
-            <ig:XamGrid x:Name="MonitorGrid" AutoGenerateColumns="False" CellDoubleClicked="MonitorGrid_CellDoubleClicked" SelectedRowsCollectionChanged="MonitorGrid_SelectedRowsCollectionChanged" >
+            <ig:XamGrid x:Name="MonitorGrid" AutoGenerateColumns="False" CellDoubleClicked="MonitorGrid_CellDoubleClicked" SelectedRowsCollectionChanged="MonitorGrid_SelectedRowsCollectionChanged">
                 <ig:XamGrid.CellStyle>
-                    <Style TargetType="ig:CellControl">
+                    <Style TargetType="ig:CellControl" BasedOn="{StaticResource {x:Type ig:CellControl}}">
                         <Setter Property="Padding" Value="1"/>
                     </Style>
                 </ig:XamGrid.CellStyle>
+                <ig:XamGrid.EditingSettings>
+                    <ig:EditingSettings AllowEditing="Cell" IsEnterKeyEditingEnabled="True" IsMouseActionEditingEnabled="DoubleClick"/>
+                </ig:XamGrid.EditingSettings>
                 <ig:XamGrid.Columns>
-                    <ig:TemplateColumn Key="Id" HeaderText="Action">
+                    <ig:TextColumn Key="Code" HeaderText="Code" IsReadOnly="True" />
+                    <ig:TextColumn Key="Timestamp" HeaderText="Timestamp" IsReadOnly="True" />
+                    <ig:TextColumn Key="Ask" HeaderText="Ask" IsReadOnly="True" />
+                    <ig:TextColumn Key="Bid" HeaderText="Bid" IsReadOnly="True" />
+                    <ig:TemplateColumn Key="AdjustPoints" HeaderText="AdjustPoints" IsReadOnly="True">
                         <ig:TemplateColumn.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <Button Tag="{Binding}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="AddRelation_Click"  >
-                                        <Image Source="../Asset/Images/add.png" ToolTipService.ToolTip="Add Relation" Width="20" Height="20"/>
-                                    </Button>
-                                    <Button Tag="{Binding}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="Delete_Click">
-                                        <Image Source="../Asset/Images/delete.png" ToolTipService.ToolTip="Delete Instrument" Width="18" Height="18"/>
-                                    </Button>
-                                    <Button Tag="{Binding}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="Edit_Click">
-                                        <Image Source="../Asset/Images/edit.png" ToolTipService.ToolTip="Edit Instrument" Width="18" Height="18"/>
-                                    </Button>
+                                    <Button x:Name="DecButton" Content="-" Background="Red" Foreground="White" Width="20" Tag="{Binding}" Click="AdjustButton_Click"/>
+                                    <TextBox Text="{Binding AdjustPoints}" TextAlignment="Right" Width="60" KeyDown="TextBox_KeyDown"/>
+                                    <Button x:Name="IncButton" Content="+" Background="Green" Foreground="White" Width="20" Tag="{Binding}" Click="AdjustButton_Click" />
                                 </StackPanel>
                             </DataTemplate>
                         </ig:TemplateColumn.ItemTemplate>
                     </ig:TemplateColumn>
-                    <ig:TextColumn Key="Code" HeaderText="Code" />
-                    <ig:TextColumn Key="Timestamp" HeaderText="Timestamp" />
-                    <ig:TextColumn Key="Ask" HeaderText="Ask" />
-                    <ig:TextColumn Key="Bid" HeaderText="Bid" />
-                    <ig:TextColumn Key="DecimalPlace" HeaderText="DecimalPlace" />
+                    <ig:TextColumn Key="AdjustIncrement" HeaderText="Inc" />
+                    <ig:TextColumn Key="DecimalPlace" HeaderText="DecimalPlace" >
+                        <ig:TextColumn.TextBlockStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                            </Style>
+                        </ig:TextColumn.TextBlockStyle>
+                    </ig:TextColumn>
                     <ig:TextColumn Key="InactiveTime" HeaderText="InactiveTime" />
-                    <ig:TextColumn Key="UseWeightedPrice" HeaderText="UseWeightedPrice" />
-                    <ig:TextColumn Key="IsDerivative" HeaderText="IsDerivative" />
-                    <ig:TextColumn Key="IsSwitchUseAgio" HeaderText="IsSwitchUseAgio" />
+                    <ig:TemplateColumn Key="UseWeightedPrice" HeaderText="UseWeightedPrice" IsReadOnly="True" HorizontalContentAlignment="Center">
+                        <ig:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding UseWeightedPrice}"/>
+                            </DataTemplate>
+                        </ig:TemplateColumn.ItemTemplate>
+                    </ig:TemplateColumn>
+                    <ig:TemplateColumn Key="IsDerivative" HeaderText="IsDerivative" IsReadOnly="True" HorizontalContentAlignment="Center">
+                        <ig:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsDerivative}" IsEnabled="False"/>
+                            </DataTemplate>
+                        </ig:TemplateColumn.ItemTemplate>
+                    </ig:TemplateColumn>
+                    <ig:TemplateColumn Key="IsSwitchUseAgio" HeaderText="IsSwitchUseAgio" IsReadOnly="True" HorizontalContentAlignment="Center">
+                        <ig:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsSwitchUseAgio}"/>
+                            </DataTemplate>
+                        </ig:TemplateColumn.ItemTemplate>
+                    </ig:TemplateColumn>
                     <ig:TextColumn Key="AgioSeconds" HeaderText="AgioSeconds" />
                     <ig:TextColumn Key="LeastTicks" HeaderText="LeastTicks" />
-                    <ig:ColumnLayout Key="SourceRelations">
-                        <ig:ColumnLayout.Columns>
-                            <ig:TextColumn Key="QuotationSource.Name" HeaderText="Source" />
-                            <ig:TextColumn Key="SourceSymbol" HeaderText="SourceSymbol" />
-                            <ig:TextColumn Key="Inverted" HeaderText="Inverted" />
-                            <ig:TextColumn Key="Timestamp" HeaderText="Timestamp" />
-                            <ig:TextColumn Key="Ask" HeaderText="Ask" />
-                            <ig:TextColumn Key="Bid" HeaderText="Bid" />
-                            <ig:TextColumn Key="IsActive" HeaderText="IsActive" />
-                            <ig:TextColumn Key="IsDefault" HeaderText="IsDefault" />
-                            <ig:TextColumn Key="Priority" HeaderText="Priority" />
-                            <ig:TextColumn Key="SwitchTimeout" HeaderText="SwitchTimeout" />
-                            <ig:TextColumn Key="AdjustPoints" HeaderText="AdjustPoints" />
-                            <ig:TextColumn Key="AdjustIncrement" HeaderText="AdjustIncrement" />
-                            <ig:TemplateColumn Key="Id" HeaderText="Send">
-                                <ig:TemplateColumn.ItemTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="Ask:" />
-                                            <TextBox x:Name="SendAsk" Tag="{Binding Ask}" Width="60" BorderThickness="1" TextAlignment="Right" MaxLength="10"
-                                                        TextChanged="SendTextBox_TextChanged" KeyDown="SendAsk_KeyDown"
-                                                        GotFocus="SendTextBox_GotFocus" MouseDoubleClick="SendTextBox_MouseDoubleClick" />
-                                            <TextBlock Text="Bid:" Margin="3,0,0,0" />
-                                            <TextBox x:Name="SendBid" Tag="{Binding Bid}" Width="60" BorderThickness="1" TextAlignment="Right" MaxLength="10"
-                                                        TextChanged="SendTextBox_TextChanged" KeyDown="SendBid_KeyDown"
-                                                        GotFocus="SendTextBox_GotFocus" MouseDoubleClick="SendTextBox_MouseDoubleClick" />
-                                            <Button x:Name="SendButton" Content="Send" Click="SendButton_Click" Tag="{Binding Id}"/>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ig:TemplateColumn.ItemTemplate>
-                            </ig:TemplateColumn>
-                        </ig:ColumnLayout.Columns>
-                    </ig:ColumnLayout>
+                    <ig:TemplateColumn Key="Id" HeaderText="Send" IsReadOnly="True">
+                        <ig:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBox x:Name="AdjustPrice" Tag="{Binding}" Width="60" BorderThickness="1" TextAlignment="Right" MaxLength="10"
+                                                    TextChanged="AdjustPrice_TextChanged" MouseDoubleClick="AdjustPrice_MouseDoubleClick" KeyDown="AdjustPrice_KeyDown" />
+                                    <Button x:Name="SendButton" Content="Send" Click="SendButton_Click" Tag="{Binding Id}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ig:TemplateColumn.ItemTemplate>
+                    </ig:TemplateColumn>
                 </ig:XamGrid.Columns>
             </ig:XamGrid>
 

@@ -7,7 +7,6 @@ using ManagerConsole.Helper;
 
 namespace ManagerConsole.ViewModel
 {
-    //public interface IMetadataViewModelObject { }
     public class VmBase : PropertyChangedNotifier
     {
         private IMetadataObject _MetadataObject;
@@ -16,7 +15,7 @@ namespace ManagerConsole.ViewModel
         {
             this._MetadataObject = metadataObject;
         }
-        public void Update(Dictionary<string, object> fieldAndValues)
+        public void ApplyModification(Dictionary<string, object> fieldAndValues)
         {
             this._MetadataObject.Update(fieldAndValues);
             foreach (string key in fieldAndValues.Keys)

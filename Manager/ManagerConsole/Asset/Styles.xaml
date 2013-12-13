@@ -9,6 +9,25 @@
     <SolidColorBrush Color="#FF3AB5E9" x:Key="ForegroundColor_Family"/>
     <SolidColorBrush Color="#FF386A23" x:Key="ForegroundColor_Friends"/>
     <SolidColorBrush Color="#FFc62d36" x:Key="ForegroundColor_Coworkers"/>
+
+    <Style x:Key="QuoteInstrumentNormalStyle" TargetType="ig:CellControl">
+        <Setter Property="Padding" Value="0,0,5,0"/>
+        <Setter Property="BorderThickness" Value="0,0,1,1"/>
+    </Style>
+    <Style x:Key="QuoteInstrumentStyle" TargetType="ig:CellControl">
+        <Setter Property="Background" Value="Yellow"/>
+        <Setter Property="Foreground" Value="#FF314D34"/>
+        <Setter Property="BorderThickness" Value="0,0,1,1"/>
+    </Style>
+    
+    <Style x:Key="QuoteTextStyle" TargetType="TextBlock">
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    
     <Style x:Key="TxtBlockStyle_NickName" TargetType="{x:Type TextBlock}">
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
@@ -146,6 +165,11 @@
     </Style>
     <Style x:Key="SellOrderHandleStyle" TargetType="ig:CellControl" >
         <Setter Property="Foreground" Value="Red" />
+    </Style>
+
+    <Style x:Key="TimesCellStyle" TargetType="ig:CellControl">
+        <Setter Property="Foreground" Value="Red" />
+        <Setter Property="FontSize" Value="15"></Setter>
     </Style>
 
     <Style TargetType="ToggleButton" x:Key="stlToggleButton">
@@ -291,11 +315,11 @@
     <Style x:Key="TextBoxStyle" TargetType="{x:Type TextBox}" >
         <Setter Property="Background" Value="Transparent"></Setter>
         <Setter Property="BorderBrush" Value="Transparent"></Setter>
-        <Setter Property="BorderThickness" Value="0"></Setter>
+        <Setter Property="BorderThickness" Value="1"></Setter>
         <Setter Property="Template" >
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type TextBox}">
-                    <Border Style="{StaticResource TextBoxBorderStyle}" SnapsToDevicePixels="True" x:Name="Bd">
+                    <Border Style="{StaticResource TextBoxBorderStyle}" CornerRadius="5" SnapsToDevicePixels="True" x:Name="Bd">
                         <ScrollViewer Name="PART_ContentHost" SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" />
                     </Border>
                     <ControlTemplate.Triggers>

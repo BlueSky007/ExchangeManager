@@ -19,6 +19,11 @@ namespace ManagerConsole
 
         public static int GetModuleType(string paneName)
         {
+            if (paneName.Contains("_"))
+            {
+                string[] moduleName = paneName.Split('_');
+                return int.Parse(moduleName[0].Substring(MainWindowHelper.PaneNamePrefix.Length));
+            }
             return int.Parse(paneName.Substring(MainWindowHelper.PaneNamePrefix.Length));
         }
 
@@ -42,6 +47,10 @@ namespace ManagerConsole
                     return new QuotationMonitorControl();
                 case ModuleType.AbnormalQuotation:
                     break;
+                case ModuleType.IExchangeQuotation:
+                    return new ExchangeQuotationControl();
+                case ModuleType.AdjustSpreadSetting:
+                    return new AdjustAndSpreadSettingControl();
                 case ModuleType.Quote:
                     return new QutePriceControl();
                 case ModuleType.OrderProcess:

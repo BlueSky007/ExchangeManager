@@ -39,17 +39,46 @@ namespace WCFServiceTest
         }
 
         //询价Command
+        int quoteIndex = 1;
         private void SendQuoteCommandBtn_Click(object sender, RoutedEventArgs e)
         {
             string exchangeCode = this.QuoteCommand.Text;
             int commandSequence = 1;
 
             QuoteCommand quoteCommand = new QuoteCommand(commandSequence);
-            quoteCommand.InstrumentID = Guid.NewGuid();
-            quoteCommand.QuoteLot = 10;
-            quoteCommand.CustomerID = Guid.NewGuid();
-            quoteCommand.BSStatus = 1;
+
+            if (quoteIndex >=2 && quoteIndex <= 6)
+            {
+                
+                quoteCommand.CustomerID = new Guid("9538eb6e-57b1-45fa-8595-58df7aabcfc8");
+                quoteCommand.QuoteLot = 8;
+                if (quoteIndex == 3)
+                {
+                    quoteCommand.BSStatus = 1;
+                    quoteCommand.InstrumentID = new Guid("66adc06c-c5fe-4428-867f-be97650eb3b" + 1);
+                }
+                else if (quoteIndex % 2 == 0)
+                {
+                    quoteCommand.BSStatus = 0;
+                    quoteCommand.InstrumentID = new Guid("66adc06c-c5fe-4428-867f-be97650eb3b" + 2);
+                }
+                else
+                {
+                    quoteCommand.BSStatus = 2;
+                    quoteCommand.InstrumentID = new Guid("66adc06c-c5fe-4428-867f-be97650eb3b" + 3);
+                }
+            }
+            else
+            {
+                quoteCommand.InstrumentID = new Guid("66adc06c-c5fe-4428-867f-be97650eb3b" + quoteIndex);
+                quoteCommand.CustomerID = new Guid("9538eb6e-57b1-45fa-8595-58df7aabcfc8");
+                quoteCommand.QuoteLot = 10;
+                quoteCommand.BSStatus = 1;
+            }
+           
+            quoteCommand.CustomerID = new Guid("9538eb6e-57b1-45fa-8595-58df7aabcfc9");
             ManagerClient.AddCommand(quoteCommand);
+            quoteIndex++;
         }
 
         //批单Command

@@ -47,6 +47,10 @@ namespace ManagerConsole.Model
             return true;
         }
 
+        private void Process(QuotationsMessage message)
+        {
+            this._QuotationMessageProcessor.Process(message);
+        }
         private void Process(SwitchRelationBooleanPropertyMessage message)
         {
             this._QuotationMessageProcessor.Process(message);
@@ -60,6 +64,16 @@ namespace ManagerConsole.Model
         private void Process(AbnormalQuotationMessage abnormalQuotationMessage)
         {
             this._QuotationMessageProcessor.Process(abnormalQuotationMessage);
+        }
+
+        private void Process(OverridedQuotationMessage overidedQuotationMessage)
+        {
+            this._QuotationMessageProcessor.Process(overidedQuotationMessage);
+        }
+
+        private void Process(UpdateQuotePolicyDetailMessage quotePolicyDetailMessage)
+        {
+            this._QuotationMessageProcessor.Process(quotePolicyDetailMessage);
         }
 
         private void Process(AddMetadataObjectMessage message)

@@ -139,6 +139,14 @@ namespace ManagerConsole.ViewModel
                                 }
                             }
                         }
+
+                        // set quotation
+                        GeneralQuotation generalQuotation;
+                        if(metadata.LastQuotations.TryGetValue(instrument.Id, out generalQuotation))
+                        {
+                            this.SetQuotation(generalQuotation, vmInstrument);
+                        }
+
                         this._Instruments.Add(vmInstrument);
                     }
                     this._MetadataNotLoaded = false;
@@ -175,53 +183,56 @@ namespace ManagerConsole.ViewModel
 
         public void Update(Manager.Common.UpdateMetadataMessage message)
         {
-            VmInstrument instrument;
-            switch (message.MetadataType)
+            foreach (var item in message.UpdateDatas)
             {
-                case MetadataType.QuotationSource:
-                    VmQuotationSource source = this._QuotationSources.SingleOrDefault(s => s.Id == message.ObjectId);
-                    if (source != null)
-                    {
-                        source.Update(message.FieldAndValues);
-                    }
-                    break;
-                case MetadataType.Instrument:
-                    instrument = this._Instruments.SingleOrDefault(i => i.Id == message.ObjectId);
-                    if (instrument != null)
-                    {
-                        instrument.Update(message.FieldAndValues);
-                    }
-                    break;
-                case MetadataType.InstrumentSourceRelation:
-                    VmInstrumentSourceRelation relation;
-                    if (this.FindVmInstrumentSourceRelation(message.ObjectId, out relation, out instrument))
-                    {
-                        relation.Update(message.FieldAndValues);
-                    }
-                    break;
-                case MetadataType.DerivativeRelation:
-                    instrument = this._Instruments.SingleOrDefault(i => i.Id == message.ObjectId);
-                    if (instrument != null)
-                    {
-                        instrument.DerivativeRelation.Update(message.FieldAndValues);
-                    }
-                    break;
-                case MetadataType.PriceRangeCheckRule:
-                    instrument = this._Instruments.SingleOrDefault(i => i.Id == message.ObjectId);
-                    if (instrument != null)
-                    {
-                        instrument.VmPriceRangeCheckRule.Update(message.FieldAndValues);
-                    }
-                    break;
-                case MetadataType.WeightedPriceRule:
-                    instrument = this._Instruments.SingleOrDefault(i => i.Id == message.ObjectId);
-                    if (instrument != null)
-                    {
-                        instrument.VmWeightedPriceRule.Update(message.FieldAndValues);
-                    }
-                    break;
-                default:
-                    break;
+                VmInstrument instrument;
+                switch (item.MetadataType)
+                {
+                    case MetadataType.QuotationSource:
+                        VmQuotationSource source = this._QuotationSources.SingleOrDefault(s => s.Id == item.ObjectId);
+                        if (source != null)
+                        {
+                            source.ApplyModification(item.FieldsAndValues);
+                        }
+                        break;
+                    case MetadataType.Instrument:
+                        instrument = this._Instruments.SingleOrDefault(i => i.Id == item.ObjectId);
+                        if (instrument != null)
+                        {
+                            instrument.ApplyModification(item.FieldsAndValues);
+                        }
+                        break;
+                    case MetadataType.InstrumentSourceRelation:
+                        VmInstrumentSourceRelation relation;
+                        if (this.FindVmInstrumentSourceRelation(item.ObjectId, out relation, out instrument))
+                        {
+                            relation.ApplyModification(item.FieldsAndValues);
+                        }
+                        break;
+                    case MetadataType.DerivativeRelation:
+                        instrument = this._Instruments.SingleOrDefault(i => i.Id == item.ObjectId);
+                        if (instrument != null)
+                        {
+                            instrument.DerivativeRelation.ApplyModification(item.FieldsAndValues);
+                        }
+                        break;
+                    case MetadataType.PriceRangeCheckRule:
+                        instrument = this._Instruments.SingleOrDefault(i => i.Id == item.ObjectId);
+                        if (instrument != null)
+                        {
+                            instrument.VmPriceRangeCheckRule.ApplyModification(item.FieldsAndValues);
+                        }
+                        break;
+                    case MetadataType.WeightedPriceRule:
+                        instrument = this._Instruments.SingleOrDefault(i => i.Id == item.ObjectId);
+                        if (instrument != null)
+                        {
+                            instrument.VmWeightedPriceRule.ApplyModification(item.FieldsAndValues);
+                        }
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
@@ -278,8 +289,17 @@ namespace ManagerConsole.ViewModel
                 VmInstrumentSourceRelation relation = vmInstrument.SourceRelations.SingleOrDefault(r => r.SourceId == quotation.SourceId);
                 if (relation != null)
                 {
-                    string InstrumentCode = this._Instruments.Single(i => i.Id == quotation.InstrumentId).Code;   // TODO: performance can be improved by create a id=>instrumnet map.
-                    relation.SetSourceQuotation(new VmSourceQuotation(quotation, InstrumentCode));
+                    if (relation.SetSourceQuotation(new VmSourceQuotation(quotation)))
+                    {
+                        for (int i = 0; i < vmInstrument.SourceRelations.Count; i++)
+                        {
+                            VmInstrumentSourceRelation relation2 = vmInstrument.SourceRelations[i];
+                            if (!object.ReferenceEquals(relation2, relation))
+                            {
+                                relation2.SetSourceQuotation(new VmSourceQuotation(new PrimitiveQuotation() { Timestamp = quotation.Timestamp }));
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -289,6 +309,27 @@ namespace ManagerConsole.ViewModel
             VmInstrument vmInstrument = this._Instruments.Single(i => i.Id == message.InstrumentId);
             vmInstrument.SourceRelations.Single(r => r.Id == message.NewRelationId).Update(message.PropertyName, true);
             vmInstrument.SourceRelations.Single(r => r.Id == message.OldRelationId).Update(message.PropertyName, false);
+        }
+
+        internal void SetQuotation(QuotationsMessage message)
+        {
+            foreach (GeneralQuotation generalQuotation in message.Quotations)
+            {
+                VmInstrument vmInstrument = this._Instruments.SingleOrDefault(i => i.Id == generalQuotation.InstrumentId);
+                if (vmInstrument != null)
+                {
+                    this.SetQuotation(generalQuotation, vmInstrument);
+                }
+            }
+        }
+
+        private void SetQuotation(GeneralQuotation generalQuotation, VmInstrument vmInstrument)
+        {
+            vmInstrument.Timestamp = generalQuotation.Timestamp;
+            string format = "F" + vmInstrument.DecimalPlace.ToString();
+            vmInstrument.Bid = generalQuotation.Bid.ToString(format);
+            vmInstrument.Ask = generalQuotation.Ask.ToString(format);
+            if (generalQuotation.Last.HasValue) vmInstrument.Last = generalQuotation.Last.Value.ToString(format);
         }
 
         private bool FindVmInstrumentSourceRelation(int relationId, out VmInstrumentSourceRelation relation, out VmInstrument instrument)

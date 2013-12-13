@@ -15,7 +15,7 @@ namespace ManagerService
             StringBuilder builder = new StringBuilder();
             foreach (var key in dict.Keys)
             {
-                builder.AppendFormat("{0}-{1}\r\n", key, dict[key]);
+                builder.AppendFormat("{0}:{1}\r\n", key, dict[key]);
             }
             return builder.ToString();
         }

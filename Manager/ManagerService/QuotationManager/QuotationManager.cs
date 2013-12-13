@@ -63,23 +63,17 @@ namespace ManagerService.Quotation
 
                         string instrumentCode = this._ConfigMetadata.Instruments[primitiveQuotation.InstrumentId].Code;
                         SourceQuotation quotation = new SourceQuotation(primitiveQuotation, ask, bid, instrumentCode, inverted);
-                        bool quotationAccepted = true;
-                        bool needUpdate = true;
+                        
                         if (this._SourceController.QuotationArrived(quotation))
                         {
-                            // quotation come from Active Source
+                            // quotation come from Active Source and adjusted
                             if (this._AbnormalQuotationManager.SetQuotation(quotation))
                             {
                                 // quotation is normal
                                 this.ProcessNormalQuotation(quotation);
-                                needUpdate = false;
-                            }
-                            else
-                            {
-                                quotationAccepted = false;
                             }
                         }
-                        if (needUpdate) this._LastQuotationManager.Update(quotation, quotationAccepted);
+                        this._LastQuotationManager.LastReceived.Set(quotation);
                     }
                 }
             }
@@ -94,12 +88,11 @@ namespace ManagerService.Quotation
         {
             List<GeneralQuotation> quotations = new List<GeneralQuotation>();
             this._DerivativeController.Derive(quotation.Quotation, quotations);
-
-            this._LastQuotationManager.Update(quotation, true);
-            if (quotations.Count > 0) this._LastQuotationManager.UpdateDerivativeQuotations(quotations);
-
             quotations.Add(quotation.Quotation);
-            MainService.ExchangeManager.SetQuotation(quotations);
+            this._LastQuotationManager.LastAccepted.Accept(quotations);
+
+            MainService.ExchangeManager.AddQuotations(quotations);
+            MainService.ClientManager.Dispatch(new QuotationsMessage() { Quotations = quotations });
         }
 
         public void AddMetadataObject(QuotationSource quotationSource)

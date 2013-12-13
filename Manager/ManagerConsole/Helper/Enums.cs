@@ -83,4 +83,12 @@ namespace ManagerConsole
         Account = 2,
         Order = 3,
     }
+
+    public enum BSStatus
+    {
+        None = -1,
+        Sell = 0,
+        Buy = 1,
+        Both = 2,
+    }
 }

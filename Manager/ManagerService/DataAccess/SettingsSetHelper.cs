@@ -58,6 +58,8 @@ namespace ManagerService.DataAccess
                 settingSet.TradePolicies = InitializationHelper.CreateArray<TradePolicy>(dr, Initialize);
                 settingSet.TradePolicyDetails = InitializationHelper.CreateArray<TradePolicyDetail>(dr, Initialize);
                 settingSet.Instruments = InitializationHelper.CreateArray<Instrument>(dr, Initialize);
+                dr.NextResult();
+                settingSet.OverridedQuotations = InitializationHelper.CreateArray<OverridedQuotation>(dr, Initialize);
             }
             catch (Exception ex)
             {
@@ -271,6 +273,17 @@ namespace ManagerService.DataAccess
             order.SetPrice2 = (string)dr["SetPrice2"];
             order.AssigningOrderID = (Guid)dr["AssigningOrderID"];
             order.BlotterCode = (string)dr["BlotterCode"];
+        }
+
+        private static void Initialize(OverridedQuotation overridedQuotations, SqlDataReader dr)
+        {
+            overridedQuotations.InstrumentId = (Guid)dr["InstrumentID"];
+            overridedQuotations.QuotePolicyId = (Guid)dr["QuotePolicyID"];
+            overridedQuotations.Timestamp = (DateTime)dr["Timestamp"];
+            overridedQuotations.Ask = dr["Ask"].ToString();
+            overridedQuotations.Bid = dr["Bid"].ToString();
+            overridedQuotations.High = dr["High"].ToString();
+            overridedQuotations.Low = dr["Low"].ToString();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ManagerConsole.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -53,17 +54,31 @@ namespace ManagerConsole.Model
                 string guidStr = "66adc06c-c5fe-4428-867f-be97650eb3b" + i;
                 instrument.Id = new Guid(guidStr);
                 instrument.Code = "GBPUSA" + i;
-                instrument.Ask = "1.58" + i;
-                instrument.Bid = "1.56" + i;
-                instrument.Denominator = 10;
-                instrument.NumeratorUnit = 2;
+                instrument.Ask = "121.32";
+                instrument.Bid = "121.30";
+                if (i == 1)
+                {
+                    instrument.Denominator = 10;
+                }
+                else
+                {
+                    instrument.Denominator = 100;
+                }
+                instrument.NumeratorUnit = 1;
                 instrument.MaxSpread = 100;
                 instrument.MaxAutoPoint = 100;
-                instrument.AcceptDQVariation = 10;
-                instrument.Spread = 5;
+                instrument.AcceptDQVariation = 100;
+                instrument.Spread = 2;
                 instrument.AutoPoint = 10;
-                instrument.Origin = "1.555";
-                instrument.IsNormal = true;
+                instrument.Origin = "121.30";
+                if (i == 3)
+                {
+                    instrument.IsNormal = false;
+                }
+                else
+                {
+                    instrument.IsNormal = true;
+                }
                 if (i < 3)
                 {
                     instrument.SummaryGroupId = new Guid();
