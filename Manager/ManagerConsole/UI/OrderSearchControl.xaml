@@ -6,6 +6,7 @@
              xmlns:igGrid="http://schemas.infragistics.com/xaml"
              xmlns:igDP="http://infragistics.com/DataPresenter"
              xmlns:igRep="http://infragistics.com/Reporting"
+             xmlns:igWindows="http://infragistics.com/Windows"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="800">
     <Grid>
@@ -13,7 +14,7 @@
             <RowDefinition Height="65"/>
             <RowDefinition Height="500*"/>
         </Grid.RowDefinitions>
-        <Border CornerRadius="5" Background="LightGray"  Grid.Row="0">
+        <Border CornerRadius="5" Background="LightBlue" Grid.Row="0">
             <StackPanel Orientation="Vertical">
                 <StackPanel Orientation="Horizontal"  >
                     <TextBlock  Width="90" Text="Query Type:" Margin="8,5,1,0" Height="25"/>
@@ -48,9 +49,11 @@
             </StackPanel>
         </Border>
 
-
-        <TabControl Grid.Row="1" Background="White">
-            <TabItem Header="单子查询" Style="{StaticResource TableItemStyle}">
+        <igWindows:XamTabControl x:Name="_OrderSerchTab" Grid.Row="1"  Theme="Office2010Blue"
+                                 TabStripPlacement="Top"
+                                 TabLayoutStyle="MultiRowAutoSize"
+                                 AllowTabClosing="False">
+            <igWindows:TabItemEx x:Name="_OrderSercherItem" CloseButtonVisibility="WhenSelectedOrHotTracked" Header="单子查询"  Height="25">
                 <igGrid:XamGrid x:Name="_OrderSerchGrid" Grid.Row="1" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto"  Foreground="{Binding IsBuyBrush}">
                     <igGrid:XamGrid.FixedColumnSettings>
                         <igGrid:FixedColumnSettings AllowFixedColumns="DropArea"/>
@@ -80,11 +83,13 @@
                         <igGrid:CheckBoxColumn Key="Dealer" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Dealer" />
                     </igGrid:XamGrid.Columns>
                 </igGrid:XamGrid>
-            </TabItem>
-            <TabItem x:Name="tbiPreview" Header="打印预览" Style="{StaticResource TableItemStyle}">
+            </igWindows:TabItemEx>
+            <igWindows:TabItemEx Header="打印预览" x:Name="tbiPreview" CloseButtonVisibility="WhenSelectedOrHotTracked" Height="23">
                 <igRep:XamReportPreview x:Name="_OrderReportPreview"></igRep:XamReportPreview>
-            </TabItem>
-        </TabControl>
+            </igWindows:TabItemEx>
+        </igWindows:XamTabControl>
+
+
 
         
     </Grid>

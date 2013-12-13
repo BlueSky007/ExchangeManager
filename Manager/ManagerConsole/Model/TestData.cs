@@ -71,7 +71,7 @@ namespace ManagerConsole.Model
                 instrument.Spread = 2;
                 instrument.AutoPoint = 10;
                 instrument.Origin = "121.30";
-                if (i == 3)
+                if (i == 3 || i == 2)
                 {
                     instrument.IsNormal = false;
                 }

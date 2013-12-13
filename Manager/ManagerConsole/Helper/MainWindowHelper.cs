@@ -52,7 +52,7 @@ namespace ManagerConsole
                 case ModuleType.AdjustSpreadSetting:
                     return new AdjustAndSpreadSettingControl();
                 case ModuleType.Quote:
-                    return new QutePriceControl();
+                    //return new QutePriceControl();
                 case ModuleType.OrderProcess:
                     return new OrderTaskControl();
                 case ModuleType.LimitBatchProcess:

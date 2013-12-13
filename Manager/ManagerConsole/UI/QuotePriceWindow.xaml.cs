@@ -221,13 +221,15 @@ namespace ManagerConsole.UI
         {
             if (this._QuotePriceClientModel.QuotePriceClients.Count == 0) return;
             List<Answer> ToSendQutoPrices = new List<Answer>();
+            string bestBuy = this._QuotePriceClientModel.QuotePriceForInstrument.BestBuy;
+            string bestSell = this._QuotePriceClientModel.QuotePriceForInstrument.BestSell;
 
             Guid currentInstrumentId = this._QuotePriceClientModel.QuotePriceForInstrument.Instrument.Id;
             IEnumerable<QuotePriceClient> quotePriceClients = this._QuotePriceClientModel.QuotePriceClients.Where((QuotePriceClient P) => P.InstrumentId == currentInstrumentId);
             QuotePriceClient[] quotePriceClientArray = quotePriceClients.ToArray();
             for (int i = 0; i < quotePriceClientArray.Count(); i++)
             {
-                ToSendQutoPrices.Add(quotePriceClientArray[i].ToSendQutoPrice());
+                ToSendQutoPrices.Add(quotePriceClientArray[i].ToSendQutoPrice(bestBuy,bestSell));
                 this._QuotePriceClientModel.RemoveSendQuotePrice(quotePriceClientArray[i]);
             }
             this.SettingRowStyle();
@@ -238,9 +240,11 @@ namespace ManagerConsole.UI
         {
             if (this._QuotePriceClientModel.QuotePriceClients.Count == 0) return;
             QuotePriceClient quotePriceClient = this._QuotePriceClientModel.QuotePriceClients[0];
+            string bestBuy = this._QuotePriceClientModel.QuotePriceForInstrument.BestBuy;
+            string bestSell = this._QuotePriceClientModel.QuotePriceForInstrument.BestSell;
 
             List<Answer> ToSendQutoPrices = new List<Answer>();
-            ToSendQutoPrices.Add(quotePriceClient.ToSendQutoPrice());
+            ToSendQutoPrices.Add(quotePriceClient.ToSendQutoPrice(bestBuy,bestSell));
 
             ConsoleClient.Instance.SendQuotePrice(ToSendQutoPrices);
 

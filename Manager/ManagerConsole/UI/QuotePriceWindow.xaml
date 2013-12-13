@@ -4,13 +4,17 @@
              xmlns:igGrid="http://schemas.infragistics.com/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:localui="clr-namespace:ManagerConsole.Helper"
              mc:Ignorable="d" d:DesignHeight="500" 
              Header="Quote Price" 
              MinimizeButtonVisibility="Visible" 
              MaximizeButtonVisibility="Visible" 
              CloseButtonVisibility="Visible"
              Width="651.642" StartupPosition="Center">
-    <Grid x:Name="QuoteGrid" >
+    <Grid x:Name="QuoteGrid" Background="WhiteSmoke">
+        <Grid.Resources>
+            <localui:InstrumentToBuySellColorConverter  x:Key="InstrumentToBuySellColorConverter" />
+        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
             <RowDefinition Height="62"/>
@@ -25,8 +29,8 @@
             <ColumnDefinition Width="110"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <TextBlock x:Name="InstrumentCodeTextBlock" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding InstrumentCode}" Grid.ColumnSpan="3" FontStretch="Expanded" FontWeight="Black" FontSize="14" Grid.Row="0"></TextBlock>
-        <Button x:Name="BidPriceButton" Grid.Column="3" Grid.Row="0"  HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="2,0,5,2"   FontSize="18" FontWeight="Bold">
+        <TextBlock x:Name="InstrumentCodeTextBlock" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding InstrumentCode}" Grid.Row="0" Grid.ColumnSpan="3" Style="{StaticResource TitleProject}" ></TextBlock>
+        <Button x:Name="BidPriceButton" Grid.Column="3" Grid.Row="0" Background="{Binding Path=Instrument, Converter={StaticResource InstrumentToBuySellColorConverter}, ConverterParameter=Bid}"  HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="2,0,5,2"   FontSize="18" FontWeight="Bold">
             <Button.Template>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Border" CornerRadius="3" BorderBrush="#FFA0A0A0" BorderThickness="1">
@@ -59,7 +63,7 @@
                 </ControlTemplate>
             </Button.Template>
         </Button>
-        <Button x:Name="AskPriceButton" Grid.Column="4" Grid.Row="0" Margin="5,0,5,2" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"  FontSize="18" FontWeight="Bold">
+        <Button x:Name="AskPriceButton" Grid.Column="4" Grid.Row="0" Margin="5,0,5,2" Background="{Binding Path=Instrument, Converter={StaticResource InstrumentToBuySellColorConverter}, ConverterParameter=Ask}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"  FontSize="18" FontWeight="Bold">
             <Button.Template>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Border" CornerRadius="3" BorderBrush="#FFA0A0A0" BorderThickness="1">
@@ -92,7 +96,7 @@
             </Button.Template>
         </Button>
 
-        <Button x:Name="MultipleSendBtn" Click="QuoteHandler_Click" Grid.Row="1" Grid.ColumnSpan="3" Background="Transparent"  HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="2,0,2,0" FontSize="18" FontWeight="Bold">
+        <Button x:Name="MultipleSendBtn" Click="QuoteHandler_Click" Background="Green" Grid.Row="1" Grid.ColumnSpan="3" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="2,0,2,0" FontSize="18" FontWeight="Bold">
             <Button.Template>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Border" CornerRadius="5" BorderBrush="#FF92D050" BorderThickness="1">
@@ -100,8 +104,11 @@
                             <Rectangle x:Name="BackgroundGradient" RadiusX ="3" RadiusY ="3">
                                 <Rectangle.Fill>
                                     <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5, 1">
+                                        <!--<GradientStop Color="#FFFFFFFF" Offset="0" />
+                                        <GradientStop Color="#FFC9E8A2" Offset="0.6" />
+                                        <GradientStop Color="#FF92D050" Offset="0.9" />-->
                                         <GradientStop Color="#FFFFFFFF" Offset="0" />
-                                        <GradientStop Color="#FF92D050" Offset="0.5" />
+                                        <GradientStop Color="#E8FFFFFF" Offset="0.4" />
                                         <GradientStop Color="#88FFFFFF" Offset="1" />
                                     </LinearGradientBrush>
                                 </Rectangle.Fill>
@@ -135,12 +142,21 @@
             </Button.Template>
         </Button>
 
-        <Button x:Name="SendSingleBtn" Click="QuoteHandler_Click" Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="2" Background="Transparent"  HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="2,0,2,0" FontSize="18" FontWeight="Bold">
+        <Button x:Name="SendSingleBtn" Click="QuoteHandler_Click" Background="{Binding SigleButtonBackgroundBrush}" Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="2" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="2,0,2,0" FontSize="18" FontWeight="Bold">
             <Button.Template>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="Border" CornerRadius="5" Background="{Binding SigleButtonBackgroundBrush}" BorderBrush="DarkGray" BorderThickness="1">
+                    <Border x:Name="Border" CornerRadius="5" BorderBrush="#FF92D050" BorderThickness="1">
                         <Grid x:Name="Grid1" Background="{TemplateBinding Background}">
                             <ContentPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                            <Rectangle x:Name="BackgroundGradient" RadiusX ="3" RadiusY ="3">
+                                <Rectangle.Fill>
+                                    <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5, 1">
+                                        <GradientStop Color="#FFFFFFFF" Offset="0" />
+                                        <GradientStop Color="#E8FFFFFF" Offset="0.4" />
+                                        <GradientStop Color="#88FFFFFF" Offset="1" />
+                                    </LinearGradientBrush>
+                                </Rectangle.Fill>
+                            </Rectangle>
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="30"/>
@@ -152,10 +168,9 @@
                                     <ColumnDefinition Width="110"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock x:Name="LotCaption" Text="Lot:" HorizontalAlignment="Left" FontStyle="Italic" Grid.Column="0" Grid.Row="0" Style="{StaticResource QuoteTextStyle}" Foreground="DarkGray"/>
-                                <TextBlock x:Name="LotTextBlock" Text="{Binding Lot}" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right" Style="{StaticResource QuoteTextStyle}"/>
+                                <TextBlock x:Name="LotTextBlock" Foreground="{Binding BestBuySellForegroundBrush}" Text="{Binding Lot}" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right" Style="{StaticResource QuoteTextStyle}"/>
                                 <TextBox x:Name="AnswerLotTextBox" BorderBrush="Green" Text="{Binding AnswerLot,Mode=TwoWay}" Grid.Row="0" Grid.Column="2" TextAlignment="Right" Width="85" Height="23" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5 0 8 0" FontSize="14" Style="{StaticResource TextBoxStyle}"/>
-                                <TextBlock x:Name="PriceTextBlock" Text="{Binding SetPrice}" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Blue" FontSize="14"/>
-
+                                <TextBlock x:Name="AnswerPriceTextBlock" Foreground="{Binding BestBuySellForegroundBrush}" Text="{Binding AnswerPrice}" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="14"/>
                             </Grid>
                         </Grid>
                     </Border>
@@ -164,13 +179,12 @@
         </Button>
 
         <StackPanel Orientation="Horizontal" Grid.ColumnSpan="6" Grid.Row="2">
-            <Button BorderBrush="Black" Width="109" Height="25" FontSize="14" Grid.Column="0" Grid.Row="2" Margin="1,3,0,0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_UpPriceButton" Content="+" Background="#FF00B0F0" Click="AdjustHandle"/>
-            <Button BorderBrush="Black" Width="109" Height="25" FontSize="14" Grid.Column="1" Grid.Row="2" Margin="1,3,0,0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_DownPriceButton" Content="-" Background="#FFE46D0A" Click="AdjustHandle"/>
-            <Button BorderBrush="Black" Width="109" Height="25" FontSize="14" Grid.Column="2" Grid.Row="2" Margin="1,3,0,0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_UpLotButton" Content="+" Background="#FF00B0F0" Click="AdjustHandle"/>
-            <Button BorderBrush="Black" Width="109" Height="25" FontSize="14" Grid.Column="3" Grid.Row="2" Margin="2,3,0,0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_DownLotButton" Content="-" Background="#FFE46D0A" Click="AdjustHandle"/>
+            <Button BorderBrush="Black" Width="106" Height="23" FontSize="14" Grid.Column="0" Grid.Row="2" Margin="4,1,0,0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_UpPriceButton" Content="+" Background="#FF00B0F0" Click="AdjustHandle"/>
+            <Button BorderBrush="Black" Width="106" Height="23" FontSize="14" Grid.Column="1" Grid.Row="2" Margin="1,1,0,0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_DownPriceButton" Content="-" Background="#FFE46D0A" Click="AdjustHandle"/>
+            <Button BorderBrush="Black" Width="106" Height="23" FontSize="14" Grid.Column="2" Grid.Row="2" Margin="6,1,0,0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_UpLotButton" Content="+" Background="#FF00B0F0" Click="AdjustHandle"/>
+            <Button BorderBrush="Black" Width="106" Height="23" FontSize="14" Grid.Column="3" Grid.Row="2" Margin="2,1,0,0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_DownLotButton" Content="-" Background="#FFE46D0A" Click="AdjustHandle"/>
         </StackPanel>
         
-
         <Border Margin="0 3 0 0" Grid.Row="3" Grid.ColumnSpan="6">
             <igGrid:XamGrid ColumnWidth="Auto" Width="800" FontFamily="hei" FontWeight="Bold" FontSize="13" x:Name="_QuotePriceGrid" RowHeight="25" AutoGenerateColumns="False"  Foreground="#FF18341B"
                             InitializeRow="QuotePriceGrid_InitializeRow">
@@ -189,6 +203,9 @@
                 <igGrid:XamGrid.GroupBySettings>
                     <igGrid:GroupBySettings AllowGroupByArea="Top" IsGroupable="True" />
                 </igGrid:XamGrid.GroupBySettings>
+                <igGrid:XamGrid.SortingSettings>
+                    <igGrid:SortingSettings AllowSorting="False"/>
+                </igGrid:XamGrid.SortingSettings>
                 <!--Column Setting-->
                 <igGrid:XamGrid.Columns>
                     <igGrid:TextColumn Key="ExchangeCode" HorizontalContentAlignment="Center" Width="80" IsReadOnly="True" HeaderText="Exchange Code"/>
@@ -197,21 +214,33 @@
                     <igGrid:TemplateColumn Key="BuyLot" Width="60" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Buy Lot">
                         <igGrid:TemplateColumn.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding BuyLot}" Foreground="Blue"/>
+                                <TextBlock Text="{Binding BuyLot}" Foreground="Blue" FontSize="15"/>
                             </DataTemplate>
                         </igGrid:TemplateColumn.ItemTemplate>
                     </igGrid:TemplateColumn>
                     <igGrid:TemplateColumn Key="SellLot" Width="60" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Sell Lot">
                         <igGrid:TemplateColumn.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding SellLot}" Foreground="Red"/>
+                                <TextBlock Text="{Binding SellLot}" Foreground="Red" FontSize="15"/>
                             </DataTemplate>
                         </igGrid:TemplateColumn.ItemTemplate>
                     </igGrid:TemplateColumn>
-                    <igGrid:TextColumn Key="AnswerLot"  Width="60" HorizontalContentAlignment="Right" HeaderText="Answer Lot"  IsReadOnly="False"/>
+                    <igGrid:TemplateColumn Key="AnswerLot" Width="60" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Answer Lot">
+                        <igGrid:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding AnswerLot}" FontSize="15"/>
+                            </DataTemplate>
+                        </igGrid:TemplateColumn.ItemTemplate>
+                    </igGrid:TemplateColumn>
                     <igGrid:TextColumn Key="CustomerCode" HorizontalContentAlignment="Center" Width="80" HeaderText="Client" IsReadOnly="True"/>
                     <igGrid:TextColumn Key="TimeStamp" HorizontalContentAlignment="Center" FormatString="{}{0:HH:mm:ss}" Width="100" HeaderText="Time" IsReadOnly="True"/>
-                    <igGrid:TextColumn Key="WaitTimes" HorizontalContentAlignment="Center" CellStyle="{StaticResource TimesCellStyle}"  Width="80" HeaderText="Count" IsReadOnly="True"/>
+                    <igGrid:TemplateColumn Key="WaitTimes" HorizontalContentAlignment="Center" CellStyle="{StaticResource TimesCellStyle}"  Width="80" HeaderText="Count" IsReadOnly="True">
+                        <igGrid:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding WaitTimes}" Foreground="Red" FontSize="16"/>
+                            </DataTemplate>
+                        </igGrid:TemplateColumn.ItemTemplate>
+                    </igGrid:TemplateColumn>
                 </igGrid:XamGrid.Columns>
             </igGrid:XamGrid>
         </Border>

@@ -124,7 +124,7 @@ namespace ManagerConsole.ViewModel
             instrument.NumeratorUnit.Value, instrument.Denominator.Value,
             instrument.AutoPoint.Value, instrument.Spread.Value);
 
-            this.QuotePriceForInstrument.CreateBestPrice(isAdd);
+            this.QuotePriceForInstrument.AdjustPrice(isAdd);
         }
     }
 
@@ -156,7 +156,6 @@ namespace ManagerConsole.ViewModel
             this._CustomerId = quoteMessage.CustomerID;
             this._InstrumentId = quoteMessage.InstrumentID;
 
-           
             this._Lot = (decimal)quoteMessage.QuoteLot;
             this._AnswerLot = this._Lot;
             this._BSStatus = (BSStatus)quoteMessage.BSStatus;
@@ -167,7 +166,6 @@ namespace ManagerConsole.ViewModel
                 this._BuyLot = this._Lot;
                 this._SellLot = this._Lot;
             }
-            
             this._WaitTimes = waitTimes;
             this._TimeStamp = quoteMessage.TimeStamp;
         }
@@ -286,7 +284,7 @@ namespace ManagerConsole.ViewModel
             set;
         }
         #endregion
-        public Answer ToSendQutoPrice()
+        public Answer ToSendQutoPrice(string bestBuy,string bestSell)
         {
             Answer sendQuote = new Answer();
             sendQuote.ExchangeCode = this._ExchangeCode;
@@ -295,8 +293,8 @@ namespace ManagerConsole.ViewModel
             sendQuote.InstrumentId = this._InstrumentId;
             sendQuote.InstrumentCode = this.InstrumentCode;
             sendQuote.Origin = this._Origin;
-            sendQuote.Ask = this._Instrument.Ask;
-            sendQuote.Bid = this._Instrument.Bid;
+            sendQuote.Ask = bestBuy;
+            sendQuote.Bid = bestSell;
             sendQuote.QuoteLot = this._Lot;
             sendQuote.AnswerLot = this._AnswerLot;
             sendQuote.SendTime = DateTime.Now;

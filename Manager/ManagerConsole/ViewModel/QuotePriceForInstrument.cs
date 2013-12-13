@@ -20,104 +20,6 @@ namespace ManagerConsole.ViewModel
             this.FirstQuoteUpdate(quotePriceClient);
         }
 
-        internal void FirstQuoteUpdate(QuotePriceClient quotePriceClient)
-        {
-            this._QuoteId = quotePriceClient.Id;
-            this._Instrument = quotePriceClient.Instrument;
-            this._InstrumentCode = this._Instrument.Code;
-            this._Origin = this._Instrument.Origin;
-            this._Ask = this._Instrument.Ask;
-            this._Bid = this._Instrument.Bid;
-            this._SumBuyLot = quotePriceClient.BuyLot;
-            this._SumSellLot = quotePriceClient.SellLot;
-            this._Lot = quotePriceClient.Lot;
-            this._AnswerLot = this._Lot;
-            this._BSStatus = quotePriceClient.BSStatus;
-            this._AdjustPoint = (decimal)this.Instrument.NumeratorUnit.Value / (decimal)this.Instrument.Denominator.Value;
-
-            this.CreateBestPrice(true);
-            this.SettingBackGround();
-        }
-
-        internal void SettingBackGround()
-        {
-            if (this._BSStatus == BSStatus.Buy)
-            {
-                this.SigleButtonBackgroundBrush = SolidColorBrushes.LightBlue;
-            }
-            else if (this._BSStatus == BSStatus.Sell)
-            {
-                this.SigleButtonBackgroundBrush = SolidColorBrushes.LightRed;
-            }
-            else
-            {
-                this.SigleButtonBackgroundBrush = SolidColorBrushes.Transparent;
-            }
-        }
-
-        internal void SwitchNewInstrument(QuotePriceClient quotePriceClient,bool isResetSumLot)
-        {
-            this.QuoteId = quotePriceClient.Id;
-            this.Instrument = quotePriceClient.Instrument;
-            this.InstrumentCode = this._Instrument.Code;
-            this.Origin = this._Instrument.Origin;
-            this.Ask = this._Instrument.Ask;
-            this.Bid = this._Instrument.Bid;
-            if (isResetSumLot)
-            {
-                this.SumBuyLot = decimal.Zero;
-                this.SumSellLot = decimal.Zero;
-            }
-            this.Lot = quotePriceClient.Lot;
-            this.AnswerLot = this.Lot;
-            this.BSStatus = quotePriceClient.BSStatus;
-            this.AdjustPoint = (decimal)this.Instrument.NumeratorUnit.Value / (decimal)this.Instrument.Denominator.Value;
-        }
-
-        internal void UpdateBestBuySell(Quotation newQuotation)
-        {
-            bool isNormal = this._Instrument.IsNormal;
-            BSStatus bSStatus = this.BSStatus;
-
-            this.Origin = newQuotation.Origin;
-            if (this._BSStatus == BSStatus.Both)
-            {
-                this.BestBuy = this.BestSell = this.GetBestBuySellString(this.Ask, this.Bid); 
-            }
-            else
-            {
-                if (this._Instrument.IsNormal ^ (this._BSStatus == BSStatus.Buy))
-                    this.BestBuy = newQuotation.Bid;
-                else
-                    this.BestSell = newQuotation.Ask;
-            }
-        }
-
-        internal void CreateBestPrice(bool isAdd)
-        {
-            int adjust = isAdd ? 1 : -1;
-
-            if (this._BSStatus == BSStatus.Both)
-            {
-                this.BestBuy = this.BestSell = this.GetBestBuySellString(this.Ask, this.Bid); 
-            }
-            else
-            {
-                Price ask = new Price(string.IsNullOrEmpty(this.BestBuy)  ? this.BestBuy:this.Ask, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
-                Price bid = new Price(string.IsNullOrEmpty(this.BestSell) ? this.BestSell:this.Bid, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
-                if (this._Instrument.IsNormal ^ (this._BSStatus == BSStatus.Buy))
-                {
-                    this.BestBuy = (ask - adjust).ToString();
-                    this.BestSell = (bid - adjust).ToString();
-                }
-                else
-                {
-                    this.BestBuy = (ask + adjust).ToString();
-                    this.BestSell = (bid + adjust).ToString();
-                }
-            }
-            this.SetPrice = string.IsNullOrEmpty(this.BestBuy) ? this.BestSell : this.BestBuy;   
-        }
         #region Privete Prperty
         private InstrumentClient _Instrument;
         private string _InstrumentCode;
@@ -128,9 +30,12 @@ namespace ManagerConsole.ViewModel
         private string _Bid;
         private string _BestSell;
         private string _BestBuy;
+        private string _BestBuyString;
+        private string _BestSellString;
         private decimal _Lot;
         private decimal _AnswerLot;
         private string _SetPrice;
+        private string _AnswerPrice;
         private decimal _SumBuyLot;
         private decimal _SumSellLot;
         private BSStatus _BSStatus;
@@ -201,23 +106,23 @@ namespace ManagerConsole.ViewModel
             }
         }
 
-        public SolidColorBrush BestBuyForegroundBrush
+        public SolidColorBrush BestBuySellForegroundBrush
         {
             get
             {
-                if (this._BestBuy != null)
+                if (this._Instrument.IsNormal ^ (this.BSStatus == BSStatus.Buy))
                 {
                     return SolidColorBrushes.Red;
                 }
                 else
                 {
-                    return SolidColorBrushes.Black; ;
+                    return SolidColorBrushes.Blue; ;
                 }
             }
         }
 
-        private SolidColorBrush _SigleButtonBackgroundBrush;
-        public SolidColorBrush SigleButtonBackgroundBrush
+        private Brush _SigleButtonBackgroundBrush;
+        public Brush SigleButtonBackgroundBrush
         {
             get { return this._SigleButtonBackgroundBrush; }
             set
@@ -234,6 +139,16 @@ namespace ManagerConsole.ViewModel
             { 
                 this._SetPrice = value; 
                 this.OnPropertyChanged("SetPrice"); 
+            }
+        }
+
+        public string AnswerPrice
+        {
+            get { return this._AnswerPrice; }
+            set
+            {
+                this._AnswerPrice = value;
+                this.OnPropertyChanged("AnswerPrice");
             }
         }
 
@@ -298,13 +213,14 @@ namespace ManagerConsole.ViewModel
                 this.OnPropertyChanged("AdjustPoint");
             }
         }
-        //---Old object
 
+        //?
         public ObservableCollection<QuotePriceClient> QuotePriceClients
         {
             get;
             set;
         }
+
         public decimal Adjust
         {
             get { return this._Adjust; }
@@ -325,6 +241,158 @@ namespace ManagerConsole.ViewModel
         }
 
         #endregion
+
+        internal void FirstQuoteUpdate(QuotePriceClient quotePriceClient)
+        {
+            this._QuoteId = quotePriceClient.Id;
+            this._Instrument = quotePriceClient.Instrument;
+            this._InstrumentCode = this._Instrument.Code;
+            this._Origin = this._Instrument.Origin;
+            this._Ask = this._Instrument.Ask;
+            this._Bid = this._Instrument.Bid;
+            this._SumBuyLot = quotePriceClient.BuyLot;
+            this._SumSellLot = quotePriceClient.SellLot;
+            this._Lot = quotePriceClient.Lot;
+            this._AnswerLot = this._Lot;
+            this._BSStatus = quotePriceClient.BSStatus;
+            this._AdjustPoint = (decimal)this.Instrument.NumeratorUnit.Value / (decimal)this.Instrument.Denominator.Value;
+
+            this.CreateBestPrice(true);
+            this.SettingBackGround();
+        }
+
+        internal void SettingBackGround()
+        {
+            if (this._BSStatus == BSStatus.Buy)
+            {
+                this.SigleButtonBackgroundBrush = SolidColorBrushes.Buy;
+                this._AnswerPrice = this._BestBuy;
+            }
+            else if (this._BSStatus == BSStatus.Sell)
+            {
+                this.SigleButtonBackgroundBrush = SolidColorBrushes.Sell;
+                this._AnswerPrice = this._BestSell;
+            }
+            else
+            {
+                this.SigleButtonBackgroundBrush = SolidColorBrushes.Gray;
+                this._AnswerPrice = this._BestBuy;
+            }
+        }
+
+        internal void SwitchNewInstrument(QuotePriceClient quotePriceClient, bool isResetSumLot)
+        {
+            this.QuoteId = quotePriceClient.Id;
+            this.Instrument = quotePriceClient.Instrument;
+            this.InstrumentCode = this._Instrument.Code;
+            this.Origin = this._Instrument.Origin;
+            this.Ask = this._Instrument.Ask;
+            this.Bid = this._Instrument.Bid;
+            if (isResetSumLot)
+            {
+                this.SumBuyLot = decimal.Zero;
+                this.SumSellLot = decimal.Zero;
+            }
+            this.Lot = quotePriceClient.Lot;
+            this.AnswerLot = this.Lot;
+            this.BSStatus = quotePriceClient.BSStatus;
+            this.AdjustPoint = (decimal)this.Instrument.NumeratorUnit.Value / (decimal)this.Instrument.Denominator.Value;
+        }
+
+        internal void UpdateBestBuySell(Quotation newQuotation)
+        {
+            bool isNormal = this._Instrument.IsNormal;
+            BSStatus bSStatus = this.BSStatus;
+
+            this.Origin = newQuotation.Origin;
+            if (this._BSStatus == BSStatus.Both)
+            {
+                this._BestBuyString = this.Ask;
+                this._BestSellString = this.Bid;
+                this.BestBuy = this.BestSell = this.GetBestBuySellString(this.Ask, this.Bid);
+                this.AnswerPrice = this.BestBuy;
+            }
+            else
+            {
+                if (this._Instrument.IsNormal ^ (this._BSStatus == BSStatus.Buy))
+                {
+                    this.BestBuy = newQuotation.Bid;
+                    this.AnswerPrice = this.BestSell;
+                }
+                else
+                {
+                    this.BestSell = newQuotation.Ask;
+                    this.AnswerPrice = this.BestBuy;
+                }
+            }
+        }
+
+        internal void CreateBestPrice(bool isAdd)
+        {
+            int adjust = isAdd ? 1 : -1;
+
+            if (this._BSStatus == BSStatus.Both)
+            {
+                this._BestBuyString = this.Ask;
+                this._BestSellString = this.Bid;
+                this.BestBuy = this.BestSell = this.GetBestBuySellString(this.Ask, this.Bid);
+                this.AnswerPrice = this.BestBuy;
+            }
+            else
+            {
+                Price ask = new Price(this.Ask, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+                Price bid = new Price(this.Bid, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+                if (this._Instrument.IsNormal ^ (this._BSStatus == BSStatus.Buy))
+                {
+                    this.BestBuy = (ask - adjust).ToString();
+                    this.BestSell = (bid - adjust).ToString();
+                    this.AnswerPrice = this.BestSell;
+                }
+                else
+                {
+                    this.BestBuy = (ask + adjust).ToString();
+                    this.BestSell = (bid + adjust).ToString();
+                    this.AnswerPrice = this.BestBuy;
+                }
+            }
+            this.SetPrice = string.IsNullOrEmpty(this.BestBuy) ? this.BestSell : this.BestBuy;
+        }
+
+        internal void AdjustPrice(bool isAdd)
+        {
+            int adjust = isAdd ? 1 : -1;
+            Price ask;
+            Price bid;
+
+            if (this._BSStatus == BSStatus.Both)
+            {
+                ask = new Price(this._BestBuyString, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+                bid = new Price(this._BestSellString, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+
+                this._BestBuyString = (ask + adjust).ToString();
+                this._BestSellString = (bid + adjust).ToString();
+                this.BestBuy = this.BestSell = this.GetBestBuySellString(this._BestBuyString, this._BestSellString);
+                this.AnswerPrice = this.BestBuy;
+            }
+            else
+            {
+                ask = new Price(this.BestBuy.Equals("-") ? this.Ask : this.BestBuy, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+                bid = new Price(this.BestSell.Equals("-") ? this.Bid : this.BestSell, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+                if (this._Instrument.IsNormal ^ (this._BSStatus == BSStatus.Buy))
+                {
+                    this.BestBuy = (ask - adjust).ToString();
+                    this.BestSell = (bid - adjust).ToString();
+                    this.AnswerPrice = this.BestSell;
+                }
+                else
+                {
+                    this.BestBuy = (ask + adjust).ToString();
+                    this.BestSell = (bid + adjust).ToString();
+                    this.AnswerPrice = this.BestBuy;
+                }
+            }
+            this.SetPrice = string.IsNullOrEmpty(this.BestBuy) ? this.BestSell : this.BestBuy;
+        }
 
         public bool? IsValidPrice(QuotePriceClient quotePriceClient, decimal adjust)
         {
@@ -386,132 +454,6 @@ namespace ManagerConsole.ViewModel
             }
         }
 
-        #region Event
-        public List<Answer> GetSelectedQuotePriceForAccount()
-        {
-            List<Answer> quoteQuotations = new List<Answer>();
-            //List<QuotePriceClient> quotePrices = this.QuotePriceClients.Where(P => P.IsSelected).ToList();
-
-            //foreach (QuotePriceClient entity in quotePrices)
-            //{
-            //    quoteQuotations.Add(this.GetSelectedQuotePriceForAccount(entity));
-            //}
-            return quoteQuotations;
-        }
-        private Answer GetSelectedQuotePriceForAccount(QuotePriceClient quotePrice)
-        {
-            Answer quoteQuotation = quotePrice.ToSendQutoPrice();
-            quoteQuotation.InstrumentId = this.Instrument.Id;
-            quoteQuotation.TimeStamp = ShareFixedData.GetServiceTime();
-
-            return quoteQuotation;
-        }
-
-        //Update Price
-        public void UpdateCurrentPrice()
-        {
-            this.Origin = this.Instrument.Origin;
-            this.UpdateCurrentPrice(this.QuotePriceClients);
-        }
-        public void UpdateCurrentPrice(ObservableCollection<QuotePriceClient> quotePriceClients)
-        {
-            var adjustQuotePrices = quotePriceClients.Where(P => P.IsSelected);
-            foreach (QuotePriceClient entity in adjustQuotePrices)
-            {
-                this.UpdateCurrentPrice(entity);
-            }
-        }
-        public void UpdateCurrentPrice(QuotePriceClient quotePriceClient)
-        {
-            quotePriceClient.Origin = this.Instrument.Origin;
-            //quotePriceClient.Ask = this.InstrumentClient.Ask;
-            //quotePriceClient.Bid = this.InstrumentClient.Bid;
-        }
-
-        public void AddNewQuotePrice(QuotePriceClient quotePriceClient)
-        {
-            var existEntity = this.QuotePriceClients.SingleOrDefault(P => P.InstrumentId == quotePriceClient.InstrumentId && P.CustomerCode == quotePriceClient.CustomerCode);
-
-            if (existEntity != null)
-            {
-                //existEntity.AdjustSingle = existEntity.AdjustSingle;
-                //existEntity.CustomerId = existEntity.CustomerId;
-                //existEntity.InstrumentId = existEntity.InstrumentId;
-                //existEntity.QuoteLot = existEntity.QuoteLot;
-                //existEntity.IsSelected = existEntity.IsSelected;
-                //existEntity.TimeStamp = existEntity.TimeStamp;
-                //existEntity.WaitTimes = existEntity.WaitTimes;
-                //existEntity.Ask = this.InstrumentClient.Ask;
-                //existEntity.Bid = this.InstrumentClient.Bid;
-                //existEntity.Origin = this.InstrumentClient.Origin;
-            }
-            else
-            {
-                //quotePriceClient.Ask = this.InstrumentClient.Ask;
-                //quotePriceClient.Bid = this.InstrumentClient.Bid;
-                //quotePriceClient.Origin = this.InstrumentClient.Origin;
-                //this._QuotePriceClients.Add(quotePriceClient);
-            }
-        }
-
-        //Remove QuotePrice
-
-
-
-        //Lot Limit
-        public void OnEnquiryQuantity(bool isAbove)
-        {
-            //decimal newLot = this.AdjustLot;
-            //foreach (QuotePriceClient entity in this.QuotePriceClients)
-            //{
-            //    bool isSelected = false;
-            //    if(isAbove)
-            //    {
-            //        isSelected = (entity.QuoteLot >= newLot) ? true : false;
-            //    }
-            //    else
-            //    {
-            //        isSelected = (entity.QuoteLot >= newLot) ? false : true;
-            //    }
-            //    entity.IsSelected = isSelected;
-            //}
-        }
-        #endregion
-
-        public void AdjustCurrentPrice(decimal adjust, QuotePriceClient quotePriceClient, bool isAdjustInstrument)
-        {
-           // Quotation quotation = Quotation.Create((double)adjust,
-           //// double.Parse(quotePriceClient.Origin),
-           // this.InstrumentClient.NumeratorUnit.Value, this.InstrumentClient.Denominator.Value,
-           // this.InstrumentClient.AutoPoint.Value, this.InstrumentClient.Spread.Value);
-
-           // if (isAdjustInstrument)
-           // {
-           //     //this.Origin = quotation.Origin;
-           //     this.Adjust = decimal.Parse(quotation.Origin);
-           // }
-
-           // quotePriceClient.Origin = quotation.Origin;
-           // quotePriceClient.Ask = quotation.Ask;
-           // quotePriceClient.Bid = quotation.Bid;
-        }
-
-        public void AdjustCurrentPrice(decimal adjust, bool isAdjustInstrument)
-        {
-            this.AdjustCurrentPrice(adjust, this.QuotePriceClients, isAdjustInstrument);
-        }
-
-        public void AdjustCurrentPrice(decimal adjust, ObservableCollection<QuotePriceClient> quotePriceClients, bool isAdjustInstrument)
-        {
-            //调整选中价格
-            var adjustQuotePrices = quotePriceClients.Where(P => P.IsSelected);
-            foreach (QuotePriceClient entity in adjustQuotePrices)
-            {
-                this.AdjustCurrentPrice(adjust, entity, isAdjustInstrument);
-            }
-        }
-
-        //
         private string GetBestBuySellString(string ask, string bid)
         {
             if (ask == null || bid == null) return string.Empty;

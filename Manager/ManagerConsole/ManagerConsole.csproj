@@ -259,9 +259,6 @@
     <Compile Include="UI\OrderTaskControl.xaml.cs">
       <DependentUpon>OrderTaskControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\QutePriceControl.xaml.cs">
-      <DependentUpon>QutePriceControl.xaml</DependentUpon>
-    </Compile>
     <Compile Include="UI\RoleManagerControl.xaml.cs">
       <DependentUpon>RoleManagerControl.xaml</DependentUpon>
     </Compile>
@@ -437,10 +434,6 @@
     <Page Include="UI\QuotationSourceControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI\QutePriceControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
     <Page Include="UI\RoleManagerControl.xaml">
       <SubType>Designer</SubType>

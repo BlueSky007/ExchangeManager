@@ -57,7 +57,7 @@ namespace WCFServiceTest
                     quoteCommand.BSStatus = 1;
                     quoteCommand.InstrumentID = new Guid("66adc06c-c5fe-4428-867f-be97650eb3b" + 1);
                 }
-                else if (quoteIndex % 2 == 0)
+                else if (quoteIndex % 2 == 0 && quoteIndex != 2)
                 {
                     quoteCommand.BSStatus = 0;
                     quoteCommand.InstrumentID = new Guid("66adc06c-c5fe-4428-867f-be97650eb3b" + 2);
