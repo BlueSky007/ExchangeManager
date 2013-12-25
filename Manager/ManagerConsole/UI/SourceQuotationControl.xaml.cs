@@ -30,8 +30,14 @@ namespace ManagerConsole.UI
 
         public void BindToInstrument(VmInstrument instrument)
         {
-            this.DataContext = instrument;
-            this.RelationGrid.ItemsSource = instrument.SourceRelations;
+            if (instrument == null)
+            {
+                this.DataContext = null;
+            }
+            else
+            {
+                this.DataContext = instrument;
+            }
         }
 
         private void XamGrid_SelectedRowsCollectionChanged(object sender, SelectionCollectionChangedEventArgs<SelectedRowsCollection> e)
@@ -72,73 +78,6 @@ namespace ManagerConsole.UI
                 TextBox textBox = (TextBox)sender;
                 BindingExpression be = textBox.GetBindingExpression(TextBox.TextProperty);
                 be.UpdateSource();
-            }
-        }
-
-        private void AdjustButton_Click(object sender, RoutedEventArgs e)
-        {
-            Button button = (Button)sender;
-            VmInstrumentSourceRelation vmRelation = (VmInstrumentSourceRelation)button.Tag;
-            if (button.Name == "IncButton")
-            {
-                vmRelation.AdjustPoints += vmRelation.AdjustIncrement;
-            }
-            else
-            {
-                vmRelation.AdjustPoints -= vmRelation.AdjustIncrement;
-            }
-        }
-
-        private void AddRelationButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (this.DataContext != null)
-            {
-                Button button = (Button)sender;
-                InstrumentSourceRelationWindow window = new InstrumentSourceRelationWindow((VmInstrument)this.DataContext, EditMode.AddNew);
-                App.MainWindow.MainFrame.Children.Add(window);
-                window.IsModal = true;
-                window.Show();
-            }
-        }
-
-        private void RelationGrid_CellDoubleClicked(object sender, CellClickedEventArgs e)
-        {
-            if (e.Cell.Column.Key == "QuotationSource.Name" || e.Cell.Column.Key == FieldSR.SourceSymbol)
-            {
-                VmInstrumentSourceRelation vmRelation = e.Cell.Row.Data as VmInstrumentSourceRelation;
-                if (vmRelation != null)
-                {
-                    InstrumentSourceRelationWindow window = new InstrumentSourceRelationWindow((VmInstrument)this.DataContext, EditMode.Modify, vmRelation);
-                    App.MainWindow.MainFrame.Children.Add(window);
-                    window.IsModal = true;
-                    window.Show();
-                }
-            }
-        }
-
-        private void RelationGrid_KeyDown(object sender, KeyEventArgs e)
-        {
-            if(e.Key == Key.Delete)
-            {
-                Row selectedRow = this.RelationGrid.Rows.SingleOrDefault(r => r.IsSelected);
-                if (selectedRow != null)
-                {
-                    VmInstrumentSourceRelation vmRelation = selectedRow.Data as VmInstrumentSourceRelation;
-                    if (vmRelation != null)
-                    {
-                        if (MessageBox.Show(App.MainWindow, string.Format("Confirm delete InstrumentSourceRelation for SourceSymbol:{0}?", vmRelation.SourceSymbol), "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel) == MessageBoxResult.OK)
-                        {
-                            ConsoleClient.Instance.DeleteMetadataObject(MetadataType.InstrumentSourceRelation, vmRelation.Id, delegate(bool success)
-                            {
-                                this.Dispatcher.BeginInvoke((Action<bool>)delegate(bool deleted)
-                                {
-                                    VmInstrument vmInstrument = (VmInstrument)this.DataContext;
-                                    vmInstrument.SourceRelations.Remove(vmRelation);
-                                }, success);
-                            });
-                        }
-                    }
-                }
             }
         }
     }

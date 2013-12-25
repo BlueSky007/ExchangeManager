@@ -593,6 +593,26 @@ namespace ManagerService.Console
             }
             return accountInfor;
         }
+
+        internal List<string> LoadSettingsParameters(Guid userId)
+        {
+            List<string> parameters = new List<string>();
+            try
+            {
+                foreach (ExchangeSystem exchangeSystem in MainService.ExchangeManager.GetExchangeSystems())
+                {
+                    string parameterStr = string.Empty;
+                    string exchangeCode = exchangeSystem.ExchangeCode;
+                    parameterStr = ExchangeData.LoadSettingsParameter(exchangeCode,userId);
+                    parameters.Add(parameterStr);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.AddEvent(TraceEventType.Error, "ClientService.LoadSettingsParameters error:\r\n{0}", ex.ToString());
+            }
+            return parameters;
+        }
         #endregion
 
         #region Report
@@ -761,6 +781,7 @@ namespace ManagerService.Console
                     quotePolicyChangeDetails.AddRange(quotePolicyDetails);
                 }
             }
+            Logger.TraceEvent(TraceEventType.Information, "SetQuotationPolicyDetail.\r\n{0},{1},{2}", str.ToString(), action.ToString(), changeValue);
             UpdateQuotePolicyDetailMessage message = new UpdateQuotePolicyDetailMessage(quotePolicyChangeDetails);
             MainService.ClientManager.Dispatch(message);
         }
@@ -810,7 +831,6 @@ namespace ManagerService.Console
 
             List<IMetadataObject> metadataObjects = new List<IMetadataObject>();
 
-            MainService.QuotationManager.AddMetadataObject(instrumentData.Instrument);
             metadataObjects.Add(instrumentData.Instrument);
             if (instrumentData.Instrument.IsDerivative)
             {
@@ -827,6 +847,7 @@ namespace ManagerService.Console
                     metadataObjects.Add(instrumentData.WeightedPriceRule);
                 }
             }
+            MainService.QuotationManager.AddMetadataObject(instrumentData.Instrument);
 
             AddMetadataObjectsMessage message = new AddMetadataObjectsMessage() { MetadataObjects = metadataObjects.ToArray() };
             MainService.ClientManager.DispatchExcept(message, this);
@@ -877,6 +898,11 @@ namespace ManagerService.Console
         {
             QuotationData.SwitchDefaultSource(message.OldRelationId, message.NewRelationId);
             MainService.ClientManager.Dispatch(message);
+        }
+
+        internal void ConfirmAbnormalQuotation(int instrumentId, int confirmId, bool accepted)
+        {
+            MainService.QuotationManager.AbnormalQuotationManager.Confirm(instrumentId, confirmId, accepted);
         }
     }
 }

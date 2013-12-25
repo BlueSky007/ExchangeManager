@@ -6,12 +6,18 @@ using System.Text;
 using SettingSet = Manager.Common.SettingSet;
 using Logger = Manager.Common.Logger;
 using UpdateAction = Manager.Common.UpdateAction;
+using CommonCustomer = Manager.Common.Settings.Customer;
 using CommonAccount = Manager.Common.Settings.Account;
 using CommonInstrument = Manager.Common.Settings.Instrument;
 using CommonTradePolicy = Manager.Common.Settings.TradePolicy;
 using CommonTradePolicyDetail = Manager.Common.Settings.TradePolicyDetail;
 using CommonAccountGroup = Manager.Common.Settings.AccountGroup;
 using Manager.Common.QuotationEntities;
+using SettingsParameter = Manager.Common.Settings.SettingsParameter;
+using ParameterSetting = Manager.Common.Settings.ParameterSetting;
+using SoundSetting = Manager.Common.Settings.SoundSetting;
+using SetValueSetting = Manager.Common.Settings.SetValueSetting;
+using System.Xml.Linq;
 
 namespace ManagerConsole
 {
@@ -20,6 +26,7 @@ namespace ManagerConsole
         public delegate void SettingsChangedEventHandler(object sender, SettingsChangedEventArgs eventArgs);
         public event SettingsChangedEventHandler SettingsChanged;
 
+        private Dictionary<Guid, Customer> _Customers = new Dictionary<Guid, Customer>();
         private Dictionary<Guid, Account> _Accounts = new Dictionary<Guid, Account>();
         private Dictionary<Guid, AccountGroup> _AccountGroups = new Dictionary<Guid, AccountGroup>();
         private Dictionary<Guid, InstrumentClient> _Instruments = new Dictionary<Guid, InstrumentClient>();
@@ -28,6 +35,8 @@ namespace ManagerConsole
         private Dictionary<Guid, TradePolicy> _TradePolicies = new Dictionary<Guid, TradePolicy>();
         private Dictionary<Guid, Dictionary<Guid, TradePolicyDetail>> _TradePolicyDetails = new Dictionary<Guid, Dictionary<Guid, TradePolicyDetail>>();
         private Dictionary<Guid, Dictionary<Guid, DealingPolicyDetail>> _DealingPolicyDetails = new Dictionary<Guid, Dictionary<Guid, DealingPolicyDetail>>();
+
+        private Dictionary<string, SettingsParameter> _SettingsParameters = new Dictionary<string, SettingsParameter>();
         
         public SettingsManager()
         {
@@ -45,12 +54,6 @@ namespace ManagerConsole
             set;
         }
 
-        public Customer Customer
-        {
-            get;
-            private set;
-        }
-
         public SystemParameter SystemParameter
         {
             get;
@@ -59,6 +62,32 @@ namespace ManagerConsole
 
         
         #endregion
+
+        public void InitializeSettingParameter(XElement parametersXml)
+        {
+            string exchangeCode = parametersXml.Attribute("ExchangeCode").Value;
+            SettingsParameter settings = new SettingsParameter();
+            XElement parameterNode = parametersXml.Element("Parameter");
+            XElement soundNode = parametersXml.Element("Sound");
+            XElement setValueNode = parametersXml.Element("SetValue");
+            if (parameterNode != null)
+            {
+                ParameterSetting parameterSetting = new ParameterSetting();
+                parameterSetting.InitializeSystemParameter(parameterNode);
+                settings.ParameterSetting = parameterSetting;
+            }
+            if (soundNode != null)
+            {
+            }
+            if (setValueNode != null)
+            {
+                SetValueSetting setValueSetting = new SetValueSetting();
+                setValueSetting.InitializeSystemParameter(setValueNode);
+                settings.SetValueSetting = setValueSetting;
+            }
+
+            Toolkit.AddDictionary<SettingsParameter>(exchangeCode, settings, this._SettingsParameters);
+        }
 
         public void Initialize(SettingSet settingSet)
         {
@@ -101,7 +130,6 @@ namespace ManagerConsole
             if (action == UpdateAction.Initialize)
             {
                 this.SystemParameter = new SystemParameter(settingSet.SystemParameter);
-                this.Customer = new Customer(settingSet.Customer);
             }
             if (settingSet.SystemParameter != null)
             {
@@ -114,42 +142,25 @@ namespace ManagerConsole
             {
                 foreach (CommonAccountGroup accountGroup in settingSet.AccountGroups)
                 {
-                    if (action == UpdateAction.Initialize)
-                    {
-                        this._AccountGroups[accountGroup.Id] = new AccountGroup(accountGroup);
-                    }
-                    else if (action == UpdateAction.Modify)
-                    {
-                        if (this._AccountGroups.ContainsKey(accountGroup.Id))
-                        {
-                            this._AccountGroups[accountGroup.Id].Update(accountGroup);
-                        }
-                    }
-                    else if (action == UpdateAction.Delete)
-                    {
-                        this._AccountGroups.Remove(accountGroup.Id);
-                    }
+                    SettingsManagerHelper.UpdateEntity<CommonAccountGroup, AccountGroup>
+                        (accountGroup,this._AccountGroups, action, accountGroup.Id, SettingsManagerHelper.UpdateManagerEntity);
                 }
             }
             if (settingSet.Accounts != null)
             {
                 foreach (CommonAccount account in settingSet.Accounts)
                 {
-                    if (action == UpdateAction.Initialize)
-                    {
-                        this._Accounts[account.Id] = new Account(account);
-                    }
-                    else if (action == UpdateAction.Modify)
-                    {
-                        if (this._Accounts.ContainsKey(account.Id))
-                        {
-                            this._Accounts[account.Id].Update(account);
-                        }
-                    }
-                    else if (action == UpdateAction.Delete)
-                    {
-                        this._Accounts.Remove(account.Id);
-                    }
+                    SettingsManagerHelper.UpdateEntity<CommonAccount, Account>
+                        (account, this._Accounts, action, account.Id, SettingsManagerHelper.UpdateManagerEntity);
+                }
+            }
+
+            if (settingSet.Customers != null)
+            {
+                foreach (CommonCustomer customer in settingSet.Customers)
+                {
+                    SettingsManagerHelper.UpdateEntity<CommonCustomer, Customer>
+                        (customer, this._Customers, action, customer.Id, SettingsManagerHelper.UpdateManagerEntity);
                 }
             }
 
@@ -319,6 +330,10 @@ namespace ManagerConsole
         {
             return new List<Account>(this._Accounts.Values);
         }
+        internal IList<Customer> GetCustomers()
+        {
+            return new List<Customer>(this._Customers.Values);
+        }
         internal IList<AccountGroup> GetAccountGroups()
         {
             return new List<AccountGroup>(this._AccountGroups.Values);
@@ -327,17 +342,17 @@ namespace ManagerConsole
         {
             return this._TradePolicyDetails.ContainsKey(tradePolicyId) && this._TradePolicyDetails[tradePolicyId].ContainsKey(instrumentId) ? this._TradePolicyDetails[tradePolicyId][instrumentId] : null;
         }
-        internal QuotePolicyDetail GetQuotePolicyDetail(Guid instrumentId)
+        internal QuotePolicyDetail GetQuotePolicyDetail(Guid instrumentId,Customer customer)
         {
             QuotePolicyDetail quotePolicyDetail = null;
             Dictionary<Guid, QuotePolicyDetail> quotePolicyDetails;
 
-            if (this._QuotePolicyDetails.TryGetValue(this.Customer.PrivateQuotePolicyId, out quotePolicyDetails)
+            if (this._QuotePolicyDetails.TryGetValue(customer.PrivateQuotePolicyId, out quotePolicyDetails)
                 && quotePolicyDetails.TryGetValue(instrumentId, out quotePolicyDetail))
             {
                 return quotePolicyDetail;
             }
-            else if (this._QuotePolicyDetails.TryGetValue(this.Customer.PublicQuotePolicyId, out quotePolicyDetails)
+            else if (this._QuotePolicyDetails.TryGetValue(customer.PublicQuotePolicyId, out quotePolicyDetails)
                 && quotePolicyDetails.TryGetValue(instrumentId, out quotePolicyDetail))
             {
                 return quotePolicyDetail;
@@ -347,6 +362,265 @@ namespace ManagerConsole
                 return null;
             }
         }
+        internal SettingsParameter GetSettingsParameter(string exchangeCode)
+        {
+            return this._SettingsParameters[exchangeCode];
+        }
         #endregion
+    }
+
+    internal static class SettingsManagerHelper
+    {
+        internal static void InitializeSystemParameter(this ParameterSetting parameterSetting, XElement xmlNode)
+        {
+            foreach (XAttribute atrribute in xmlNode.Attributes())
+            {
+                string nodeName = atrribute.Name.ToString();
+                String nodeValue = atrribute.Value;
+                if (nodeName == "InactiveWaitTime")
+                {
+                    parameterSetting.InactiveWaitTime = int.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "EnquiryWaitTime")
+                {
+                    parameterSetting.EnquiryWaitTime = int.Parse(nodeValue); ;
+                    continue;
+                }
+                else if (nodeName == "ApplyAutoAdjustPoints")
+                {
+                    parameterSetting.ApplyAutoAdjustPoints = bool.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "PriceOrderSetting")
+                {
+                    parameterSetting.PriceOrderSetting = int.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "DisablePopup")
+                {
+                    parameterSetting.DisablePopup = bool.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "AutoConfirm")
+                {
+                    parameterSetting.AutoConfirm = bool.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "ApplySetValueToDealingPolicy")
+                {
+                    parameterSetting.ApplySetValueToDealingPolicy = bool.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "LimitStopSummaryIsTimeRange")
+                {
+                    parameterSetting.LimitStopSummaryIsTimeRange = bool.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "LimitStopSummaryTimeRangeValue")
+                {
+                    parameterSetting.LimitStopSummaryTimeRangeValue = int.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "LimitStopSummaryPriceRangeValue")
+                {
+                    parameterSetting.LimitStopSummaryPriceRangeValue = int.Parse(nodeValue);
+                    continue;
+                }
+            }
+
+       
+        }
+
+        internal static void InitializeSystemParameter(this SoundSetting soundSetting, XElement xmlNode)
+        {
+            foreach (XAttribute atrribute in xmlNode.Attributes())
+            {
+                string nodeName = atrribute.Name.ToString();
+                String nodeValue = atrribute.Value;
+                if (nodeName == "ID")
+                {
+                    soundSetting.Id = int.Parse(nodeValue);
+                    continue;
+                }
+                if (nodeName == "FileName")
+                {
+                    soundSetting.FilePath = nodeValue;
+                    continue;
+                }
+            }
+        }
+
+        internal static void InitializeSystemParameter(this SetValueSetting setValueSetting, XElement xmlNode)
+        {
+            foreach (XAttribute atrribute in xmlNode.Attributes())
+            {
+                string nodeName = atrribute.Name.ToString();
+                String nodeValue = atrribute.Value;
+                if (nodeName == "OriginInactiveTime")
+                {
+                    setValueSetting.OriginInactiveTime = int.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "AlertVariation")
+                {
+                    setValueSetting.AlertVariation = int.Parse(nodeValue); ;
+                    continue;
+                }
+                else if (nodeName == "NormalWaitTime")
+                {
+                    setValueSetting.NormalWaitTime = int.Parse(nodeValue); ;
+                    continue;
+                }
+                else if (nodeName == "AlertWaitTime")
+                {
+                    setValueSetting.AlertWaitTime = int.Parse(nodeValue); ;
+                    continue;
+                }
+                else if (nodeName == "MaxDQLot")
+                {
+                    setValueSetting.MaxDQLot = decimal.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "MaxOtherLot")
+                {
+                    setValueSetting.MaxOtherLot = decimal.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "DQQuoteMinLot")
+                {
+                    setValueSetting.DQQuoteMinLot = decimal.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "AutoDQMaxLot")
+                {
+                    setValueSetting.AutoDQMaxLot = decimal.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "AutoLmtMktMaxLot")
+                {
+                    setValueSetting.AutoLmtMktMaxLot = decimal.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "AcceptDQVariation")
+                {
+                    setValueSetting.AcceptDQVariation = int.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "AcceptLmtVariation")
+                {
+                    setValueSetting.AcceptLmtVariation = int.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "AcceptCloseLmtVariation")
+                {
+                    setValueSetting.AcceptCloseLmtVariation = int.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "CancelLmtVariation")
+                {
+                    setValueSetting.CancelLmtVariation = int.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "MaxMinAdjust")
+                {
+                    setValueSetting.MaxMinAdjust = int.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "IsBetterPrice")
+                {
+                    setValueSetting.IsBetterPrice = bool.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "AutoAcceptMaxLot")
+                {
+                    setValueSetting.AutoAcceptMaxLot = decimal.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "AutoCancelMaxLot")
+                {
+                    setValueSetting.AutoCancelMaxLot = decimal.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "AllowedNewTradeSides")
+                {
+                    setValueSetting.AllowedNewTradeSides = int.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "HitTimes")
+                {
+                    setValueSetting.HitTimes = int.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "PenetrationPoint")
+                {
+                    setValueSetting.PenetrationPoint = int.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "PriceValidTime")
+                {
+                    setValueSetting.PriceValidTime = int.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "LastAcceptTimeSpan")
+                {
+                    setValueSetting.LastAcceptTimeSpan = TimeSpan.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "AutoDQDelay")
+                {
+                    setValueSetting.AutoDQDelay = int.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "HitPriceVariationForSTP")
+                {
+                    setValueSetting.HitPriceVariationForSTP = int.Parse(nodeValue);
+                    continue;
+                }
+            }
+
+
+        }
+
+        //T1 --Manager.Commn Object,T2 ManagerConsole object
+        internal delegate void UpdateManagerCommon<T2, T1>(T2 value, T1 settingValue, UpdateAction action);
+        internal static void UpdateEntity<T1, T2>(T1 value, Dictionary<Guid, T2> newValues, UpdateAction action, Guid id, UpdateManagerCommon<T2, T1> update)
+            where T1:new()
+            where T2:new()
+        {
+            if (action == UpdateAction.Initialize)
+            {
+                newValues[id] = new T2();
+                update(newValues[id], value, action);
+            }
+            else if (action == UpdateAction.Modify)
+            {
+                if (newValues.ContainsKey(id))
+                {
+                    update(newValues[id], value, action);
+                }
+            }
+            else if (action == UpdateAction.Delete)
+            {
+                newValues.Remove(id);
+            }
+        }
+
+        #region 更新静态方法
+        internal static void UpdateManagerEntity(this AccountGroup accountGroup, CommonAccountGroup commonAccountGroup, UpdateAction action)
+        {
+            accountGroup.Update(commonAccountGroup);
+        }
+        internal static void UpdateManagerEntity(this Account account, CommonAccount commonAccount, UpdateAction action)
+        {
+            account.Update(commonAccount);
+        }
+        internal static void UpdateManagerEntity(this Customer customer, CommonCustomer commonCustomer, UpdateAction action)
+        {
+            customer.Update(commonCustomer);
+        }
+        #endregion
+
+
     }
 }

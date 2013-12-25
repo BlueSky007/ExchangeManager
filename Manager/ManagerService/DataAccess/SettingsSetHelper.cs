@@ -50,7 +50,7 @@ namespace ManagerService.DataAccess
             {
                 settingSet.TradeDay = InitializationHelper.Create<TradeDay>(dr, Initialize);
                 settingSet.SystemParameter = InitializationHelper.Create<SystemParameter>(dr, Initialize);
-                settingSet.Customer = InitializationHelper.Create<Customer>(dr, Initialize);
+                settingSet.Customers = InitializationHelper.CreateArray<Customer>(dr, Initialize);
                 settingSet.AccountGroups = InitializationHelper.CreateArray<AccountGroup>(dr, Initialize);
                 settingSet.Accounts = InitializationHelper.CreateArray<Account>(dr, Initialize);
                 settingSet.QuotePolicies = InitializationHelper.CreateArray<QuotePolicy>(dr, Initialize);

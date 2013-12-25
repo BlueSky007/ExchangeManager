@@ -7,6 +7,7 @@ using System.Text;
 using ManagerConsole.Helper;
 using Manager.Common.QuotationEntities;
 using ManagerConsole.Model;
+using System.Windows;
 
 namespace ManagerConsole.ViewModel
 {
@@ -17,8 +18,11 @@ namespace ManagerConsole.ViewModel
             : base(instrument)
         {
             this._Instrument = instrument;
-            this.SourceRelations = new ObservableCollection<VmInstrumentSourceRelation>();
-            this.SourceRelations.CollectionChanged += SourceRelations_CollectionChanged;
+            if (!instrument.IsDerivative)
+            {
+                this.SourceRelations = new ObservableCollection<VmInstrumentSourceRelation>();
+                this.SourceRelations.CollectionChanged += SourceRelations_CollectionChanged;
+            }
         }
 
         private void SourceRelations_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -36,7 +40,7 @@ namespace ManagerConsole.ViewModel
         public VmPriceRangeCheckRule VmPriceRangeCheckRule { get; set; }
         public VmWeightedPriceRule VmWeightedPriceRule { get; set; }
 
-        public VmDerivativeRelation DerivativeRelation { get; set; }
+        public VmDerivativeRelation VmDerivativeRelation { get; set; }
 
         public Instrument Instrument { get { return this._Instrument; } }
         public int Id { get { return this._Instrument.Id; } set { this._Instrument.Id = value; } }
@@ -57,7 +61,7 @@ namespace ManagerConsole.ViewModel
             }
         }
 
-        public double AdjustPoints
+        public int AdjustPoints
         {
             get
             {
@@ -65,21 +69,13 @@ namespace ManagerConsole.ViewModel
             }
             set
             {
-                double newValue = double.Parse(value.ToString('F' + this.DecimalPlace.ToString()));   // 避免浮点数问题
-                if (this._Instrument.AdjustPoints != newValue)
+                if (this._Instrument.AdjustPoints != value)
                 {
-                    ConsoleClient.Instance.UpdateMetadataObjectField(MetadataType.Instrument, this.Id, FieldSR.AdjustPoints, newValue, delegate(bool success)
-                    {
-                        if (success)
-                        {
-                            this._Instrument.AdjustPoints = newValue;
-                            this.OnPropertyChanged(FieldSR.AdjustPoints);
-                        }
-                    });
+                    this.SubmitChange(MetadataType.Instrument, FieldSR.AdjustPoints, value);
                 }
             }
         }
-        public double AdjustIncrement
+        public int AdjustIncrement
         {
             get
             {
@@ -89,14 +85,7 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._Instrument.AdjustIncrement != value)
                 {
-                    ConsoleClient.Instance.UpdateMetadataObjectField(MetadataType.Instrument, this.Id, FieldSR.AdjustIncrement, value, delegate(bool success)
-                    {
-                        if (success)
-                        {
-                            this._Instrument.AdjustIncrement = value;
-                            this.OnPropertyChanged(FieldSR.AdjustIncrement);
-                        }
-                    });
+                    base.SubmitChange(MetadataType.Instrument, FieldSR.AdjustIncrement, value);
                 }
             }
         }
@@ -126,14 +115,7 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._Instrument.DecimalPlace != value)
                 {
-                    ConsoleClient.Instance.UpdateMetadataObjectField(MetadataType.Instrument, this.Id, FieldSR.DecimalPlace, value, delegate(bool success)
-                    {
-                        if (success)
-                        {
-                            this._Instrument.DecimalPlace = value;
-                            this.OnPropertyChanged(FieldSR.DecimalPlace);
-                        }
-                    });
+                    base.SubmitChange(MetadataType.Instrument, FieldSR.DecimalPlace, value);
                 }
             }
         }
@@ -148,14 +130,7 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._Instrument.InactiveTime != value)
                 {
-                    ConsoleClient.Instance.UpdateMetadataObjectField(MetadataType.Instrument, this.Id, FieldSR.InactiveTime, value, delegate(bool success)
-                    {
-                        if (success)
-                        {
-                            this._Instrument.InactiveTime = value;
-                            this.OnPropertyChanged(FieldSR.InactiveTime);
-                        }
-                    });
+                    base.SubmitChange(MetadataType.Instrument, FieldSR.InactiveTime, value);
                 }
             }
         }
@@ -231,5 +206,19 @@ namespace ManagerConsole.ViewModel
                 return this.SourceRelations.Any(r => r.IsDefault == true);
             }
         }
+
+        public Visibility SendButtonVisibility
+        {
+            get { return this.IsDerivative ? Visibility.Hidden : Visibility.Visible; }
+        }
+        public Visibility DerivedControlVisibility
+        {
+            get { return this.IsDerivative ? Visibility.Visible : Visibility.Hidden; }
+        }
+
+        //private string FloatFormat
+        //{
+        //    get { return 'F' + this.DecimalPlace.ToString(); }
+        //}
     }
 }

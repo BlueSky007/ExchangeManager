@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using ManagerConsole.Model;
+using ManagerConsole.ViewModel;
 
 namespace ManagerConsole.UI
 {
@@ -25,10 +27,15 @@ namespace ManagerConsole.UI
             InitializeComponent();
         }
 
-        public IEnumerable ItemsSource
+        private void ConfirmButton_Click(object sender, RoutedEventArgs e)
         {
-            get { return this.MainGrid.ItemsSource; }
-            set { this.MainGrid.ItemsSource = value; }
+            VmAbnormalQuotation abnormalQuotation = VmQuotationManager.Instance.AbnormalQuotationManager.FirstItem;
+            if (abnormalQuotation != null)
+            {
+                bool accepted = ((Button)sender).Name.Equals("AcceptButton");
+                ConsoleClient.Instance.ConfirmAbnormalQuotation(abnormalQuotation.InstrumentId, abnormalQuotation.ConfirmId, accepted);
+                VmQuotationManager.Instance.AbnormalQuotationManager.RemoveFirstItem();
+            }
         }
     }
 }

@@ -98,6 +98,7 @@
       <HintPath>E:\ToolsForSofteWare\InfragisticsWPF\NetAdvantage 2013.1\WPF\CLR4.0\Bin\WPFOnly\InfragisticsWPF4.Ribbon.v13.1.dll</HintPath>
     </Reference>
     <Reference Include="InfragisticsWPF4.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
+    <Reference Include="PresentationFramework.Classic" />
     <Reference Include="PresentationUI, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="ReachFramework" />
     <Reference Include="System" />
@@ -123,7 +124,7 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="Xceed.Wpf.Toolkit, Version=2.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\Debug\Xceed.Wpf.Toolkit.dll</HintPath>
+      <HintPath>..\..\..\..\References\DotNet\Third Party\Xceed.Wpf.Toolkit.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -134,6 +135,7 @@
     <Compile Include="ChangePassword.xaml.cs">
       <DependentUpon>ChangePassword.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ColorSettings.cs" />
     <Compile Include="FramePages\DealingLogControl.xaml.cs">
       <DependentUpon>DealingLogControl.xaml</DependentUpon>
     </Compile>
@@ -170,6 +172,9 @@
     <Compile Include="Model\TestData.cs" />
     <Compile Include="UI\AdjustAndSpreadSettingControl.xaml.cs">
       <DependentUpon>AdjustAndSpreadSettingControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\DealingInstanceOrder.xaml.cs">
+      <DependentUpon>DealingInstanceOrder.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\ExchangeQuotationControl.xaml.cs">
       <DependentUpon>ExchangeQuotationControl.xaml</DependentUpon>
@@ -214,6 +219,9 @@
     <Compile Include="UI\QuotePriceWindow.xaml.cs">
       <DependentUpon>QuotePriceWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\SourceRelationControl.xaml.cs">
+      <DependentUpon>SourceRelationControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ViewModel\AdjustRelationViewModel.cs" />
     <Compile Include="ViewModel\ExecuteOrderSummaryItem.cs" />
     <Compile Include="UI\RangeCheckRuleControl.xaml.cs">
@@ -225,9 +233,13 @@
     <Compile Include="UI\WeightedRuleControl.xaml.cs">
       <DependentUpon>WeightedRuleControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModel\InstantOrderForInstrument.cs" />
     <Compile Include="ViewModel\OpenInterestSummary.cs" />
+    <Compile Include="ViewModel\ProcessInstantOrder.cs" />
     <Compile Include="ViewModel\QuotePriceClient.cs" />
     <Compile Include="ViewModel\VmAbnormalQuotation.cs" />
+    <Compile Include="ViewModel\VmAbnormalQuotationManager.cs" />
+    <Compile Include="ViewModel\VmBase.cs" />
     <Compile Include="ViewModel\VmDerivativeRelation.cs" />
     <Compile Include="ViewModel\ExchangeQuotationViewModel.cs" />
     <Compile Include="ViewModel\GroupNetPosition.cs" />
@@ -284,11 +296,39 @@
     <Compile Include="ViewModel\QuotePriceForInstrument.cs" />
     <Compile Include="ViewModel\UserModel.cs" />
     <Compile Include="ViewModel\VmWeightedPriceRule.cs" />
+    <Page Include="Asset\BlackColors.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Asset\ScrollBarStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Asset\ControlStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Asset\XamGridStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Asset\FontsCHS.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Asset\WhiteColors.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="UI\AbnormalQuotationProcessControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\AdjustAndSpreadSettingControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\DealingInstanceOrder.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -320,40 +360,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UI\SourceRelationControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\WeightedRuleControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Resource Include="Asset\IG.xamDateTimeInput.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
     <Resource Include="Asset\Styles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
-    <Page Include="Asset\Colors.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Asset\Office2010Blue.xamGrid.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Asset\Styles.Shared.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Asset\Styles.WPF.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Asset\Theme.Colors.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="ChangePassword.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

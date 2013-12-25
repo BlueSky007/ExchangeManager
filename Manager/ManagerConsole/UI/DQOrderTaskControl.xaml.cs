@@ -39,9 +39,9 @@ namespace ManagerConsole.UI
             this._App = ((ManagerConsole.MainWindow)Application.Current.MainWindow);
             this._AccountInfoConfirm = new ExcuteOrderConfirm();
 
-            this._CommonDialogWin = this._App.CommonDialogWin;
-            this._ConfirmDialogWin = this._App.ConfirmDialogWin;
-            this._ConfirmOrderDialogWin = this._App.ConfirmOrderDialogWin;
+            this._CommonDialogWin = this._App._CommonDialogWin;
+            this._ConfirmDialogWin = this._App._ConfirmDialogWin;
+            this._ConfirmOrderDialogWin = this._App._ConfirmOrderDialogWin;
             this.OrderHandle = this._App.OrderHandle;
             //this._ConfirmOrderDialogWin.OnConfirmDialogResult += new ConfirmOrderDialogWin.ConfirmDialogResultHandle(ExcuteOrder);
             this.BindGridData();

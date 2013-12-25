@@ -15,6 +15,8 @@ namespace ManagerConsole.ViewModel
             this._DerivativeRelation = derivativeRelation;
         }
 
+        public DerivativeRelation DerivativeRelation { get { return this._DerivativeRelation; } }
+
         public int Id { get { return this._DerivativeRelation.Id; } set { this._DerivativeRelation.Id = value; } }
         public int UnderlyingInstrument1Id
         {
@@ -23,8 +25,7 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._DerivativeRelation.UnderlyingInstrument1Id != value)
                 {
-                    this._DerivativeRelation.UnderlyingInstrument1Id = value;
-                    this.OnPropertyChanged(FieldSR.UnderlyingInstrument1Id);
+                    this.SubmitChange(FieldSR.UnderlyingInstrument1Id, value);
                 }
             }
         }
@@ -35,8 +36,7 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._DerivativeRelation.UnderlyingInstrument1IdInverted != value)
                 {
-                    this._DerivativeRelation.UnderlyingInstrument1IdInverted = value;
-                    this.OnPropertyChanged(FieldSR.UnderlyingInstrument1IdInverted);
+                    this.SubmitChange(FieldSR.UnderlyingInstrument1IdInverted, value);
                 }
             }
         }
@@ -47,34 +47,7 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._DerivativeRelation.UnderlyingInstrument2Id != value)
                 {
-                    this._DerivativeRelation.UnderlyingInstrument2Id = value;
-                    this.OnPropertyChanged(FieldSR.UnderlyingInstrument2Id);
-                }
-            }
-        }
-
-        public decimal AdjustPoints
-        {
-            get { return this._DerivativeRelation.AdjustPoints; }
-            set
-            {
-                if (this._DerivativeRelation.AdjustPoints != value)
-                {
-                    this._DerivativeRelation.AdjustPoints = value;
-                    this.OnPropertyChanged(FieldSR.AdjustPoints);
-                }
-            }
-        }
-
-        public decimal AdjustIncrement
-        {
-            get { return this._DerivativeRelation.AdjustIncrement; }
-            set
-            {
-                if (this._DerivativeRelation.AdjustIncrement != value)
-                {
-                    this._DerivativeRelation.AdjustIncrement = value;
-                    this.OnPropertyChanged(FieldSR.AdjustIncrement);
+                    this.SubmitChange(FieldSR.UnderlyingInstrument2Id, value);
                 }
             }
         }
@@ -86,8 +59,7 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._DerivativeRelation.AskOperand1Type != value)
                 {
-                    this._DerivativeRelation.AskOperand1Type = value;
-                    this.OnPropertyChanged(FieldSR.AskOperand1Type);
+                    this.SubmitChange(FieldSR.AskOperand1Type, value);
                 }
             }
         }
@@ -99,8 +71,7 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._DerivativeRelation.AskOperator1Type != value)
                 {
-                    this._DerivativeRelation.AskOperator1Type = value;
-                    this.OnPropertyChanged(FieldSR.AskOperator1Type);
+                    this.SubmitChange(FieldSR.AskOperator1Type, value);
                 }
             }
         }
@@ -112,8 +83,7 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._DerivativeRelation.AskOperand2Type != value)
                 {
-                    this._DerivativeRelation.AskOperand2Type = value;
-                    this.OnPropertyChanged(FieldSR.AskOperand2Type);
+                    this.SubmitChange(FieldSR.AskOperand2Type, value);
                 }
             }
         }
@@ -125,8 +95,7 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._DerivativeRelation.AskOperator2Type != value)
                 {
-                    this._DerivativeRelation.AskOperator2Type = value;
-                    this.OnPropertyChanged(FieldSR.AskOperator2Type);
+                    this.SubmitChange(FieldSR.AskOperator2Type, value);
                 }
             }
         }
@@ -138,8 +107,7 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._DerivativeRelation.AskOperand3 != value)
                 {
-                    this._DerivativeRelation.AskOperand3 = value;
-                    this.OnPropertyChanged(FieldSR.AskOperand3);
+                    this.SubmitChange(FieldSR.AskOperand3, value);
                 }
             }
         }
@@ -151,8 +119,7 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._DerivativeRelation.BidOperand1Type != value)
                 {
-                    this._DerivativeRelation.BidOperand1Type = value;
-                    this.OnPropertyChanged(FieldSR.BidOperand1Type);
+                    this.SubmitChange(FieldSR.BidOperand1Type, value);
                 }
             }
         }
@@ -164,8 +131,7 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._DerivativeRelation.BidOperator1Type != value)
                 {
-                    this._DerivativeRelation.BidOperator1Type = value;
-                    this.OnPropertyChanged(FieldSR.BidOperator1Type);
+                    this.SubmitChange(FieldSR.BidOperator1Type, value);
                 }
             }
         }
@@ -177,8 +143,7 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._DerivativeRelation.BidOperand2Type != value)
                 {
-                    this._DerivativeRelation.BidOperand2Type = value;
-                    this.OnPropertyChanged(FieldSR.BidOperand2Type);
+                    this.SubmitChange(FieldSR.BidOperand2Type, value);
                 }
             }
         }
@@ -190,8 +155,7 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._DerivativeRelation.BidOperator2Type != value)
                 {
-                    this._DerivativeRelation.BidOperator2Type = value;
-                    this.OnPropertyChanged(FieldSR.BidOperator2Type);
+                    this.SubmitChange(FieldSR.BidOperator2Type, value);
                 }
             }
         }
@@ -203,8 +167,7 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._DerivativeRelation.BidOperand3 != value)
                 {
-                    this._DerivativeRelation.BidOperand3 = value;
-                    this.OnPropertyChanged(FieldSR.BidOperand3);
+                    this.SubmitChange(FieldSR.BidOperand3, value);
                 }
             }
         }
@@ -216,8 +179,7 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._DerivativeRelation.LastOperand1Type != value)
                 {
-                    this._DerivativeRelation.LastOperand1Type = value;
-                    this.OnPropertyChanged(FieldSR.LastOperand1Type);
+                    this.SubmitChange(FieldSR.LastOperand1Type, value);
                 }
             }
         }
@@ -229,8 +191,7 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._DerivativeRelation.LastOperator1Type != value)
                 {
-                    this._DerivativeRelation.LastOperator1Type = value;
-                    this.OnPropertyChanged(FieldSR.LastOperator1Type);
+                    this.SubmitChange(FieldSR.LastOperator1Type, value);
                 }
             }
         }
@@ -242,8 +203,7 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._DerivativeRelation.LastOperand2Type != value)
                 {
-                    this._DerivativeRelation.LastOperand2Type = value;
-                    this.OnPropertyChanged(FieldSR.LastOperand2Type);
+                    this.SubmitChange(FieldSR.LastOperand2Type, value);
                 }
             }
         }
@@ -255,8 +215,7 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._DerivativeRelation.LastOperator2Type != value)
                 {
-                    this._DerivativeRelation.LastOperator2Type = value;
-                    this.OnPropertyChanged(FieldSR.LastOperator2Type);
+                    this.SubmitChange(FieldSR.LastOperator2Type, value);
                 }
             }
         }
@@ -268,11 +227,14 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._DerivativeRelation.LastOperand3 != value)
                 {
-                    this._DerivativeRelation.LastOperand3 = value;
-                    this.OnPropertyChanged(FieldSR.LastOperand3);
+                    this.SubmitChange(FieldSR.LastOperand3, value);
                 }
             }
         }
 
+        public void SubmitChange(string filed, object value)
+        {
+            base.SubmitChange(MetadataType.DerivativeRelation, filed, value);
+        }
     }
 }

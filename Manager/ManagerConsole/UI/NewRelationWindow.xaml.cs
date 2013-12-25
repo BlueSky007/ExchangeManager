@@ -26,12 +26,29 @@ namespace ManagerConsole.UI
         private Action<AdjustRelationViewModel> _AddNewSuccess;
         private Guid _NewId;
         private string _NewCode;
+        private List<int> _instrumentIds;
 
         public NewRelationWindow(Action<AdjustRelationViewModel> addNewSuccess)
         {
             InitializeComponent();
             this.SourceInstrument.ItemsSource = VmQuotationManager.Instance.Instruments;
             this._AddNewSuccess = addNewSuccess;
+        }
+
+        public NewRelationWindow(List<int> instrumentIds, Action<AdjustRelationViewModel> editSuccess)
+        {
+            InitializeComponent();
+            this.SourceInstrument.ItemsSource = VmQuotationManager.Instance.Instruments;
+            this._AddNewSuccess = editSuccess;
+            foreach (VmInstrument item in VmQuotationManager.Instance.Instruments)
+            {
+                if (instrumentIds.Contains(item.Id))
+                {
+                    this.SourceInstrument.SelectedItems.Add(item);
+                }
+            }
+            
+            
         }
 
         private void Confirm_Click(object sender, RoutedEventArgs e)
@@ -45,6 +62,7 @@ namespace ManagerConsole.UI
             }
             this._NewId = id;
             this._NewCode = code;
+            this._instrumentIds = instruments;
             ConsoleClient.Instance.AddNewRelation(id,code,instruments,CallBack);
         }
 
@@ -54,7 +72,7 @@ namespace ManagerConsole.UI
             {
                 if (result)
                 {
-                    AdjustRelationViewModel relation = new AdjustRelationViewModel(this._NewId, this._NewCode);
+                    AdjustRelationViewModel relation = new AdjustRelationViewModel(this._NewId, this._NewCode,this._instrumentIds);
                     this._AddNewSuccess(relation);
                     this.Message.Foreground = Brushes.Green;
                     this.Message.Content = "Success";

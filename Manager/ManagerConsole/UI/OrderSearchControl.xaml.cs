@@ -8,6 +8,7 @@ using System.Drawing.Printing;
 using System.Linq;
 using System.Printing;
 using System.Text;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -33,15 +34,35 @@ namespace ManagerConsole.UI
         {
             InitializeComponent();
 
-            this.InilizeUI();
+            this._App = ((ManagerConsole.MainWindow)Application.Current.MainWindow);
+            Thread thread = new Thread(new ThreadStart(delegate()
+            {
+                while (!this.InilizeUI())
+                {
+                    Thread.Sleep(800);
+                }
+            }));
+            thread.IsBackground = true;
+            thread.Start();
+            
         }
 
-        private void InilizeUI()
+        private bool InilizeUI()
         {
-            this._App = ((ManagerConsole.MainWindow)Application.Current.MainWindow);
-            this._OrderTypeCombo.ItemsSource = System.Enum.GetNames(typeof(OrderType));
-            this._OrderTypeCombo.SelectedIndex = 0;
-            this.GetComboListData();
+            if (this._App.InitDataManager.IsInitializeCompleted)
+            {
+                this.Dispatcher.BeginInvoke((Action)delegate()
+                {
+                    this._OrderTypeCombo.ItemsSource = System.Enum.GetNames(typeof(OrderType));
+                    this._OrderTypeCombo.SelectedIndex = 0;
+                    this.GetComboListData();
+                });
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private void GetComboListData()

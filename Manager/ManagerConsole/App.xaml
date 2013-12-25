@@ -7,10 +7,8 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Asset/Colors.xaml"/>
-                <ResourceDictionary Source="Asset/IG.xamDateTimeInput.xaml"/>
                 <ResourceDictionary Source="Asset/Styles.xaml"/>
-                <ResourceDictionary Source="Asset/Office2010Blue.xamGrid.xaml"/>
+                <ResourceDictionary Source="Asset/XamGridStyle.xaml"/>
                 <ResourceDictionary>
                     <local:DeciamlTypeNullValueConverter x:Key="_LotNullValueConverter"/>
                 </ResourceDictionary>

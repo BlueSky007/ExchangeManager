@@ -3,12 +3,8 @@ using Manager.Common.Settings;
 using ManagerConsole.Helper;
 using ManagerConsole.Model;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace ManagerConsole.ViewModel
@@ -23,7 +19,6 @@ namespace ManagerConsole.ViewModel
         #region Privete Prperty
         private InstrumentClient _Instrument;
         private string _InstrumentCode;
-
         private Guid _QuoteId;
         private string _Origin;
         private string _Ask;
@@ -39,12 +34,9 @@ namespace ManagerConsole.ViewModel
         private decimal _SumBuyLot;
         private decimal _SumSellLot;
         private BSStatus _BSStatus;
-
         private decimal _Adjust =decimal.Zero;
         private decimal _AdjustLot;
-
         private decimal _AdjustPoint = decimal.Zero;
-       
         #endregion
 
         #region Public Property

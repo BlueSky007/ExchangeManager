@@ -13,26 +13,17 @@
             <Setter Property="BorderThickness" Value="0,0,1,1" />
             <Setter Property="Foreground" Value="Blue"/>
         </Style>
-        <Style x:Key="BuyCellStyle" TargetType="igGrid:CellControl">
-            <Setter Property="BorderBrush" Value="#FFDEDEDE" />
-            <Setter Property="Padding" Value="0,0,0,0"/>
-            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+        <Style x:Key="BuyCellStyle" TargetType="igGrid:CellControl" BasedOn="{StaticResource XamGridBlackCellStyle}">
             <Setter Property="Foreground" Value="Blue"/>
         </Style>
-        <Style x:Key="SellCellStyle" TargetType="igGrid:CellControl">
-            <Setter Property="BorderBrush" Value="#FFDEDEDE" />
-            <Setter Property="Padding" Value="0,0,0,0"/>
-            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+        <Style x:Key="SellCellStyle" TargetType="igGrid:CellControl" BasedOn="{StaticResource XamGridBlackCellStyle}">
             <Setter Property="Foreground" Value="Red"/>
         </Style>
-        <Style x:Key="BuySummaryGroupCellStyle" TargetType="igGrid:CellControl">
-            <Setter Property="BorderBrush" Value="#FFDEDEDE" />
-            <Setter Property="Padding" Value="0,0,0,0"/>
-            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+        <Style x:Key="BuySummaryGroupCellStyle" TargetType="igGrid:CellControl" BasedOn="{StaticResource XamGridBlackCellStyle}">
             <Setter Property="Background" Value="#FF90EE90"/>
             <Setter Property="Foreground" Value="Blue"/>
         </Style>
-        <Style x:Key="SellSummaryGroupStyle" TargetType="igGrid:CellControl">
+        <Style x:Key="SellSummaryGroupStyle" TargetType="igGrid:CellControl" BasedOn="{StaticResource XamGridBlackCellStyle}">
             <Setter Property="BorderBrush" Value="#FFDEDEDE" />
             <Setter Property="Padding" Value="0,0,0,0"/>
             <Setter Property="BorderThickness" Value="0,0,1,1"/>
@@ -40,7 +31,6 @@
             <Setter Property="Foreground" Value="Red"/>
         </Style>
         <Style x:Key="TextStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="Yellow"/>
             <Setter Property="FontFamily" Value="Hei"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -48,16 +38,16 @@
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
+            <RowDefinition Height="35"/>
             <RowDefinition Height="500*"/>
         </Grid.RowDefinitions>
-        <Border x:Name="_NetPositionToolbar" CornerRadius="3" Background="{StaticResource BackGroundForPanel}" Grid.Row="0">
+        <Border x:Name="_NetPositionToolbar" CornerRadius="3" Background="{Binding Path=ColorTemplate.MainControlHeaderBackground, Source={StaticResource ColorSettings}}" Grid.Row="0">
             <StackPanel Orientation="Horizontal" Margin="15,0,0,0">
                 <TextBlock  Margin="10,0,0,0" Text="Show Actual Quantity" Style="{StaticResource TextStyle}"/>
                 <CheckBox x:Name="_ShowQuantityChk" VerticalAlignment="Center" Margin="8,0,0,0"/>
 
-                <Button x:Name="_BlotterSelectBtn" Foreground="Yellow" Content="Selection Blotter" Width="90" Height="25" BorderBrush="Black" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Margin="10,0,0,0" VerticalAlignment="Center"/>
-                <Button x:Name="_QueryNetPostionBtn" Click="QueryData" Foreground="White" Content="Go" Width="25" Height="25" BorderBrush="Black" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Margin="3,0,0,0" VerticalAlignment="Center"/>
+                <Button x:Name="_BlotterSelectBtn" Content="Selection Blotter" Width="90" Height="25"  Margin="10,0,0,0" VerticalAlignment="Center"/>
+                <Button x:Name="_QueryNetPostionBtn" Click="QueryData" Content="Go" Width="25" Height="25" Margin="3,0,0,0" VerticalAlignment="Center"/>
             </StackPanel>
         </Border>
         <Border x:Name="_SummaryToolbar" Visibility="Collapsed" CornerRadius="5" Background="{StaticResource BackGroundForPanel}" Grid.Row="0">
@@ -67,14 +57,14 @@
                 <TextBlock Text="Code" Style="{StaticResource TextStyle}"/>
                 <RadioButton x:Name="_OriginCodeRadio" VerticalAlignment="Center" Margin="8,0,0,0"/>
                 <TextBlock Text="Origin Code" Style="{StaticResource TextStyle}"/>
-                <Button x:Name="_BlotterSelectButton" Foreground="Yellow" Background="LightGray" Content="Blotter" Width="50" Height="25" BorderBrush="Black" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Margin="10,0,0,0" VerticalAlignment="Center"/>
-                <Button x:Name="_QuerySummaryBtn" Background="LightGray" Foreground="Yellow" Content="Go" Width="25" Height="25" BorderBrush="Black" Click="QuerySummaryBtn_Click" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Margin="1,0,0,0" VerticalAlignment="Center"/>
+                <Button x:Name="_BlotterSelectButton" Foreground="Yellow" Background="LightGray" Content="Blotter" Width="50" Height="25" BorderBrush="Black" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                <Button x:Name="_QuerySummaryBtn" Background="LightGray" Foreground="Yellow" Content="Go" Width="25" Height="25" BorderBrush="Black" Click="QuerySummaryBtn_Click"  Margin="1,0,0,0" VerticalAlignment="Center"/>
             </StackPanel>
         </Border>
 
         <igWindows:XamTabControl x:Name="_OpenInterestTab" Grid.Row="1" 
                                  TabStripPlacement="Top"
-                                 Theme="Office2010Blue"
+                                 Background="Black"
                                  TabLayoutStyle="MultiRowAutoSize"
                                  AllowTabClosing="False"
                                  SelectionChanged="tabControl_SelectionChanged">
@@ -97,17 +87,15 @@
             <igWindows:TabItemEx CloseButtonVisibility="Hidden"  Header="Group Net Position" 
                                  x:Name="NetPositionItem" Height="25">
                 <!--#BEGIN SNIPPET#-->
-                <igGrid:XamGrid KeyboardNavigation="AllLayouts" x:Name="_GroupNetPositionGrid" FontWeight="Bold" FontFamily="hei" FontStyle="Italic" Foreground="Black" AutoGenerateColumns="false" Grid.Row="1"
+                <igGrid:XamGrid KeyboardNavigation="AllLayouts" x:Name="_GroupNetPositionGrid" FontWeight="Bold" FontFamily="hei" FontStyle="Italic" AutoGenerateColumns="false" Grid.Row="1"
                                 ColumnLayoutAssigned="GroupNetPositionGrid_ColumnLayoutAssigned" 
                                 InitializeRow="GroupNetPositionGrid_InitializeRow"
                                 CellExitedEditMode="GroupNetPositionGrid_CellExitedEditMode"
-                                CellExitingEditMode="GroupNetPositionGrid_CellExitingEditMode">
-                    <igGrid:XamGrid.CellStyle>
-                        <Style TargetType="igGrid:CellControl">
-                            <Setter Property="Padding" Value="0,0,0,0"/>
-                            <Setter Property="BorderThickness" Value="0,0,1,1"/>
-                        </Style>
-                    </igGrid:XamGrid.CellStyle>
+                                CellExitingEditMode="GroupNetPositionGrid_CellExitingEditMode"
+                                Background ="{Binding Path=ColorTemplate.Background, Source={StaticResource ColorSettings}}" 
+                                Foreground ="{Binding Path=ColorTemplate.Foreground, Source={StaticResource ColorSettings}}"
+                                CellStyle="{Binding Path=ColorTemplate.XamGridCellStyle, Source={StaticResource ColorSettings}}"
+                                HeaderStyle="{Binding Path=ColorTemplate.XamGridHeaderStyle, Source={StaticResource ColorSettings}}">
                     <igGrid:XamGrid.ColumnResizingSettings>
                         <igGrid:ColumnResizingSettings
                             AllowCellAreaResizing="False"
@@ -136,15 +124,15 @@
                                     </igGrid:ColumnLayout.Columns>
                                 </igGrid:ColumnLayout>
                                 <!--Column Setting-->
-                                <igGrid:TextColumn Key="Code" HorizontalContentAlignment="Left" Width="120" IsReadOnly="True" HeaderText="Group"/>
-                                <igGrid:TemplateColumn Key="IsSelected" Width="50" HorizontalContentAlignment="Center" IsReadOnly="False" HeaderText="X">
+                                <igGrid:TextColumn Key="Code" HorizontalContentAlignment="Left" Width="120" IsReadOnly="True" HeaderText="Group" CellStyle="{StaticResource XamGridBlackCellStyle}"/>
+                                <igGrid:TemplateColumn Key="IsSelected" Width="50" HorizontalContentAlignment="Center" IsReadOnly="False" HeaderText="X" CellStyle="{StaticResource XamGridBlackCellStyle}">
                                     <igGrid:TemplateColumn.ItemTemplate>
                                         <DataTemplate>
                                             <CheckBox x:Name="SelectChk" Click="SelectChk_Click" IsChecked="{Binding IsSelected,Mode=TwoWay}" />
                                         </DataTemplate>
                                     </igGrid:TemplateColumn.ItemTemplate>
                                 </igGrid:TemplateColumn>
-                                <igGrid:TextColumn Key="OIPercent" Width="50" HorizontalContentAlignment="Center" IsReadOnly="False" HeaderText="%"/>
+                                <igGrid:TextColumn Key="OIPercent" Width="50" HorizontalContentAlignment="Center" IsReadOnly="False" HeaderText="%" CellStyle="{StaticResource XamGridBlackCellStyle}"/>
    
                             </igGrid:ColumnLayout.Columns>
                         </igGrid:ColumnLayout>
@@ -159,16 +147,14 @@
             </igWindows:TabItemEx>
             <igWindows:TabItemEx Header="Net Summary" x:Name="SummaryItem" CloseButtonVisibility="Hidden" Height="23">
                 <!--#BEGIN SNIPPET#-->
-                <igGrid:XamGrid KeyboardNavigation="AllLayouts" x:Name="_SummaryItemGrid" FontWeight="Bold" FontFamily="hei" FontStyle="Italic" Foreground="Black" AutoGenerateColumns="false" Grid.Row="1"
+                <igGrid:XamGrid KeyboardNavigation="AllLayouts" x:Name="_SummaryItemGrid" FontWeight="Bold"  FontFamily="hei" FontStyle="Italic" AutoGenerateColumns="false" Grid.Row="1"
                                  RowSelectorClicked="SummaryItemGrid_RowSelectorClicked"
-                                 RowExpansionChanged="SummaryItemGrid_RowExpansionChanging">
-                    <igGrid:XamGrid.CellStyle>
-                        <Style TargetType="igGrid:CellControl">
-                            <Setter Property="Padding" Value="0,0,5,0"/>
-                            <Setter Property="BorderThickness" Value="0,0,1,1"/>
-                        </Style>
-                    </igGrid:XamGrid.CellStyle>
-                    <igGrid:XamGrid.RowSelectorSettings>
+                                 RowExpansionChanged="SummaryItemGrid_RowExpansionChanging"
+                                 Background ="{Binding Path=ColorTemplate.Background, Source={StaticResource ColorSettings}}" 
+                                 Foreground ="{Binding Path=ColorTemplate.Foreground, Source={StaticResource ColorSettings}}"
+                                 CellStyle="{Binding Path=ColorTemplate.XamGridCellStyle, Source={StaticResource ColorSettings}}"
+                                 HeaderStyle="{Binding Path=ColorTemplate.XamGridHeaderStyle, Source={StaticResource ColorSettings}}">
+                                <igGrid:XamGrid.RowSelectorSettings>
                         <igGrid:RowSelectorSettings Visibility="Collapsed"/>
                     </igGrid:XamGrid.RowSelectorSettings>
                     <igGrid:XamGrid.ColumnResizingSettings>

@@ -29,8 +29,7 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._PriceRangeCheckRule.DiscardOutOfRangePrice != value)
                 {
-                    this._PriceRangeCheckRule.DiscardOutOfRangePrice = value;
-                    this.OnPropertyChanged(FieldSR.DiscardOutOfRangePrice);
+                    base.SubmitChange(MetadataType.PriceRangeCheckRule, FieldSR.DiscardOutOfRangePrice, value);
                 }
             }
         }
@@ -44,8 +43,7 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._PriceRangeCheckRule.OutOfRangeType != value)
                 {
-                    this._PriceRangeCheckRule.OutOfRangeType = value;
-                    this.OnPropertyChanged(FieldSR.OutOfRangeType);
+                    base.SubmitChange(MetadataType.PriceRangeCheckRule, FieldSR.OutOfRangeType, value);
                 }
             }
         }
@@ -60,8 +58,7 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._PriceRangeCheckRule.ValidVariation != value)
                 {
-                    this._PriceRangeCheckRule.ValidVariation = value;
-                    this.OnPropertyChanged(FieldSR.ValidVariation);
+                    base.SubmitChange(MetadataType.PriceRangeCheckRule, FieldSR.ValidVariation, value);
                 }
             }
         }
@@ -76,8 +73,7 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._PriceRangeCheckRule.OutOfRangeWaitTime != value)
                 {
-                    this._PriceRangeCheckRule.OutOfRangeWaitTime = value;
-                    this.OnPropertyChanged(FieldSR.OutOfRangeWaitTime);
+                    base.SubmitChange(MetadataType.PriceRangeCheckRule, FieldSR.OutOfRangeWaitTime, value);
                 }
             }
         }
@@ -92,8 +88,7 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._PriceRangeCheckRule.OutOfRangeCount != value)
                 {
-                    this._PriceRangeCheckRule.OutOfRangeCount = value;
-                    this.OnPropertyChanged(FieldSR.OutOfRangeCount);
+                    base.SubmitChange(MetadataType.PriceRangeCheckRule, FieldSR.OutOfRangeCount, value);
                 }
             }
         }

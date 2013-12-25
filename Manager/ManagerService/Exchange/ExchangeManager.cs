@@ -27,6 +27,11 @@ namespace ManagerService.Exchange
             this._QuotationRelayEngine = new RelayEngine<List<GeneralQuotation>>(this.SetQuotation, this.HandlEngineException);
         }
 
+        internal ICollection<ExchangeSystem> GetExchangeSystems()
+        {
+            return new List<ExchangeSystem>(this._ExchangeSystems.Values);
+        }
+
         public void Start(string serviceAddress)
         {
             this._ServiceHost = new ServiceHost(typeof(ExchangeService));

@@ -39,6 +39,8 @@ namespace ManagerService.Quotation
 
         public ConfigMetadata ConfigMetadata { get { return this._ConfigMetadata; } }
 
+        public AbnormalQuotationManager AbnormalQuotationManager { get { return this._AbnormalQuotationManager; } }
+
         public bool AuthenticateSource(string sourceName, string loginName, string password)
         {
             return this._ConfigMetadata.AuthenticateSource(sourceName, loginName, password);
@@ -89,6 +91,14 @@ namespace ManagerService.Quotation
             List<GeneralQuotation> quotations = new List<GeneralQuotation>();
             this._DerivativeController.Derive(quotation.Quotation, quotations);
             quotations.Add(quotation.Quotation);
+
+            // adjust quotation according to adjuestment on instrument
+            foreach (GeneralQuotation gq in quotations)
+            {
+                Instrument instrument = this._ConfigMetadata.Instruments[gq.InstrumentId];
+                gq.Ask += Helper.GetAdjustValue(instrument.AdjustPoints, instrument.DecimalPlace);
+                gq.Bid += Helper.GetAdjustValue(instrument.AdjustPoints, instrument.DecimalPlace);
+            }
             this._LastQuotationManager.LastAccepted.Accept(quotations);
 
             MainService.ExchangeManager.AddQuotations(quotations);
@@ -103,6 +113,7 @@ namespace ManagerService.Quotation
         public void AddMetadataObject(ManagerInstrument instrument)
         {
             this._ConfigMetadata.Instruments.Add(instrument.Id, instrument);
+            this._SourceController.OnAddInstrument(instrument);
         }
 
         public void AddMetadataObject(InstrumentSourceRelation relation)
@@ -141,7 +152,25 @@ namespace ManagerService.Quotation
                     if (source != null) this._ConfigMetadata.QuotationSources.Remove(source.Name);
                     break;
                 case MetadataType.Instrument:
-                    this._ConfigMetadata.Instruments.Remove(objectId);
+                    if (this._ConfigMetadata.Instruments[objectId].IsDerivative)
+                    {
+                        this._ConfigMetadata.DerivativeRelations.Remove(objectId);
+                    }
+                    else
+                    {
+                        this._ConfigMetadata.PriceRangeCheckRules.Remove(objectId);
+                        this._ConfigMetadata.WeightedPriceRules.Remove(objectId);
+                        foreach(Dictionary<string, InstrumentSourceRelation> relations in this._ConfigMetadata.InstrumentSourceRelations.Values)
+                        {
+                            InstrumentSourceRelation relation = relations.Values.SingleOrDefault(r => r.InstrumentId == objectId);
+                            if(relation != null)
+                            {
+                                relations.Remove(relation.SourceSymbol);
+                            }
+                        }
+                        this._ConfigMetadata.Instruments.Remove(objectId);
+                        this._SourceController.OnRemoveInstrument(objectId);
+                    }
                     break;
                 case MetadataType.InstrumentSourceRelation:
                     foreach(Dictionary<string, InstrumentSourceRelation> relations in this._ConfigMetadata.InstrumentSourceRelations.Values)

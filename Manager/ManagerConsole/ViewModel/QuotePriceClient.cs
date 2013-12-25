@@ -1,12 +1,9 @@
 ﻿using Manager.Common;
-using Manager.Common.Settings;
 using ManagerConsole.Helper;
 using ManagerConsole.Model;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using Customer = ManagerConsole.Model.Customer;
 using QuoteMessage = Manager.Common.QuoteMessage;
 
@@ -25,7 +22,6 @@ namespace ManagerConsole.ViewModel
             this.QuotePriceClients = new ObservableCollection<QuotePriceClient>();
         }
 
-        //Remove QuotePrice
         public void RemoveSendQuotePrice(QuotePriceClient quotePriceClient)
         {
             bool isCurrentQuotePrice = (quotePriceClient.Id == this.QuotePriceForInstrument.QuoteId);
@@ -57,7 +53,6 @@ namespace ManagerConsole.ViewModel
             this.QuotePriceForInstrument.CreateBestPrice(true);
         }
 
-        //Add QuotePrice
         public void AddSendQuotePrice(QuotePriceClient quotePriceClient)
         {
             this.QuotePriceClients.Add(quotePriceClient);
@@ -82,7 +77,6 @@ namespace ManagerConsole.ViewModel
             }
         }
 
-        //Adjust Lot
         public void AdjustLot(bool isIncrease)
         {
             if (this.QuotePriceForInstrument == null) return;
@@ -92,7 +86,10 @@ namespace ManagerConsole.ViewModel
             {
                 foreach (QuotePriceClient entity in adjustQuoteEntities)
                 {
-                    entity.AnswerLot++;
+                    if (entity.Lot > entity.AnswerLot + 1)
+                    {
+                        entity.AnswerLot++;
+                    }
                 }
                 this.QuotePriceForInstrument.AnswerLot++;
             }
@@ -106,24 +103,19 @@ namespace ManagerConsole.ViewModel
             }
         }
 
-        //Adjust Price
+        public void UpdateLot(decimal answerLot)
+        {
+            if (this.QuotePriceForInstrument == null) return;
+            var adjustQuoteEntities = this.QuotePriceClients.Where(P => P.InstrumentId == this.QuotePriceForInstrument.Instrument.Id);
+
+            foreach (QuotePriceClient entity in adjustQuoteEntities)
+            {
+                entity.AnswerLot = answerLot;
+            }
+        }
+
         public void AdjustPrice(bool isAdd)
         {
-            bool isNormal = this.QuotePriceForInstrument.Instrument.IsNormal;
-            BSStatus bSStatus = this.QuotePriceForInstrument.BSStatus;
-
-            double adjust = isAdd ? 1:-1;
-            if (isNormal ^ (bSStatus == BSStatus.Buy))
-                adjust = adjust * (1);
-            else
-                adjust = adjust * (-1);
-
-            InstrumentClient instrument = this.QuotePriceForInstrument.Instrument;
-            Quotation quotation = Quotation.Create((double)adjust,
-            double.Parse(this.QuotePriceForInstrument.Origin),
-            instrument.NumeratorUnit.Value, instrument.Denominator.Value,
-            instrument.AutoPoint.Value, instrument.Spread.Value);
-
             this.QuotePriceForInstrument.AdjustPrice(isAdd);
         }
     }

@@ -253,6 +253,11 @@ namespace ManagerService.Console
         {
             return this._Client.GetAcountInfo(transactionId);
         }
+
+        public List<string> LoadSettingsParameters()
+        {
+            return this._Client.LoadSettingsParameters(this._Client.userId);
+        }
         #endregion
 
         #region Report
@@ -489,6 +494,20 @@ namespace ManagerService.Console
             {
                 Logger.TraceEvent(TraceEventType.Error, "[ManagerService.GetQuotePolicyRelation\r\n{0}", ex.ToString());
                 return new List<QuotePolicyRelation>();
+            }
+        }
+
+        public void ConfirmAbnormalQuotation(int instrumentId, int confirmId, bool accepted)
+        {
+            try
+            {
+                this._Client.ConfirmAbnormalQuotation(instrumentId, confirmId, accepted);
+            }
+            catch (Exception ex)
+            {
+                Logger.AddEvent(TraceEventType.Error,
+                    "[ManagerService.ConfirmAbnormalQuotation] instrumentId:{0}, confirmId:{1}, accepted:{2}\r\n{3}",
+                    instrumentId, confirmId, accepted, ex.ToString());
             }
         }
     }

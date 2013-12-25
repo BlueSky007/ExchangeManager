@@ -294,12 +294,6 @@ namespace ManagerService.Exchange
                     account.Initialize(xmlNode);
                     settingSet.Accounts = new Account[] { account };
                 }
-                else if (name == "Customer")
-                {
-                    Customer customer = new Customer();
-                    customer.Initialize(xmlNode);
-                    settingSet.Customer = customer;
-                }
                 else if (name == "Customers")
                 {
                     foreach (XmlNode customerNode in xmlNode.ChildNodes)

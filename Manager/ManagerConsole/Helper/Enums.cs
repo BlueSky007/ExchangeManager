@@ -91,4 +91,12 @@ namespace ManagerConsole
         Buy = 1,
         Both = 2,
     }
+
+    public enum PriceTrend
+    {
+        NoChange,
+        Up,
+        Down
+    }
+
 }

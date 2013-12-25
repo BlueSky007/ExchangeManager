@@ -32,27 +32,33 @@ namespace ManagerConsole
     {
         private Dictionary<int, Module> _Modules = new Dictionary<int, Module>();
         private ConsoleClient _ConsoleClient = new ConsoleClient();
-        public CommonDialogWin CommonDialogWin;
-        public ConfirmDialogWin ConfirmDialogWin;
-        public ConfirmOrderDialogWin ConfirmOrderDialogWin;
+        public CommonDialogWin _CommonDialogWin;
+        public ConfirmDialogWin _ConfirmDialogWin;
+        public ConfirmOrderDialogWin _ConfirmOrderDialogWin;
         private QuotePriceWindow _QuotePriceWindow;
         private ObservableCollection<string> _Layouts;
         private OrderHandle _OrderHandle;
         private MessageProcessor MessageProcessor;
         private SourceQuotationControl _SourceQuotationControl;
+        private SourceRelationControl _SourceRelationControl;
         private int _WindowsCount = 0;
-
+        private XamMenuItem _WhiteBackgroundMenuItem;
+        private XamMenuItem _BlackBackgroundMenuItem;
+        private int _ExhcangeQutaWindowsCount = 0;
+        private int _QuotationMoWindowsCount = 0;
         public MainWindow()
         {
             InitializeComponent();
             this.InitDataManager = new InitDataManager();
-            this.CommonDialogWin = new CommonDialogWin(this.MainFrame);
-            this.ConfirmDialogWin = new ConfirmDialogWin(this.MainFrame);
-            this.ConfirmOrderDialogWin = new ConfirmOrderDialogWin(this.MainFrame);
+            this._CommonDialogWin = new CommonDialogWin(this.MainFrame);
+            this._ConfirmDialogWin = new ConfirmDialogWin(this.MainFrame);
+            this._ConfirmOrderDialogWin = new ConfirmOrderDialogWin(this.MainFrame);
             this._OrderHandle = new OrderHandle();
         }
 
         public SourceQuotationControl SourceQuotationControl { get { return this._SourceQuotationControl; } }
+
+        public SourceRelationControl SourceRelationControl { get { return this._SourceRelationControl; } }
 
         public InitDataManager InitDataManager
         {
@@ -68,8 +74,14 @@ namespace ManagerConsole
 
         public void ShowAbnormalQuotation()
         {
-            this.FloatPane.Visibility = Visibility.Visible;
-            this.AbnormalQuotationProcessControl.ItemsSource = VmQuotationManager.Instance.AbnormalQuotations;
+            if(this.FloatPane.Visibility != Visibility.Visible)
+            {
+                this.FloatPane.Visibility = Visibility.Visible;
+            }
+            if (this.AbnormalQuotationProcessControl.DataContext == null)
+            {
+                this.AbnormalQuotationProcessControl.DataContext = VmQuotationManager.Instance.AbnormalQuotationManager;
+            }
         }
 
         private void treeViewItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -78,12 +90,15 @@ namespace ManagerConsole
             int moduleId = (int)moduleNode.Tag;
             string paneName = MainWindowHelper.GetPaneName(moduleId);
             ContentPane contentPane = this.DockManager.GetPanes(PaneNavigationOrder.ActivationOrder).Where(p => p.Name == paneName).SingleOrDefault();
+
             if (contentPane == null)
             {
                 this.AddContentPane(moduleId).Activate();
             }
             else
             {
+                contentPane.BorderThickness = new Thickness(0);
+                contentPane.BorderBrush = new SolidColorBrush(Colors.Black);
                 contentPane.Visibility = Visibility.Visible;
                 contentPane.Activate();
             }
@@ -106,27 +121,32 @@ namespace ManagerConsole
             this._QuotePriceWindow.WindowState = Infragistics.Controls.Interactions.WindowState.Hidden;
         }
 
-        private void StartMessageThread()
-        {
-            Thread thread = new Thread(delegate() {
-                MessageProcessor messageProcessor = new MessageProcessor(this._Media,this.InitDataManager);
-            });
-            thread.SetApartmentState(ApartmentState.STA);
-            thread.Start();
-        }
-
         private void HandleSuccessLogin(LoginResult result)
         {
             try
             {
                 this.InitializeLayout(result);
+                ConsoleClient.Instance.LoadSettingsParameters(this.LoadSettingsParametersCallback);
                 ConsoleClient.Instance.GetInitializeData(this.GetInitializeDataCallback);
                 //this.StartMessageThread();
                 this.AddQuotePriceFrm();
+                this.InitializeChangeColorMenu();
             }
             catch (Exception ex)
             {
                 Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "HandleSuccessLogin.\r\n{0}", ex.ToString());
+            }
+        }
+
+        private void LoadSettingsParametersCallback(List<string> parameters)
+        {
+            foreach (string xmlStr in parameters)
+            {
+                if (!string.IsNullOrEmpty(xmlStr))
+                {
+                    XElement parametersXml = XElement.Parse(xmlStr);
+                    this.InitDataManager.SettingsManager.InitializeSettingParameter(parametersXml);
+                }
             }
         }
 
@@ -189,13 +209,22 @@ namespace ManagerConsole
         {
             UserControl userControl = MainWindowHelper.GetControl((ModuleType)moduleType);
             ContentPane contentPane = this.DockManager.AddDocument(this._Modules[moduleType].ModuleDescription, userControl);
-            if ((ModuleType)moduleType == ModuleType.IExchangeQuotation)
+            if ((ModuleType)moduleType == ModuleType.IExchangeQuotation
+                || (ModuleType)moduleType == ModuleType.DQOrderProcess)
             {
                 contentPane.CloseAction = PaneCloseAction.RemovePane;
                 string moduleName = MainWindowHelper.GetPaneName(moduleType);
-                moduleName = moduleName + "_" + this._WindowsCount.ToString();//Guid.NewGuid().ToString("N");
+                moduleName = moduleName + "_" + this._ExhcangeQutaWindowsCount.ToString();//Guid.NewGuid().ToString("N");
                 contentPane.Name = moduleName;
-                this._WindowsCount++;
+                this._ExhcangeQutaWindowsCount++;
+            }
+            else if ((ModuleType)moduleType == ModuleType.QuotationMonitor)
+            {
+                contentPane.CloseAction = PaneCloseAction.RemovePane;
+                string moduleName = MainWindowHelper.GetPaneName(moduleType);
+                moduleName = moduleName + "_" + this._QuotationMoWindowsCount.ToString();//Guid.NewGuid().ToString("N");
+                contentPane.Name = moduleName;
+                this._QuotationMoWindowsCount++;
             }
             else
             {
@@ -206,6 +235,10 @@ namespace ManagerConsole
             if ((ModuleType)moduleType == ModuleType.SourceQuotation)
             {
                 this._SourceQuotationControl = (SourceQuotationControl)userControl;
+            }
+            else if ((ModuleType)moduleType == ModuleType.SourceRelation)
+            {
+                this._SourceRelationControl = (SourceRelationControl)userControl;
             }
             return contentPane;
         }
@@ -316,7 +349,6 @@ namespace ManagerConsole
             {
                 Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "EndLoadLayout.\r\n{0}", ex.ToString());
             }
-
         }
 
         private void SaveLayout_Click(object sender, EventArgs e)
@@ -381,7 +413,96 @@ namespace ManagerConsole
 
         private void XamMenuItem_Click_2(object sender, EventArgs e)
         {
-            this.FloatPane.Visibility = System.Windows.Visibility.Visible;
+            //this.FloatPane.Visibility = System.Windows.Visibility.Visible;
+            foreach(ResourceDictionary dict in Application.Current.Resources.MergedDictionaries)
+            {
+                string source = dict.Source.OriginalString;
+                this.Title = source;
+            }
+        }
+
+        private void InitializeChangeColorMenu()
+        {
+            Binding binding = new Binding("ColorTemplate.XamMenuSeparatorStyle");
+            binding.Source = Application.Current.Resources["ColorSettings"];
+
+            XamMenuSeparator xamMenuSeparator = new XamMenuSeparator();
+            xamMenuSeparator.SetBinding(StyleProperty, binding);
+            this.WindowItem.Items.Add(xamMenuSeparator);
+
+            this._WhiteBackgroundMenuItem = new XamMenuItem();
+            this._BlackBackgroundMenuItem = new XamMenuItem();
+            this._WhiteBackgroundMenuItem.IsCheckable = this._WhiteBackgroundMenuItem.IsCheckable = false;
+            this._BlackBackgroundMenuItem.IsCheckable = this._BlackBackgroundMenuItem.IsCheckable = true;
+
+            binding = new Binding("白底");
+            this._WhiteBackgroundMenuItem.Header = "白底";
+            this.WindowItem.Items.Add(this._WhiteBackgroundMenuItem);
+
+            binding = new Binding("黑底");
+            this._BlackBackgroundMenuItem.Header = "黑底";
+            this.WindowItem.Items.Add(this._BlackBackgroundMenuItem);
+            
+
+            binding = new Binding("ColorTemplate.Background");
+            binding.Source = Application.Current.Resources["ColorSettings"];
+            this._WhiteBackgroundMenuItem.SetBinding(XamMenuItem.BackgroundProperty, binding);
+            this._BlackBackgroundMenuItem.SetBinding(XamMenuItem.BackgroundProperty, binding);
+
+            binding = new Binding("ColorTemplate.MainControlHeaderForeground");
+            binding.Source = Application.Current.Resources["ColorSettings"];
+            this._WhiteBackgroundMenuItem.SetBinding(XamMenuItem.ForegroundProperty, binding);
+            this._BlackBackgroundMenuItem.SetBinding(XamMenuItem.ForegroundProperty, binding);
+
+            this._WhiteBackgroundMenuItem.IsChecked = ColorSettings.CurrentColorSettings.CurrentBackground == BlackOrWhite.White;
+            this._BlackBackgroundMenuItem.IsChecked = ColorSettings.CurrentColorSettings.CurrentBackground == BlackOrWhite.Black;
+        }
+
+        private void HandleMenuItemClickedEvent(object sender, ItemClickedEventArgs e)
+        {
+            if (e.Item == this._BlackBackgroundMenuItem)
+            {
+                this.ChangeBackground(BlackOrWhite.Black);
+                this._BlackBackgroundMenuItem.IsChecked = true;
+                this._WhiteBackgroundMenuItem.IsChecked = false;
+            }
+            else if (e.Item == this._WhiteBackgroundMenuItem)
+            {
+                this.ChangeBackground(BlackOrWhite.White);
+                this._WhiteBackgroundMenuItem.IsChecked = true;
+                this._BlackBackgroundMenuItem.IsChecked = false;
+            }
+        }
+
+        private void ChangeBackground(BlackOrWhite blackOrWhite)
+        {
+            try
+            {
+                Application.Current.Resources.MergedDictionaries.Clear();
+                ResourceDictionary blackResource = new ResourceDictionary();
+                ResourceDictionary whiteResource = new ResourceDictionary();
+                string blackUri = "/ManagerConsole;component/Asset/BlackColors.xaml";
+                string whiteUri = "/ManagerConsole;component/Asset/WhiteColors.xaml";
+                blackResource.Source = new Uri(blackUri, UriKind.Relative);
+                whiteResource.Source = new Uri(whiteUri, UriKind.Relative);
+                if (blackOrWhite == BlackOrWhite.White)
+                {
+                    Application.Current.Resources.MergedDictionaries.Remove(blackResource);
+                    Application.Current.Resources.MergedDictionaries.Add(whiteResource);
+                }
+                else
+                {
+                    Application.Current.Resources.MergedDictionaries.Remove(whiteResource);
+                    Application.Current.Resources.MergedDictionaries.Add(blackResource);
+                }
+
+                ColorSettings colorSettings = Application.Current.Resources["ColorSettings"] as ColorSettings;
+                colorSettings.ChangeColor(blackOrWhite);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ChangeBackground.\r\n{0}", ex.ToString());
+            }
         }
     }
 }

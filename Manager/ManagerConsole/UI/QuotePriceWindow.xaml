@@ -11,7 +11,7 @@
              MaximizeButtonVisibility="Visible" 
              CloseButtonVisibility="Visible"
              Width="651.642" StartupPosition="Center">
-    <Grid x:Name="QuoteGrid" Background="WhiteSmoke">
+    <Grid x:Name="QuoteGrid" Background="{Binding Path=ColorTemplate.Background, Source={StaticResource ColorSettings}}">
         <Grid.Resources>
             <localui:InstrumentToBuySellColorConverter  x:Key="InstrumentToBuySellColorConverter" />
         </Grid.Resources>
@@ -168,8 +168,8 @@
                                     <ColumnDefinition Width="110"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock x:Name="LotCaption" Text="Lot:" HorizontalAlignment="Left" FontStyle="Italic" Grid.Column="0" Grid.Row="0" Style="{StaticResource QuoteTextStyle}" Foreground="DarkGray"/>
-                                <TextBlock x:Name="LotTextBlock" Foreground="{Binding BestBuySellForegroundBrush}" Text="{Binding Lot}" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right" Style="{StaticResource QuoteTextStyle}"/>
-                                <TextBox x:Name="AnswerLotTextBox" BorderBrush="Green" Text="{Binding AnswerLot,Mode=TwoWay}" Grid.Row="0" Grid.Column="2" TextAlignment="Right" Width="85" Height="23" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5 0 8 0" FontSize="14" Style="{StaticResource TextBoxStyle}"/>
+                                <TextBlock x:Name="LotTextBlock" Foreground="{Binding BestBuySellForegroundBrush}" Text="{Binding Lot}" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right" Style="{StaticResource QuoteTextStyle}" />
+                                <TextBox x:Name="AnswerLotTextBox" BorderBrush="Green" Text="{Binding AnswerLot,Mode=TwoWay}" Grid.Row="0" Grid.Column="2" TextAlignment="Right" Width="85" Height="23" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5 0 8 0" FontSize="14" Style="{StaticResource TextBoxStyle}" LostFocus="LotText_LostFocus"/>
                                 <TextBlock x:Name="AnswerPriceTextBlock" Foreground="{Binding BestBuySellForegroundBrush}" Text="{Binding AnswerPrice}" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="14"/>
                             </Grid>
                         </Grid>
@@ -179,21 +179,19 @@
         </Button>
 
         <StackPanel Orientation="Horizontal" Grid.ColumnSpan="6" Grid.Row="2">
-            <Button BorderBrush="Black" Width="106" Height="23" FontSize="14" Grid.Column="0" Grid.Row="2" Margin="4,1,0,0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_UpPriceButton" Content="+" Background="#FF00B0F0" Click="AdjustHandle"/>
-            <Button BorderBrush="Black" Width="106" Height="23" FontSize="14" Grid.Column="1" Grid.Row="2" Margin="1,1,0,0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_DownPriceButton" Content="-" Background="#FFE46D0A" Click="AdjustHandle"/>
-            <Button BorderBrush="Black" Width="106" Height="23" FontSize="14" Grid.Column="2" Grid.Row="2" Margin="6,1,0,0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_UpLotButton" Content="+" Background="#FF00B0F0" Click="AdjustHandle"/>
-            <Button BorderBrush="Black" Width="106" Height="23" FontSize="14" Grid.Column="3" Grid.Row="2" Margin="2,1,0,0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_DownLotButton" Content="-" Background="#FFE46D0A" Click="AdjustHandle"/>
+            <Button BorderBrush="Black" BorderThickness="1" Width="106" Height="23" FontSize="14" Grid.Column="0" Grid.Row="2" Margin="4,1,0,0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_UpPriceButton" Content="+" Background="#FF00B0F0" Click="AdjustHandle"/>
+            <Button BorderBrush="Black" BorderThickness="1" Width="106" Height="23" FontSize="14" Grid.Column="1" Grid.Row="2" Margin="1,1,0,0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_DownPriceButton" Content="-" Background="#FFE46D0A" Click="AdjustHandle"/>
+            <Button BorderBrush="Black" BorderThickness="1" Width="106" Height="23" FontSize="14" Grid.Column="2" Grid.Row="2" Margin="6,1,0,0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_UpLotButton" Content="+" Background="#FF00B0F0" Click="AdjustHandle"/>
+            <Button BorderBrush="Black" BorderThickness="1" Width="106" Height="23" FontSize="14" Grid.Column="3" Grid.Row="2" Margin="2,1,0,0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_DownLotButton" Content="-" Background="#FFE46D0A" Click="AdjustHandle"/>
         </StackPanel>
         
         <Border Margin="0 3 0 0" Grid.Row="3" Grid.ColumnSpan="6">
-            <igGrid:XamGrid ColumnWidth="Auto" Width="800" FontFamily="hei" FontWeight="Bold" FontSize="13" x:Name="_QuotePriceGrid" RowHeight="25" AutoGenerateColumns="False"  Foreground="#FF18341B"
-                            InitializeRow="QuotePriceGrid_InitializeRow">
-                <ig:XamGrid.CellStyle>
-                    <Style TargetType="ig:CellControl">
-                        <Setter Property="Padding" Value="0,0,5,0"/>
-                        <Setter Property="BorderThickness" Value="0,0,1,1"/>
-                    </Style>
-                </ig:XamGrid.CellStyle>
+            <igGrid:XamGrid ColumnWidth="Auto" Width="800" FontFamily="hei" FontWeight="Bold" FontSize="13" x:Name="_QuotePriceGrid" RowHeight="25" AutoGenerateColumns="False" 
+                        InitializeRow="QuotePriceGrid_InitializeRow"
+                        Background ="{Binding Path=ColorTemplate.Background, Source={StaticResource ColorSettings}}" 
+                        Foreground ="{Binding Path=ColorTemplate.Foreground, Source={StaticResource ColorSettings}}"
+                        CellStyle="{Binding Path=ColorTemplate.XamGridCellStyle, Source={StaticResource ColorSettings}}"
+                        HeaderStyle="{Binding Path=ColorTemplate.XamGridHeaderStyle, Source={StaticResource ColorSettings}}">
                 <igGrid:XamGrid.EditingSettings>
                     <igGrid:EditingSettings AllowEditing="Cell" IsEnterKeyEditingEnabled="True" IsF2EditingEnabled="True" IsMouseActionEditingEnabled="SingleClick" />
                 </igGrid:XamGrid.EditingSettings>

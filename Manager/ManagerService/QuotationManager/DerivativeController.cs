@@ -60,7 +60,7 @@ namespace ManagerService.Quotation
                 }
             }
 
-            GeneralQuotation GeneralQuotation = new GeneralQuotation { InstrumentId = relation.Id, SourceId = quotation.SourceId };
+            GeneralQuotation GeneralQuotation = new GeneralQuotation { InstrumentId = relation.Id, SourceId = quotation.SourceId, Timestamp = quotation.Timestamp };
             double price;
             if (this.TryGetPrice(relation.AskOperand1Type, relation.AskOperator1Type,
                 relation.AskOperand2Type, relation.AskOperator2Type,
@@ -95,7 +95,7 @@ namespace ManagerService.Quotation
             }
             else
             {
-                return null;
+                GeneralQuotation.Last = null;
             }
 
             return GeneralQuotation;
@@ -131,7 +131,7 @@ namespace ManagerService.Quotation
                     return false;
             }
 
-            if (operator1Type.HasValue)
+            if (quotation2 != null && operator1Type.HasValue)
             {
                 // operand2
                 double operand2;

@@ -56,7 +56,7 @@
 
         <TextBlock x:Name="HintTextBlock" Grid.Row="5" Grid.ColumnSpan="4" VerticalAlignment="Top" Margin="0,8" TextWrapping="Wrap" />
 
-        <Button Grid.Row="5" Grid.ColumnSpan="5" Height="23" Width="75" HorizontalAlignment="Right"  Margin="0,36,120,0" x:Name="OK" Content="OK" Click="OK_Click" />
-        <Button Grid.Row="5" Grid.ColumnSpan="5" Height="23" Width="75" HorizontalAlignment="Right" Margin="0,36,0,0"  x:Name="Cancel" Content="Cancel" Click="Cancel_Click"/>
+        <Button Grid.Row="5" Grid.ColumnSpan="5" Height="23" Width="75" HorizontalAlignment="Right"  Margin="0,36,120,0" x:Name="OKButton" Content="OK" Click="OK_Click" />
+        <Button Grid.Row="5" Grid.ColumnSpan="5" Height="23" Width="75" HorizontalAlignment="Right" Margin="0,36,0,0"  x:Name="CancelButton" Content="Cancel" Click="Cancel_Click"/>
     </Grid>
 </ig:XamDialogWindow>

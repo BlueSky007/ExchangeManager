@@ -51,7 +51,7 @@ namespace ManagerConsole.UI
             this.Dispatcher.BeginInvoke((Action<List<QuotePolicyRelation>>)delegate(List<QuotePolicyRelation> result){
                 foreach (QuotePolicyRelation rela in result)
                 {
-                    this._ItemSource.Add(new AdjustRelationViewModel(rela.RelationId,rela.RelationCode));
+                    this._ItemSource.Add(new AdjustRelationViewModel(rela.RelationId,rela.RelationCode,rela.instrumentIds));
                 }
                 this.AdjustSettingGrid.ItemsSource = this._ItemSource;
             },relations);
@@ -151,6 +151,22 @@ namespace ManagerConsole.UI
         private void TextBox_GotFocus(object sender, RoutedEventArgs e)
         {
             ((TextBox)sender).SelectAll();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            Button btn = sender as Button;
+            List<int> instrumentIds = this._ItemSource.SingleOrDefault(i => i.Id == (Guid)btn.Tag).InstrumentIds;
+            NewRelationWindow newRelaWin = new NewRelationWindow(instrumentIds, this.EditSuccess);
+            App.MainWindow.MainFrame.Children.Add(newRelaWin);
+            newRelaWin.IsModal = true;
+            newRelaWin.Show();
+            newRelaWin.BringToFront();
+        }
+
+        private void EditSuccess(AdjustRelationViewModel result)
+        {
+            this._ItemSource.SingleOrDefault(i => i.Id == result.Id).InstrumentIds = result.InstrumentIds;
         }
     }
 }

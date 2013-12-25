@@ -15,6 +15,8 @@ using Infragistics.Controls.Grids;
 using Manager.Common.QuotationEntities;
 using ManagerConsole.ViewModel;
 using ManagerConsole.Model;
+using Manager.Common;
+using Infragistics.Controls.Interactions;
 
 namespace ManagerConsole.UI
 {
@@ -84,45 +86,6 @@ namespace ManagerConsole.UI
         {
             InitializeComponent();
             this.MonitorGrid.ItemsSource = VmQuotationManager.Instance.Instruments;
-            this.MonitorGrid.SelectionSettings.CellClickAction = Infragistics.Controls.Grids.CellSelectionAction.SelectRow;
-        }
-
-        private void SendButton_Click(object sender, RoutedEventArgs e)
-        {
-            Button sendButton = (Button)sender;
-            TextBox priceTextBox = (TextBox)LogicalTreeHelper.FindLogicalNode(LogicalTreeHelper.GetParent(sendButton), "AdjustPrice");
-
-            string adjustPriceText = priceTextBox.Text.Trim();
-            double value;
-            if (double.TryParse(adjustPriceText, out value))
-            {
-                VmInstrument instrument = (VmInstrument)priceTextBox.Tag;
-                VmInstrumentSourceRelation relation = instrument.SourceRelations.SingleOrDefault(r => r.IsActive);
-                if (relation != null)
-                {
-                    try
-                    {
-                        decimal sendAsk, sendBid;
-                        if (string.IsNullOrEmpty(instrument.Ask) || string.IsNullOrEmpty(instrument.Bid))
-                        {
-                            ConsoleClient.Instance.SendQuotation(relation.Id, value, value);
-                        }
-                        else
-                        {
-                            PriceHelper.GetSendPrice(adjustPriceText, instrument.DecimalPlace, instrument.Ask, instrument.Bid, out sendAsk, out sendBid);
-                            ConsoleClient.Instance.SendQuotation(relation.Id, (double)sendAsk, (double)sendBid);
-                        }
-                    }
-                    catch
-                    {
-                        priceTextBox.BorderBrush = Brushes.Red;
-                    }
-                }
-            }
-            else
-            {
-                priceTextBox.BorderBrush = Brushes.Red;
-            }
         }
 
         private void AdjustPrice_TextChanged(object sender, TextChangedEventArgs e)
@@ -141,22 +104,49 @@ namespace ManagerConsole.UI
             }
         }
 
-        private void MonitorGrid_CellDoubleClicked(object sender, Infragistics.Controls.Grids.CellClickedEventArgs e)
-        {
-            if (e.Cell.Column.Key == FieldSR.Code)
-            {
-                VmInstrument vmInstrument = (VmInstrument)e.Cell.Row.Data;
-                App.MainWindow.SourceQuotationControl.BindToInstrument(vmInstrument);
-            }
-        }
-
         private void AdjustPrice_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
-                TextBox bidTextBox = (TextBox)sender;
-                Button sendButton = (Button)LogicalTreeHelper.FindLogicalNode(LogicalTreeHelper.GetParent(bidTextBox), "SendButton");
-                this.SendButton_Click(sendButton, null);
+                TextBox priceTextBox = (TextBox)sender;
+                string adjustPriceText = priceTextBox.Text.Trim();
+                double value;
+                if (double.TryParse(adjustPriceText, out value))
+                {
+                    VmInstrument instrument = (VmInstrument)priceTextBox.Tag;
+                    VmInstrumentSourceRelation relation = instrument.SourceRelations.SingleOrDefault(r => r.IsActive);
+                    if (relation != null)
+                    {
+                        try
+                        {
+                            decimal sendAsk, sendBid;
+                            if (string.IsNullOrEmpty(instrument.Ask) || string.IsNullOrEmpty(instrument.Bid))
+                            {
+                                ConsoleClient.Instance.SendQuotation(relation.Id, value, value);
+                            }
+                            else
+                            {
+                                PriceHelper.GetSendPrice(adjustPriceText, instrument.DecimalPlace, instrument.Ask, instrument.Bid, out sendAsk, out sendBid);
+                                sendAsk -= (decimal)(Manager.Common.Helper.GetAdjustValue(instrument.AdjustPoints + relation.AdjustPoints, instrument.DecimalPlace));
+                                sendBid -= (decimal)(Manager.Common.Helper.GetAdjustValue(instrument.AdjustPoints + relation.AdjustPoints, instrument.DecimalPlace));
+                                ConsoleClient.Instance.SendQuotation(relation.Id, (double)sendAsk, (double)sendBid);
+                            }
+                        }
+                        catch
+                        {
+                            priceTextBox.BorderBrush = Brushes.Red;
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("No active source.");
+                    }
+                }
+                else
+                {
+                    priceTextBox.BorderBrush = Brushes.Red;
+                }
+
             }
         }
 
@@ -164,12 +154,12 @@ namespace ManagerConsole.UI
         {
             if (e.NewSelectedItems.Count > 0)
             {
-                VmInstrument instrument = e.NewSelectedItems[0].Data as VmInstrument;
-                if (instrument != null)
+                VmInstrument vmInstrument = e.NewSelectedItems[0].Data as VmInstrument;
+                if (vmInstrument != null)
                 {
-                    this.InstrumentCodeTextBlock.Text = instrument.Code;
-                    this.RangeCheckRuleControl.DataContext = instrument.VmPriceRangeCheckRule;
-                    this.WeightedRuleControl.DataContext = instrument.VmWeightedPriceRule;
+                    this.DataContext = vmInstrument;
+                    if (App.MainWindow.SourceQuotationControl != null) App.MainWindow.SourceQuotationControl.BindToInstrument(vmInstrument);
+                    if (App.MainWindow.SourceRelationControl != null) App.MainWindow.SourceRelationControl.BindToInstrument(vmInstrument);
                 }
             }
         }
@@ -188,10 +178,48 @@ namespace ManagerConsole.UI
             if (selectedRow != null)
             {
                 VmInstrument vmInstrument = (VmInstrument)selectedRow.Data;
-                InstrumentWindow window = new InstrumentWindow(EditMode.Modify, vmInstrument);
+                XamDialogWindow window;
+                if(vmInstrument.IsDerivative)
+                {
+                    window = new DerivedInstrumentWindow(EditMode.Modify, vmInstrument);
+                }
+                else
+                {
+                    window = new InstrumentWindow(EditMode.Modify, vmInstrument);
+                }
                 App.MainWindow.MainFrame.Children.Add(window);
                 window.IsModal = true;
                 window.Show();
+            }
+        }
+
+        private void DeleteInstrument_Click(object sender, RoutedEventArgs e)
+        {
+            Row selectedRow = this.MonitorGrid.Rows.SingleOrDefault(r => r.IsSelected);
+            if (selectedRow != null)
+            {
+                VmInstrument vmInstrument = (VmInstrument)selectedRow.Data;
+                if (MessageBox.Show(App.MainWindow, string.Format("Confirm delete Instrument:{0}?", vmInstrument.Code), "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel) == MessageBoxResult.OK)
+                {
+                    ConsoleClient.Instance.DeleteMetadataObject(MetadataType.Instrument, vmInstrument.Id, delegate(bool success)
+                    {
+                        this.Dispatcher.BeginInvoke((Action<bool>)delegate(bool deleted)
+                        {
+                            if (deleted)
+                            {
+                                VmQuotationManager.Instance.Delete(new DeleteMetadataObjectMessage() { MetadataType = MetadataType.Instrument, ObjectId = vmInstrument.Id });
+
+                                if (this.MonitorGrid.Rows.Count > 0)
+                                {
+                                    //int newIndex = (selectedRow.Index == 0) ? 0 : selectedRow.Index - 1;
+                                }
+                                if (App.MainWindow.SourceQuotationControl != null) App.MainWindow.SourceQuotationControl.BindToInstrument(null);
+                                if (App.MainWindow.SourceRelationControl != null) App.MainWindow.SourceRelationControl.BindToInstrument(null);
+                                this.DataContext = null;
+                            }
+                        }, success);
+                    });
+                }
             }
         }
 
@@ -217,6 +245,14 @@ namespace ManagerConsole.UI
                 BindingExpression be = textBox.GetBindingExpression(TextBox.TextProperty);
                 be.UpdateSource();
             }
+        }
+
+        private void AddDeriveInstrument_Click(object sender, RoutedEventArgs e)
+        {
+            DerivedInstrumentWindow window = new DerivedInstrumentWindow(EditMode.AddNew);
+            App.MainWindow.MainFrame.Children.Add(window);
+            window.IsModal = true;
+            window.Show();
         }
     }
 }

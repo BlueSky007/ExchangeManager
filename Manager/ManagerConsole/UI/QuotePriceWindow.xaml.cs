@@ -46,11 +46,11 @@ namespace ManagerConsole.UI
         private void InitializeUI()
         {
             this._App = ((ManagerConsole.MainWindow)Application.Current.MainWindow);
-            this._CommonDialogWin = this._App.CommonDialogWin;
-            this._ConfirmDialogWin = this._App.ConfirmDialogWin;
+            this._CommonDialogWin = this._App._CommonDialogWin;
+            this._ConfirmDialogWin = this._App._ConfirmDialogWin;
             this._QuotePriceClientModel = this._App.InitDataManager.QuotePriceClientModel;
             this._CurrentInstrumentStyle = Application.Current.Resources["QuoteInstrumentStyle"] as Style;
-            this._NormalStyle = Application.Current.Resources["QuoteInstrumentNormalStyle"] as Style;
+            this._NormalStyle = Application.Current.Resources["XamGridCellStyle"] as Style;
         }
 
         private void TimerHandle()
@@ -105,6 +105,25 @@ namespace ManagerConsole.UI
 
 
         #region Event
+        private void LotText_LostFocus(object sender, RoutedEventArgs e)
+        {
+            e.Handled = true;
+
+            TextBox text = (TextBox)sender;
+
+            string newLot = text.Text;
+            if (!Toolkit.IsValidNumber(newLot)) return;
+            decimal answerLot = decimal.Parse(newLot);
+            decimal maxEnquireLot = this._QuotePriceClientModel.QuotePriceClients.Max(P => P.Lot);
+            if (answerLot >= maxEnquireLot)
+            {
+                text.Text = maxEnquireLot.ToString();
+                answerLot = maxEnquireLot;
+                return;
+            }
+            this._QuotePriceClientModel.UpdateLot(answerLot);
+        }
+
         private void AdjustHandle(object sender, RoutedEventArgs e)
         {
             e.Handled = true;
@@ -122,6 +141,7 @@ namespace ManagerConsole.UI
                     this._QuotePriceClientModel.AdjustLot(true);
                     break;
                 case "_DownLotButton":
+                    if (this._QuotePriceClientModel.QuotePriceForInstrument == null) return;
                     if (this._QuotePriceClientModel.QuotePriceForInstrument.AnswerLot < 1) return;
                     this._QuotePriceClientModel.AdjustLot(false);
                     break;
@@ -141,6 +161,7 @@ namespace ManagerConsole.UI
 
             this._QuotePriceClientModel.AdjustPrice(isAdd); 
         }
+
 
         #endregion
 

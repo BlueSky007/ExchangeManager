@@ -8,13 +8,14 @@
              xmlns:igRep="http://infragistics.com/Reporting"
              xmlns:igWindows="http://infragistics.com/Windows"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="800">
+             d:DesignHeight="300" d:DesignWidth="800" BorderThickness="0">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="65"/>
             <RowDefinition Height="500*"/>
         </Grid.RowDefinitions>
-        <Border CornerRadius="5" Background="LightBlue" Grid.Row="0">
+        <Border CornerRadius="5" Background="{Binding Path=ColorTemplate.MainControlHeaderBackground, Source={StaticResource ColorSettings}}" BorderBrush="DarkGreen" Grid.Row="0">
+
             <StackPanel Orientation="Vertical">
                 <StackPanel Orientation="Horizontal"  >
                     <TextBlock  Width="90" Text="Query Type:" Margin="8,5,1,0" Height="25"/>
@@ -25,7 +26,7 @@
                     <TextBlock Text="Instrument:" Margin="8,10,0,0" Height="25" Width="90" TextAlignment="Right"/>
                     <ComboBox Style="{StaticResource ComboBoxStyle}" x:Name="_InstrumentCombo" Margin="5,1,1,1" Height="23"  Width="110" />
                     <TextBlock x:Name="_FromTextBlock" Text="Trad Time From:" Margin="8,10,0,0" Height="25"/>
-                    <igGrid:XamDateTimeInput Style="{StaticResource XamDateTimeInput}" AutoFillDate="MonthAndYear" DropDownButtonDisplayMode="Always" SpinButtonDisplayMode="Focused" SpinIncrement="1m" Width="150" Height="23" x:Name="_FromDatePicker"   AllowDropDown="True" Mask="yyyy-mm-dd hh:mm:ss"/>
+                    <igGrid:XamDateTimeInput AutoFillDate="MonthAndYear" DropDownButtonDisplayMode="Always" SpinButtonDisplayMode="Focused" SpinIncrement="1m" Width="150" Height="23" x:Name="_FromDatePicker"   AllowDropDown="True" Mask="yyyy-mm-dd hh:mm:ss"/>
 
                     <Button x:Name="_QueryButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"  Click="ToolBar_Click" Width="25" Height="25" Margin="2" >
                         <Button.Content>
@@ -49,12 +50,15 @@
             </StackPanel>
         </Border>
 
-        <igWindows:XamTabControl x:Name="_OrderSerchTab" Grid.Row="1"  Theme="Office2010Blue"
+        <igWindows:XamTabControl x:Name="_OrderSerchTab" Grid.Row="1" Theme="Generic" Background="Black"
                                  TabStripPlacement="Top"
-                                 TabLayoutStyle="MultiRowAutoSize"
-                                 AllowTabClosing="False">
-            <igWindows:TabItemEx x:Name="_OrderSercherItem" CloseButtonVisibility="WhenSelectedOrHotTracked" Header="单子查询"  Height="25">
-                <igGrid:XamGrid x:Name="_OrderSerchGrid" Grid.Row="1" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto"  Foreground="{Binding IsBuyBrush}">
+                                 TabLayoutStyle="MultiRowAutoSize">
+            <igWindows:TabItemEx x:Name="_OrderSercherItem" Header="单子查询"  Height="25" BorderThickness="0">
+                <igGrid:XamGrid x:Name="_OrderSerchGrid" Grid.Row="1" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto" 
+                            Background ="{Binding Path=ColorTemplate.Background, Source={StaticResource ColorSettings}}" 
+                            Foreground ="{Binding Path=ColorTemplate.Foreground, Source={StaticResource ColorSettings}}"
+                            CellStyle="{Binding Path=ColorTemplate.XamGridCellStyle, Source={StaticResource ColorSettings}}"
+                            HeaderStyle="{Binding Path=ColorTemplate.XamGridHeaderStyle, Source={StaticResource ColorSettings}}">
                     <igGrid:XamGrid.FixedColumnSettings>
                         <igGrid:FixedColumnSettings AllowFixedColumns="DropArea"/>
                     </igGrid:XamGrid.FixedColumnSettings>
@@ -84,7 +88,7 @@
                     </igGrid:XamGrid.Columns>
                 </igGrid:XamGrid>
             </igWindows:TabItemEx>
-            <igWindows:TabItemEx Header="打印预览" x:Name="tbiPreview" CloseButtonVisibility="WhenSelectedOrHotTracked" Height="23">
+            <igWindows:TabItemEx Header="打印预览" x:Name="tbiPreview"  Height="23">
                 <igRep:XamReportPreview x:Name="_OrderReportPreview"></igRep:XamReportPreview>
             </igWindows:TabItemEx>
         </igWindows:XamTabControl>

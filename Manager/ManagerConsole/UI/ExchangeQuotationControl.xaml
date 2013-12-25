@@ -9,12 +9,16 @@
              d:DesignHeight="800" d:DesignWidth="800">
     <Grid>
         <Grid.Resources>
+            <Style x:Key="TrendHighLight" TargetType="Border">
+                <Setter Property="Width" Value="{Binding ActualWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=Grid}}"/>
+                <Setter Property="Height" Value="{Binding ActualHeight, Mode=OneTime, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=Grid}}"/>
+            </Style>
             <Style x:Key="CellStylePadding" TargetType="ig:CellControl">
                 <Setter Property="Padding" Value="2,0,0,0"/>
                 <Setter Property="BorderThickness" Value="0,0,1,1"/>
             </Style>
         </Grid.Resources>
-            <!--<Grid.RowDefinitions>
+        <!--<Grid.RowDefinitions>
                 <RowDefinition Height="30"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>-->
@@ -37,53 +41,71 @@
                     </igWPF:ContentPane>
                 </igWPF:SplitPane>
             </igWPF:XamDockManager.Panes>-->
-            <!--<igWPF:DocumentContentHost>
+        <!--<igWPF:DocumentContentHost>
                 <igWPF:SplitPane igWPF:XamDockManager.InitialLocation="DockedLeft">
                     <igWPF:TabGroupPane>
                         <igWPF:ContentPane Header="ExhcangeQuotation" AllowClose="False" >-->
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="5"/>
-                                    <ColumnDefinition Width="200"/>
-                                </Grid.ColumnDefinitions>
-                                <GridSplitter Grid.Column ="1" Background="DarkGray" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                                <ig:XamGrid x:Name="QuotationGrid" Grid.Column="0" CellStyle="{StaticResource CellStylePadding}" ColumnWidth="*" ScrollViewer.CanContentScroll="False" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.PanningMode="None" AutoGenerateColumns="False"  Margin="0,0,0,0"  Height="Auto" BorderThickness="0" CellClicked="QuotationGrid_CellClicked" VerticalAlignment="Stretch" RowHeight="20">
-                                <ig:XamGrid.SelectionSettings>
-                                    <ig:SelectionSettings CellClickAction="SelectCell" CellSelection="Single" ColumnSelection="Single" RowSelection="Single" />
-                                    </ig:XamGrid.SelectionSettings>
-                                    <ig:XamGrid.FilteringSettings>
-                                        <ig:FilteringSettings AllowFiltering="FilterMenu" />
-                                    </ig:XamGrid.FilteringSettings>
-                                    <ig:XamGrid.Columns>
-                                        <ig:TextColumn Key="InstruemtnId" Visibility="Hidden" AllowCaseSensitiveSort="False" ></ig:TextColumn>
-                                        <ig:TextColumn Key="QuotationPolicyId" Visibility="Hidden"/>
-                                        <ig:TextColumn Key="ExchangeCode" HeaderText="ExchangeSystem" IsFixed="Left" IsFilterable="True" Width="50"></ig:TextColumn>
-                                        <ig:TextColumn Key="QuotationPolicyCode" HeaderText="QuotationPolicy" IsFixed="Left" IsFilterable="True" Width="50"></ig:TextColumn>
-                                        <ig:TextColumn Key="InstrumentOriginCode" HeaderText="OriginCode" IsFixed="Left" IsFilterable="True" Width="50"/>
-                                        <ig:TextColumn Key="InstrumentCode" HeaderText="Instrument" IsFixed="Left" IsFilterable="True" Width="100"></ig:TextColumn>
-                                        <ig:TextColumn Key="Bid" HeaderText="Bid" Width="50" IsFilterable="False"></ig:TextColumn>
-                                        <ig:TextColumn Key="Ask" HeaderText="Ask" Width="50" IsFilterable="False"></ig:TextColumn>
-                                        <ig:TextColumn Key="High" HeaderText="High" Width="50" IsFilterable="False"></ig:TextColumn>
-                                        <ig:TextColumn Key="Low" HeaderText="Low" Width="50" IsFilterable="False"></ig:TextColumn>
-                                        <ig:TextColumn Key="TimeSpan" HeaderText="Timespan" Width="100" IsFilterable="False"></ig:TextColumn>
-                                        <ig:TextColumn Key="AutoAdjustPoints" HeaderText="AutoAdjustPoints" Width="100" IsFilterable="False"></ig:TextColumn>
-                                        <ig:TextColumn Key="SpreadPoints" HeaderText="SpreadPoints" Width="100" IsFilterable="False"></ig:TextColumn>
-                                        <ig:TextColumn Key="AutoAdjustPoints2" HeaderText="AutoAdjustPoints2" Width="100" IsFilterable="False"></ig:TextColumn>
-                                        <ig:TextColumn Key="AutoAdjustPoints3" HeaderText="AutoAdjustPoints3" Width="100" IsFilterable="False"></ig:TextColumn>
-                                        <ig:TextColumn Key="AutoAdjustPoints4" HeaderText="AutoAdjustPoints4" Width="100" IsFilterable="False"></ig:TextColumn>
-                                        <ig:TextColumn Key="SpreadPoints2" HeaderText="SpreadPoints2" Width="100" IsFilterable="False"></ig:TextColumn>
-                                        <ig:TextColumn Key="SpreadPoints3" HeaderText="SpreadPoints3" Width="100" IsFilterable="False"></ig:TextColumn>
-                                        <ig:TextColumn Key="SpreadPoints4" HeaderText="SpreadPoints4" Width="100" IsFilterable="False"></ig:TextColumn>
-                                        <ig:TextColumn Key="IsOriginHiLo" HeaderText="IsOriginHiLo" Width="100" IsFilterable="False"></ig:TextColumn>
-                                        <ig:TextColumn Key="MaxAuotAdjustPoints" HeaderText="MaxAuotAdjustPoints" Width="100" IsFilterable="False"></ig:TextColumn>
-                                        <ig:TextColumn Key="MaxSpreadPoints" HeaderText="MaxSpreadPoints" Width="100" IsFilterable="False"></ig:TextColumn>
-                                    </ig:XamGrid.Columns>
-                                </ig:XamGrid>
-                                <tk:PropertyGrid Name="QuotationProperty" Grid.Column="2" SelectedObject="{Binding}" Margin="0,0,0,0" SelectedPropertyItemChanged="QuotationProperty_SelectedPropertyItemChanged" PropertyValueChanged="QuotationProperty_PropertyValueChanged" >
-                                </tk:PropertyGrid>
-                            </Grid>
-                        <!--</igWPF:ContentPane>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="200"/>
+            </Grid.ColumnDefinitions>
+            <GridSplitter Grid.Column ="1" Background="DarkGray" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <ig:XamGrid x:Name="QuotationGrid" Grid.Column="0" CellStyle="{StaticResource CellStylePadding}" ColumnWidth="*" ScrollViewer.CanContentScroll="False" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.PanningMode="None" AutoGenerateColumns="False"  Margin="0,0,0,0"  Height="Auto" BorderThickness="0" CellClicked="QuotationGrid_CellClicked" VerticalAlignment="Stretch" RowHeight="20">
+                <ig:XamGrid.SelectionSettings>
+                    <ig:SelectionSettings CellClickAction="SelectCell" CellSelection="Single" ColumnSelection="Single" RowSelection="Single" />
+                </ig:XamGrid.SelectionSettings>
+                <ig:XamGrid.FilteringSettings>
+                    <ig:FilteringSettings AllowFiltering="FilterMenu" />
+                </ig:XamGrid.FilteringSettings>
+                <ig:XamGrid.Columns>
+                    <ig:TextColumn Key="InstruemtnId" Visibility="Hidden" AllowCaseSensitiveSort="False" ></ig:TextColumn>
+                    <ig:TextColumn Key="QuotationPolicyId" Visibility="Hidden"/>
+                    <ig:TextColumn Key="ExchangeCode" HeaderText="ExchangeSystem" IsFixed="Left" IsFilterable="True" Width="50"></ig:TextColumn>
+                    <ig:TextColumn Key="QuotationPolicyCode" HeaderText="QuotationPolicy" IsFixed="Left" IsFilterable="True" Width="50"></ig:TextColumn>
+                    <ig:TextColumn Key="InstrumentOriginCode" HeaderText="OriginCode" IsFixed="Left" IsFilterable="True" Width="50"/>
+                    <ig:TextColumn Key="InstrumentCode" HeaderText="Instrument" IsFixed="Left" IsFilterable="True" Width="100"></ig:TextColumn>
+                    <!--<ig:TextColumn Key="Bid" HeaderText="Bid" Width="50" IsFilterable="False"></ig:TextColumn>-->
+                    <ig:TemplateColumn Key="Bid" HeaderText="Bid" IsReadOnly="True" Width="50" IsFilterable="False" >
+                        <ig:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource TrendHighLight}" Background="{Binding BidTrendBrush}">
+                                    <TextBlock Text="{Binding Bid}" Margin="0,0,2,0" TextAlignment="Right" VerticalAlignment="Center"/>
+                                </Border>
+                            </DataTemplate>
+                        </ig:TemplateColumn.ItemTemplate>
+                    </ig:TemplateColumn>
+                    <ig:TemplateColumn Key="Ask" HeaderText="Ask" IsReadOnly="True"  Width="50" IsFilterable="False" >
+                        <ig:TemplateColumn.ItemTemplate> 
+                            <DataTemplate>
+                                <Border Style="{StaticResource TrendHighLight}" Background="{Binding AskTrendBrush}">
+                                    <TextBlock Text="{Binding Ask}" Margin="0,0,2,0" TextAlignment="Right" VerticalAlignment="Center"/>
+                                </Border>
+                            </DataTemplate>
+                        </ig:TemplateColumn.ItemTemplate>
+                    </ig:TemplateColumn>
+                    <!--<ig:TextColumn Key="Ask" HeaderText="Ask" Width="50" IsFilterable="False"></ig:TextColumn>-->
+                    <ig:TextColumn Key="High" HeaderText="High" Width="50" IsFilterable="False"></ig:TextColumn>
+                    <ig:TextColumn Key="Low" HeaderText="Low" Width="50" IsFilterable="False"></ig:TextColumn>
+                    <ig:TextColumn Key="TimeSpan" HeaderText="Timespan" Width="100" IsFilterable="False"></ig:TextColumn>
+                    <ig:TextColumn Key="AutoAdjustPoints" HeaderText="AutoAdjustPoints" Width="100" IsFilterable="False"></ig:TextColumn>
+                    <ig:TextColumn Key="SpreadPoints" HeaderText="SpreadPoints" Width="100" IsFilterable="False"></ig:TextColumn>
+                    <ig:TextColumn Key="AutoAdjustPoints2" HeaderText="AutoAdjustPoints2" Width="100" IsFilterable="False"></ig:TextColumn>
+                    <ig:TextColumn Key="AutoAdjustPoints3" HeaderText="AutoAdjustPoints3" Width="100" IsFilterable="False"></ig:TextColumn>
+                    <ig:TextColumn Key="AutoAdjustPoints4" HeaderText="AutoAdjustPoints4" Width="100" IsFilterable="False"></ig:TextColumn>
+                    <ig:TextColumn Key="SpreadPoints2" HeaderText="SpreadPoints2" Width="100" IsFilterable="False"></ig:TextColumn>
+                    <ig:TextColumn Key="SpreadPoints3" HeaderText="SpreadPoints3" Width="100" IsFilterable="False"></ig:TextColumn>
+                    <ig:TextColumn Key="SpreadPoints4" HeaderText="SpreadPoints4" Width="100" IsFilterable="False"></ig:TextColumn>
+                    <ig:TextColumn Key="IsOriginHiLo" HeaderText="IsOriginHiLo" Width="100" IsFilterable="False"></ig:TextColumn>
+                    <ig:TextColumn Key="MaxAuotAdjustPoints" HeaderText="MaxAuotAdjustPoints" Width="100" IsFilterable="False"></ig:TextColumn>
+                    <ig:TextColumn Key="MaxSpreadPoints" HeaderText="MaxSpreadPoints" Width="100" IsFilterable="False"></ig:TextColumn>
+                </ig:XamGrid.Columns>
+            </ig:XamGrid>
+            <tk:PropertyGrid Name="QuotationProperty" Grid.Column="2" SelectedObject="{Binding}" Margin="0,0,0,0" SelectedPropertyItemChanged="QuotationProperty_SelectedPropertyItemChanged" PropertyValueChanged="QuotationProperty_PropertyValueChanged" >
+            </tk:PropertyGrid>
+        </Grid>
+        <!--</igWPF:ContentPane>
                     </igWPF:TabGroupPane>
                 </igWPF:SplitPane>
             </igWPF:DocumentContentHost>

@@ -47,8 +47,8 @@ namespace ManagerConsole.UI
         private void InitializeData()
         {
             this._App = ((ManagerConsole.MainWindow)Application.Current.MainWindow);
-            this._CommonDialogWin = this._App.CommonDialogWin;
-            this._ConfirmDialogWin = this._App.ConfirmDialogWin;
+            this._CommonDialogWin = this._App._CommonDialogWin;
+            this._ConfirmDialogWin = this._App._ConfirmDialogWin;
         }
 
         public void RefreshUI()

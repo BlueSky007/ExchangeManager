@@ -53,8 +53,9 @@ namespace ManagerService.Quotation
         public DateTime Timestamp { get { return this._Quotation.Timestamp; } }
 
         public bool IsAbnormal { get; set; }
-        public string OutOfRangeType { get; set; }
+        public OutOfRangeType OutOfRangeType { get; set; }
         public int DiffPoints { get; set; }
+        public double OldPrice { get; set; }
         public int ConfirmId { get; set; }
         public int WaitSeconds { get; set; }
         public DateTime WaitEndTime { get; set; }

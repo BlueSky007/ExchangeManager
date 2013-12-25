@@ -91,6 +91,9 @@ namespace ManagerService.Console
 
         [OperationContract(IsInitiating = false)]
         AccountInformation GetAcountInfo(Guid transactionId);
+
+        [OperationContract(IsInitiating = false)]
+        List<string> LoadSettingsParameters();
         #endregion 
 
         #region LogAudit
@@ -170,6 +173,9 @@ namespace ManagerService.Console
 
         [OperationContract(IsInitiating = false)]
         bool AddNewRelation(Guid id, string code, List<int> instruments);
+
+        [OperationContract(IsInitiating = false)]
+        void ConfirmAbnormalQuotation(int instrumentId, int confirmId, bool accepted);
         #endregion
     }
 

@@ -155,8 +155,6 @@ namespace ManagerConsole.UI
                     bool ischecked2 = this._PriceRangeRadio.IsChecked.Value;
                     break;
             }
-
-            
             this.InitializeData();
         }
 

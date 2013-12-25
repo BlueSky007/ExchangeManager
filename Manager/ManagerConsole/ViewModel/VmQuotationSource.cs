@@ -7,30 +7,6 @@ using ManagerConsole.Helper;
 
 namespace ManagerConsole.ViewModel
 {
-    public class VmBase : PropertyChangedNotifier
-    {
-        private IMetadataObject _MetadataObject;
-
-        public VmBase(IMetadataObject metadataObject)
-        {
-            this._MetadataObject = metadataObject;
-        }
-        public void ApplyModification(Dictionary<string, object> fieldAndValues)
-        {
-            this._MetadataObject.Update(fieldAndValues);
-            foreach (string key in fieldAndValues.Keys)
-            {
-                this.OnPropertyChanged(key);
-            }
-        }
-
-        public void Update(string field, object value)
-        {
-            this._MetadataObject.Update(field, value);
-            this.OnPropertyChanged(field);
-        }
-    }
-
     public class VmQuotationSource : VmBase
     {
         private QuotationSource _QuotationSource;

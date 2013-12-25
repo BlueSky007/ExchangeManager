@@ -119,8 +119,9 @@ namespace ManagerConsole.UI
                         if (id != 0)
                         {
                             this._Relation.Id = id;
-                            VmQuotationManager.Instance.Add(this._Relation);
+                            VmQuotationManager.Instance.Add(this._Relation.Clone());
                             this.BindSourcesComboBox();
+                            this.CancelButton.Content = "Close";
                             this._HintMessage.ShowSucess("Add Instrument Source Relation successfully.");
                         }
                         else
@@ -147,7 +148,8 @@ namespace ManagerConsole.UI
                         {
                             if (updated)
                             {
-                                this._originRelation.ApplyModification(fieldAndValues);
+                                this._originRelation.ApplyChangeToUI(fieldAndValues);
+                                this.CancelButton.Content = "Close";
                                 this._HintMessage.ShowSucess("Update Instrument Source Relation successfully.");
                             }
                             else

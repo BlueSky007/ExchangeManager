@@ -26,11 +26,6 @@
         <Setter Property="FontSize" Value="16" />
         <Setter Property="FontWeight" Value="Black"/>
         <Setter Property="FontStretch" Value="Expanded"/>
-        <!--<Setter Property="Effect">
-            <Setter.Value>
-                <DropShadowEffect Color="DarkGray" ShadowDepth="1"/>
-            </Setter.Value>
-        </Setter>-->
     </Style>
     
     <Style x:Key="QuoteTextStyle" TargetType="TextBlock">
@@ -185,120 +180,6 @@
         <Setter Property="FontSize" Value="15"></Setter>
     </Style>
 
-    <Style TargetType="ToggleButton" x:Key="stlToggleButton">
-        <Setter Property="Foreground" Value="{StaticResource ThemeForegroundBrush}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource ButtonBorderBrush}"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="1"/>
-        <Setter Property="Cursor" Value="Hand"/>
-        <Setter Property="HorizontalAlignment" Value="Right"></Setter>
-        <Setter Property="Width" Value="19"></Setter>
-        <Setter Property="Height" Value="19"></Setter>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="ToggleButton">
-                    <Grid>
-                        <VisualStateManager.VisualStateGroups>
-                            <VisualStateGroup x:Name="CommonStates">
-                                <VisualState x:Name="Normal"/>
-                                <VisualState x:Name="MouseOver">
-                                    <Storyboard>
-                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="BackgroundHover" Storyboard.TargetProperty="Opacity">
-                                            <SplineDoubleKeyFrame KeyTime="0" Value="1"/>
-                                        </DoubleAnimationUsingKeyFrames>
-                                    </Storyboard>
-                                </VisualState>
-                                <VisualState x:Name="Pressed">
-                                    <Storyboard>
-                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="BackgroundPressed" Storyboard.TargetProperty="Opacity">
-                                            <SplineDoubleKeyFrame KeyTime="0" Value="1"/>
-                                        </DoubleAnimationUsingKeyFrames>
-                                    </Storyboard>
-                                </VisualState>
-                                <VisualState x:Name="Disabled">
-                                    <Storyboard>
-                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="BackgroundDisabled">
-                                            <EasingDoubleKeyFrame KeyTime="0" Value="1"/>
-                                        </DoubleAnimationUsingKeyFrames>
-                                    </Storyboard>
-                                </VisualState>
-                            </VisualStateGroup>
-                            <VisualStateGroup x:Name="CheckStates">
-                                <VisualState x:Name="Checked"/>
-                                <VisualState x:Name="Unchecked"/>
-                                <VisualState x:Name="Indeterminate"/>
-                            </VisualStateGroup>
-                            <VisualStateGroup x:Name="FocusStates">
-                                <VisualState x:Name="Focused"/>
-                                <VisualState x:Name="Unfocused"/>
-                            </VisualStateGroup>
-                        </VisualStateManager.VisualStateGroups>
-                        <Grid>
-                            <Border x:Name="Background" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="2"/>
-                            <Border x:Name="BackgroundHover" Background="{StaticResource ButtonHoverBackgroundBrush}" BorderBrush="{StaticResource ButtonHoverBorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="2" Opacity="0"/>
-                            <Border x:Name="BackgroundPressed" Background="{StaticResource ButtonPressedBackgroundBrush}" BorderBrush="{StaticResource ButtonPressedBorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="1" Opacity="0"/>
-                            <Border x:Name="BackgroundDisabled" Background="{StaticResource ButtonDisabledBackgroundBrush}" BorderBrush="{StaticResource ButtonDisabledBorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="1" Opacity="0"/>
-                            <Border x:Name="Highlight" BorderBrush="{StaticResource DropDownButtonBorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="1" Margin="{TemplateBinding BorderThickness}" IsHitTestVisible="false" Opacity="0"/>
-                        </Grid>
-                        <Grid VerticalAlignment="Center" Margin="0" HorizontalAlignment="Center">
-                            <Path x:Name="BtnArrowBackground" Stretch="Fill" Height="4" Margin="0,2,0,0"
-            Width="7" Data="M 0,0 C0,0 7,0 7,0 7,0 3.5,3.5 3.5,3.5 3.5,3.5 0,0 0,0 z">
-                                <Path.Fill>
-                                    <SolidColorBrush  x:Name="BtnArrowColorBackground" Color="{StaticResource Color_011}"/>
-                                </Path.Fill>
-                            </Path>
-                            <Path x:Name="BtnArrowForeground" Stretch="Fill" Height="4"
-            Width="7" Data="M 0,0 C0,0 7,0 7,0 7,0 3.5,3.5 3.5,3.5 3.5,3.5 0,0 0,0 z">
-                                <Path.Fill>
-                                    <SolidColorBrush x:Name="BtnArrowColorForeground" Color="{StaticResource Color_011}"/>
-                                </Path.Fill>
-                            </Path>
-                        </Grid>
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <!--ComboBox Style-->
-    <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
-        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
-        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
-        <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
-        <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
-        <Setter Property="Foreground" Value="Black"></Setter>
-        <Setter Property="Height" Value="25"></Setter>
-        <Setter Property="Margin" Value="2,5,2,5"></Setter>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type ComboBox}">
-                    <Border  BorderBrush="Black" BorderThickness="0.7" Background="White">
-                        <Grid>
-                            <ToggleButton  Style="{StaticResource stlToggleButton}" Focusable="False"
-             IsChecked="{Binding Path=IsDropDownOpen,Mode=TwoWay,RelativeSource={RelativeSource TemplatedParent}}"
-             ClickMode="Press">
-                            </ToggleButton>
-                            <ContentPresenter  IsHitTestVisible="False" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" VerticalAlignment="Center" Margin="3" HorizontalAlignment="Stretch" />
-                            <TextBox x:Name="PART_EditableTextBox" HorizontalAlignment="Stretch" Focusable="True" Visibility="Collapsed" IsReadOnly="False"/>
-                            <Popup HorizontalOffset="-1" Width="{TemplateBinding ActualWidth}"  IsOpen="{TemplateBinding IsDropDownOpen}" Focusable="False"    PopupAnimation="Slide">
-                                <Grid  SnapsToDevicePixels="True" HorizontalAlignment="Stretch"   >
-                                    <Border  BorderThickness="1,1,1,1" BorderBrush="Black" HorizontalAlignment="Stretch" >
-                                        <Border.Background>
-                                            <SolidColorBrush Color="White" />
-                                        </Border.Background>
-                                    </Border>
-                                    <ScrollViewer  SnapsToDevicePixels="True" HorizontalAlignment="Stretch" >
-                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained" HorizontalAlignment="Stretch" />
-                                    </ScrollViewer>
-                                </Grid>
-                            </Popup>
-                        </Grid>
-                    </Border>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
 
     <Style x:Key="ItemStyle" TargetType="ComboBoxItem">
         <Setter Property="Template">

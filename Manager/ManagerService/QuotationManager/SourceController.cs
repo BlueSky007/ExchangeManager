@@ -27,6 +27,7 @@ namespace ManagerService.Quotation
             foreach (int sourceId in sourceIds)
             {
                 this._AveragePrices.Add(sourceId, null);
+                this._QuotationSamples.Add(sourceId, new Queue<SourceQuotation>());
             }
         }
 
@@ -236,8 +237,8 @@ namespace ManagerService.Quotation
                     quotation.Ask = (quotation.Ask * rule.AskAskWeight + quotation.Bid * rule.BidAskWeight + (quotation.Last.HasValue ? quotation.Last.Value * rule.AskLastWeight : 0) + (quotation.Ask + quotation.Bid) / 2 * rule.AskAverageWeight + (double)rule.AskAdjust) * (double)rule.Multiplier;
                     quotation.Bid = (quotation.Ask * rule.BidAskWeight + quotation.Bid * rule.BidBidWeight + (quotation.Last.HasValue ? quotation.Last.Value * rule.BidLastWeight : 0) + (quotation.Ask + quotation.Bid) / 2 * rule.BidAverageWeight + (double)rule.BidAdjust) * (double)rule.Multiplier;
                 }
-                quotation.Ask += this._Agio + this._Relations[quotation.InstrumentId].AdjustPoints;
-                quotation.Bid += this._Agio + this._Relations[quotation.InstrumentId].AdjustPoints;
+                quotation.Ask += this._Agio + Helper.GetAdjustValue(this._Relations[quotation.SourceId].AdjustPoints, this._Instrument.DecimalPlace);
+                quotation.Bid += this._Agio + Helper.GetAdjustValue(this._Relations[quotation.SourceId].AdjustPoints, this._Instrument.DecimalPlace);
 
                 this._LastActiveTime = DateTime.Now;
                 if (!this._IsPriceEnabled)
@@ -256,6 +257,11 @@ namespace ManagerService.Quotation
         public void ActiveSourceTimeout()
         {
             this._ActiveSource.Timeout();
+        }
+
+        public void Stop()
+        {
+            this._Timer.Change(Timeout.Infinite, Timeout.Infinite);
         }
 
         private void CheckInactiveTime(object state)
@@ -353,43 +359,83 @@ namespace ManagerService.Quotation
 
         public void OnAddInstrumentSourceRelation(InstrumentSourceRelation relation)
         {
-            if(this._SourceInstruments.ContainsKey(relation.InstrumentId))
+            lock (this._SourceInstruments)
             {
-                this._SourceInstruments[relation.InstrumentId].AddInstrumentSourceRelation(relation);
-            }
-            else
-            {
-                // SourceId - InstrumentSourceRelation
-                Dictionary<int, InstrumentSourceRelation> relations = new Dictionary<int,InstrumentSourceRelation>();
-                relations.Add(relation.SourceId, relation);
-                SourceInstrument sourceInstrument = new SourceInstrument(relation.InstrumentId, relations);
-                this._SourceInstruments.Add(relation.InstrumentId, sourceInstrument);
+                if (this._SourceInstruments.ContainsKey(relation.InstrumentId))
+                {
+                    this._SourceInstruments[relation.InstrumentId].AddInstrumentSourceRelation(relation);
+                }
+                else
+                {
+                    // SourceId - InstrumentSourceRelation
+                    Dictionary<int, InstrumentSourceRelation> relations = new Dictionary<int, InstrumentSourceRelation>();
+                    relations.Add(relation.SourceId, relation);
+                    SourceInstrument sourceInstrument = new SourceInstrument(relation.InstrumentId, relations);
+                    this._SourceInstruments.Add(relation.InstrumentId, sourceInstrument);
+                }
             }
         }
 
         public void OnRemoveInstrumentSourceRelation(int relationId)
         {
-            foreach(SourceInstrument sourceInstrument in this._SourceInstruments.Values)
+            lock (this._SourceInstruments)
             {
-                sourceInstrument.RemoveInstrumentSourceRelation(relationId);
+                foreach (SourceInstrument sourceInstrument in this._SourceInstruments.Values)
+                {
+                    sourceInstrument.RemoveInstrumentSourceRelation(relationId);
+                }
+            }
+        }
+
+        public void OnAddInstrument(Instrument instrument)
+        {
+            // do nothing, SourceInstrument will be added while add first InstrumentSourceRelation.
+            //lock(this._SourceInstruments)
+            //{
+            //    // while add instrument, there is not InstrumentSourceRelation yet.
+            //    SourceInstrument sourceInstrument = new SourceInstrument(instrument.Id, new Dictionary<int,InstrumentSourceRelation>());
+            //    this._SourceInstruments.Add(instrument.Id, sourceInstrument);
+            //}
+        }
+
+        public void OnRemoveInstrument(int instrumentId)
+        {
+            if (this._SourceInstruments.ContainsKey(instrumentId))
+            {
+                this._SourceInstruments[instrumentId].Stop();
+                lock (this._SourceInstruments)
+                {
+                    this._SourceInstruments.Remove(instrumentId);
+                }
             }
         }
 
         public bool QuotationArrived(SourceQuotation quotation)
         {
-            return this._SourceInstruments[quotation.InstrumentId].QuotationArrived(quotation);
+            // do not lock _SourceInstruments here for performance, so we should judge if the instrument existed in _SourceInstruments. because of maybe in adding Instrument progress.
+            if (this._SourceInstruments.ContainsKey(quotation.InstrumentId))
+            {
+                return this._SourceInstruments[quotation.InstrumentId].QuotationArrived(quotation);
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private void TimerCallback(object state)
         {
-            DateTime now = DateTime.Now;
-            var timeoutSourceInstruments = this._SourceInstruments.Values.Where(s => s.ActiveSourceTimeoutTime <= now);
-            foreach (SourceInstrument sourceInstrument in timeoutSourceInstruments)
+            lock (this._SourceInstruments)
             {
-                sourceInstrument.ActiveSourceTimeout();
+                DateTime now = DateTime.Now;
+                var timeoutSourceInstruments = this._SourceInstruments.Values.Where(s => s.ActiveSourceTimeoutTime <= now);
+                foreach (SourceInstrument sourceInstrument in timeoutSourceInstruments)
+                {
+                    sourceInstrument.ActiveSourceTimeout();
+                }
+                DateTime minTimeoutTime = this._SourceInstruments.Values.Select(s => s.ActiveSourceTimeoutTime).Min();
+                this._Timer.Change(minTimeoutTime - now, SourceController.Infinite);
             }
-            DateTime minTimeoutTime = this._SourceInstruments.Values.Select(s => s.ActiveSourceTimeoutTime).Min();
-            this._Timer.Change(minTimeoutTime - now, SourceController.Infinite);
         }
     }
 }

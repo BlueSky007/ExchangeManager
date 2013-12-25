@@ -45,12 +45,17 @@ namespace ManagerService.Quotation
             }
         }
 
-        public void AddPendingItem(SourceQuotation quotation)
+        public bool AddPendingItem(SourceQuotation quotation)
         {
             lock (this._WaitQueue)
             {
-                this._WaitQueue.Enqueue(quotation);
+                if (this._WaitQueue.Count > 0)
+                {
+                    this._WaitQueue.Enqueue(quotation);
+                    return true;
+                }
             }
+            return false;
         }
 
         public void Confirm(int confirmId, bool accepted)
@@ -73,11 +78,12 @@ namespace ManagerService.Quotation
                     }
 
                     this.ProcessSubsequentQuotation();
+                    Logger.AddEvent(TraceEventType.Information, "[AbnormalInstrument.Confirm] Confirmed. confirmId:{0}, accepted:{1}", confirmId, accepted);
                 }
                 else
                 {
                     // quotation already timeout, do nothing.
-                    Logger.AddEvent(TraceEventType.Information, "ConfirmId not exsits. confirmId:{0}, accepted:{1}", confirmId, accepted);
+                    Logger.AddEvent(TraceEventType.Information, "[AbnormalInstrument.Confirm] quotation already timeout, do nothing. confirmId:{0}, accepted:{1}", confirmId, accepted);
                 }
             }
         }
@@ -146,7 +152,7 @@ namespace ManagerService.Quotation
 
         private LastQuotationManager _LastQuotationManager;
         private Timer _Timer;
-        private DateTime _WaitEndTime = DateTime.MaxValue;
+        private DateTime _WaitingEndTime = DateTime.MaxValue;
         private object _WaitEndTimeLock = new object();
 
         public AbnormalQuotationManager(Dictionary<int, PriceRangeCheckRule> rangeCheckRules, LastQuotationManager lastQuotationManager)
@@ -161,27 +167,33 @@ namespace ManagerService.Quotation
             bool isNormalAndNotWaiting = false;
             AbnormalInstrument abnormalInstrument;
 
-            if (this._AbnormalInstruments.TryGetValue(quotation.InstrumentId, out abnormalInstrument))
+            bool hasAbnormalInstrument = this._AbnormalInstruments.TryGetValue(quotation.InstrumentId, out abnormalInstrument);
+
+            if (hasAbnormalInstrument)
             {
-                abnormalInstrument.AddPendingItem(quotation);
+                if (abnormalInstrument.AddPendingItem(quotation))
+                {
+                    return false;
+                }
+            }
+
+            this.SetAbnormalInfo(quotation);
+            if (quotation.IsAbnormal)
+            {
+                if (!this._PriceRangeCheckRules[quotation.InstrumentId].DiscardOutOfRangePrice)
+                {
+                    MainService.ExchangeManager.SwitchPriceEnableState(quotation.InstrumentId, false);
+                    if (!hasAbnormalInstrument)
+                    {
+                        abnormalInstrument = new AbnormalInstrument(quotation, this, this._PriceRangeCheckRules[quotation.InstrumentId]);
+                        this._AbnormalInstruments.Add(quotation.InstrumentId, abnormalInstrument);
+                    }
+                    this.StartConfirm(quotation);
+                }
             }
             else
             {
-                this.SetAbnormalInfo(quotation);
-                if (quotation.IsAbnormal)
-                {
-                    if (!this._PriceRangeCheckRules[quotation.InstrumentId].DiscardOutOfRangePrice)
-                    {
-                        MainService.ExchangeManager.SwitchPriceEnableState(quotation.InstrumentId, false);
-                        abnormalInstrument = new AbnormalInstrument(quotation, this, this._PriceRangeCheckRules[quotation.InstrumentId]);
-                        this._AbnormalInstruments.Add(quotation.InstrumentId, abnormalInstrument);
-                        this.StartConfirm(quotation);
-                    }
-                }
-                else
-                {
-                    isNormalAndNotWaiting = true;
-                }
+                isNormalAndNotWaiting = true;
             }
 
             return isNormalAndNotWaiting;
@@ -195,13 +207,16 @@ namespace ManagerService.Quotation
             {
                 PriceRangeCheckRule rule = this._PriceRangeCheckRules[quotation.InstrumentId];
                 double diff = 0;
+                double oldPrice = 0;
                 switch (rule.OutOfRangeType)
                 {
                     case OutOfRangeType.Ask:
                         diff = Math.Abs(quotation.Ask - last.Ask);
+                        oldPrice = last.Ask;
                         break;
                     case OutOfRangeType.Bid:
                         diff = Math.Abs(quotation.Bid - last.Bid);
+                        oldPrice = last.Bid;
                         break;
                     default:
                         Logger.AddEvent(TraceEventType.Error, "AbnormalQuotationManager.IsNormalPrice unknown OutOfRangeType:{0}", rule.OutOfRangeType.ToString());
@@ -210,14 +225,15 @@ namespace ManagerService.Quotation
 
                 // diff to diffPoints
                 int decimalPlace = MainService.QuotationManager.ConfigMetadata.Instruments[quotation.PrimitiveQuotation.InstrumentId].DecimalPlace;
-                int diffPoints = (int)(diff * Math.Pow(10, decimalPlace));
+                int diffPoints = (int)(Math.Round(diff * Math.Pow(10, decimalPlace), 0));
 
 
                 quotation.IsAbnormal = diffPoints > rule.ValidVariation;
                 if (quotation.IsAbnormal)
                 {
                     quotation.DiffPoints = diffPoints;
-                    quotation.OutOfRangeType = rule.OutOfRangeType == OutOfRangeType.Ask ? "Ask" : "Bid";
+                    quotation.OldPrice = oldPrice;
+                    quotation.OutOfRangeType = rule.OutOfRangeType;
                     quotation.WaitSeconds = rule.OutOfRangeWaitTime;
                     quotation.ConfirmId = this.GetNextConfirmId();
                 }
@@ -229,8 +245,9 @@ namespace ManagerService.Quotation
             AbnormalQuotationMessage message = new AbnormalQuotationMessage();
             message.ConfirmId = quotation.ConfirmId;
             message.InstrumentId = quotation.InstrumentId;
-            message.Ask = quotation.PrimitiveQuotation.Ask;
-            message.Bid = quotation.PrimitiveQuotation.Bid;
+            message.InstrumentCode = quotation.InstrumentCode;
+            message.NewPrice = quotation.OutOfRangeType == OutOfRangeType.Ask ? quotation.PrimitiveQuotation.Ask : quotation.PrimitiveQuotation.Bid;
+            message.OldPrice = quotation.OldPrice;
             message.OutOfRangeType = quotation.OutOfRangeType;
             message.DiffPoints = quotation.DiffPoints;
             message.WaitSeconds = quotation.WaitSeconds;
@@ -262,30 +279,43 @@ namespace ManagerService.Quotation
             }
         }
 
-        private void ChangeWaitTime(DateTime waitTime)
+        private void ChangeWaitTime(DateTime waitEndTime)
         {
             lock (this._WaitEndTimeLock)
             {
-                if (waitTime < this._WaitEndTime)
+                if (waitEndTime < this._WaitingEndTime)
                 {
-                    this._WaitEndTime = waitTime;
-                    this._Timer.Change(this._WaitEndTime - DateTime.Now, TimeSpan.Zero);
+                    this._WaitingEndTime = waitEndTime;
+                    this._Timer.Change(this._WaitingEndTime - DateTime.Now, TimeSpan.Zero);
                 }
             }
         }
 
         private void CheckTimeout(object state)
         {
-            DateTime? nextCheckTime = this._AbnormalInstruments.Values.Min(ai => ai.CheckTime);
-            if (nextCheckTime == null)
-            {
-                this._WaitEndTime = DateTime.MaxValue;
-            }
-            this.ChangeWaitTime(nextCheckTime.Value);
-
+            this.StopTimer();
             foreach (var item in this._AbnormalInstruments.Values)
             {
                 item.CheckTimeout();
+            }
+
+            DateTime? nextCheckTime = this._AbnormalInstruments.Values.Min(ai => ai.CheckTime);
+            if (nextCheckTime == null)
+            {
+                this.StopTimer();
+            }
+            else
+            {
+                this.ChangeWaitTime(nextCheckTime.Value);
+            }
+        }
+
+        private void StopTimer()
+        {
+            lock(this._WaitEndTimeLock)
+            {
+                this._WaitingEndTime = DateTime.MaxValue;
+                this._Timer.Change(Timeout.Infinite, Timeout.Infinite);
             }
         }
     }

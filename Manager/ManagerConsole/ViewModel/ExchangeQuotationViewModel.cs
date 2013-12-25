@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Windows.Media;
 
 
 namespace ManagerConsole.ViewModel
@@ -51,7 +52,7 @@ namespace ManagerConsole.ViewModel
 
         public bool Load(string exchangeCode, List<OverridedQuotation> quotations)
         {
-            bool isSuccess = false;
+            bool isSuccess = true;
             if (!IsInitData)
             {
                 isSuccess = this.InitData();
@@ -203,8 +204,8 @@ namespace ManagerConsole.ViewModel
         private Guid _InstruemtnId;
         private string _InstrumentCode;
         private string _InstrumentOriginCode;
-        private string _Bid;
-        private string _Ask;
+        private string _Bid = "0";
+        private string _Ask = "0";
         private string _High;
         private string _Low;
         private string _Origin;
@@ -221,7 +222,10 @@ namespace ManagerConsole.ViewModel
         private int _MaxAuotAdjustPoints;
         private int _MaxSpreadPoints;
         private bool _IsOriginHiLo;
+        private PriceTrend _AskTrend;
+        private PriceTrend _BidTrend;
 
+        private Scheduler _Scheduler = new Scheduler();
 
         [Browsable(false)]
         public string ExchangeCode
@@ -289,8 +293,13 @@ namespace ManagerConsole.ViewModel
             get { return _Bid; }
             set
             {
-                _Bid = value;
-                NotifyPropertyChanged("Bid");
+                if (_Bid!=value)
+                {
+                    this.SetPriceTrend("bid", value);
+                    _Bid = value;
+                    NotifyPropertyChanged("Bid");
+                }
+                
             }
         }
         [Browsable(false)]
@@ -299,8 +308,12 @@ namespace ManagerConsole.ViewModel
             get { return _Ask; }
             set
             {
-                _Ask = value;
-                NotifyPropertyChanged("Ask");
+                if (_Ask != value)
+                {
+                    this.SetPriceTrend("ask", value);
+                    _Ask = value;
+                    NotifyPropertyChanged("Ask");
+                }
             }
         }
         [Browsable(false)]
@@ -312,6 +325,16 @@ namespace ManagerConsole.ViewModel
                 _High = value;
                 NotifyPropertyChanged("High");
             }
+        }
+        [Browsable(false)]
+        public SolidColorBrush BidTrendBrush
+        {
+            get { return this.GetBrush(this._BidTrend); }
+        }
+        [Browsable(false)]
+        public SolidColorBrush AskTrendBrush
+        {
+            get { return this.GetBrush(this._AskTrend); }
         }
         [Browsable(false)]
         public string Low
@@ -363,7 +386,7 @@ namespace ManagerConsole.ViewModel
             set
             {
                 _AutoAdjustPoints1 = value;
-                NotifyPropertyChanged("AutoAdjustPoints1");
+                NotifyPropertyChanged("AutoAdjustPoints");
             }
         }
         [Category("Quotation")]
@@ -404,7 +427,7 @@ namespace ManagerConsole.ViewModel
             set
             {
                 _SpreadPoints1 = value;
-                NotifyPropertyChanged("SpreadPoints1");
+                NotifyPropertyChanged("SpreadPoints");
             }
         }
         [Category("Quotation")]
@@ -506,6 +529,88 @@ namespace ManagerConsole.ViewModel
             instrument.MaxSpreadPoints = quote.MaxSpreadPoints;
             instrument.IsOriginHiLo = quote.IsOriginHiLo;
             return instrument;
+        }
+
+        private void SetPriceTrend(string propertyName, string newValue)
+        {
+            double oldPrice;
+            if (!string.IsNullOrEmpty(newValue))
+            {
+                double newPrice = double.Parse(newValue);
+                if (propertyName == "bid")
+                {
+                    oldPrice = double.Parse(this._Bid);
+                    if (newPrice > oldPrice)
+                    {
+                        this._BidTrend = PriceTrend.Up;
+                        this._Scheduler.Add(this.ResetTrendState, "Bid", DateTime.Now.AddSeconds(2));
+                    }
+                    else if (newPrice < oldPrice)
+                    {
+                        this._BidTrend = PriceTrend.Down;
+                        this._Scheduler.Add(this.ResetTrendState, "Bid", DateTime.Now.AddSeconds(2));
+                    }
+                    else
+                    {
+                        this._BidTrend = PriceTrend.NoChange;
+                    }
+                    this.NotifyPropertyChanged("BidTrendBrush");
+                }
+                else
+                {
+                    oldPrice = double.Parse(this._Ask);
+                    if (newPrice > oldPrice)
+                    {
+                        this._AskTrend = PriceTrend.Up;
+                        this._Scheduler.Add(this.ResetTrendState, "Ask", DateTime.Now.AddSeconds(2));
+                    }
+                    else if (newPrice < oldPrice)
+                    {
+                        this._AskTrend = PriceTrend.Down;
+                        this._Scheduler.Add(this.ResetTrendState, "Ask", DateTime.Now.AddSeconds(2));
+                    }
+                    else
+                    {
+                        this._AskTrend = PriceTrend.NoChange;
+                    }
+                    this.NotifyPropertyChanged("AskTrendBrush");
+                }
+            }
+        }
+
+        private void ResetTrendState(object sender, object actionArgs)
+        {
+            App.MainWindow.Dispatcher.BeginInvoke((Action<string>)delegate(string propName)
+            {
+                if (propName.Equals("Ask"))
+                {
+                    this._AskTrend = PriceTrend.NoChange;
+                    this.NotifyPropertyChanged("AskTrendBrush");
+                    //Logger.AddEvent(TraceEventType.Information, "Ask:{0}, this.AskTrend = PriceTrend.NoChange;", this.Ask);
+                }
+                else
+                {
+                    this._BidTrend = PriceTrend.NoChange;
+                    this.NotifyPropertyChanged("BidTrendBrush");
+                    //Logger.AddEvent(TraceEventType.Information, "Ask:{0}, this.BidTrend = PriceTrend.NoChange;", this.Ask);
+                }
+            }, (string)actionArgs);
+        }
+
+        private SolidColorBrush GetBrush(PriceTrend trend)
+        {
+            if (trend == PriceTrend.Up)
+            {
+                return Brushes.LimeGreen;
+            }
+            else if (trend == PriceTrend.Down)
+            {
+                return Brushes.OrangeRed;
+            }
+            else
+            {
+                return Brushes.Transparent;
+            }
         }
     }
 }

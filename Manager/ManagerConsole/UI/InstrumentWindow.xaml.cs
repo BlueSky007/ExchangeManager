@@ -47,6 +47,7 @@ namespace ManagerConsole.UI
                 this._InstrumentData.PriceRangeCheckRule = vmInstrument.VmPriceRangeCheckRule.PriceRangeCheckRule.Clone();
                 this._InstrumentData.WeightedPriceRule = vmInstrument.VmWeightedPriceRule.WeightedPriceRule.Clone();
             }
+
             this.DataContext = this._InstrumentData;
             this._HintMessage = new HintMessage(this.HintTextBlock);
         }
@@ -55,14 +56,10 @@ namespace ManagerConsole.UI
         {
             this.Close();
         }
-        private bool IsValid(DependencyObject obj)
-        {
-            return !Validation.GetHasError(obj) && LogicalTreeHelper.GetChildren(obj).OfType<DependencyObject>().All(child => this.IsValid(child));
-        }
 
-        private bool RequireCheck(TextBox textBox,string errorMessage)
+        private bool RequireCheck(TextBox textBox, string errorMessage)
         {
-            if(textBox.Text.Trim() == string.Empty)
+            if (textBox.Text.Trim() == string.Empty)
             {
                 this._HintMessage.ShowError(errorMessage);
                 textBox.Focus();
@@ -80,7 +77,7 @@ namespace ManagerConsole.UI
                 if (this.RequireCheck(this.AgioSecondsBox, "Please provide AgioSeconds.")) return;
                 if (this.RequireCheck(this.LeastTicksBox, "Please provide LeastTicks.")) return;
             }
-            if (!this.IsValid(this))
+            if (!VmBase.IsValid(this))
             {
                 this._HintMessage.ShowError("Please provide appropriate data.");
                 return;
@@ -95,14 +92,15 @@ namespace ManagerConsole.UI
                         if (id != 0)
                         {
                             this._InstrumentData.Instrument.Id = id;
-                            VmQuotationManager.Instance.Add(this._InstrumentData.Instrument);
+                            VmQuotationManager.Instance.Add(this._InstrumentData.Instrument.Clone());
 
                             this._InstrumentData.PriceRangeCheckRule.Id = id;
-                            VmQuotationManager.Instance.Add(this._InstrumentData.PriceRangeCheckRule);
+                            VmQuotationManager.Instance.Add(this._InstrumentData.PriceRangeCheckRule.Clone());
 
                             this._InstrumentData.WeightedPriceRule.Id = id;
-                            VmQuotationManager.Instance.Add(this._InstrumentData.WeightedPriceRule);
+                            VmQuotationManager.Instance.Add(this._InstrumentData.WeightedPriceRule.Clone());
 
+                            this.CancelButton.Content = "Close";
                             this._HintMessage.ShowSucess("Add Instrument successfully.");
                         }
                         else
@@ -115,15 +113,15 @@ namespace ManagerConsole.UI
             else
             {
                 Dictionary<string, object> instrumentUpdates = new Dictionary<string,object>();
-                this.GetUpdates(typeof(Instrument), this._vmInstrument.Instrument, this._InstrumentData.Instrument, instrumentUpdates);
+                VmBase.GetUpdates(typeof(Instrument), this._vmInstrument.Instrument, this._InstrumentData.Instrument, instrumentUpdates);
 
                 Dictionary<string, object> rangeRuleUpdates = new Dictionary<string,object>();
-                this.GetUpdates(typeof(PriceRangeCheckRule), this._vmInstrument.VmPriceRangeCheckRule.PriceRangeCheckRule, this._InstrumentData.PriceRangeCheckRule, rangeRuleUpdates);
+                VmBase.GetUpdates(typeof(PriceRangeCheckRule), this._vmInstrument.VmPriceRangeCheckRule.PriceRangeCheckRule, this._InstrumentData.PriceRangeCheckRule, rangeRuleUpdates);
 
                 Dictionary<string, object> weightRuleUpdates = new Dictionary<string,object>();
                 if (this._InstrumentData.Instrument.UseWeightedPrice.HasValue && this._InstrumentData.Instrument.UseWeightedPrice.Value)
                 {
-                    this.GetUpdates(typeof(WeightedPriceRule), this._vmInstrument.VmWeightedPriceRule.WeightedPriceRule, this._InstrumentData.WeightedPriceRule, weightRuleUpdates);
+                    VmBase.GetUpdates(typeof(WeightedPriceRule), this._vmInstrument.VmWeightedPriceRule.WeightedPriceRule, this._InstrumentData.WeightedPriceRule, weightRuleUpdates);
                 }
 
                 List<UpdateData> updateDatas = new List<UpdateData>();
@@ -163,9 +161,10 @@ namespace ManagerConsole.UI
                         {
                             if (updated)
                             {
-                                if (instrumentUpdates.Count > 0) this._vmInstrument.ApplyModification(instrumentUpdates);
-                                if (rangeRuleUpdates.Count > 0) this._vmInstrument.VmPriceRangeCheckRule.ApplyModification(rangeRuleUpdates);
-                                if (weightRuleUpdates.Count > 0) this._vmInstrument.VmWeightedPriceRule.ApplyModification(weightRuleUpdates);
+                                if (instrumentUpdates.Count > 0) this._vmInstrument.ApplyChangeToUI(instrumentUpdates);
+                                if (rangeRuleUpdates.Count > 0) this._vmInstrument.VmPriceRangeCheckRule.ApplyChangeToUI(rangeRuleUpdates);
+                                if (weightRuleUpdates.Count > 0) this._vmInstrument.VmWeightedPriceRule.ApplyChangeToUI(weightRuleUpdates);
+                                this.CancelButton.Content = "Close";
                                 this._HintMessage.ShowSucess("Update Instrument successfully.");
                             }
                             else
@@ -178,23 +177,6 @@ namespace ManagerConsole.UI
                 else
                 {
                     this._HintMessage.ShowError("Nothing changed.");
-                }
-            }
-        }
-
-        private void GetUpdates(Type type, object oldObject, object newObject, Dictionary<string, object> updates)
-        {
-            PropertyInfo[] properties = type.GetProperties();
-            foreach (PropertyInfo propertyInfo in properties)
-            {
-                if (propertyInfo.Name != FieldSR.Id)
-                {
-                    object oldValue = type.GetProperty(propertyInfo.Name).GetValue(oldObject, null);
-                    object newValue = type.GetProperty(propertyInfo.Name).GetValue(newObject, null);
-                    if (newValue != null && !newValue.Equals(oldValue))
-                    {
-                        updates.Add(propertyInfo.Name, newValue);
-                    }
                 }
             }
         }

@@ -126,9 +126,9 @@ namespace ManagerService.DataAccess
             return dataPermissions;
         }
 
-        public static SettingParameters GetSettingParameters(ExchangeSystemSetting exchangeSystemSetting)
+        public static ConfigParameters GetSettingParameters(ExchangeSystemSetting exchangeSystemSetting)
         {
-            SettingParameters settings = new SettingParameters();
+            ConfigParameters settings = new ConfigParameters();
             settings.AllowModifyOrderLot = exchangeSystemSetting.AllowModifyOrderLot;
             settings.ConfirmRejectDQOrder = exchangeSystemSetting.ConfirmRejectDQOrder;
             return settings;
@@ -283,9 +283,40 @@ namespace ManagerService.DataAccess
                 }, new SqlParameter("@accountId", accountId));
             }
             catch (Exception ex)
-            { 
+            {
+                Logger.TraceEvent(TraceEventType.Error, "ExchangeData.GetAccountGroup Error:\r\n" + ex.ToString());
             }
             return group;
+        }
+
+        public static string LoadSettingsParameter(string exchangeCode,Guid userId)
+        {
+            string systemParameter = string.Empty;
+            try
+            {
+                using (SqlConnection con = DataAccess.GetInstance(exchangeCode).GetSqlConnection())
+                {
+                    using (SqlCommand command = con.CreateCommand())
+                    {
+                        command.CommandText = "[dbo].[P_GetSystemParameter]";
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@userID", userId));
+                        command.Parameters.Add(new SqlParameter("@appType", 6));
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                systemParameter = (string)reader["Parameters"];
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "ExchangeData.LoadSettingsParameter Error:\r\n" + ex.ToString());
+            }
+            return systemParameter;
         }
 
 

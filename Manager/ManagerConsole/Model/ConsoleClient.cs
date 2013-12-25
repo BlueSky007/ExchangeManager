@@ -42,6 +42,8 @@ namespace ManagerConsole.Model
 
             EndpointAddress address = new EndpointAddress(string.Format("net.tcp://{0}:{1}/Service", server, port));
             NetTcpBinding binding = new NetTcpBinding(SecurityMode.None) { MaxReceivedMessageSize = Int32.MaxValue };
+            binding.OpenTimeout = TimeSpan.FromMinutes(1);
+            binding.SendTimeout = binding.ReceiveTimeout = TimeSpan.FromHours(1);
             DuplexChannelFactory<IClientService> factory = new DuplexChannelFactory<IClientService>(this._MessageClient, binding, address);
             this._ServiceProxy = factory.CreateChannel();
             this._ServiceProxy.BeginLogin(userName, password, oldSessionId, language, delegate(IAsyncResult ar)
@@ -70,6 +72,22 @@ namespace ManagerConsole.Model
                     Logger.TraceEvent(TraceEventType.Error, "Login failed: \r\n{0}", ex.Message);
                 }
             }, null);
+        }
+
+        public void LoadSettingsParameters(Action<List<string>> EndLoadSettingsParameters)
+        {
+            try
+            {
+                this._ServiceProxy.BeginLoadSettingsParameters(delegate(IAsyncResult result)
+                {
+                    List<string> parameters = this._ServiceProxy.EndLoadSettingsParameters(result);
+                    EndLoadSettingsParameters(parameters);
+                }, null);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "LoadSettingsParameters.\r\n{0}", ex.ToString());
+            }
         }
 
         public void GetInitializeData(Action<List<InitializeData>> EndGetInitializeData)
@@ -521,8 +539,6 @@ namespace ManagerConsole.Model
                 callBack(result);
             }, null);
         }
-        #endregion
-
 
         public void SwitchDefaultSource(SwitchRelationBooleanPropertyMessage switchMessage)
         {
@@ -531,5 +547,14 @@ namespace ManagerConsole.Model
                 this._ServiceProxy.EndSwitchDefaultSource(ar);
             }, null);
         }
+
+        public void ConfirmAbnormalQuotation(int instrumentId, int confirmId, bool accepted)
+        {
+            this._ServiceProxy.BeginConfirmAbnormalQuotation(instrumentId, confirmId, accepted, delegate(IAsyncResult ar)
+            {
+                this._ServiceProxy.EndConfirmAbnormalQuotation(ar);
+            }, null);
+        }
+        #endregion
     }
 }

@@ -7,7 +7,7 @@
              mc:Ignorable="d" d:DesignHeight="330" d:DesignWidth="480" 
              Header="Login" MinimizeButtonVisibility="Collapsed" MaximizeButtonVisibility="Hidden" CloseButtonVisibility="Collapsed"
              Width="480" StartupPosition="Center" Loaded="Window_Loaded">
-    <Grid>
+    <Grid Background="{Binding Path=ColorTemplate.Background, Source={StaticResource ColorSettings}}">
         <Grid.RowDefinitions>
             <RowDefinition Height="33"/>
             <RowDefinition Height="40"/>
@@ -20,14 +20,14 @@
             <ColumnDefinition Width="120"/>
             <ColumnDefinition  Width="300*"/>
         </Grid.ColumnDefinitions>
-        <Grid.Background>
+        <!--<Grid.Background>
             <LinearGradientBrush EndPoint="0.98,0.973" StartPoint="0.022,0.097">
                 <GradientStop Color="#FF86CEF3" Offset="1"/>
                 <GradientStop Color="White" Offset="0.501"/>
             </LinearGradientBrush>
-        </Grid.Background>
+        </Grid.Background>-->
         <Label Content="Server:" HorizontalAlignment="Left" Margin="54,10,0,0" VerticalAlignment="Top" Width="66" Height="23" Grid.Row="2" />
-        <ComboBox x:Name="ServerComboBox" Grid.Column="1" HorizontalAlignment="Left" Margin="59,9,0,0" VerticalAlignment="Top" Width="202" Grid.Row="2" Height="21" IsEditable="True"/>
+        <ComboBox x:Name="ServerComboBox" Style="{StaticResource ComboBoxStyle}" Grid.Column="1" HorizontalAlignment="Left" Margin="59,9,0,0" VerticalAlignment="Top" Width="202" Grid.Row="2" Height="21" IsEditable="True"/>
         <Label Content="User Name:" HorizontalAlignment="Left" Margin="54,10,0,0" VerticalAlignment="Top" Width="66" Grid.Row="3" Height="24" />
         <TextBox x:Name="UserNameTextBox" Text="Admin" Grid.Column="1" HorizontalAlignment="Left" Margin="59,10,0,6" Grid.Row="3" Width="202" />
         <Label Content="Password:" HorizontalAlignment="Left" Margin="55,10,0,0" VerticalAlignment="Top" Width="66" Grid.Row="4" Height="23" Grid.ColumnSpan="2" />
@@ -36,7 +36,7 @@
         <Button x:Name="LoginButton" Content="Login" HorizontalAlignment="Left" Width="80" Margin="59,54,0,21" Grid.Row="5" Grid.Column="1" Click="Login_Click"/>
         <Button Content="Cancel" Grid.Column="1" HorizontalAlignment="Left" Margin="181,54,0,21" Grid.Row="5" Width="80" Click="Cancel_Click"/>
         <Label Content="Language:" HorizontalAlignment="Left" Margin="54,7,0,0" VerticalAlignment="Top" Width="66" Height="23" Grid.Row="1" />
-        <ComboBox x:Name="UILanguage" Grid.Column="1" HorizontalAlignment="Left" Margin="59,10,0,0" Grid.Row="1" VerticalAlignment="Top" Width="202" Height="21">
+        <ComboBox Style="{StaticResource ComboBoxStyle}" x:Name="UILanguage" Grid.Column="1" HorizontalAlignment="Left" Margin="59,10,0,0" Grid.Row="1" VerticalAlignment="Top" Width="202" Height="21">
         </ComboBox>
 
     </Grid>

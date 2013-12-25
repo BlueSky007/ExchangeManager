@@ -1,0 +1,62 @@
+﻿<UserControl x:Class="ManagerConsole.UI.SourceRelationControl"
+             xmlns:ig="http://schemas.infragistics.com/xaml"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="10,5,0,0">
+            <TextBlock Text="Instrument Code:" />
+            <TextBlock Text="{Binding Code}" Margin="10"/>
+            <Button x:Name="AddRelationButton" Content="Add Relation" Click="AddRelationButton_Click" Height="22" BorderThickness="1" Visibility="Hidden" Style="{DynamicResource ButtonStyle}"/>
+        </StackPanel>
+        <ig:XamGrid x:Name="RelationGrid" AutoGenerateColumns="False" Margin="10,30,0,0" CellDoubleClicked="RelationGrid_CellDoubleClicked" KeyDown="RelationGrid_KeyDown">
+            <ig:XamGrid.CellStyle>
+                <Style TargetType="ig:CellControl" BasedOn="{StaticResource {x:Type ig:CellControl}}">
+                    <Setter Property="Padding" Value="1"/>
+                </Style>
+            </ig:XamGrid.CellStyle>
+            <ig:XamGrid.SelectionSettings>
+                <ig:SelectionSettings CellClickAction="SelectRow"/>
+            </ig:XamGrid.SelectionSettings>
+            <ig:XamGrid.EditingSettings>
+                <ig:EditingSettings AllowEditing="Cell" IsEnterKeyEditingEnabled="True" IsMouseActionEditingEnabled="DoubleClick" />
+            </ig:XamGrid.EditingSettings>
+            <ig:XamGrid.Columns>
+                <ig:TextColumn Key="QuotationSource.Name" HeaderText="Source" IsReadOnly="True" />
+                <ig:TextColumn Key="Timestamp" HeaderText="Timestamp" IsReadOnly="True" />
+                <ig:TextColumn Key="Ask" HeaderText="Ask" IsReadOnly="True" HorizontalContentAlignment="Right" />
+                <ig:TextColumn Key="Bid" HeaderText="Bid" IsReadOnly="True" HorizontalContentAlignment="Right" />
+                <ig:TextColumn Key="ActiveState" HeaderText="State" IsReadOnly="True"/>
+                <ig:TemplateColumn Key="AdjustPoints" HeaderText="AdjustPoints" IsReadOnly="True">
+                    <ig:TemplateColumn.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Button x:Name="DecButton" Content="-" Background="Red" Foreground="White" Width="20" Tag="{Binding}" Click="AdjustButton_Click"/>
+                                <TextBox Text="{Binding AdjustPoints}" TextAlignment="Right" Width="60" KeyDown="TextBox_KeyDown"/>
+                                <Button x:Name="IncButton" Content="+" Background="Green" Foreground="White" Width="20" Tag="{Binding}" Click="AdjustButton_Click" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ig:TemplateColumn.ItemTemplate>
+                </ig:TemplateColumn>
+                <ig:TextColumn Key="AdjustIncrement" HeaderText="Inc" HorizontalContentAlignment="Right" />
+                <ig:CheckBoxColumn Key="IsDefault" HeaderText="IsDefault" IsReadOnly="True" />
+                <ig:TextColumn Key="Priority" HeaderText="Priority" IsReadOnly="True" HorizontalContentAlignment="Right" />
+                <ig:TextColumn Key="SwitchTimeout" HeaderText="SwitchTimeout" HorizontalContentAlignment="Right" />
+                <ig:CheckBoxColumn Key="Inverted" HeaderText="Inverted" IsReadOnly="True" />
+                <ig:TextColumn Key="SourceSymbol" HeaderText="SourceSymbol" IsReadOnly="True" />
+                <ig:TemplateColumn Key="Id" HeaderText="Remove" IsReadOnly="True">
+                    <ig:TemplateColumn.ItemTemplate>
+                        <DataTemplate>
+                            <Button x:Name="DeleteRelation" Tag="{Binding}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="DeleteRelation_Click">
+                                <Image Source="../Asset/Images/delete.png" ToolTipService.ToolTip="Remove Relation" Width="20" Height="20"/>
+                            </Button>
+                        </DataTemplate>
+                    </ig:TemplateColumn.ItemTemplate>
+                </ig:TemplateColumn>
+            </ig:XamGrid.Columns>
+        </ig:XamGrid>
+    </Grid>
+</UserControl>

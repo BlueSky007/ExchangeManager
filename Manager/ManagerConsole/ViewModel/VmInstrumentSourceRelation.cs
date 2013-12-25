@@ -211,14 +211,7 @@ namespace ManagerConsole.ViewModel
                     }
                     if(!switched)
                     {
-                        ConsoleClient.Instance.UpdateMetadataObjectField(MetadataType.InstrumentSourceRelation, this.Id, FieldSR.IsDefault, value, delegate(bool success)
-                        {
-                            if (success)
-                            {
-                                this._Relation.IsDefault = value;
-                                this.OnPropertyChanged(FieldSR.IsDefault);
-                            }
-                        });
+                        this.SubmitChange(FieldSR.IsDefault, value);
                     }
                 }
             }
@@ -233,14 +226,7 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._Relation.Priority != value)
                 {
-                    ConsoleClient.Instance.UpdateMetadataObjectField(MetadataType.InstrumentSourceRelation, this.Id, FieldSR.Priority, value, delegate(bool success)
-                    {
-                        if (success)
-                        {
-                            this._Relation.Priority = value;
-                            this.OnPropertyChanged(FieldSR.Priority);
-                        }
-                    });
+                    this.SubmitChange(FieldSR.Priority, value);
                 }
             }
         }
@@ -254,18 +240,11 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._Relation.SwitchTimeout != value)
                 {
-                    ConsoleClient.Instance.UpdateMetadataObjectField(MetadataType.InstrumentSourceRelation, this.Id, FieldSR.SwitchTimeout, value, delegate(bool success)
-                    {
-                        if (success)
-                        {
-                            this._Relation.SwitchTimeout = value;
-                            this.OnPropertyChanged(FieldSR.SwitchTimeout);
-                        }
-                    });
+                    this.SubmitChange(FieldSR.SwitchTimeout, value);
                 }
             }
         }
-        public double AdjustPoints
+        public int AdjustPoints
         {
             get
             {
@@ -273,21 +252,13 @@ namespace ManagerConsole.ViewModel
             }
             set
             {
-                double newValue = double.Parse(value.ToString('F' + this._Instrument.DecimalPlace.ToString()));   // 避免浮点数问题
-                if (this.AdjustPoints != newValue)
+                if (this.AdjustPoints != value)
                 {
-                    ConsoleClient.Instance.UpdateMetadataObjectField(MetadataType.InstrumentSourceRelation, this.Id, FieldSR.AdjustPoints, newValue, delegate(bool success)
-                    {
-                        if (success)
-                        {
-                            this._Relation.AdjustPoints = newValue;
-                            this.OnPropertyChanged(FieldSR.AdjustPoints);
-                        }
-                    });
+                    this.SubmitChange(FieldSR.AdjustPoints, value);
                 }
             }
         }
-        public double AdjustIncrement
+        public int AdjustIncrement
         {
             get
             {
@@ -297,14 +268,7 @@ namespace ManagerConsole.ViewModel
             {
                 if (this._Relation.AdjustIncrement != value)
                 {
-                    ConsoleClient.Instance.UpdateMetadataObjectField(MetadataType.InstrumentSourceRelation, this.Id, FieldSR.AdjustIncrement, value, delegate(bool success)
-                    {
-                        if (success)
-                        {
-                            this._Relation.AdjustIncrement = value;
-                            this.OnPropertyChanged(FieldSR.AdjustIncrement);
-                        }
-                    });
+                    this.SubmitChange(FieldSR.AdjustIncrement, value);
                 }
             }
         }
@@ -345,6 +309,11 @@ namespace ManagerConsole.ViewModel
                 this.Timestamp = quotation.Timestamp;
             }
             return addedWithoutReplace;
+        }
+
+        private void SubmitChange(string field, object value)
+        {
+            base.SubmitChange(MetadataType.InstrumentSourceRelation, field, value);
         }
     }
 }

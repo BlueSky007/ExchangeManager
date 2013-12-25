@@ -50,8 +50,8 @@ namespace ManagerConsole.UI
         private void InitializeData()
         {
             this._App = ((ManagerConsole.MainWindow)Application.Current.MainWindow);
-            this._CommonDialogWin = this._App.CommonDialogWin;
-            this._ConfirmDialogWin = this._App.ConfirmDialogWin;
+            this._CommonDialogWin = this._App._CommonDialogWin;
+            this._ConfirmDialogWin = this._App._ConfirmDialogWin;
 
             Color bgColor = Colors.Transparent;
             Style style = new Style(typeof(Infragistics.Controls.Grids.CellControl));
@@ -162,6 +162,7 @@ namespace ManagerConsole.UI
                     orderTask = btn.DataContext as OrderTask;
                     currentCellData = orderTask.CellDataDefine4;
                     break;
+                default: break;
             }
             this.ProcessPendingOrder(orderTask, currentCellData);
         }
@@ -540,7 +541,8 @@ namespace ManagerConsole.UI
             for (int i = 0; i < this._OrderTaskGrid.Rows.Count; i++)
             {
                 OrderTask order = this._OrderTaskGrid.Rows[i].Data as OrderTask;
-                QuotePolicyDetail quotePolicyDetail = this._App.InitDataManager.SettingsManager.GetQuotePolicyDetail(order.InstrumentId.Value);
+                Customer customer = new Customer();
+                QuotePolicyDetail quotePolicyDetail = this._App.InitDataManager.SettingsManager.GetQuotePolicyDetail(order.InstrumentId.Value, customer);
                 if (OrderTaskManager.AllowAccept(order, quotePolicyDetail, origin, int.Parse(this._VariationText.Text)))
                 {
                     this._App.OrderHandle.OnOrderAccept(order);

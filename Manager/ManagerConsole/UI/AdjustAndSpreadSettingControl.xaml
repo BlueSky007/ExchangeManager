@@ -33,7 +33,15 @@
             </ig:XamGrid.EditingSettings>
             <ig:XamGrid.Columns>
                 <ig:TextColumn Key="Id" Visibility="Hidden"/>
-                <ig:TextColumn Key="Name" HeaderText="Name" Width="80" IsReadOnly="True"/>
+                <!--<ig:TextColumn Key="Name" HeaderText="Name" Width="80" IsReadOnly="True" />-->
+                <ig:TemplateColumn Key="InstrumentIds" Visibility="Hidden"/>
+                <ig:TemplateColumn Key="Name" HeaderText="Name" Width="80" IsReadOnly="True">
+                    <ig:TemplateColumn.ItemTemplate>
+                        <DataTemplate>
+                            <Button Content="{Binding Name}" Width="80" Tag="{Binding Id}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="Button_Click"></Button>
+                        </DataTemplate>
+                    </ig:TemplateColumn.ItemTemplate>
+                </ig:TemplateColumn>
                 <ig:TemplateColumn Key="AdjustActionUp" HeaderText="Up" Width="35" IsReadOnly="True">
                     <ig:TemplateColumn.ItemTemplate>
                         <DataTemplate>

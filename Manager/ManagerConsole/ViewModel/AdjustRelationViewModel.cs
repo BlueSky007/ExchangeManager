@@ -14,6 +14,7 @@ namespace ManagerConsole.ViewModel
 
         public Guid Id { get; set; }
         public string Name { get; set; }
+        public List<int> InstrumentIds { get; set; }
         public int AdjustActionUp { get { return this._AdjustIncrement; } }
         public int AdjustActionDN { get { return this._AdjustIncrement; } }
         public int AdjustIncrement { get { return this._AdjustIncrement; } set { this._AdjustIncrement = value; } }
@@ -25,10 +26,16 @@ namespace ManagerConsole.ViewModel
         public int SpreadReplacement { get { return this._SpreadReplacement; } set { this._SpreadReplacement = value; } }
         public int SpreadActionReplace { get { return this._SpreadReplacement; } }
 
-        public AdjustRelationViewModel(Guid id, string name)
+        public AdjustRelationViewModel()
+        {
+            InstrumentIds = new List<int>();
+        }
+
+        public AdjustRelationViewModel(Guid id, string name,List<int> instrumentIds)
         {
             Id = id;
             Name = name;
+            InstrumentIds = instrumentIds;
             AdjustIncrement = 1;
             AdjustReplacement = 1;
             SpreadIncrement = 1;

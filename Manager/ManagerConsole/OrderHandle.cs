@@ -13,7 +13,7 @@ using OrderType = Manager.Common.OrderType;
 using TransactionType = Manager.Common.TransactionType;
 using AccountInfor = Manager.Common.AccountInformation;
 using OperationType = Manager.Common.OperationType;
-using SettingParameter = Manager.Common.Settings.SettingParameters;
+using ConfigParameters = Manager.Common.Settings.ConfigParameters;
 using System.Xml;
 using System.Collections.ObjectModel;
 using Manager.Common.LogEntities;
@@ -38,9 +38,9 @@ namespace ManagerConsole
         public OrderHandle()
         {
             this._App = ((ManagerConsole.MainWindow)Application.Current.MainWindow);
-            this._CommonDialogWin = this._App.CommonDialogWin;
-            this._ConfirmDialogWin = this._App.ConfirmDialogWin;
-            this.ConfirmOrderDialogWin = this._App.ConfirmOrderDialogWin;
+            this._CommonDialogWin = this._App._CommonDialogWin;
+            this._ConfirmDialogWin = this._App._ConfirmDialogWin;
+            this.ConfirmOrderDialogWin = this._App._ConfirmOrderDialogWin;
             this.ConfirmOrderDialogWin.OnConfirmDialogResult += new ConfirmOrderDialogWin.ConfirmDialogResultHandle(ExecuteOrderHandle);
             this.ConfirmOrderDialogWin.OnModifyPriceDialogResult += new ConfirmOrderDialogWin.ConfirmModifyPriceResultHandle(ModifyPriceHandle);
             this.ConfirmOrderDialogWin.OnRejectOrderDialogResult += new ConfirmOrderDialogWin.RejectOrderResultHandle(RejectOrderHandle);
@@ -81,8 +81,8 @@ namespace ManagerConsole
 
         public void OnOrderReject(OrderTask order)
         {
-            SettingParameter parameter = new SettingParameter();
-            this._App.InitDataManager.SettingParameters.TryGetValue(order.ExchangeCode,out parameter);
+            ConfigParameters parameter = new ConfigParameters();
+            this._App.InitDataManager.ConfigParameters.TryGetValue(order.ExchangeCode, out parameter);
             if (order.OrderStatus == OrderStatus.WaitOutPriceDQ || order.OrderStatus == OrderStatus.WaitOutLotDQ)
             {
                 if (parameter.ConfirmRejectDQOrder)
@@ -302,7 +302,7 @@ namespace ManagerConsole
             {
                 //just test data
                 Manager.Common.AccountInformation accountInfor = ConsoleClient.Instance.GetAcountInfo(Guid.Empty);
-                this._App.ConfirmOrderDialogWin.ShowDialogWin(accountInfor, title, orderTask, action);
+                this._App._ConfirmOrderDialogWin.ShowDialogWin(accountInfor, title, orderTask, action);
             }
             else
             {
@@ -565,29 +565,33 @@ namespace ManagerConsole
 
         private void RemoveTransaction(Transaction tran)
         {
-            List<OrderTask> deleteOrders = new List<OrderTask>();
+            List<OrderTask> instanceOrders = new List<OrderTask>();
+
             foreach (Order order in tran.Orders)
             {
                 order.ChangeStatus(OrderStatus.Canceled);
 
-                foreach (OrderTask orderTask in this._App.InitDataManager.OrderTaskModel.OrderTasks)
+                foreach (OrderTask orderTask in this._App.InitDataManager.ProcessInstantOrder.OrderTasks)
                 {
                     if (orderTask.OrderId == order.Id)
                     {
-                        deleteOrders.Add(orderTask);
+                        instanceOrders.Add(orderTask);
                         continue;
                     }
                 }
             }
 
-            foreach (OrderTask orderTask in deleteOrders)
-            {
-                if (this.OnExecuteOrderNotifyEvent != null)
-                {
-                    this.OnExecuteOrderNotifyEvent(orderTask);
-                }
-                this._App.InitDataManager.OrderTaskModel.RemoveOrderTask(orderTask);
-            }
+            this._App.InitDataManager.ProcessInstantOrder.RemoveInstanceOrder(instanceOrders);
         }
+
+        //    foreach (OrderTask orderTask in instanceOrders)
+        //    {
+        //        if (this.OnExecuteOrderNotifyEvent != null)
+        //        {
+        //            this.OnExecuteOrderNotifyEvent(orderTask);
+        //        }
+        //        this._App.InitDataManager.OrderTaskModel.RemoveOrderTask(orderTask);
+        //    }
+        //}
     }
 }

@@ -51,6 +51,8 @@ namespace ManagerConsole
                     return new ExchangeQuotationControl();
                 case ModuleType.AdjustSpreadSetting:
                     return new AdjustAndSpreadSettingControl();
+                case ModuleType.SourceRelation:
+                    return new SourceRelationControl();
                 case ModuleType.Quote:
                     //return new QutePriceControl();
                 case ModuleType.OrderProcess:
@@ -59,6 +61,8 @@ namespace ManagerConsole
                     return new LMTProcess();
                 case ModuleType.MooMocProcess:
                     return new MooMocOrderTask();
+                case ModuleType.DQOrderProcess:
+                    return new DealingInstanceOrder();
                 case ModuleType.LogAuditQuery:
                     return new LogAuditControl();
                 case ModuleType.OrderSearch:

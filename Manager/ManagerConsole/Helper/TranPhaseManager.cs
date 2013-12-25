@@ -98,7 +98,8 @@ namespace ManagerConsole.Helper
         public void DeleteOrderNotifyUpdateLot(Guid instrumentId, Order deletedOrder)
         {
             InstrumentClient instrument = this._InitDataManager.Instruments.SingleOrDefault(P => P.Id == instrumentId);
-            QuotePolicyDetail quotePolicyDetail = this._InitDataManager.SettingsManager.GetQuotePolicyDetail(instrumentId);
+            Customer customer = new Customer();
+            QuotePolicyDetail quotePolicyDetail = this._InitDataManager.SettingsManager.GetQuotePolicyDetail(instrumentId, customer);
             decimal lotBalance = deletedOrder.LotBalance;
             bool isBuy = (deletedOrder.BuySell == BuySell.Buy);
             this.SubtractBuySellLot(instrument, quotePolicyDetail, isBuy, lotBalance);
@@ -141,7 +142,8 @@ namespace ManagerConsole.Helper
             bool isOpen = deletedOrder.OpenClose == OpenClose.Open;
             bool isBuy = deletedOrder.BuySell == BuySell.Buy;
             InstrumentClient instrument = this._InitDataManager.Instruments.SingleOrDefault(P => P.Id == instrumentId);
-            QuotePolicyDetail quotePolicyDetail = this._InitDataManager.SettingsManager.GetQuotePolicyDetail(instrumentId);
+            Customer customer = new Customer();
+            QuotePolicyDetail quotePolicyDetail = this._InitDataManager.SettingsManager.GetQuotePolicyDetail(instrumentId, customer);
             ObservableCollection<CloseOrder> closeOrders = deletedOrder.CloseOrders;
 
             if (phase == Phase.Executed || phase == Phase.Completed)

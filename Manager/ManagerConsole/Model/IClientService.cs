@@ -22,14 +22,14 @@ namespace ManagerConsole.Model
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginLogin(string userName, string password, string oldSessionId, Language language, AsyncCallback callback, object asyncState);
         LoginResult EndLogin(IAsyncResult result);
-
+      
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginGetInitializeData(AsyncCallback callback, object asyncState);
         List<InitializeData> EndGetInitializeData(IAsyncResult result);
-
+      
 
         [OperationContract(IsInitiating = false)]
-        FunctionTree GetFunctionTree();
+        FunctionTree GetFunctionTree();      
 
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginLogout(AsyncCallback callback, object asyncState);
@@ -82,7 +82,7 @@ namespace ManagerConsole.Model
 
         #endregion
 
-        #region QuotePrice
+        #region DealingConsole
         [OperationContract(IsInitiating = false)]
         void AbandonQuote(List<Answer> abandonQuotePrices);
 
@@ -104,13 +104,17 @@ namespace ManagerConsole.Model
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginCancel(Guid transactionId, CancelReason cancelReason, LogOrder logEntity, AsyncCallback callback, object asyncState);
         TransactionError EndCancel(IAsyncResult result);
-
+        
         [OperationContract(IsInitiating = false)]
         void ResetHit(Guid[] orderIds);
 
         [OperationContract(IsInitiating = false)]
         AccountInformation GetAcountInfo(Guid transactionId);
 
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginLoadSettingsParameters(AsyncCallback callback, object asyncState);
+        List<string> EndLoadSettingsParameters(IAsyncResult result);
+        
         #endregion
 
         #region Report
@@ -197,7 +201,7 @@ namespace ManagerConsole.Model
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginSwitchDefaultSource(SwitchRelationBooleanPropertyMessage message, AsyncCallback callback, object asyncState);
         void EndSwitchDefaultSource(IAsyncResult result);
-
+      
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginGetQuotePolicyRelation(AsyncCallback callback, object asyncState);
         List<QuotePolicyRelation> EndGetQuotePolicyRelation(IAsyncResult result);
@@ -205,9 +209,13 @@ namespace ManagerConsole.Model
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginAddNewRelation(Guid id, string code, List<int> instruments, AsyncCallback callback, object asyncState);
         bool EndAddNewRelation(IAsyncResult result);
+        [OperationContract(AsyncPattern=true)]
+        IAsyncResult BeginConfirmAbnormalQuotation(int instrumentId, int confirmId, bool accepted, AsyncCallback callback, object asyncState);
+        void EndConfirmAbnormalQuotation(IAsyncResult result);
+      
         #endregion
         [OperationContract(AsyncPattern = false)]
-        void Updatetest();
+        void Updatetest();  
 
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginUpdateQuotationPolicy(QuotePolicyDetailSet set, AsyncCallback callback, object asyncState);

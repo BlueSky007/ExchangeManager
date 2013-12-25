@@ -18,7 +18,7 @@ using TransactionError = Manager.Common.TransactionError;
 using ManagerConsole.Helper;
 using SettingSet = Manager.Common.SettingSet;
 using InitializeData = Manager.Common.InitializeData;
-using SettingParameters = Manager.Common.Settings.SettingParameters;
+using ConfigParameters = Manager.Common.Settings.ConfigParameters;
 using Phase = Manager.Common.Phase;
 using OrderRelationType = Manager.Common.OrderRelationType;
 using Manager.Common.QuotationEntities;
@@ -43,15 +43,17 @@ namespace ManagerConsole
         private Dictionary<Guid, InstrumentClient> _Instruments = new Dictionary<Guid, InstrumentClient>();
         private Dictionary<Guid, Transaction> _Transactions = new Dictionary<Guid, Transaction>();
         private Dictionary<Guid, Order> _Orders = new Dictionary<Guid, Order>();
-        private Dictionary<string, SettingParameters> _SettingParameters = new Dictionary<string, SettingParameters>();
+        private Dictionary<string, ConfigParameters> _ConfigParameters = new Dictionary<string, ConfigParameters>();
         private Dictionary<string, List<ExchangeQuotation>> _ExchangeQuotations = new Dictionary<string,List<ExchangeQuotation>>();
         private ObservableCollection<OrderTask> _OrderTaskEntities = new ObservableCollection<OrderTask>();
         private DQOrderTaskForInstrumentModel _DQOrderTaskForInstrumentModel = new DQOrderTaskForInstrumentModel();
         private MooMocOrderForInstrumentModel _MooMocOrderForInstrumentModel = new MooMocOrderForInstrumentModel();
         private OrderTaskModel _OrderTaskModel = new OrderTaskModel();
+        private ProcessInstantOrder _ProcessInstantOrder = new ProcessInstantOrder();
         private LMTProcessModel _LMTProcessModel = new LMTProcessModel();
         private ObservableCollection<Order> _ExecutedOrders = new ObservableCollection<Order>();
         private ExecuteOrderSummaryItemModel _ExecuteOrderSummaryItemModel = new ExecuteOrderSummaryItemModel();
+        private bool _IsInitializeCompleted = false;
 
         //询价
         private QuotePriceClientModel _QuotePriceClientModel = new QuotePriceClientModel();
@@ -82,9 +84,14 @@ namespace ManagerConsole
             set;
         }
 
-        public Dictionary<string, SettingParameters> SettingParameters
+        public bool IsInitializeCompleted
         {
-            get { return this._SettingParameters; }
+            get { return this._IsInitializeCompleted; }
+        }
+
+        public Dictionary<string, ConfigParameters> ConfigParameters
+        {
+            get { return this._ConfigParameters; }
         }
 
         public IEnumerable<Account> Accounts
@@ -112,6 +119,12 @@ namespace ManagerConsole
         {
             get { return this._OrderTaskModel; }
             set { this._OrderTaskModel = value; }
+        }
+
+        public ProcessInstantOrder ProcessInstantOrder
+        {
+            get { return this._ProcessInstantOrder; }
+            set { this._ProcessInstantOrder = value; }
         }
 
         public DQOrderTaskForInstrumentModel DQOrderTaskForInstrumentModel
@@ -153,34 +166,22 @@ namespace ManagerConsole
             foreach (InitializeData initializeData in initializeDatas)
             {
                 this.SettingsManager.Initialize(initializeData.SettingSet);
-                this._SettingParameters = initializeData.SettingParameters;
+                this._ConfigParameters = initializeData.SettingParameters;
                 this.UpdateTradingSetting();
                 this._ExchangeQuotations.Add(initializeData.ExchangeCode, this.InitExchangeQuotation(initializeData.SettingSet));
             }
+            this._IsInitializeCompleted = true;
         }
 
         public void UpdateTradingSetting()
         {
-            try
+            foreach (InstrumentClient instrument in this.SettingsManager.GetInstruments())
             {
-                foreach (InstrumentClient instrument in this.SettingsManager.GetInstruments())
-                {
-                    if (!this._Instruments.ContainsKey(instrument.Id))
-                    {
-                        this._Instruments.Add(instrument.Id, instrument);
-                    }
-                }
-                foreach (Account account in this.SettingsManager.GetAccounts())
-                {
-                    if (!this._Instruments.ContainsKey(account.Id))
-                    {
-                        this._Accounts.Add(account.Id, account);
-                    }
-                }
+                Toolkit.AddDictionary<InstrumentClient>(instrument.Id, instrument, this._Instruments);
             }
-            catch (Exception ex)
+            foreach (Account account in this.SettingsManager.GetAccounts())
             {
-                
+                Toolkit.AddDictionary<Account>(account.Id, account, this._Accounts);
             }
         }
 
@@ -223,10 +224,10 @@ namespace ManagerConsole
         
         public void ProcessQuoteMessage(QuoteMessage quoteMessage)
         {
-            int waiteTime = 5000;     //取初始化数据系统参数
+            int waiteTime = this.SettingsManager.GetSettingsParameter(quoteMessage.ExchangeCode).ParameterSetting.EnquiryWaitTime;
             Guid customerId = quoteMessage.CustomerID;
             //通过CustomerId获取Customer对象
-            //var customer = this._Customers.SingleOrDefault(P => P.id == customerId);
+            //Customer customer = this.SettingsManager.GetCustomers().SingleOrDefault(P => P.Id == customerId);
             var customer = new Customer();
             customer.Id = quoteMessage.CustomerID;
             customer.Code = "WF007";
@@ -235,23 +236,7 @@ namespace ManagerConsole
             InstrumentClient instrument = this._Instruments[quoteMessage.InstrumentID];
 
             QuotePriceClient quotePriceClient = new QuotePriceClient(quoteMessage,waiteTime,instrument,customer);
-
             this._QuotePriceClientModel.AddSendQuotePrice(quotePriceClient);
-            QuotePriceForInstrument clientQuotePriceForInstrument = null;
-            //clientQuotePriceForInstrument = this.ClientQuotePriceForInstrument.SingleOrDefault(P => P.InstrumentClient.Id == quotePriceClient.InstrumentId);
-            //if (clientQuotePriceForInstrument == null)
-            //{
-            //    //从内存中获取Instrument
-            //    //var instrumentEntity = this._Instruments.SingleOrDefault(P => P.InstrumentId == clientQuotePriceForAccount.InstrumentId);
-            //    clientQuotePriceForInstrument = new QuotePriceForInstrument();
-            //    var instrument = TestData.GetInstrument(quotePriceClient);
-            //    clientQuotePriceForInstrument.InstrumentClient = instrument;
-            //    clientQuotePriceForInstrument.Adjust = decimal.Parse(instrument.Origin);
-            //    //clientQuotePriceForInstrument.AdjustLot = quotePriceClient.QuoteLot;
-            //    this.ClientQuotePriceForInstrument.Add(clientQuotePriceForInstrument);
-            //}
-            //clientQuotePriceForInstrument.OnEmptyQuotePriceClient += new QuotePriceForInstrument.EmptyQuotePriceHandle(ClientQuotePriceForInstrument_OnEmptyClientQuotePriceClient);
-            //clientQuotePriceForInstrument.AddNewQuotePrice(quotePriceClient);
         }
 
         public void ProcessPlaceMessage(PlaceMessage placeMessage)
@@ -533,6 +518,13 @@ namespace ManagerConsole
                     mooMocOrderForInstrument.SumSellLot += orderTask.Lot.Value;
                 }
                 mooMocOrderForInstrument.OrderTasks.Add(orderTask);
+            }
+            else if(order.Transaction.OrderType == Manager.Common.OrderType.SpotTrade)
+            {
+                OrderTask orderTask = new OrderTask(order);
+                orderTask.BaseOrder = order;
+
+                this._ProcessInstantOrder.AddInstanceOrder(orderTask);
             }
             else
             {

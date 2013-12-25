@@ -43,5 +43,22 @@ namespace ManagerConsole
             return regex.IsMatch(input);
         }
 
+        internal static void AddDictionary<T>(Guid key, T value, Dictionary<Guid, T> values)
+        where T:new()
+        {
+            if (!values.ContainsKey(key))
+            {
+                values.Add(key, value);
+            }
+        }
+        internal static void AddDictionary<T>(string key, T value, Dictionary<string, T> values)
+        where T : new()
+        {
+            if (!values.ContainsKey(key))
+            {
+                values.Add(key, value);
+            }
+        }
+
     }
 }
