@@ -21,13 +21,22 @@ namespace ManagerConsole.UI
         private ObservableCollection<AccountGroup> _AccountGroups = new ObservableCollection<AccountGroup>();
         private ExecuteOrderSummaryItemModel _Model;
         private bool isCompleted = false;
+        private Style _BuyOrderRowStyle;
+        private Style _SellOrderRowStyle;
         public ExecutedOrders()
         {
             InitializeComponent();
+            this.GetStyles();
             this.BindingData();
             this.InitializeData();
             this.AttachEvent();
             this.isCompleted = true;
+        }
+
+        private void GetStyles()
+        {
+            this._BuyOrderRowStyle = this.Resources["BuyOrderRowStyle"] as Style;
+            this._SellOrderRowStyle = this.Resources["SellOrderRowStyle"] as Style;
         }
 
         private void InitializeData()
@@ -186,10 +195,15 @@ namespace ManagerConsole.UI
         void ExecutedOrderListGrid_InitializeRow(object sender, Infragistics.Controls.Grids.InitializeRowEventArgs e)
         {
             Order order = e.Row.Data as Order;
-            Style style = new Style(typeof(Infragistics.Controls.Grids.CellControl));
-            style.Setters.Add(new Setter(ForegroundProperty, order.IsBuyBrush));
 
-            e.Row.CellStyle = style;
+            if (order.BuySell == BuySell.Buy)
+            {
+                e.Row.CellStyle =  this._BuyOrderRowStyle;
+            }
+            else
+            {
+                e.Row.CellStyle = this._SellOrderRowStyle;
+            }
         }
 
         void ExecutedOrderSummaryGrid_InitializeRow(object sender, Infragistics.Controls.Grids.InitializeRowEventArgs e)

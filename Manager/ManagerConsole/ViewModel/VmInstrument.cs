@@ -25,6 +25,12 @@ namespace ManagerConsole.ViewModel
             }
         }
 
+        public VmInstrument()
+            : base(null)
+        {
+
+        }
+
         private void SourceRelations_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             int step = 20;

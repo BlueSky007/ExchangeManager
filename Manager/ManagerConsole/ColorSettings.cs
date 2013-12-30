@@ -288,6 +288,11 @@ namespace ManagerConsole
         {
             get;
         }
+
+        public abstract Style TabItemStyle
+        {
+            get;
+        }
     }
 
     public class WhiteColorTemplate : ColorTemplate
@@ -375,6 +380,11 @@ namespace ManagerConsole
         public override Color TurnoverInstrumentBackControlButtonMouseOverColor3
         {
             get { return (Color.FromArgb(0x7F, 0xFF, 0xFF, 0xFF)); }
+        }
+
+        public override Style TabItemStyle
+        {
+            get { return Application.Current.Resources["TabItemStyle"] as Style; }
         }
     }
 
@@ -484,6 +494,11 @@ namespace ManagerConsole
         public override Color TurnoverInstrumentBackControlButtonMouseOverColor3
         {
             get { return (Color.FromArgb(0xFF, 0X40, 0X40, 0X60)); }
+        }
+
+        public override Style TabItemStyle
+        {
+            get { return Application.Current.Resources["TabItemStyle"] as Style; }
         }
     }
 }

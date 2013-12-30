@@ -57,9 +57,12 @@
                 <ig:XamGrid.EditingSettings>
                     <ig:EditingSettings AllowEditing="Cell" IsEnterKeyEditingEnabled="True" IsMouseActionEditingEnabled="DoubleClick"/>
                 </ig:XamGrid.EditingSettings>
+                <ig:XamGrid.FilteringSettings>
+                    <ig:FilteringSettings AllowFiltering="FilterMenu" />
+                </ig:XamGrid.FilteringSettings>
                 <ig:XamGrid.Columns>
-                    <ig:TextColumn Key="Code" HeaderText="Code" IsReadOnly="True" />
-                    <ig:TextColumn Key="Timestamp" HeaderText="Timestamp" IsReadOnly="True" />
+                    <ig:TextColumn Key="Code" HeaderText="Code" IsFilterable="True" IsReadOnly="True" />
+                    <ig:TextColumn Key="Timestamp" HeaderText="Timestamp" IsFilterable="False" IsReadOnly="True" />
                     <ig:TemplateColumn Key="Bid" HeaderText="Bid" IsReadOnly="True" Width="60">
                         <ig:TemplateColumn.ItemTemplate>
                             <DataTemplate>
@@ -78,7 +81,7 @@
                             </DataTemplate>
                         </ig:TemplateColumn.ItemTemplate>
                     </ig:TemplateColumn>
-                    <ig:TemplateColumn Key="AdjustPoints" HeaderText="AdjustPoints" IsReadOnly="True">
+                    <ig:TemplateColumn Key="AdjustPoints" HeaderText="AdjustPoints" IsFilterable="False" IsReadOnly="True">
                         <ig:TemplateColumn.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
@@ -89,33 +92,33 @@
                             </DataTemplate>
                         </ig:TemplateColumn.ItemTemplate>
                     </ig:TemplateColumn>
-                    <ig:TextColumn Key="AdjustIncrement" HeaderText="Inc" HorizontalContentAlignment="Right" EditorStyle="{StaticResource NumericEditStyle}" />
-                    <ig:TextColumn Key="DecimalPlace" HeaderText="DecimalPlace" HorizontalContentAlignment="Right" EditorStyle="{StaticResource NumericEditStyle}"/>
-                    <ig:TextColumn Key="InactiveTime" HeaderText="InactiveTime" HorizontalContentAlignment="Right" EditorStyle="{StaticResource NumericEditStyle}"/>
-                    <ig:TemplateColumn Key="UseWeightedPrice" HeaderText="UseWeightedPrice" IsReadOnly="True" HorizontalContentAlignment="Center">
+                    <ig:TextColumn Key="AdjustIncrement" HeaderText="Inc" IsFilterable="False" HorizontalContentAlignment="Right" EditorStyle="{StaticResource NumericEditStyle}" />
+                    <ig:TextColumn Key="DecimalPlace" HeaderText="DecimalPlace" IsFilterable="False" HorizontalContentAlignment="Right" EditorStyle="{StaticResource NumericEditStyle}"/>
+                    <ig:TextColumn Key="InactiveTime" HeaderText="InactiveTime" IsFilterable="False" HorizontalContentAlignment="Right" EditorStyle="{StaticResource NumericEditStyle}"/>
+                    <ig:TemplateColumn Key="UseWeightedPrice" HeaderText="UseWeightedPrice" IsFilterable="False" IsReadOnly="True" HorizontalContentAlignment="Center">
                         <ig:TemplateColumn.ItemTemplate>
                             <DataTemplate>
                                 <CheckBox IsChecked="{Binding UseWeightedPrice}" IsEnabled="False"/>
                             </DataTemplate>
                         </ig:TemplateColumn.ItemTemplate>
                     </ig:TemplateColumn>
-                    <ig:TemplateColumn Key="IsDerivative" HeaderText="IsDerivative" IsReadOnly="True" HorizontalContentAlignment="Center">
+                    <ig:TemplateColumn Key="IsDerivative" HeaderText="IsDerivative" IsFilterable="False" IsReadOnly="True" HorizontalContentAlignment="Center">
                         <ig:TemplateColumn.ItemTemplate>
                             <DataTemplate>
                                 <CheckBox IsChecked="{Binding IsDerivative}" IsEnabled="False"/>
                             </DataTemplate>
                         </ig:TemplateColumn.ItemTemplate>
                     </ig:TemplateColumn>
-                    <ig:TemplateColumn Key="IsSwitchUseAgio" HeaderText="IsSwitchUseAgio" IsReadOnly="True" HorizontalContentAlignment="Center">
+                    <ig:TemplateColumn Key="IsSwitchUseAgio" HeaderText="IsSwitchUseAgio" IsFilterable="False" IsReadOnly="True" HorizontalContentAlignment="Center">
                         <ig:TemplateColumn.ItemTemplate>
                             <DataTemplate>
                                 <CheckBox IsChecked="{Binding IsSwitchUseAgio}" IsEnabled="False"/>
                             </DataTemplate>
                         </ig:TemplateColumn.ItemTemplate>
                     </ig:TemplateColumn>
-                    <ig:TextColumn Key="AgioSeconds" HeaderText="AgioSeconds" IsReadOnly="True" HorizontalContentAlignment="Center"/>
-                    <ig:TextColumn Key="LeastTicks" HeaderText="LeastTicks" IsReadOnly="True" HorizontalContentAlignment="Center"/>
-                    <ig:TemplateColumn Key="Id" HeaderText="Send" IsReadOnly="True">
+                    <ig:TextColumn Key="AgioSeconds" HeaderText="AgioSeconds" IsFilterable="False" IsReadOnly="True" HorizontalContentAlignment="Center"/>
+                    <ig:TextColumn Key="LeastTicks" HeaderText="LeastTicks" IsFilterable="False" IsReadOnly="True" HorizontalContentAlignment="Center"/>
+                    <ig:TemplateColumn Key="Id" HeaderText="Send" IsFilterable="False" IsReadOnly="True">
                         <ig:TemplateColumn.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" Visibility="{Binding SendButtonVisibility}">

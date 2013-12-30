@@ -640,7 +640,6 @@ namespace ManagerConsole.ViewModel
             this._BestTime = order.BestTime;
             this.ChangeStatus(this._OrderStatus);
         }
-
     }
 
     public class CellDataDefine

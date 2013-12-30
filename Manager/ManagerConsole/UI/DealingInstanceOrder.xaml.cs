@@ -90,14 +90,14 @@ namespace ManagerConsole.UI
         {
             e.Handled = true;
             Button btn = sender as Button;
-
+            
             switch (btn.Name)
             {
                 case "_UpPriceButton":
-                    
+                    this._ProcessInstantOrder.AdjustPrice(true);
                     break;
                 case "_DownPriceButton":
-
+                    this._ProcessInstantOrder.AdjustPrice(false);
                     break;
                 case "_IncreaseSellAutoPointsButton":
                     break;

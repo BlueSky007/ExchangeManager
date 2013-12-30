@@ -240,6 +240,7 @@
     <Style x:Key="ExecuteSatusCellStyle" TargetType="ig:CellControl">
         <Setter Property="BorderBrush" Value="{StaticResource CellItemNormalBorderBrush}"/>
         <Setter Property="BorderThickness" Value="0,0,1,0"/>
+        <Setter Property="Padding" Value="2,0,0,0"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ig:CellControl">

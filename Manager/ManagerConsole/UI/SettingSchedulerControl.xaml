@@ -1,0 +1,88 @@
+﻿<UserControl x:Class="ManagerConsole.UI.SettingSchedulerControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:igGrid="http://schemas.infragistics.com/xaml"
+             xmlns:igOB="http://infragistics.com/OutlookBar"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+    <Grid Background="Black">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="350"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition x:Name="SplitterColumn" Width="5" />
+            <ColumnDefinition x:Name="LastTradeColumn" Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <!--Task List-->
+        <Border Margin="3,3,0,0">
+            <igGrid:XamGrid x:Name="_SettingSchedulerGrid" Grid.Row="1" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto"
+                                Background ="{Binding Path=ColorTemplate.Background, Source={StaticResource ColorSettings}}" 
+                                Foreground ="{Binding Path=ColorTemplate.Foreground, Source={StaticResource ColorSettings}}"
+                                CellStyle="{Binding Path=ColorTemplate.XamGridCellStyle, Source={StaticResource ColorSettings}}"
+                                HeaderStyle="{Binding Path=ColorTemplate.XamGridHeaderStyle, Source={StaticResource ColorSettings}}">
+                <igGrid:XamGrid.FixedColumnSettings>
+                    <igGrid:FixedColumnSettings AllowFixedColumns="DropArea"/>
+                </igGrid:XamGrid.FixedColumnSettings>
+                <igGrid:XamGrid.GroupBySettings>
+                    <igGrid:GroupBySettings AllowGroupByArea="Top" IsGroupable="True" EmptyGroupByAreaContent="任务列表     拖动列标题栏在此分组"/>
+                </igGrid:XamGrid.GroupBySettings>
+
+                <!--Column Setting-->
+                <igGrid:XamGrid.Columns>
+                    <igGrid:TextColumn Key="Name" Width="100" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Name"/>
+                    <igGrid:TemplateColumn Key="TaskStatus"  Width="60" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Status" >
+                        <igGrid:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding TaskStatus}" Foreground="Blue"/>
+                            </DataTemplate>
+                        </igGrid:TemplateColumn.ItemTemplate>
+                    </igGrid:TemplateColumn>
+                    <igGrid:TextColumn Key="Description"  Width="100" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Description" />
+                    <igGrid:TextColumn Key="ActionType" Width="78" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Action Type" />
+                    <igGrid:TextColumn Key="TaskType" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Task Type" />
+                    <igGrid:TemplateColumn Key="RunTime"  Width="120" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Next Run Time">
+                        <igGrid:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding RunTime}" Foreground="Red"/>
+                            </DataTemplate>
+                        </igGrid:TemplateColumn.ItemTemplate>
+                    </igGrid:TemplateColumn>
+                    <igGrid:TextColumn Key="LastRunTime"  Width="120" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Last Run Time" />
+                    <igGrid:TextColumn Key="Creater"  Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Create User" />
+                    <igGrid:TextColumn Key="CreateDateTime"  Width="120" HorizontalContentAlignment="Center" Visibility="Visible" HeaderText="Created" />
+                </igGrid:XamGrid.Columns>
+            </igGrid:XamGrid>
+        </Border>
+
+        <!--Create Task Menu-->
+        
+        <igOB:XamOutlookBar Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" MinWidth="200"  Margin="3,3,0,0" x:Name="_TaskMenu"
+                            Background="Black" IsMinimized="False">
+                <igOB:OutlookBarGroup Header="Task Scheduler">
+                    <igOB:OutlookBarGroup.Content>
+                        <StackPanel Orientation="Vertical" Background="Black">
+                            <Button x:Name="CreateBtn" Content="Create Task" Click="ActionBtn_Click"/>
+                            <Button x:Name="EditorBtn" Content="Editor Task" Click="ActionBtn_Click"/>
+                            <Button x:Name="DeleteBtn" Content="Delete Task" Click="ActionBtn_Click"/>
+                        </StackPanel>
+                    </igOB:OutlookBarGroup.Content>
+                </igOB:OutlookBarGroup>
+                <igOB:OutlookBarGroup Header="Task Action">
+                    <igOB:OutlookBarGroup.Content>
+                        <StackPanel Orientation="Vertical">
+                            <Button x:Name="RunBtn" Content="Run Task" Click="ActionBtn_Click"/>
+                            <Button x:Name="RunOneTimeBtn" Content="Run One Time" Click="ActionBtn_Click"/>
+                            <Button x:Name="DisabledBtn" Content="Disabled" Click="ActionBtn_Click"/>
+                            <Button x:Name="StopBtn" Content="Stop" Click="ActionBtn_Click"/>
+                        </StackPanel>
+                    </igOB:OutlookBarGroup.Content>
+                </igOB:OutlookBarGroup>
+            </igOB:XamOutlookBar>
+     
+        <GridSplitter x:Name="GridSplitter" Grid.Row="0" Grid.RowSpan="2" Margin="3,3,0,0" Grid.Column="1" Background="DarkGray" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  />
+    </Grid>
+</UserControl>

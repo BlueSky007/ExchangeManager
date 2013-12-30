@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xamDockManager version="13.1.20131.1009">
+  <contentPanes>
+    <contentPane name="FunctionTreePane" location="DockedLeft" lastActivatedTime="2013-12-27T07:14:24.1091248Z" />
+    <contentPane name="module5" location="Document" lastActivatedTime="2013-12-27T07:14:24.1021244Z" />
+    <contentPane name="module13" location="Document" lastActivatedTime="2013-12-24T06:41:12.0191367Z" />
+    <contentPane name="module12" location="Document" lastActivatedTime="2013-12-24T06:41:06.2568071Z" />
+    <contentPane name="module14" location="Document" lastActivatedTime="2013-12-24T06:41:02.11257Z" />
+    <contentPane name="module18" location="Document" lastActivatedTime="2013-12-24T06:40:50.1628866Z" />
+    <contentPane name="FloatPane" location="FloatingOnly" visibility="Collapsed" />
+  </contentPanes>
+  <panes>
+    <splitPane name="Z74e321f4e4fe484e9c28b82d614773e2" splitterOrientation="Vertical" location="DockedLeft">
+      <contentPane name="FunctionTreePane" />
+    </splitPane>
+    <splitPane name="Z41e46294a1e34f71a8e8b4e525eadcb0" splitterOrientation="Vertical" location="FloatingOnly" floatingLocation="300,300">
+      <contentPane name="FloatPane" />
+    </splitPane>
+  </panes>
+  <documents splitterOrientation="Vertical">
+    <splitPane name="Z9818fa6d6b2e47d7bade76717d36acad" splitterOrientation="Vertical">
+      <tabGroup name="Z0356bb61aa554241b72cd2eafc8ea4d1" selectedIndex="0">
+        <contentPane name="module5" />
+        <contentPane name="module18" />
+        <contentPane name="module14" />
+        <contentPane name="module12" />
+        <contentPane name="module13" />
+      </tabGroup>
+    </splitPane>
+  </documents>
+</xamDockManager>

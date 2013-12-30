@@ -3,8 +3,10 @@ using Manager.Common;
 using Manager.Common.LogEntities;
 using Manager.Common.QuotationEntities;
 using Manager.Common.ReportEntities;
+using Manager.Common.Settings;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.ServiceModel;
 using System.Text;
@@ -95,6 +97,17 @@ namespace ManagerService.Console
         [OperationContract(IsInitiating = false)]
         List<string> LoadSettingsParameters();
         #endregion 
+
+        #region Setting Manager
+        [OperationContract(IsInitiating = false)]
+        List<ParameterDefine> LoadParameterDefine();
+
+        [OperationContract(IsInitiating = false)]
+        bool CreateTaskScheduler(TaskScheduler taskScheduler);
+
+        [OperationContract(IsInitiating = false)]
+        ObservableCollection<TaskScheduler> GetTaskSchedulersData();
+        #endregion
 
         #region LogAudit
         [OperationContract(IsInitiating = false)]

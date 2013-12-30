@@ -9,6 +9,8 @@ using Manager.Common.LogEntities;
 using Manager.Common.ReportEntities;
 using iExchange.Common.Manager;
 using System.Xml;
+using Manager.Common.Settings;
+using System.Collections.ObjectModel;
 
 namespace ManagerService.Console
 {
@@ -67,6 +69,7 @@ namespace ManagerService.Console
 
                     OperationContext.Current.Channel.Faulted += this._Client.Channel_Broken;
                     OperationContext.Current.Channel.Closed += this._Client.Channel_Broken;
+                    loginResult.User = user;
                     loginResult.SessionId = sessionId;
                     loginResult.LayoutNames = UserDataAccess.GetAllLayoutName(userName);
                     string docklayout = string.Empty;
@@ -257,6 +260,23 @@ namespace ManagerService.Console
         public List<string> LoadSettingsParameters()
         {
             return this._Client.LoadSettingsParameters(this._Client.userId);
+        }
+        #endregion
+
+        #region Setting Manager
+        public List<ParameterDefine> LoadParameterDefine()
+        {
+            return this._Client.LoadParameterDefine();
+        }
+
+        public bool CreateTaskScheduler(TaskScheduler taskScheduler)
+        {
+            return this._Client.CreateTaskScheduler(taskScheduler);
+        }
+
+        public ObservableCollection<TaskScheduler> GetTaskSchedulersData()
+        {
+            return this._Client.GetTaskSchedulersData();
         }
         #endregion
 

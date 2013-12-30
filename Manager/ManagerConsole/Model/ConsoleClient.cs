@@ -8,6 +8,8 @@ using Manager.Common.LogEntities;
 using Manager.Common.ReportEntities;
 using iExchange.Common.Manager;
 using System.Xml;
+using Manager.Common.Settings;
+using System.Collections.ObjectModel;
 
 namespace ManagerConsole.Model
 {
@@ -22,7 +24,7 @@ namespace ManagerConsole.Model
                 return ConsoleClient._Instance;
             }
         }
-
+        public User user;
         private IClientService _ServiceProxy;
         private MessageClient _MessageClient = null;
         private string _SessionId;
@@ -51,6 +53,7 @@ namespace ManagerConsole.Model
                 try
                 {
                     LoginResult result = this._ServiceProxy.EndLogin(ar);
+                    this.user = result.User;
                     if (result.Succeeded)
                     {
                         this._SessionId = result.SessionId;
@@ -321,6 +324,38 @@ namespace ManagerConsole.Model
 
         #endregion
 
+        #region Setting Manager
+        public void LoadParameterDefine(Action<List<ParameterDefine>> EndLoadParameterDefine)
+        {
+            this._ServiceProxy.BeginLoadParameterDefine(delegate(IAsyncResult result)
+            {
+                List<ParameterDefine> parameters = this._ServiceProxy.EndLoadParameterDefine(result);
+                EndLoadParameterDefine(parameters);
+            }, null);
+        }
+
+        public void CreateTaskScheduler(TaskScheduler taskScheduler, Action<bool> EndCreateTaskScheduler)
+        {
+            this._ServiceProxy.BeginCreateTaskScheduler(taskScheduler,delegate(IAsyncResult result)
+            {
+                bool isCreateSucceed = this._ServiceProxy.EndCreateTaskScheduler(result);
+                EndCreateTaskScheduler(isCreateSucceed);
+            }, null);
+        }
+
+        public void GetTaskSchedulersData(Action<ObservableCollection<TaskScheduler>> EndGetTaskSchedulersData)
+        {
+            this._ServiceProxy.BeginGetTaskSchedulersData(delegate(IAsyncResult result)
+            {
+                App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+                {
+                    ObservableCollection<TaskScheduler> taskSchedulers = this._ServiceProxy.EndGetTaskSchedulersData(result);
+                    EndGetTaskSchedulersData(taskSchedulers);
+                });
+            }, null);
+        }
+        #endregion
+
         #region Report
         public void GetOrderByInstrument(Guid instrumentId, Guid accountGroupId,OrderType orderType,
             bool isExecute, DateTime fromDate, DateTime toDate,Action<List<OrderQueryEntity>> EndGetOrderByInstrument)
@@ -418,7 +453,6 @@ namespace ManagerConsole.Model
         }
         
         #endregion
-
 
         #region Quotation
         public void GetConfigMetadata(Action<ConfigMetadata> setMetadata)
@@ -556,5 +590,7 @@ namespace ManagerConsole.Model
             }, null);
         }
         #endregion
+
+
     }
 }

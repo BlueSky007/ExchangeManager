@@ -81,6 +81,7 @@
     <Compile Include="DataAccess\ExchangeData.cs" />
     <Compile Include="DataAccess\LogDataAccess.cs" />
     <Compile Include="DataAccess\QuotationData.cs" />
+    <Compile Include="DataAccess\SettingManagerData.cs" />
     <Compile Include="DataAccess\SettingsSetHelper.cs" />
     <Compile Include="DataAccess\UserDataAccess.cs" />
     <Compile Include="Exchange\CommandConvertor.cs" />
@@ -123,6 +124,10 @@
     <Compile Include="QuotationManager\QuotationManager.cs" />
     <Compile Include="QuotationManager\QuotationReceiver.cs" />
     <Compile Include="QuotationManager\SourceController.cs" />
+    <Compile Include="SettingSchedulerManager\SettingSchedulerManager.cs" />
+    <Compile Include="SettingSchedulerManager\SettingsForInstrument.cs" />
+    <Compile Include="SettingSchedulerManager\SettingsForSetValue.cs" />
+    <Compile Include="SettingSchedulerManager\SettingsForSystemParameter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Audit\" />

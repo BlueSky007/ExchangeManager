@@ -26,6 +26,8 @@ namespace ManagerConsole.ViewModel
         private PriceTrend _BidTrend;
 
         private Scheduler _Scheduler = new Scheduler();
+        private string _BidScheduleId;
+        private string _AskScheduleId;
 
         public VmQuotationBase(IMetadataObject metadataObject)
             : base(metadataObject)
@@ -105,7 +107,13 @@ namespace ManagerConsole.ViewModel
                     this.OnPropertyChanged("AskTrendBrush");
                     if (value != PriceTrend.NoChange)
                     {
-                        this._Scheduler.Add(this.ResetTrendState, "Ask", DateTime.Now.AddSeconds(2));
+                        if (this._AskScheduleId != null)
+                        {
+                            this._Scheduler.Remove(this._AskScheduleId);
+                            //Logger.AddEvent(TraceEventType.Information, "_AskScheduleId:[{0}] removed.", this._AskScheduleId);
+                        }
+                        this._AskScheduleId = this._Scheduler.Add(this.ResetTrendState, "Ask", DateTime.Now.AddSeconds(5));
+                        //Logger.AddEvent(TraceEventType.Information, "new _AskScheduleId:[{0}] added.", this._AskScheduleId);
                     }
                 }
             }
@@ -121,7 +129,13 @@ namespace ManagerConsole.ViewModel
                     this.OnPropertyChanged("BidTrendBrush");
                     if (value != PriceTrend.NoChange)
                     {
-                        this._Scheduler.Add(this.ResetTrendState, "Bid", DateTime.Now.AddSeconds(2));
+                        if(this._BidScheduleId != null)
+                        {
+                            this._Scheduler.Remove(this._BidScheduleId);
+                            //Logger.AddEvent(TraceEventType.Information, "_BidScheduleId:[{0}] removed.", this._BidScheduleId);
+                        }
+                        this._BidScheduleId = this._Scheduler.Add(this.ResetTrendState, "Bid", DateTime.Now.AddSeconds(5));
+                        //Logger.AddEvent(TraceEventType.Information, "new _BidScheduleId:[{0}] added.", this._BidScheduleId);
                     }
                 }
             }
@@ -161,17 +175,23 @@ namespace ManagerConsole.ViewModel
 
         private void ResetTrendState(object sender, object actionArgs)
         {
+            if (actionArgs.Equals("Ask"))
+            {
+                this._AskScheduleId = null;
+            }
+            else
+            {
+                this._BidScheduleId = null;
+            }
             App.MainWindow.Dispatcher.BeginInvoke((Action<string>)delegate(string propName)
             {
                 if(propName.Equals("Ask"))
                 {
                     this.AskTrend = PriceTrend.NoChange;
-                    //Logger.AddEvent(TraceEventType.Information, "Ask:{0}, this.AskTrend = PriceTrend.NoChange;", this.Ask);
                 }
                 else
                 {
                     this.BidTrend = PriceTrend.NoChange;
-                    //Logger.AddEvent(TraceEventType.Information, "Ask:{0}, this.BidTrend = PriceTrend.NoChange;", this.Ask);
                 }
             }, (string)actionArgs);
         }

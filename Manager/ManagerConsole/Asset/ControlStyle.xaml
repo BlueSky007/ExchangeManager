@@ -5,6 +5,7 @@
     xmlns:igPrim="http://schemas.infragistics.com/xaml/primitives"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local ="clr-namespace:ManagerConsole"
+    xmlns:igWindows="http://infragistics.com/Windows"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d">
 
     <!-- *********************************  RESOURCES  ********************************* -->
@@ -1245,5 +1246,640 @@
             </Setter.Value>
         </Setter>
         <Setter Property="Padding" Value="0"/>
+    </Style>
+
+    <!-- _________________________ XamTabControl ______________________________________ -->
+    <Style TargetType="igWindows:XamTabControl">
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Padding" Value="4"/>
+        <Setter Property="BorderThickness" Value="1,1,1,1"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource {x:Static igWindows:PrimitivesBrushKeys.TabItemIsSelectedOuterBorderFillKey}}"/>
+        <Setter Property="Background" Value="Black"/>
+        <Setter Property="Border.CornerRadius" Value="3"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type igWindows:XamTabControl}">
+                    <Grid ClipToBounds="True" SnapsToDevicePixels="True" KeyboardNavigation.TabNavigation="Local">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition x:Name="gridCol0"/>
+                            <ColumnDefinition Width="0" x:Name="gridCol1"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" x:Name="gridRow0"/>
+                            <RowDefinition Height="*" x:Name="gridRow1"/>
+                        </Grid.RowDefinitions>
+                        <Border
+							BorderBrush="{x:Null}"
+							x:Name="ContentPanel"
+							KeyboardNavigation.TabIndex="2"
+							KeyboardNavigation.TabNavigation="Local"
+							KeyboardNavigation.DirectionalNavigation="Contained"
+							Grid.Row="1"
+							Visibility="Visible"
+							Margin="0,-1,0,0"
+							Background="{DynamicResource {x:Static igWindows:PrimitivesBrushKeys.TabControlTabStripCenterFillKey}}">
+                            <!--Background="#FF515151"-->
+                            <Border
+								BorderThickness="{TemplateBinding Border.BorderThickness}"
+								Background="{TemplateBinding Background}"
+								BorderBrush="{TemplateBinding BorderBrush}"
+								Margin="0,1,0,0"
+								CornerRadius="{TemplateBinding Border.CornerRadius}">
+                                <!--<Border Background="{DynamicResource Container_Fill}" BorderBrush="{DynamicResource Container_BorderFill}" CornerRadius="5,5,5,5">-->
+                                <Border>
+                                    <ContentPresenter
+										ContentSource="SelectedContent"
+										Margin="{TemplateBinding Control.Padding}"
+										Height="{TemplateBinding TabItemContentHeight}"
+										Name="PART_SelectedContentHost"
+										SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" />
+                                </Border>
+                            </Border>
+                        </Border>
+                        <!-- Table头部行背景色 -->
+                        <DockPanel x:Name="PART_HeaderArea" Panel.ZIndex="1" 
+							KeyboardNavigation.TabIndex="1"
+							KeyboardNavigation.TabNavigation="Local" Background="#FF282828">
+                            <ContentPresenter
+								x:Name="PreTabItemContent"
+								DockPanel.Dock="Left"
+								ContentSource="PreTabItemContent"
+								TextElement.Foreground="{DynamicResource {x:Static igWindows:PrimitivesBrushKeys.TabItemNormalTextFillKey}}"/>
+                            <Button Name="CloseButton" DockPanel.Dock="Right" Command="igWindows:TabControlCommands.CloseSelected"
+								CommandTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+								Visibility="Collapsed"
+								Style="{DynamicResource {x:Static igWindows:XamTabControl.CloseButtonStyleKey}}" />
+                            <ContentPresenter
+								x:Name="PostTabItemContent"
+								DockPanel.Dock="Right"
+								ContentSource="PostTabItemContent"
+                                TextElement.Foreground="{DynamicResource {x:Static igWindows:PrimitivesBrushKeys.TabItemNormalTextFillKey}}"/>
+                            <igWindows:XamPager x:Name="PART_TabItemScrollViewer" 
+                                                Style="{DynamicResource {x:Static igWindows:XamTabControl.SingleRowTabItemPagerStyleKey}}"
+                                                CanContentScroll="True"  
+                                                ScrollViewer.VerticalScrollBarVisibility="{TemplateBinding TabItemVerticalScrollBarVisibility}" 
+                                                ScrollViewer.HorizontalScrollBarVisibility="{TemplateBinding TabItemHorizontalScrollBarVisibility}">
+                                <ItemsPresenter x:Name="PART_TabHeaderPanel" Margin="7,0,7,0" />
+                            </igWindows:XamPager>
+                        </DockPanel>
+                        <Popup
+							x:Name="PART_Popup"
+							StaysOpen="False"
+							Width="{TemplateBinding PreferredDropDownExtent}"
+							IsOpen="{Binding Path=IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
+							CustomPopupPlacementCallback="{TemplateBinding PreferredDropDownPlacementCallback}"
+							Placement="Custom"
+							AllowsTransparency="True"
+							PopupAnimation="{Binding Path=DropDownAnimation, RelativeSource={RelativeSource TemplatedParent}}">
+                            <Border
+								BorderBrush="#FFD0CEBF"
+								BorderThickness="0,0,1,1"
+								KeyboardNavigation.TabIndex="2"
+								CornerRadius="{TemplateBinding Border.CornerRadius}"
+								KeyboardNavigation.TabNavigation="Local"
+								KeyboardNavigation.DirectionalNavigation="Contained">
+                                <Border BorderBrush="{TemplateBinding Border.BorderBrush}" BorderThickness="{TemplateBinding Border.BorderThickness}" CornerRadius="{TemplateBinding Border.CornerRadius}">
+                                    <Border Background="{TemplateBinding Panel.Background}" CornerRadius="{TemplateBinding Border.CornerRadius}">
+                                        <ContentPresenter
+											ContentSource="SelectedContent"
+											Margin="{TemplateBinding Control.Padding}"
+											Height="{TemplateBinding TabItemContentHeight}"
+											Name="PART_SelectedContentHostMinimized"
+											HorizontalAlignment="{Binding ElementName=PART_SelectedContentHost, Path=HorizontalAlignment}"
+											VerticalAlignment="{Binding ElementName=PART_SelectedContentHost, Path=VerticalAlignment}"
+											SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}"
+											ContentTemplateSelector="{TemplateBinding TabControl.SelectedContentTemplateSelector}"
+											ContentTemplate="{TemplateBinding TabControl.SelectedContentTemplate}"
+											Content="{x:Null}"/>
+                                    </Border>
+                                </Border>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="ShowTabHeaderCloseButton" Value="True">
+                            <Setter Property="Visibility" TargetName="CloseButton" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="DropDownAnimation" Value="None">
+                            <!--<Setter Property="AllowsTransparency" TargetName="PART_Popup" Value="False"/>-->
+                        </Trigger>
+                        <Trigger Property="TabControl.TabStripPlacement" Value="Top">
+                            <Setter Property="Width" TargetName="PART_Popup" Value="{Binding Path=PreferredDropDownExtent, RelativeSource={x:Static RelativeSource.TemplatedParent}}"/>
+                            <Setter TargetName="CloseButton" Property="Margin" Value="3,1,3,0"/>
+                            <Setter TargetName="PreTabItemContent" Property="VerticalAlignment" Value="Bottom"/>
+                            <Setter TargetName="PostTabItemContent" Property="VerticalAlignment" Value="Bottom"/>
+                            <Setter TargetName="PostTabItemContent" Property="Margin" Value="3,0,3,4"/>
+                            <Setter TargetName="PreTabItemContent" Property="Margin" Value="3,0,3,4"/>
+                            <Setter Property="FrameworkElement.Margin" TargetName="PART_TabHeaderPanel" Value="7,1,7,0"/>
+                        </Trigger>
+                        <Trigger Property="TabControl.TabStripPlacement" Value="Bottom">
+                            <Setter TargetName="CloseButton" Property="Margin" Value="3,1,3,0"/>
+                            <Setter TargetName="PostTabItemContent" Property="Margin" Value="3,5,3,2"/>
+                            <Setter TargetName="PreTabItemContent" Property="Margin" Value="3,5,3,2"/>
+                            <Setter Property="Grid.Row" TargetName="PART_HeaderArea" Value="1"/>
+                            <Setter Property="Grid.Row" TargetName="ContentPanel" Value="0"/>
+                            <Setter Property="Height" TargetName="gridRow0" Value="*"/>
+                            <Setter Property="Height" TargetName="gridRow1" Value="Auto"/>
+                            <Setter Property="Width" TargetName="PART_Popup" Value="{Binding Path=PreferredDropDownExtent, RelativeSource={x:Static RelativeSource.TemplatedParent}}"/>
+                            <Setter Property="FrameworkElement.Margin" TargetName="PART_TabHeaderPanel" Value="7,0,7,1"/>
+                        </Trigger>
+                        <Trigger Property="TabControl.TabStripPlacement" Value="Left">
+                            <Setter TargetName="PostTabItemContent" Property="Margin" Value="5,3,4,3"/>
+                            <Setter TargetName="PreTabItemContent" Property="Margin" Value="5,3,4,3"/>
+                            <Setter Property="Margin" TargetName="CloseButton" Value="0,0,4,3"/>
+                            <Setter Property="DockPanel.Dock" TargetName="CloseButton" Value="Bottom"/>
+                            <Setter Property="HorizontalAlignment" TargetName="CloseButton" Value="Right"/>
+                            <Setter Property="Grid.Row" TargetName="PART_HeaderArea" Value="1"/>
+                            <Setter Property="Grid.Column" TargetName="ContentPanel" Value="1"/>
+                            <Setter Property="Height" TargetName="gridRow0" Value="0"/>
+                            <Setter Property="Width" TargetName="gridCol0" Value="Auto"/>
+                            <Setter Property="Width" TargetName="gridCol1" Value="*"/>
+                            <Setter Property="DockPanel.Dock" TargetName="PreTabItemContent" Value="Top"/>
+                            <Setter Property="DockPanel.Dock" TargetName="PostTabItemContent" Value="Bottom"/>
+                            <Setter Property="Height" TargetName="PART_Popup" Value="{Binding Path=PreferredDropDownExtent, RelativeSource={x:Static RelativeSource.TemplatedParent}}"/>
+                            <Setter Property="FrameworkElement.Margin" TargetName="PART_TabHeaderPanel" Value="1,7,0,7"/>
+                        </Trigger>
+                        <Trigger Property="TabControl.TabStripPlacement" Value="Right">
+                            <Setter TargetName="PostTabItemContent" Property="Margin" Value="4,3,4,3"/>
+                            <Setter TargetName="PreTabItemContent" Property="Margin" Value="4,3,4,3"/>
+                            <Setter Property="Margin" TargetName="CloseButton" Value="4,0,0,3"/>
+                            <Setter Property="DockPanel.Dock" TargetName="CloseButton" Value="Bottom"/>
+                            <Setter Property="HorizontalAlignment" TargetName="CloseButton" Value="Left"/>
+                            <Setter Property="Grid.Row" TargetName="PART_HeaderArea" Value="1"/>
+                            <Setter Property="Grid.Column" TargetName="PART_HeaderArea" Value="1"/>
+                            <Setter Property="Height" TargetName="gridRow0" Value="0"/>
+                            <Setter Property="Width" TargetName="gridCol0" Value="*"/>
+                            <Setter Property="Width" TargetName="gridCol1" Value="Auto"/>
+                            <Setter Property="DockPanel.Dock" TargetName="PreTabItemContent" Value="Top"/>
+                            <Setter Property="DockPanel.Dock" TargetName="PostTabItemContent" Value="Bottom"/>
+                            <Setter Property="Height" TargetName="PART_Popup" Value="{Binding Path=PreferredDropDownExtent, RelativeSource={x:Static RelativeSource.TemplatedParent}}"/>
+                            <Setter Property="FrameworkElement.Margin" TargetName="PART_TabHeaderPanel" Value="0,7,1,7"/>
+                        </Trigger>
+                        <Trigger Property="UIElement.IsEnabled" Value="False">
+                            <Setter Property="TextElement.Foreground" Value="{DynamicResource {x:Static igWindows:PrimitivesBrushKeys.GrayTextBrushKey}}"/>
+                        </Trigger>
+                        <Trigger Property="IsMinimized" Value="True">
+                            <Setter Property="Visibility" TargetName="ContentPanel" Value="Collapsed"/>
+                        </Trigger>
+                        <Trigger Property="IsMultiRow" Value="True">
+                            <Setter TargetName="PART_TabItemScrollViewer" Property="Style" Value="{DynamicResource {x:Static igWindows:XamTabControl.MultiRowTabItemPagerStyleKey}}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+
+            <Trigger Property="TabControl.TabStripPlacement" Value="Bottom">
+                <Setter Property="Panel.Background" Value="Black"/>
+            </Trigger>
+
+            <Trigger Property="TabControl.TabStripPlacement" Value="Left">
+                <Setter Property="Panel.Background" Value="Black"/>
+            </Trigger>
+
+            <Trigger Property="TabControl.TabStripPlacement" Value="Right">
+                <Setter Property="Panel.Background" Value="Black"/>
+            </Trigger>
+
+        </Style.Triggers>
+    </Style>
+
+
+    <!-- _________________________ TabItemEx ______________________________________ -->
+    <Style x:Key="TabItemStyle" TargetType="igWindows:TabItemEx">
+        <!-- <Setter Property="FocusVisualStyle" Value="{StaticResource Foo}" /> -->
+        <Setter Property="Foreground" Value="Gold"/>
+        <Setter Property="BorderBrush" Value="Black"/>
+        <Setter Property="Background" Value="Black"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type igWindows:TabItemEx}">
+                    <ControlTemplate.Resources>
+                        <Storyboard x:Key="TabMouseOver">
+                            <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="TabHottrack" Storyboard.TargetProperty="(UIElement.Visibility)">
+                                <DiscreteObjectKeyFrame KeyTime="00:00:00.0000" Value="{x:Static Visibility.Visible}"/>
+                            </ObjectAnimationUsingKeyFrames>
+                            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="TabHottrack" Storyboard.TargetProperty="(UIElement.Opacity)">
+                                <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="1"/>
+                            </DoubleAnimationUsingKeyFrames>
+                        </Storyboard>
+                        <Storyboard x:Key="TabMouseOut" FillBehavior="Stop">
+                            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="TabHottrack" Storyboard.TargetProperty="(UIElement.Opacity)">
+                                <SplineDoubleKeyFrame KeyTime="00:00:00.3000000" Value="0"/>
+                            </DoubleAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="TabHottrack" Storyboard.TargetProperty="(UIElement.Visibility)">
+                                <DiscreteObjectKeyFrame KeyTime="00:00:00.310000" Value="{x:Static Visibility.Collapsed}"/>
+                            </ObjectAnimationUsingKeyFrames>
+                        </Storyboard>
+                        <Storyboard x:Key="TabMouseOverNotSelected">
+                            <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="TabMouseOverNotSelected" Storyboard.TargetProperty="(UIElement.Visibility)">
+                                <DiscreteObjectKeyFrame KeyTime="00:00:00.00000" Value="{x:Static Visibility.Visible}"/>
+                            </ObjectAnimationUsingKeyFrames>
+                            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="TabMouseOverNotSelected" Storyboard.TargetProperty="(UIElement.Opacity)">
+                                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+                            </DoubleAnimationUsingKeyFrames>
+                        </Storyboard>
+                        <Storyboard x:Key="TabMouseOutNotSelected" FillBehavior="Stop">
+                            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="TabMouseOverNotSelected" Storyboard.TargetProperty="(UIElement.Opacity)">
+                                <SplineDoubleKeyFrame KeyTime="00:00:00.2000000" Value="0"/>
+                            </DoubleAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="TabMouseOverNotSelected" Storyboard.TargetProperty="(UIElement.Visibility)">
+                                <DiscreteObjectKeyFrame KeyTime="00:00:00.21000" Value="{x:Static Visibility.Collapsed}"/>
+                            </ObjectAnimationUsingKeyFrames>
+                        </Storyboard>
+                        <!--<Storyboard x:Key="TabMouseSelected" FillBehavior="Stop">
+                            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="NormalStatusItem" Storyboard.TargetProperty="(UIElement.Opacity)">
+                                <SplineDoubleKeyFrame KeyTime="00:00:00.2000000" Value="0"/>
+                            </DoubleAnimationUsingKeyFrames>
+                            <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="NormalStatusItem" Storyboard.TargetProperty="(UIElement.Visibility)">
+                                <DiscreteObjectKeyFrame KeyTime="00:00:00.21000" Value="{x:Static Visibility.Collapsed}"/>
+                            </ObjectAnimationUsingKeyFrames>
+                        </Storyboard>-->
+                    </ControlTemplate.Resources>
+                    <Grid SnapsToDevicePixels="true">
+                        <Border Name="Bd">
+                            <Grid Background="Transparent">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+
+                                <Grid Background="Black" x:Name="NormalStatusItem" Visibility="Visible" Height="Auto" Margin="0,0,0,-1" VerticalAlignment="Stretch" Grid.ColumnSpan="2">
+                                    <Border x:Name="InnerBorder1" Background="Black" SnapsToDevicePixels="True" Margin="3,1,3,0" CornerRadius="4,3,0,0"/>
+                                    <Border
+								        SnapsToDevicePixels="True"
+								        HorizontalAlignment="Left"
+								        Margin="4,1,4,3"
+								        x:Name="InnerSideHighlightLeft1"
+								        Width="3"
+								        BorderBrush="Black"
+								        BorderThickness="1,0,0,0"
+								        CornerRadius="2,0,0,0"/>
+                                    <Border
+								        x:Name="InnerSideHighlightRight1" Width="3"
+								        BorderThickness="0,0,1,0"
+								        CornerRadius="2,2,0,0"
+								        SnapsToDevicePixels="True"
+								        HorizontalAlignment="Right"
+								        Margin="0,1,4,3"
+								        VerticalAlignment="Stretch"
+								        Height="Auto"
+								        BorderBrush="Black"/>
+                                    <Border x:Name="TopHighlight" Margin="4,1,4,0" BorderThickness="0,1,0,0" CornerRadius="2,2,0,0"
+								        BorderBrush="Brown"/>
+                                    <Path
+								        Margin="0,0,0,0"
+								        HorizontalAlignment="Left"
+								        VerticalAlignment="Bottom"
+								        Height="4"
+								        Width="4"
+								        Stretch="Fill"
+								        Opacity="1"
+								        Data="M 24,71 C24,71 24,72 24,72 24,73 23,74 22,74 22,74 21,74 21,74 21,74 21,75 21,75 21,75 22,75 22,75 22,75 23,75 23,75 24,75 25,74 25,73 25,73 25,71 25,71 25,71 24,71 24,71 z"
+								        Fill="{DynamicResource {x:Static igWindows:PrimitivesBrushKeys.TabItemIsSelectedOuterBorderFillKey}}"
+								        SnapsToDevicePixels="True"
+								        x:Name="BottomLeftFilet1"/>
+                                    <Path
+								        Margin="0,0,0,0"
+								        HorizontalAlignment="Right"
+								        VerticalAlignment="Bottom"
+								        Height="4"
+								        Width="4"
+								        Stretch="Fill"
+								        Opacity="1"
+								        Data="M 28,75 C28,75 29,75 29,75 29,75 30,75 30,75 30,75 30,74 30,74 30,74 29,74 29,74 28,74 27,73 27,72 27,72 27,71 27,71 27,71 26,71 26,71 26,71 26,72 26,72 26,72 26,73 26,73 26,74 27,75 28,75 z"
+								        Fill="{DynamicResource {x:Static igWindows:PrimitivesBrushKeys.TabItemIsSelectedOuterBorderFillKey}}"
+								        SnapsToDevicePixels="True"
+								        x:Name="BottomRightFilet1"/>
+                                    <Border
+								                SnapsToDevicePixels="True"
+								                Margin="3,0,3,3"
+								                x:Name="OuterStroke1"
+								                BorderBrush="{DynamicResource {x:Static igWindows:PrimitivesBrushKeys.TabItemIsSelectedOuterBorderFillKey}}"
+								                BorderThickness="1,1,1,1"
+								                CornerRadius="3,3,0,0"/>
+                                    <Border
+								                Margin="6,4,6,0"
+								                CornerRadius="1,1,0,0"
+								                SnapsToDevicePixels="True"
+								                x:Name="Center1" Background="#FF282828"/>
+
+                                </Grid>
+
+
+
+
+                                <Grid Visibility="Collapsed" x:Name="TabMouseOverNotSelected"
+									Height="Auto" Background="Transparent" Opacity="0" SnapsToDevicePixels="True"
+									d:IsHidden="True" Grid.ColumnSpan="2">
+                                    <Border x:Name="notSelectedBase" Background="Green"
+										BorderBrush="Gray"
+										BorderThickness="1,1,1,0"
+										CornerRadius="3,3,0,0"
+										SnapsToDevicePixels="True"/>
+                                    <Border
+										x:Name="notSelectedInnerGlow2"
+										SnapsToDevicePixels="True"
+										Margin="1,1,1,0"
+										Background="Black"
+										CornerRadius="2,2,0,0"/>
+                                    <Border x:Name="notSelectedHighlight" Margin="1,1,1,0" VerticalAlignment="Top" Height="22"   CornerRadius="2,2,5,5" SnapsToDevicePixels="True">
+                                        <Grid Background="{TemplateBinding Background}"  Margin="0">
+                                            <Border Opacity="1" BorderBrush="Red" x:Name="BackgroundAnimations" Background="#FF448DCA" />
+                                            <Rectangle x:Name="BackgroundGradients" >
+                                                <Rectangle.Fill>
+                                                    <LinearGradientBrush StartPoint=".7,0" EndPoint=".7,1">
+                                                        <GradientStop Color="{Binding Path=ColorTemplate.TurnoverInstrumentBackControlButtonBackground1, Source={StaticResource ColorSettings}}" Offset="0" />
+                                                        <GradientStop Color="{Binding Path=ColorTemplate.TurnoverInstrumentBackControlButtonBackground2, Source={StaticResource ColorSettings}}"  Offset="0.375" />
+                                                        <GradientStop Color="{Binding Path=ColorTemplate.TurnoverInstrumentBackControlButtonBackground3, Source={StaticResource ColorSettings}}" Offset="0.625" />
+                                                        <GradientStop Color="{Binding Path=ColorTemplate.TurnoverInstrumentBackControlButtonBackground4, Source={StaticResource ColorSettings}}"  Offset="1" />
+                                                    </LinearGradientBrush>
+                                                </Rectangle.Fill>
+                                            </Rectangle>
+                                        </Grid>
+                                    </Border>
+                                    <Border x:Name="notSelectedInnerGlow" SnapsToDevicePixels="True" Height="25" Background="Black" Margin="1,1,1,1">
+                                        <Grid Background="{TemplateBinding Background}"  Margin="0">
+                                            <Border Opacity="1" BorderBrush="Red"  Background="#FF448DCA" />
+                                            <Rectangle>
+                                                <Rectangle.Fill>
+                                                    <LinearGradientBrush StartPoint=".7,0" EndPoint=".7,1">
+                                                        <GradientStop Color="{Binding Path=ColorTemplate.TurnoverInstrumentBackControlButtonBackground1, Source={StaticResource ColorSettings}}" Offset="0" />
+                                                        <GradientStop Color="{Binding Path=ColorTemplate.TurnoverInstrumentBackControlButtonBackground2, Source={StaticResource ColorSettings}}"  Offset="0.375" />
+                                                        <GradientStop Color="{Binding Path=ColorTemplate.TurnoverInstrumentBackControlButtonBackground3, Source={StaticResource ColorSettings}}" Offset="0.625" />
+                                                        <GradientStop Color="{Binding Path=ColorTemplate.TurnoverInstrumentBackControlButtonBackground4, Source={StaticResource ColorSettings}}"  Offset="1" />
+                                                    </LinearGradientBrush>
+                                                </Rectangle.Fill>
+                                            </Rectangle>
+                                        </Grid>
+                                    </Border>
+                                </Grid>
+
+
+                                <Grid x:Name="TabSelected" Height="Auto" Visibility="Collapsed" Margin="0,0,0,-1" VerticalAlignment="Stretch" Grid.ColumnSpan="2">
+                                    <Border SnapsToDevicePixels="True" Margin="0,1,3,0" CornerRadius="3,3,0,0"
+								x:Name="InnerBorder122222" Background="Black"/>
+                                    <Path
+								Height="4"
+								Width="4"
+								Stretch="Fill"
+								Opacity="1"
+								Data="M 24,71 C24,71 24,72 24,72 24,73 23,74 22,74 22,74 21,74 21,74 21,74 21,75 21,75 21,75 22,75 22,75 22,75 23,75 23,75 24,75 25,74 25,73 25,73 25,71 25,71 25,71 24,71 24,71 z"
+								Fill="Black"
+								SnapsToDevicePixels="True"
+								x:Name="BottomLeftInnerFilet133333"
+								HorizontalAlignment="Left"
+								Margin="1,0,0,0"
+								VerticalAlignment="Bottom"/>
+                                    <Path
+								Height="4"
+								Width="4"
+								Stretch="Fill"
+								Opacity="1"
+								Data="M 28,75 C28,75 29,75 29,75 29,75 30,75 30,75 30,75 30,74 30,74 30,74 29,74 29,74 28,74 27,73 27,72 27,72 27,71 27,71 27,71 26,71 26,71 26,71 26,72 26,72 26,72 26,73 26,73 26,74 27,75 28,75 z"
+								Fill="Black"
+								SnapsToDevicePixels="True"
+								x:Name="BottomRightInnerFilet14444444"
+								HorizontalAlignment="Right"
+								Margin="0,0,1,0"
+								VerticalAlignment="Bottom"/>
+                                    <Border
+								SnapsToDevicePixels="True"
+								HorizontalAlignment="Left"
+								Margin="4,1,4,3"
+								x:Name="InnerSideHighlightLeft155555"
+								Width="3"
+								BorderBrush="{DynamicResource {x:Static igWindows:PrimitivesBrushKeys.TabItemIsSelectedLeftHighlightFillKey}}"
+								BorderThickness="1,0,0,0"
+								CornerRadius="2,0,0,0"/>
+                                    <Border
+								x:Name="InnerSideHighlightRight166666"
+								Width="3"
+								BorderThickness="0,0,1,0"
+								CornerRadius="2,2,0,0"
+								SnapsToDevicePixels="True"
+								HorizontalAlignment="Right"
+								Margin="0,1,4,3"
+								VerticalAlignment="Stretch"
+								Height="Auto"
+								BorderBrush="Black"/>
+                                    <Border
+								SnapsToDevicePixels="True"
+								Margin="4,1,4,0"
+								BorderThickness="0,1,0,0"
+								CornerRadius="2,2,0,0"
+								x:Name="TopHighlight333333"
+								BorderBrush="{DynamicResource {x:Static igWindows:PrimitivesBrushKeys.TabItemIsSelectedHighlightDarkFillKey}}"/>
+                                    <Path
+								Margin="0,0,0,0"
+								HorizontalAlignment="Left"
+								VerticalAlignment="Bottom"
+								Height="4"
+								Width="4"
+								Stretch="Fill"
+								Opacity="1"
+								Data="M 24,71 C24,71 24,72 24,72 24,73 23,74 22,74 22,74 21,74 21,74 21,74 21,75 21,75 21,75 22,75 22,75 22,75 23,75 23,75 24,75 25,74 25,73 25,73 25,71 25,71 25,71 24,71 24,71 z"
+								Fill="{DynamicResource {x:Static igWindows:PrimitivesBrushKeys.TabItemIsSelectedOuterBorderFillKey}}"
+								SnapsToDevicePixels="True"
+								x:Name="BottomLeftFilet177777"/>
+                                    <Path
+								Margin="0,0,0,0"
+								HorizontalAlignment="Right"
+								VerticalAlignment="Bottom"
+								Height="4"
+								Width="4"
+								Stretch="Fill"
+								Opacity="1"
+								Data="M 28,75 C28,75 29,75 29,75 29,75 30,75 30,75 30,75 30,74 30,74 30,74 29,74 29,74 28,74 27,73 27,72 27,72 27,71 27,71 27,71 26,71 26,71 26,71 26,72 26,72 26,72 26,73 26,73 26,74 27,75 28,75 z"
+								Fill="{DynamicResource {x:Static igWindows:PrimitivesBrushKeys.TabItemIsSelectedOuterBorderFillKey}}"
+								SnapsToDevicePixels="True"
+								x:Name="BottomRightFilet1999999"/>
+                                    <Border
+								SnapsToDevicePixels="True"
+								Margin="3,0,3,3"
+								x:Name="OuterStroke1sfsfsfsfsfsd"
+								BorderBrush="{DynamicResource {x:Static igWindows:PrimitivesBrushKeys.TabItemIsSelectedOuterBorderFillKey}}"
+								BorderThickness="1,0,1,0"
+								CornerRadius="3,3,0,0"/>
+                                    <Border
+								Margin="6,4,6,0"
+								CornerRadius="1,1,0,0"
+								SnapsToDevicePixels="True"
+								x:Name="Center"
+								Background="Black"/>
+                                </Grid>
+
+                                <Grid x:Name="TabHottrack" Visibility="Collapsed" Opacity="0" d:IsHidden="True" Grid.ColumnSpan="2">
+                                    <Border Height="Auto" CornerRadius="2,0,1,0" SnapsToDevicePixels="True" Opacity="1" x:Name="OuterGlowLeft" Background="Black" HorizontalAlignment="Left" Margin="1,0,0,0" Width="2" Padding="0,0,0,0"/>
+                                    <Border Height="Auto" CornerRadius="0,2,0,1" SnapsToDevicePixels="True" Opacity="1" x:Name="OuterGlowRight" Background="Black" Width="2" Padding="0,0,0,0" HorizontalAlignment="Right" Margin="0,0,1,0"/>
+                                    <Border SnapsToDevicePixels="True" x:Name="HotTrackOuterStroke" BorderThickness="1,1,1,0" CornerRadius="3,3,0,0" Margin="3,0,3,0" BorderBrush="Black"/>
+                                    <Rectangle SnapsToDevicePixels="True" HorizontalAlignment="Right" Margin="0,3,4,0" x:Name="HoverSideHighlightRight" Width="1" Fill="Black"/>
+                                    <Rectangle SnapsToDevicePixels="True" HorizontalAlignment="Left" Margin="4,3,0,0" x:Name="HoverSideHighlightLeft" Width="1" Fill="Black"/>
+                                    <Border SnapsToDevicePixels="True" Margin="4,1,4,0" VerticalAlignment="Top" Height="2" Background="Black" CornerRadius="3,3,0,0" x:Name="TopHighlight2"/>
+                                </Grid>
+                                <ContentPresenter
+								Name="Content"
+								ContentSource="Header"
+								Margin="15,5,15,4"
+								TextElement.Foreground="White"
+								SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+								RecognizesAccessKey="true"
+								HorizontalAlignment="{Binding Path=HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+								VerticalAlignment="{Binding Path=VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+                                <Button
+								Name="CloseButton"
+								Grid.Column="1"
+								Command="igWindows:TabItemExCommands.Close"
+								CommandTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+								Visibility="{TemplateBinding ComputedCloseButtonVisibility}"
+								Style="{DynamicResource {x:Static igWindows:XamTabControl.CloseButtonStyleKey}}"
+								/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"/>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding Path=IsMouseOverTab, RelativeSource={x:Static RelativeSource.Self}}" Value="True"/>
+                                <Condition Binding="{Binding Path=IsSelected, RelativeSource={x:Static RelativeSource.Self}}" Value="False"/>
+                            </MultiDataTrigger.Conditions>
+                            <MultiDataTrigger.EnterActions>
+                                <BeginStoryboard x:Name="TabMouseOverNotSelected_BeginStoryboard" Storyboard="{StaticResource TabMouseOverNotSelected}"/>
+                            </MultiDataTrigger.EnterActions>
+                            <MultiDataTrigger.ExitActions>
+                                <BeginStoryboard x:Name="TabMouseOutNotSelected_BeginStoryboard" Storyboard="{StaticResource TabMouseOutNotSelected}"/>
+                                <StopStoryboard BeginStoryboardName="TabMouseOverNotSelected_BeginStoryboard"/>
+                            </MultiDataTrigger.ExitActions>
+                        </MultiDataTrigger>
+                        <MultiTrigger>
+
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOverTab" Value="True"/>
+                                <Condition Property="IsSelected" Value="True"/>
+                            </MultiTrigger.Conditions>
+                            <MultiTrigger.EnterActions>
+                                <BeginStoryboard Storyboard="{StaticResource TabMouseOver}"/>
+                            </MultiTrigger.EnterActions>
+                            <MultiTrigger.ExitActions>
+                                <BeginStoryboard x:Name="TabMouseOut_BeginStoryboard" Storyboard="{StaticResource TabMouseOut}"/>
+                            </MultiTrigger.ExitActions>
+                        </MultiTrigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Visibility" TargetName="TabSelected" Value="Visible"/>
+                            <Setter Property="Visibility"  TargetName="NormalStatusItem" Value="Collapsed"/>
+                            <Setter TargetName="Content" Property="TextElement.Foreground" Value="Green"/>
+                        </Trigger>
+                        <Trigger Property="TabStripPlacement" Value="Top">
+                            <Setter TargetName="TabMouseOverNotSelected" Property="Margin" Value="3,0,3,0"/>
+                            <Setter TargetName="CloseButton" Property="Margin" Value="0,0,10,0"/>
+                        </Trigger>
+                        <Trigger Property="TabStripPlacement" Value="Bottom">
+                            <Setter TargetName="Content" Property="Margin" Value="15,5,15,4"/>
+                            <Setter TargetName="CloseButton" Property="Margin" Value="0,0,10,0"/>
+                            <Setter TargetName="TabMouseOverNotSelected" Property="Margin" Value="3,0,3,0"/>
+                            <Setter TargetName="TabMouseOverNotSelected"  Property="LayoutTransform">
+                                <Setter.Value>
+                                    <RotateTransform Angle="180" />
+                                </Setter.Value>
+                            </Setter>
+                            <Setter TargetName="TabSelected"  Property="LayoutTransform">
+                                <Setter.Value>
+                                    <RotateTransform Angle="180" />
+                                </Setter.Value>
+                            </Setter>
+                            <Setter TargetName="TabHottrack"  Property="LayoutTransform">
+                                <Setter.Value>
+                                    <RotateTransform Angle="180" />
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                        <Trigger Property="TabStripPlacement" Value="Left">
+                            <Setter TargetName="Content" Property="Margin" Value="5,8,4,8"/>
+                            <Setter TargetName="TabHottrack" Property="Margin" Value="0,-2,0,-2"/>
+                            <Setter TargetName="CloseButton" Property="Margin" Value="5,0,4,0"/>
+                            <Setter TargetName="TabMouseOverNotSelected" Property="Margin" Value="0,1,0,1"/>
+                            <Setter TargetName="TabMouseOverNotSelected"  Property="LayoutTransform">
+                                <Setter.Value>
+                                    <RotateTransform Angle="-90" />
+                                </Setter.Value>
+                            </Setter>
+                            <Setter TargetName="TabSelected"  Property="LayoutTransform">
+                                <Setter.Value>
+                                    <RotateTransform Angle="-90" />
+                                </Setter.Value>
+                            </Setter>
+                            <Setter TargetName="TabHottrack"  Property="LayoutTransform">
+                                <Setter.Value>
+                                    <RotateTransform Angle="-90" />
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                        <Trigger Property="TabStripPlacement" Value="Right">
+                            <Setter TargetName="Content" Property="Margin" Value="5,8,4,8"/>
+                            <Setter TargetName="TabHottrack" Property="Margin" Value="0,-2,0,-2"/>
+                            <Setter TargetName="CloseButton" Property="Margin" Value="5,0,4,0"/>
+                            <Setter TargetName="TabMouseOverNotSelected" Property="Margin" Value="0,1,0,1"/>
+                            <Setter TargetName="TabMouseOverNotSelected"  Property="LayoutTransform">
+                                <Setter.Value>
+                                    <RotateTransform Angle="90" />
+                                </Setter.Value>
+                            </Setter>
+                            <Setter TargetName="TabSelected"  Property="LayoutTransform">
+                                <Setter.Value>
+                                    <RotateTransform Angle="90" />
+                                </Setter.Value>
+                            </Setter>
+                            <Setter TargetName="TabHottrack"  Property="LayoutTransform">
+                                <Setter.Value>
+                                    <RotateTransform Angle="90" />
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="true"/>
+                                <Condition Property="TabStripPlacement" Value="Top"/>
+                            </MultiTrigger.Conditions>
+                        </MultiTrigger>
+
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="true"/>
+                                <Condition Property="TabStripPlacement" Value="Bottom"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="TabSelected" Property="Margin" Value="0,-1,0,0"/>
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="true"/>
+                                <Condition Property="TabStripPlacement" Value="Left"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="TabSelected" Property="Margin" Value="0,-2,-1,-2"/>
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="true"/>
+                                <Condition Property="TabStripPlacement" Value="Right"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="TabSelected" Property="Margin" Value="-1,-2,0,-2"/>
+                        </MultiTrigger>
+
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Value="{DynamicResource {x:Static igWindows:PrimitivesBrushKeys.GrayTextBrushKey}}" Property="TextElement.Foreground" TargetName="Content"/>
+                            <Setter TargetName="TabSelected" Property="Visibility" Value="Collapsed"/>
+                            <Setter TargetName="TabMouseOverNotSelected" Property="Visibility" Value="Collapsed"/>
+                            <Setter TargetName="TabHottrack" Property="Visibility" Value="Collapsed"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 </ResourceDictionary>

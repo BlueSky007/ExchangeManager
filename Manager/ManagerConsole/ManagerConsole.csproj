@@ -89,6 +89,10 @@
     <Reference Include="infragisticswpf4.dockmanager.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
     <Reference Include="InfragisticsWPF4.DragDrop.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
     <Reference Include="InfragisticsWPF4.Editors.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL" />
+    <Reference Include="InfragisticsWPF4.OutlookBar.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>E:\ToolsForSofteWare\InfragisticsWPF\NetAdvantage 2013.1\WPF\CLR4.0\Bin\WPFOnly\InfragisticsWPF4.OutlookBar.v13.1.dll</HintPath>
+    </Reference>
     <Reference Include="InfragisticsWPF4.Reporting.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>E:\ToolsForSofteWare\InfragisticsWPF\NetAdvantage 2013.1\WPF\CLR4.0\Bin\WPFOnly\InfragisticsWPF4.Reporting.v13.1.dll</HintPath>
@@ -192,6 +196,7 @@
       <DependentUpon>ExecutedOrders.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\HintMessage.cs" />
+    <Compile Include="UI\IControlLayout.cs" />
     <Compile Include="UI\InstrumentSourceRelationWindow.xaml.cs">
       <DependentUpon>InstrumentSourceRelationWindow.xaml</DependentUpon>
     </Compile>
@@ -200,6 +205,9 @@
     </Compile>
     <Compile Include="UI\NewRelationWindow.xaml.cs">
       <DependentUpon>NewRelationWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\NewTaskWindow.xaml.cs">
+      <DependentUpon>NewTaskWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\OpenInterestControl.xaml.cs">
       <DependentUpon>OpenInterestControl.xaml</DependentUpon>
@@ -219,6 +227,12 @@
     <Compile Include="UI\QuotePriceWindow.xaml.cs">
       <DependentUpon>QuotePriceWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\SettingParameterControl.xaml.cs">
+      <DependentUpon>SettingParameterControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\SettingSchedulerControl.xaml.cs">
+      <DependentUpon>SettingSchedulerControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\SourceRelationControl.xaml.cs">
       <DependentUpon>SourceRelationControl.xaml</DependentUpon>
     </Compile>
@@ -237,6 +251,7 @@
     <Compile Include="ViewModel\OpenInterestSummary.cs" />
     <Compile Include="ViewModel\ProcessInstantOrder.cs" />
     <Compile Include="ViewModel\QuotePriceClient.cs" />
+    <Compile Include="ViewModel\TaskSchedulerManager.cs" />
     <Compile Include="ViewModel\VmAbnormalQuotation.cs" />
     <Compile Include="ViewModel\VmAbnormalQuotationManager.cs" />
     <Compile Include="ViewModel\VmBase.cs" />
@@ -344,6 +359,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UI\NewTaskWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\QuotePriceWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -353,6 +372,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\RangeCheckRuleControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\SettingParameterControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\SettingSchedulerControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -332,10 +332,6 @@
     <Style TargetType="TextBlock">
         <Setter Property="Foreground" Value="{Binding Path=ColorTemplate.Foreground, Source={StaticResource ColorSettings}}"/>
     </Style>
-    <Style x:Key="ffff" TargetType="ig:CellControl">
-        <Setter Property="Background" Value="Red"/>
-    </Style>
-   
     
     <!-- ********************************** Converters **********************************-->
     <igPrim:CultureValueConverter x:Key="CultureConverter" />
@@ -1812,7 +1808,7 @@
         <Setter Property="BorderBrush" Value="{StaticResource CellItemBorderBrush}"/>
         <Setter Property="BorderThickness" Value="0,0,1,0"/>
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
-        <Setter Property="Padding" Value="4"/>
+        <Setter Property="Padding" Value="2,0,0,0"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ig:CellControl">

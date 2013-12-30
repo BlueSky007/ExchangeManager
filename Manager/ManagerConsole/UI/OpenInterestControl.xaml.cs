@@ -42,6 +42,7 @@ namespace ManagerConsole.UI
         private Style _SellCellStyle;
         private Style _BuySummaryGroupStyle;
         private Style _SellSummaryGroupStyle;
+        private Style _GroupHeadStyle;
         public OpenInterestControl()
         {
             InitializeComponent();
@@ -56,6 +57,7 @@ namespace ManagerConsole.UI
             this._SellCellStyle = this.Resources["SellCellStyle"] as Style;
             this._BuySummaryGroupStyle = this.Resources["BuySummaryGroupCellStyle"] as Style;
             this._SellSummaryGroupStyle = this.Resources["SellSummaryGroupStyle"] as Style;
+            this._GroupHeadStyle = this.Resources["GroupHeaderStyle"] as Style;
             this.QueryGroupNetPosition();
         }
 
@@ -93,16 +95,34 @@ namespace ManagerConsole.UI
                 string key = "Columns[MyColumn" + instrumentGNP.ColumnIndex + "]";
                 string index = "MyColumn" + instrumentGNP.ColumnIndex;
 
+                Column column = row.Columns[key] as Column;
+
+                if (instrumentGNP.IsSummaryGroup)
+                {
+                    row.Cells[column].Style = this._BuySummaryGroupStyle;
+                }
+
                 if (obj.Columns[index] == null) continue;
+
+                if (obj is DetailGNP)
+                {
+                    if (instrumentGNP.IsSummaryGroup)
+                    {
+                        row.Cells[column].Style = this._BuySummaryGroupStyle;
+                    }
+                    continue;
+                }
                 if ((decimal)obj.Columns[index] > 0)
                 {
-                    Column column = row.Columns[key] as Column;
                     row.Cells[column].Style = instrumentGNP.IsSummaryGroup ? this._BuySummaryGroupStyle : this._BuyCellStyle;
                 }
                 else if ((decimal)obj.Columns[index] < 0)
                 {
-                    Column column = row.Columns[key] as Column;
                     row.Cells[column].Style = instrumentGNP.IsSummaryGroup ? this._SellSummaryGroupStyle : this._SellCellStyle;
+                }
+                else
+                {
+                    row.Cells[column].Style = this._BuySummaryGroupStyle;
                 }
             } 
         }
@@ -176,6 +196,12 @@ namespace ManagerConsole.UI
             if (accountGNP != null)
             {
                 this.SettingGridStyle(e.Row, accountGNP);
+            }
+
+            DetailGNP detailGNP = e.Row.Data as DetailGNP;
+            if (detailGNP != null)
+            {
+                this.SettingGridStyle(e.Row, detailGNP);
             }
         }
 

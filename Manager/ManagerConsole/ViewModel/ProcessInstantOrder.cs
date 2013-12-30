@@ -41,6 +41,13 @@ namespace ManagerConsole.ViewModel
         }
         #endregion
 
+        public void AdjustPrice(bool upOrDown)
+        {
+            if (this._InstantOrderForInstrument == null) return;
+
+            this._InstantOrderForInstrument.AdjustCustomerPrice(upOrDown);
+        }
+
         public void AddInstanceOrder(OrderTask orderTask)
         {
             this.OrderTasks.Add(orderTask);

@@ -36,7 +36,10 @@ namespace ManagerConsole.UI
             }
             else
             {
-                this.DataContext = instrument;
+                if (!object.ReferenceEquals(this.DataContext, instrument))
+                {
+                    this.DataContext = instrument;
+                }
             }
         }
 

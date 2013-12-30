@@ -58,42 +58,28 @@
                 <ColumnDefinition Width="30"/>
             </Grid.ColumnDefinitions>
 
-            <TextBlock x:Name="_LotTexCaption" Margin="5 0 0 0" FontWeight="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0" Text="Lot" ></TextBlock>
-            <TextBlock x:Name="_LotTextBlock" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="0" Grid.Column="1" Text="{Binding Lot,StringFormat={}{0:N2}}" Margin="5 0 5 0"></TextBlock>
-            <Button x:Name="_CurrentPriceButton" Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="0" Background="Gray" Margin="1,1,1,1">
-                <Button.Template>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Border" CornerRadius="3" BorderBrush="#FFA0A0A0" BorderThickness="1">
-                            <Grid x:Name="Grid1" Background="{TemplateBinding Background}">
-                                <Rectangle x:Name="BackgroundGradient" RadiusX ="3" RadiusY ="3">
-                                    <Rectangle.Fill>
-                                        <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5, 1">
-                                            <GradientStop Color="#FFFFFFFF" Offset="0" />
-                                            <GradientStop Color="#E8FFFFFF" Offset="0.5" />
-                                            <GradientStop Color="#88FFFFFF" Offset="1" />
-                                        </LinearGradientBrush>
-                                    </Rectangle.Fill>
-                                </Rectangle>
+            <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4"  Margin="1,1,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="30"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="30"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock x:Name="_LotTexCaption" Margin="5 0 0 0" FontWeight="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="0" Text="Lot" ></TextBlock>
+                    <TextBlock x:Name="_LotTextBlock" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="1" Text="{Binding Lot,StringFormat={}{0:N2}}" Margin="5 0 5 0"></TextBlock>
 
-                                <ContentPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="80"/>
-                                        <ColumnDefinition Width="25"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="1.5608" FontSize="12" Foreground="Black" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="0"/>
-                                    <TextBlock Text="+ 1" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="14" FontWeight="Bold" Grid.Row="0" Grid.Column="1"/>
-                                </Grid>
-                            </Grid>
-                        </Border>
-                    </ControlTemplate>
-                </Button.Template>
-            </Button>
-            <Border BorderBrush="Blue" BorderThickness="1" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Background="Blue">
-                <TextBlock x:Name="_Price" Foreground="White" FontSize="17" Grid.Row="0" Grid.Column="0" Text="{Binding CustomerPrice}" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                    <TextBlock Text="{Binding MarketPrice}" FontSize="12" Foreground="{Binding IsBuyBrush}" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="2"/>
+                     <TextBlock Text="+ 1" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="14" FontWeight="Bold" Grid.Column="4"/>
+                </Grid>
             </Border>
-            <Button BorderThickness="1" BorderBrush="Black" Height="38" Width="28" FontSize="14" Grid.Row="1" Grid.Column="0" Margin="1,1,1,1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_UpPriceButton" Content="+" Background="#FF92D050"/>
-            <Button BorderThickness="1" BorderBrush="Black" Height="38" Width="28" FontSize="14" Grid.Row="1" Grid.Column="3" Margin="1,1,1,1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_DownPriceButton" Content="-" Background="#FFFFCC00"/>
+
+
+            <Border BorderBrush="White" Opacity="0.6" BorderThickness="1" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Background="{Binding IsBuyBrush}" Margin="0,1,0,0">
+                <TextBlock x:Name="_CustomerPriceTextBlock" Foreground="White" FontSize="17" Grid.Row="0" Grid.Column="0" Text="{Binding CustomerPrice}" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+            </Border>
+            <Button IsEnabled="{Binding IsAllowAdjustPrice}" BorderThickness="1" BorderBrush="Black" Height="38" Width="28" FontSize="14" Grid.Row="1" Grid.Column="0" Margin="1,1,1,1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_UpPriceButton" Content="+" Background="#FF92D050" Click="AdjustBtn_Click"/>
+            <Button IsEnabled="{Binding IsAllowAdjustPrice}" BorderThickness="1" BorderBrush="Black" Height="38" Width="28" FontSize="14" Grid.Row="1" Grid.Column="3" Margin="1,1,1,1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_DownPriceButton" Content="-" Background="#FFFFCC00" Click="AdjustBtn_Click"/>
             <Button BorderThickness="1" BorderBrush="Black" x:Name="_ExecutedButton"  Background="DarkBlue" FontSize="14" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="1,1,1,1" Click="OrderHandlerBtn_Click">
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
@@ -155,7 +141,7 @@
         </Grid>
         
         <!--Order Information-->
-        <Border  BorderBrush="Green" Grid.Row="0" Grid.Column="1" Margin="10,1,0,0">
+        <Border  BorderBrush="DarkGray" BorderThickness="1" Grid.Row="0" Grid.Column="1" Margin="10,1,0,0">
             <!--<Border.Background>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <GradientStop Color="#FF5A7A7A" Offset="1"/>
@@ -208,11 +194,11 @@
                     <TextBlock x:Name="_SellDifferTextBlock" Width="25" TextAlignment="Right" Text="0.1"></TextBlock>
                 </StackPanel>
             </Border>
-            <Border Grid.Row="1" Grid.Column="1" BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="2" Background="Red">
+            <Border Opacity="0.6" Grid.Row="1" Grid.Column="1" BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="2" Background="Red" Margin="0,1,0,0">
                 <TextBlock x:Name="_MarketSellPrice" Foreground="White" FontSize="17" Grid.Row="0" Grid.Column="0" Text="{Binding Bid}" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
             </Border>
-            <Button BorderThickness="1" BorderBrush="Black" Height="38" Width="29" FontSize="14" Grid.Row="1" Grid.Column="0" Margin="1,1,1,1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_IncreaseSellAutoPointsButton" Content="+" Background="#FF92D050"/>
-            <Button BorderThickness="1" BorderBrush="Black" Height="38" Width="29" FontSize="14" Grid.Row="1" Grid.Column="3" Margin="1,1,1,1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_DecreaseSellAutoPointsButton" Content="-" Background="#FFFFCC00"/>
+            <Button BorderThickness="1" BorderBrush="Black" Height="38" Width="29" FontSize="14" Grid.Row="1" Grid.Column="0" Margin="1,1,1,1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_IncreaseSellAutoPointsButton" Content="+" Background="#FF92D050" Click="AdjustBtn_Click"/>
+            <Button BorderThickness="1" BorderBrush="Black" Height="38" Width="29" FontSize="14" Grid.Row="1" Grid.Column="3" Margin="1,1,1,1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_DecreaseSellAutoPointsButton" Content="-" Background="#FFFFCC00" Click="AdjustBtn_Click"/>
             <Button x:Name="_ExecuteRejectSellButton"  Background="Blue" FontSize="14" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="4" Margin="1,1,1,1" Click="OrderHandlerBtn_Click">
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
@@ -272,8 +258,8 @@
             <Border BorderThickness="1" BorderBrush="Black" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Background="#FF75923C">
                 <TextBlock x:Name="_MarketBuyPrice" Foreground="White" FontSize="17" Grid.Row="0" Grid.Column="0" Text="{Binding Ask}" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
             </Border>
-            <Button BorderThickness="1" BorderBrush="Black" Height="38" Width="29" FontSize="14" Grid.Row="1" Grid.Column="0" Margin="1,1,1,1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_IncreaseBuyAutoPointsButton" Content="+" Background="#FF92D050"/>
-            <Button BorderThickness="1" BorderBrush="Black" Height="38" Width="29" FontSize="14" Grid.Row="1" Grid.Column="3" Margin="1,1,1,1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_DecreaseBuyAutoPointsButton" Content="-" Background="#FFFFCC00"/>
+            <Button BorderThickness="1" BorderBrush="Black" Height="38" Width="29" FontSize="14" Grid.Row="1" Grid.Column="0" Margin="1,1,1,1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_IncreaseBuyAutoPointsButton" Content="+" Background="#FF92D050" Click="AdjustBtn_Click"/>
+            <Button BorderThickness="1" BorderBrush="Black" Height="38" Width="29" FontSize="14" Grid.Row="1" Grid.Column="3" Margin="1,1,1,1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_DecreaseBuyAutoPointsButton" Content="-" Background="#FFFFCC00" Click="AdjustBtn_Click"/>
             <Button x:Name="_ExecuteRejectBuyButton"  Background="Blue" FontSize="14" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="4" Margin="1,1,1,1" Click="OrderHandlerBtn_Click">
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
@@ -356,10 +342,10 @@
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
                                     <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="DQAcceptBtn" Margin="0" Width="25" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine1.IsVisibility}" IsEnabled="{Binding DQCellDataDefine1.IsEnable}">
-                                        <Image Source="../Asset/Images/Accept.png" ToolTipService.ToolTip="{Binding DQCellDataDefine1.Caption}"  Width="20" Height="20"/>
+                                        <Image Source="../Asset/Images/Accept.png" ToolTipService.ToolTip="{Binding DQCellDataDefine1.Caption}"  Width="18" Height="18"/>
                                     </Button>
                                     <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Margin="1,0,0,0" x:Name="DQRejectBtn" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding DQCellDataDefine2.IsVisibility}" IsEnabled="{Binding DQCellDataDefine2.IsEnable}" Foreground="{Binding DQCellDataDefine2.FontColor}">
-                                        <Image Source="../Asset/Images/Reject.png" Visibility="{Binding DQCellDataDefine2.IsVisibility}" ToolTipService.ToolTip="{Binding DQCellDataDefine2.Caption}"  Width="20" Height="20"/>
+                                        <Image Source="../Asset/Images/Reject.png" Visibility="{Binding DQCellDataDefine2.IsVisibility}" ToolTipService.ToolTip="{Binding DQCellDataDefine2.Caption}"  Width="18" Height="18"/>
                                     </Button>
                                 </StackPanel>
                             </DataTemplate>

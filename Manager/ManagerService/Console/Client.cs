@@ -14,6 +14,8 @@ using iExchange.Common.Manager;
 using Account = Manager.Common.Settings.Account;
 using System.Xml;
 using System.Text;
+using Manager.Common.Settings;
+using System.Collections.ObjectModel;
 
 namespace ManagerService.Console
 {
@@ -612,6 +614,55 @@ namespace ManagerService.Console
                 Logger.AddEvent(TraceEventType.Error, "ClientService.LoadSettingsParameters error:\r\n{0}", ex.ToString());
             }
             return parameters;
+        }
+        #endregion
+
+
+        #region Setting Manager
+        public List<ParameterDefine> LoadParameterDefine()
+        {
+            List<ParameterDefine> parameterDefines = new List<ParameterDefine>();
+            try
+            {
+                parameterDefines = SettingManagerData.LoadParameterDefine();
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerService.Console.Client/LoadParameterDefine.\r\n{0}", ex.ToString());
+            }
+            return parameterDefines;
+        }
+
+        public bool CreateTaskScheduler(TaskScheduler taskScheduler)
+        {
+            bool result = false;
+            try
+            {
+                result = SettingManagerData.CreateTaskScheduler(taskScheduler);
+
+                if (result)
+                {
+                    MainService.SettingSchedulerManager.AddTaskScheduler(taskScheduler);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerService.Console.Client/CreateTaskScheduler.\r\n{0}", ex.ToString());
+            }
+            return result;
+        }
+
+        public ObservableCollection<TaskScheduler> GetTaskSchedulersData()
+        {
+            try
+            {
+                return MainService.SettingSchedulerManager.TaskSchedulers;
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerService.Console.Client/GetTaskSchedulersData.\r\n{0}", ex.ToString());
+                return null;
+            }
         }
         #endregion
 

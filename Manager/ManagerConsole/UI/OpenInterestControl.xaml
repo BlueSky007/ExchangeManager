@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:igWindows="http://infragistics.com/Windows"
              xmlns:igGrid="http://schemas.infragistics.com/xaml"
+             xmlns:igPrim="http://schemas.infragistics.com/xaml/primitives"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="600">
     <UserControl.Resources>
@@ -20,20 +21,25 @@
             <Setter Property="Foreground" Value="Red"/>
         </Style>
         <Style x:Key="BuySummaryGroupCellStyle" TargetType="igGrid:CellControl" BasedOn="{StaticResource XamGridBlackCellStyle}">
-            <Setter Property="Background" Value="#FF90EE90"/>
+            <Setter Property="Background" Value="#FF007ACC"/>
             <Setter Property="Foreground" Value="Blue"/>
+            <Setter Property="BorderThickness" Value="0,0,0,0"/>
         </Style>
         <Style x:Key="SellSummaryGroupStyle" TargetType="igGrid:CellControl" BasedOn="{StaticResource XamGridBlackCellStyle}">
-            <Setter Property="BorderBrush" Value="#FFDEDEDE" />
-            <Setter Property="Padding" Value="0,0,0,0"/>
-            <Setter Property="BorderThickness" Value="0,0,1,1"/>
-            <Setter Property="Background" Value="#FF90EE90"/>
+            <Setter Property="Background" Value="#FF007ACC"/>
             <Setter Property="Foreground" Value="Red"/>
+            <Setter Property="BorderThickness" Value="0"/>
         </Style>
         <Style x:Key="TextStyle" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="Hei"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="GroupHeaderStyle" TargetType="igPrim:HeaderCellControl" BasedOn="{StaticResource GridHeaderCellStyle}">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Background" Value="#FF007ACC"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="BorderBrush" Value="Black"/>
         </Style>
     </UserControl.Resources>
     <Grid>
@@ -65,9 +71,9 @@
         <igWindows:XamTabControl x:Name="_OpenInterestTab" Grid.Row="1" 
                                  TabStripPlacement="Top"
                                  Background="Black"
-                                 TabLayoutStyle="MultiRowAutoSize"
                                  AllowTabClosing="False"
-                                 SelectionChanged="tabControl_SelectionChanged">
+                                 SelectionChanged="tabControl_SelectionChanged"
+                                 >
             <igWindows:XamTabControl.PreTabItemContent>
                 <Button x:Name="_AddTable" Margin="0" Click="AddTable_Click" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Width="25" Height="25">
                     <Button.Content>
@@ -85,7 +91,7 @@
                 </StackPanel>
             </igWindows:XamTabControl.PostTabItemContent>
             <igWindows:TabItemEx CloseButtonVisibility="Hidden"  Header="Group Net Position" 
-                                 x:Name="NetPositionItem" Height="25">
+                                 x:Name="NetPositionItem" Style="{Binding Path=ColorTemplate.TabItemStyle, Source={StaticResource ColorSettings}}">
                 <!--#BEGIN SNIPPET#-->
                 <igGrid:XamGrid KeyboardNavigation="AllLayouts" x:Name="_GroupNetPositionGrid" FontWeight="Bold" FontFamily="hei" FontStyle="Italic" AutoGenerateColumns="false" Grid.Row="1"
                                 ColumnLayoutAssigned="GroupNetPositionGrid_ColumnLayoutAssigned" 
@@ -145,7 +151,8 @@
                 </igGrid:XamGrid>
                 <!--#END SNIPPET#-->
             </igWindows:TabItemEx>
-            <igWindows:TabItemEx Header="Net Summary" x:Name="SummaryItem" CloseButtonVisibility="Hidden" Height="23">
+            <igWindows:TabItemEx Header="Net Summary" x:Name="SummaryItem" CloseButtonVisibility="Hidden" 
+                                  Style="{Binding Path=ColorTemplate.TabItemStyle, Source={StaticResource ColorSettings}}">
                 <!--#BEGIN SNIPPET#-->
                 <igGrid:XamGrid KeyboardNavigation="AllLayouts" x:Name="_SummaryItemGrid" FontWeight="Bold"  FontFamily="hei" FontStyle="Italic" AutoGenerateColumns="false" Grid.Row="1"
                                  RowSelectorClicked="SummaryItemGrid_RowSelectorClicked"

@@ -8,8 +8,8 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="10,5,0,0">
-            <TextBlock Text="Instrument Code:" />
-            <TextBlock Text="{Binding Code}" Margin="10"/>
+            <TextBlock Text="Instrument Code:" VerticalAlignment="Center" />
+            <TextBlock Text="{Binding Code}" VerticalAlignment="Center" Margin="10,0,10,0"/>
             <Button x:Name="AddRelationButton" Content="Add Relation" Click="AddRelationButton_Click" Height="22" BorderThickness="1" Visibility="Hidden" Style="{DynamicResource ButtonStyle}"/>
         </StackPanel>
         <ig:XamGrid x:Name="RelationGrid" AutoGenerateColumns="False" Margin="10,30,0,0" CellDoubleClicked="RelationGrid_CellDoubleClicked" KeyDown="RelationGrid_KeyDown">

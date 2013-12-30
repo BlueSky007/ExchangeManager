@@ -30,6 +30,7 @@ namespace ManagerConsole.Model
         private RelayEngine<Message> _MessageRelayEngine;
 
         private QuotationMessageProcessor _QuotationMessageProcessor = QuotationMessageProcessor.Instance;
+        private MessageProcessor _MessageProcessor = MessageProcessor.Instance;
 
         public MessageClient()
         {
@@ -94,6 +95,11 @@ namespace ManagerConsole.Model
         private void Process(DeleteMetadataObjectMessage message)
         {
             this._QuotationMessageProcessor.Process(message);
+        }
+
+        private void Process(UpdateSettingParameterMessage message)
+        {
+            this._MessageProcessor.Process(message);
         }
 
         private void Process(QuoteMessage quoteMessage)

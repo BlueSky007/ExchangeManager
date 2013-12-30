@@ -9,6 +9,14 @@
              xmlns:igRep="http://infragistics.com/Reporting"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Style x:Key="BuyOrderRowStyle" TargetType="igGrid:CellControl" BasedOn="{StaticResource XamGridBlackCellStyle}">
+            <Setter Property="Foreground" Value="Blue"/>
+        </Style>
+        <Style x:Key="SellOrderRowStyle" TargetType="igGrid:CellControl" BasedOn="{StaticResource XamGridBlackCellStyle}">
+            <Setter Property="Foreground" Value="Red"/>
+        </Style>
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="35"/>
@@ -57,23 +65,8 @@
                                  TabLayoutStyle="MultiRowAutoSize"
                                  AllowTabClosing="True"
                                  SelectionChanged="ExecutedOrderTab_SelectionChanged">
-            <igWindows:XamTabControl.PreTabItemContent>
-                <Button x:Name="_AddTable" Margin="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Width="25" Height="25">
-                    <Button.Content>
-                        <Image Source="../Asset/Images/Add.png" ToolTipService.ToolTip="Add Tab"></Image>
-                    </Button.Content>
-                </Button>
-            </igWindows:XamTabControl.PreTabItemContent>
-            <igWindows:XamTabControl.PostTabItemContent>
-                <StackPanel Orientation="Horizontal">
-                    <Button x:Name="_PrintGroupSummaryBtn" Foreground="White" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="Print_Click" Width="25" Height="25"  >
-                        <Button.Content>
-                            <Image Source="../Asset/Images/Print.png" ToolTipService.ToolTip="Print"  Margin="1"></Image>
-                        </Button.Content>
-                    </Button>
-                </StackPanel>
-            </igWindows:XamTabControl.PostTabItemContent>
-            <igWindows:TabItemEx x:Name="_ExecutedOrderListItem" CloseButtonVisibility="WhenSelectedOrHotTracked" Header="Group Net Position"  Height="25">
+            <igWindows:TabItemEx x:Name="_ExecutedOrderListItem"  Header="Group Net Position"  Height="25"
+                                 Style="{Binding Path=ColorTemplate.TabItemStyle, Source={StaticResource ColorSettings}}">
                 <igGrid:XamGrid x:Name="_ExecutedOrderListGrid" Grid.Row="1" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto"
                                 InitializeRow="ExecutedOrderListGrid_InitializeRow"
                                 Background ="{Binding Path=ColorTemplate.Background, Source={StaticResource ColorSettings}}" 
@@ -96,7 +89,7 @@
                         <igGrid:TextColumn Key="Lot" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Lot" />
                         <igGrid:TextColumn Key="Transaction.Account.Code"  Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="A/C" />
                         <igGrid:TextColumn Key="Transaction.Account.GroupId"  Width="80" HorizontalContentAlignment="Center" Visibility="Hidden" HeaderText="Group" />
-                        <igGrid:CheckBoxColumn Key="Transaction.Account.IsBlack"  Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="BL" />
+                        <igGrid:CheckBoxColumn Key="Transaction.Account.IsBlack"  Width="60" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="BL" />
                         <igGrid:TextColumn Key="QuotePolicyCode" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Quote Policy" />
                         <igGrid:TextColumn Key="SetPrice"  Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Price" />
                         <igGrid:TextColumn Key="Type"  Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Order Type" />
@@ -106,7 +99,8 @@
                     </igGrid:XamGrid.Columns>
                 </igGrid:XamGrid>
             </igWindows:TabItemEx>
-            <igWindows:TabItemEx Header="Net Summary" x:Name="_OrderSummaryItem" CloseButtonVisibility="WhenSelectedOrHotTracked" Height="23">
+            <igWindows:TabItemEx Header="Net Summary" x:Name="_OrderSummaryItem"  Height="25"
+                                 Style="{Binding Path=ColorTemplate.TabItemStyle, Source={StaticResource ColorSettings}}">
                 <igGrid:XamGrid x:Name="_ExecutedOrderSummaryGrid" FontFamily="hei" Grid.Row="1" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto" InitializeRow="ExecutedOrderSummaryGrid_InitializeRow"
                         Background ="{Binding Path=ColorTemplate.Background, Source={StaticResource ColorSettings}}" 
                         Foreground ="{Binding Path=ColorTemplate.Foreground, Source={StaticResource ColorSettings}}"

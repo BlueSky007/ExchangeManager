@@ -2,6 +2,7 @@
 using Manager.Common.LogEntities;
 using Manager.Common.QuotationEntities;
 using Manager.Common.ReportEntities;
+using Manager.Common.Settings;
 using ManagerConsole.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -9,9 +10,11 @@ using System.Linq;
 using System.ServiceModel;
 using System.Text;
 using System.Xml;
+using TaskScheduler = Manager.Common.Settings.TaskScheduler;
 using AccountGroupGNP = iExchange.Common.Manager.AccountGroupGNP;
 using AccountType = iExchange.Common.AccountType;
 using OpenInterestSummary = iExchange.Common.Manager.OpenInterestSummary;
+using System.Collections.ObjectModel;
 
 namespace ManagerConsole.Model
 {
@@ -115,6 +118,20 @@ namespace ManagerConsole.Model
         IAsyncResult BeginLoadSettingsParameters(AsyncCallback callback, object asyncState);
         List<string> EndLoadSettingsParameters(IAsyncResult result);
         
+        #endregion
+
+        #region Setting Manager
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginLoadParameterDefine(AsyncCallback callback, object asyncState);
+        List<ParameterDefine> EndLoadParameterDefine(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginCreateTaskScheduler(TaskScheduler taskScheduler, AsyncCallback callback, object asyncState);
+        bool EndCreateTaskScheduler(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginGetTaskSchedulersData(AsyncCallback callback, object asyncState);
+        ObservableCollection<TaskScheduler> EndGetTaskSchedulersData(IAsyncResult result);
         #endregion
 
         #region Report

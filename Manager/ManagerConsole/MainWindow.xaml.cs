@@ -88,6 +88,13 @@ namespace ManagerConsole
         {
             TreeViewItem moduleNode = sender as TreeViewItem;
             int moduleId = (int)moduleNode.Tag;
+
+            if (moduleId == (int)ModuleType.AbnormalQuotation)
+            {
+                this.ShowAbnormalQuotation();
+            }
+            else
+            {
             string paneName = MainWindowHelper.GetPaneName(moduleId);
             ContentPane contentPane = this.DockManager.GetPanes(PaneNavigationOrder.ActivationOrder).Where(p => p.Name == paneName).SingleOrDefault();
 
@@ -102,6 +109,7 @@ namespace ManagerConsole
                 contentPane.Visibility = Visibility.Visible;
                 contentPane.Activate();
             }
+        }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

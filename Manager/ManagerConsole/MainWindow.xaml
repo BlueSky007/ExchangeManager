@@ -35,7 +35,7 @@
                         </igWPF:ContentPane>
                     </igWPF:SplitPane>
                     <igWPF:SplitPane igWPF:XamDockManager.InitialLocation="FloatingOnly" igWPF:XamDockManager.FloatingLocation="300,300">
-                        <igWPF:ContentPane x:Name="FloatPane" BorderBrush="Black" BorderThickness="0" Header="Confirm Abnormal Quotation" MinHeight="80" MinWidth="60" Visibility="Collapsed" CloseAction="HidePane" >
+                        <igWPF:ContentPane x:Name="FloatPane" Header="Confirm Abnormal Quotation" MinHeight="80" Height="600" MinWidth="60" Width="400" Visibility="Collapsed" CloseAction="HidePane" >
                             <igWPF:ContentPane.Content>
                                 <UI:AbnormalQuotationProcessControl x:Name="AbnormalQuotationProcessControl" />
                             </igWPF:ContentPane.Content>

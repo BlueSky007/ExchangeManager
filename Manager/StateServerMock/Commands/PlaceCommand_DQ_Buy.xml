@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Place xmlns="">
   <Transaction ID="b9ba7622-ed31-47d5-b743-25a89db29666" Code="MHL131011SP00002" InstrumentID="66adc06c-c5fe-4428-867f-be97650eb3b1" InstrumentCategory="20" AccountID="9538eb6e-57b1-45fa-8595-58df7aabcfc9" Type="0" SubType="0" Phase="0" OrderType="0" BeginTime="2013-10-11 15:17:22" EndTime="2013-10-11 15:22:16" ExpireType="3" SubmitTime="2013-10-11 15:17:22" SubmitorID="d366d147-734a-4f2b-adb1-1623472b2c7e">
-    <Order ID="c3ee0d65-ca25-4716-a997-b6f73e8bba61" Code="MHL2013101100001" TradeOption="0" IsOpen="true" IsBuy="true" SetPrice="1.500" PhysicalTradeSide="1" InterestValueDate="" Lot="15.00000000" OriginalLot="15.00000000" LotBalance="15.00000000" PlacedByRiskMonitor="false"/>
+    <Order ID="c3ee0d65-ca25-4716-a997-b6f73e8bba61" Code="MHL2013101100001" TradeOption="0" IsOpen="true" IsBuy="false" SetPrice="1.500" PhysicalTradeSide="1" InterestValueDate="" Lot="15.00000000" OriginalLot="15.00000000" LotBalance="15.00000000" PlacedByRiskMonitor="false"/>
   </Transaction>
   <Transaction ID="b9ba7622-ed31-47d5-b743-25a89db29666" Code="MHL131011SP00002" InstrumentID="66adc06c-c5fe-4428-867f-be97650eb3b2" InstrumentCategory="20" AccountID="9538eb6e-57b1-45fa-8595-58df7aabcfc8" Type="0" SubType="0" Phase="0" OrderType="0" BeginTime="2013-10-11 15:17:22" EndTime="2013-10-11 15:22:16" ExpireType="3" SubmitTime="2013-10-11 15:17:22" SubmitorID="d366d147-734a-4f2b-adb1-1623472b2c7e">
     <Order ID="c3ee0d65-ca25-4716-a997-b6f73e8bba62" Code="MHL2013101100002" TradeOption="0" IsOpen="true" IsBuy="false" SetPrice="1.580" PhysicalTradeSide="1" InterestValueDate="" Lot="15.00000000" OriginalLot="15.00000000" LotBalance="15.00000000" PlacedByRiskMonitor="false"/>

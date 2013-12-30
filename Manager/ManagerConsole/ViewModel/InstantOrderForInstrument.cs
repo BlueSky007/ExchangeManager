@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Media;
+using Price = iExchange.Common.Price;
 
 namespace ManagerConsole.ViewModel
 {
@@ -22,11 +24,15 @@ namespace ManagerConsole.ViewModel
         private BuySell _BuySell;
         private string _Ask;
         private string _Bid;
-        private string _CustomerPrice; //客定价
+        private Price _CustomerPrice; //客定价
+        private Price _MarketPrice;
+        private string _SetPrice;
+        private bool _IsAllowAdjustPrice = true;
         private string _OpenAvgPrice;
         
         private int _BuyVariation;
         private int _SellVariation;
+        private SolidColorBrush _IsBuyBrush;
         private CellDataDefine _ExecuteAllCellDataDefine;
         #endregion
 
@@ -108,10 +114,22 @@ namespace ManagerConsole.ViewModel
             set { this._Bid = value; this.OnPropertyChanged("Bid"); }
         }
 
-        public string CustomerPrice
+        public Price CustomerPrice
         {
             get { return this._CustomerPrice; }
             set { this._CustomerPrice = value; this.OnPropertyChanged("CustomerPrice"); }
+        }
+
+        public Price MarketPrice
+        {
+            get { return this._MarketPrice; }
+            set { this._MarketPrice = value; this.OnPropertyChanged("MarketPrice"); }
+        }
+
+        public bool IsAllowAdjustPrice
+        {
+            get { return this._IsAllowAdjustPrice; }
+            set { this._IsAllowAdjustPrice = value; this.OnPropertyChanged("IsAllowAdjustPrice"); }
         }
 
         public string OpenAvgPrice
@@ -132,10 +150,10 @@ namespace ManagerConsole.ViewModel
             set { this._SellVariation = value; this.OnPropertyChanged("SellVariation"); }
         }
 
-        public CellDataDefine ExecuteAllCellDataDefine
+        public SolidColorBrush IsBuyBrush
         {
-            get { return this._ExecuteAllCellDataDefine; }
-            set { this._ExecuteAllCellDataDefine = value; }
+            get{return this._IsBuyBrush;}
+            set{this._IsBuyBrush = value;this.OnPropertyChanged("IsBuyBrush"); }   
         }
 
         #endregion
@@ -148,11 +166,20 @@ namespace ManagerConsole.ViewModel
             this.Ask = orderTask.Instrument.Ask;
             this.Bid = orderTask.Instrument.Bid;
             this.AccountCode = orderTask.AccountCode;
-            this.CustomerPrice = orderTask.SetPrice;
             this.BuySell = orderTask.IsBuy;
             this.Lot = orderTask.Lot.Value;
-            
+            this._SetPrice = orderTask.SetPrice;
             this.OpenAvgPrice = "1.568";
+
+            this.UpdateBrush();
+            this.UpdateMarketPrice(this.BuySell == BuySell.Buy);
+            this.IsAllowAdjustPrice = true;// OrderTaskManager.IsNeedDQMaxMove(orderTask);
+            this.UpdateCustomerPrice();
+        }
+
+        internal void UpdateBrush()
+        {
+            this.IsBuyBrush = this.BuySell == BuySell.Buy ? new SolidColorBrush(Colors.Blue) : new SolidColorBrush(Colors.Red);
         }
 
         internal void UpdateSumBuySellLot(bool isAdd,OrderTask orderTask)
@@ -185,5 +212,59 @@ namespace ManagerConsole.ViewModel
                 }
             }
         }
+
+        internal void UpdateMarketPrice(bool isBuy)
+        {
+            if (isBuy)
+            {
+                Price bid = new Price(this.Instrument.Bid, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+                this.MarketPrice = bid;
+            }
+            else
+            {
+                Price ask = new Price(this.Instrument.Bid, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+                this.MarketPrice = ask;
+            }
+        }
+
+        internal void UpdateCustomerPrice()
+        {
+            if (this.IsAllowAdjustPrice)
+            {
+                this.SetCustomerPrice();
+            }
+            else
+            {
+                this.CustomerPrice = new Price(this._SetPrice, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+            }
+        }
+
+        internal void SetCustomerPrice()
+        {
+            Price ask = new Price(this.Ask, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+            Price bid = new Price(this.Bid, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+            if (this._Instrument.IsNormal ^ (this.BuySell == BuySell.Buy))
+            {
+                this.CustomerPrice = this.MarketPrice + 1;
+            }
+            else
+            {
+                this.CustomerPrice = this.MarketPrice - 1;
+            }
+        }
+
+        internal void AdjustCustomerPrice(bool upOrDown)
+        {
+            int adjust = upOrDown ? 1 : -1;
+            if (this.Instrument.IsNormal ^ (this.BuySell == BuySell.Buy))
+            {
+                this.CustomerPrice += adjust;
+            }
+            else
+            {
+                this.CustomerPrice -= adjust;
+            }
+        }
+               
     }
 }
