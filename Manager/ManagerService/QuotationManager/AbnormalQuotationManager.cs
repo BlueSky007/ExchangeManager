@@ -9,6 +9,11 @@ using Manager.Common.QuotationEntities;
 
 namespace ManagerService.Quotation
 {
+    public class ConfirmResult
+    {
+        public bool Confirmed;
+        public SourceQuotation SourceQuotation;
+    }
     public class AbnormalInstrument
     {
         private int _InstrumentId;
@@ -58,7 +63,7 @@ namespace ManagerService.Quotation
             return false;
         }
 
-        public void Confirm(int confirmId, bool accepted)
+        public void Confirm(int confirmId, bool accepted, ConfirmResult confirmResult)
         {
             this._TimeoutCount = 0;
             lock (this._WaitQueue)
@@ -76,6 +81,9 @@ namespace ManagerService.Quotation
                     {
                         MainService.QuotationManager.ProcessNormalQuotation(confirmedQuotation);
                     }
+
+                    confirmResult.Confirmed = true;
+                    confirmResult.SourceQuotation = confirmedQuotation;
 
                     this.ProcessSubsequentQuotation();
                     Logger.AddEvent(TraceEventType.Information, "[AbnormalInstrument.Confirm] Confirmed. confirmId:{0}, accepted:{1}", confirmId, accepted);
@@ -257,17 +265,19 @@ namespace ManagerService.Quotation
             this.ChangeWaitTime(quotation.WaitEndTime);
         }
 
-        public void Confirm(int instrumentId, int confirmId, bool accepted)
+        public ConfirmResult Confirm(int instrumentId, int confirmId, bool accepted)
         {
+            ConfirmResult confirmResult = new ConfirmResult() { Confirmed = false };
             AbnormalInstrument abnormalInstrument;
             if (this._AbnormalInstruments.TryGetValue(instrumentId, out abnormalInstrument))
             {
-                abnormalInstrument.Confirm(confirmId, accepted);
+                abnormalInstrument.Confirm(confirmId, accepted, confirmResult);
             }
             else
             {
                 Logger.AddEvent(TraceEventType.Warning, "AbnormalQuotationManager.Confirm Cannot find wait queue for instrumentId={0}", instrumentId);
             }
+            return confirmResult;
         }
 
         private int GetNextConfirmId()

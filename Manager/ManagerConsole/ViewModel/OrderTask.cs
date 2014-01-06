@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Media;
 using ManagerCommon = Manager.Common;
+using OrderType = iExchange.Common.OrderType;
 
 namespace ManagerConsole.ViewModel
 {
@@ -48,7 +49,7 @@ namespace ManagerConsole.ViewModel
         private int? _HitCount = 0;
         private DateTime? _BestTime;
         private int? _ContractSize;
-        private ManagerCommon.OrderType _OrderType;
+        private OrderType _OrderType;
         private string _OrderTypeString;
         private DateTime? _ExpireTime;
         private string _OpenPrice;
@@ -135,7 +136,7 @@ namespace ManagerConsole.ViewModel
                     this.OnPropertyChanged("OrderStatus");
                     this.OnPropertyChanged("OrderStatusString");
                     this.OnPropertyChanged("IsExecutedStatus");
-                    //if (this.OrderType == Manager.Common.OrderType.Limit && !this._IsExecutedStatus)
+                    //if (this.OrderType == iExchange.Common.OrderType.Limit && !this._IsExecutedStatus)
                     //{
                     //    this.IsSelected = false;
                     //    this.OnPropertyChanged("IsSelected");
@@ -219,27 +220,27 @@ namespace ManagerConsole.ViewModel
         {
             get
             {
-                return this.IsOpen == OpenClose.Open ? new SolidColorBrush(Colors.Blue) : new SolidColorBrush(Colors.Red);
+                return this.IsOpen == OpenClose.Open ? SolidColorBrushes.LightBlue : new SolidColorBrush(Colors.Red);
             }
         }
         public SolidColorBrush IsBuyBrush
         {
             get
             {
-                return this.IsBuy == BuySell.Buy ? new SolidColorBrush(Colors.Blue) : new SolidColorBrush(Colors.Red);
+                return this.IsBuy == BuySell.Buy ? SolidColorBrushes.LightBlue : new SolidColorBrush(Colors.Red);
             }
         }
         public SolidColorBrush RowBrush
         {
             get
             {
-                if(this.OrderType == ManagerCommon.OrderType.MarketOnOpen|| this.OrderType == ManagerCommon.OrderType.MarketOnOpen)
+                if(this.OrderType == OrderType.MarketOnOpen|| this.OrderType == OrderType.MarketOnOpen)
                 {
                     return new SolidColorBrush(Colors.Black);
                 }
                 else if (this.IsBuy == BuySell.Buy)
                 {
-                    return new SolidColorBrush(Colors.Blue);
+                    return SolidColorBrushes.LightBlue;
                 }
                 else
                 {
@@ -333,7 +334,7 @@ namespace ManagerConsole.ViewModel
             set { this._ContractSize = value; this.OnPropertyChanged("ContractSize"); }
         }
 
-        public ManagerCommon.OrderType OrderType
+        public OrderType OrderType
         {
             get { return this._OrderType; }
             set { this._OrderType = value; this.OnPropertyChanged("OrderType"); }
@@ -361,7 +362,7 @@ namespace ManagerConsole.ViewModel
         {
             get
             {
-                this._IsExecutedStatus =  (this.OrderType == Manager.Common.OrderType.Limit) &&
+                this._IsExecutedStatus =  (this.OrderType == iExchange.Common.OrderType.Limit) &&
                     (this.OrderStatus == OrderStatus.WaitOutPriceLMT
                     || this.OrderStatus == OrderStatus.WaitOutLotLMT
                     || this.OrderStatus == OrderStatus.WaitOutLotLMTOrigin);
@@ -428,7 +429,7 @@ namespace ManagerConsole.ViewModel
 
         private void SetOrderStatus()
         {
-            if (this.OrderType == ManagerCommon.OrderType.SpotTrade)
+            if (this.OrderType == OrderType.SpotTrade)
             {
                 this.ChangeOrderStatus(OrderStatus.WaitAcceptRejectPlace);
             }
@@ -461,7 +462,7 @@ namespace ManagerConsole.ViewModel
             this._CellDataDefine4.IsVisibility = Visibility.Collapsed;
             if (this.OrderStatus == OrderStatus.WaitAcceptRejectPlace)
             {
-                if (this.OrderType ==ManagerCommon.OrderType.SpotTrade)
+                if (this.OrderType ==OrderType.SpotTrade)
                 {
                     this._DQCellDataDefine1.ColumnWidth = 25;
                     this._DQCellDataDefine1.Action = HandleAction.OnOrderAccept;
@@ -500,7 +501,7 @@ namespace ManagerConsole.ViewModel
             }
 
             //DQ
-            if (this.OrderType == ManagerCommon.OrderType.SpotTrade)
+            if (this.OrderType == OrderType.SpotTrade)
             {
                 var btnAcceptIsEnable = (this.OrderStatus == OrderStatus.WaitAutoExecuteDQ) ? false : true;
                 var btnRejectIsEnable = (this.OrderStatus == OrderStatus.WaitAutoExecuteDQ) ? false : true;
@@ -515,9 +516,9 @@ namespace ManagerConsole.ViewModel
                 this._DQCellDataDefine2.IsVisibility = Visibility.Visible;
                 this._DQCellDataDefine2.IsEnable = btnRejectIsEnable;
             }
-            else if (this.OrderType == ManagerCommon.OrderType.Limit || this.OrderType == ManagerCommon.OrderType.OneCancelOther || this.OrderType == ManagerCommon.OrderType.Market)
+            else if (this.OrderType == OrderType.Limit || this.OrderType == OrderType.OneCancelOther || this.OrderType == OrderType.Market)
             {
-                if ((this.OrderType == ManagerCommon.OrderType.Limit || this.OrderType == ManagerCommon.OrderType.OneCancelOther)
+                if ((this.OrderType == OrderType.Limit || this.OrderType == OrderType.OneCancelOther)
                             && this.OrderStatus == OrderStatus.WaitAcceptRejectCancel)
                 {
                     this._CellDataDefine1.ColumnWidth = 120;
@@ -557,7 +558,7 @@ namespace ManagerConsole.ViewModel
                     this._CellDataDefine4.IsVisibility = Visibility.Visible;
 
                 }
-                else if (this.OrderType == ManagerCommon.OrderType.Limit)
+                else if (this.OrderType == OrderType.Limit)
                 {
                     this._DQCellDataDefine2.ColumnWidth = 100;
                     this._DQCellDataDefine2.Action = HandleAction.OnOrderCancel;
@@ -571,12 +572,12 @@ namespace ManagerConsole.ViewModel
                     this._CellDataDefine2.IsEnable = true;
                     this._CellDataDefine2.IsVisibility = Visibility.Visible;
                 }
-                else if (this.OrderType == ManagerCommon.OrderType.Market)
+                else if (this.OrderType == OrderType.Market)
                 {
 
                 }
             }
-            else if (this.OrderType == ManagerCommon.OrderType.MarketOnOpen || this.OrderType == ManagerCommon.OrderType.MarketOnClose)
+            else if (this.OrderType == OrderType.MarketOnOpen || this.OrderType == OrderType.MarketOnClose)
             {
                 this._CellDataDefine4.ColumnWidth = 48;
                 this._CellDataDefine4.Action = HandleAction.OnOrderDetail;
@@ -647,7 +648,7 @@ namespace ManagerConsole.ViewModel
         public CellDataDefine()
         {
             this.ColumnWidth = 60;
-            this.FontColor = new SolidColorBrush(Colors.Blue);
+            this.FontColor = SolidColorBrushes.LightBlue;
             this.IsEnable = true;
             this.IsVisibility = Visibility.Collapsed;
         }

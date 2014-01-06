@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{FD64B9C0-DA18-46F7-8EF7-AFB6B66CE932}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Manager.Common</RootNamespace>
+    <AssemblyName>Manager.Common</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="iExchange.Common">
+      <HintPath>..\..\iExchange3\Common\bin\Debug\iExchange.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="QuotationEntities\InstrumentData.cs" />
+    <Compile Include="QuotationEntities\UpdateData.cs" />
+    <Compile Include="QuotationEntities\ExchangeQuotation.cs" />
+    <Compile Include="ReportEntities\OrderQueryEntity.cs" />
+    <Compile Include="KnownTypes.cs" />
+    <Compile Include="Settings\Account.cs" />
+    <Compile Include="AccountInformation.cs" />
+    <Compile Include="Settings\Customer.cs" />
+    <Compile Include="Settings\DealingPolicyDetail.cs" />
+    <Compile Include="Defines.cs" />
+    <Compile Include="InitializeData.cs" />
+    <Compile Include="LogEntities\LogEntity.cs" />
+    <Compile Include="LogEntities\LogOrder.cs" />
+    <Compile Include="LogEntities\LogPrice.cs" />
+    <Compile Include="LogEntities\LogQuote.cs" />
+    <Compile Include="LogEntities\LogSetting.cs" />
+    <Compile Include="QuotationEntities\ConfigMetadata.cs" />
+    <Compile Include="QuotationEntities\DerivativeRelation.cs" />
+    <Compile Include="QuotationEntities\FieldSR.cs" />
+    <Compile Include="QuotationEntities\IMetadataObject.cs" />
+    <Compile Include="QuotationEntities\Instrument.cs" />
+    <Compile Include="QuotationEntities\InstrumentSourceRelation.cs" />
+    <Compile Include="QuotationEntities\GeneralQuotation.cs" />
+    <Compile Include="QuotationEntities\PriceRangeCheckRule.cs" />
+    <Compile Include="QuotationEntities\QuotationSource.cs" />
+    <Compile Include="QuotationEntities\SourceInstrumentKey.cs" />
+    <Compile Include="QuotationEntities\WeightedPriceRule.cs" />
+    <Compile Include="Functions.cs" />
+    <Compile Include="Helper.cs" />
+    <Compile Include="Settings\Instrument.cs" />
+    <Compile Include="Logger.cs" />
+    <Compile Include="LoginResult.cs" />
+    <Compile Include="Message.cs" />
+    <Compile Include="Order.cs" />
+    <Compile Include="OrderRelation.cs" />
+    <Compile Include="Price.cs" />
+    <Compile Include="QuotationEntities\PrimitiveQuotation.cs" />
+    <Compile Include="Settings\OverridedQuotation.cs" />
+    <Compile Include="Settings\PrivateDailyQuotation.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\Quotation.cs" />
+    <Compile Include="Settings\QuotePolicy.cs" />
+    <Compile Include="Settings\QuotePolicyDetail.cs" />
+    <Compile Include="RelayEngine.cs" />
+    <Compile Include="Settings\ConfigParameters.cs" />
+    <Compile Include="SettingSet.cs" />
+    <Compile Include="Settings\SettingsParameter.cs" />
+    <Compile Include="Settings\TaskScheduler.cs" />
+    <Compile Include="ShareFixedData.cs" />
+    <Compile Include="Settings\SystemParameter.cs" />
+    <Compile Include="Settings\TradeDay.cs" />
+    <Compile Include="Settings\TradePolicy.cs" />
+    <Compile Include="Settings\TradePolicyDetail.cs" />
+    <Compile Include="Transaction.cs" />
+    <Compile Include="Transactions\OrderRelation.cs" />
+    <Compile Include="User.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

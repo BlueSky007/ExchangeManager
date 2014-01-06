@@ -1,6 +1,8 @@
-﻿using iExchange.Common.Manager;
+﻿using iExchange.Common;
+using iExchange.Common.Manager;
 using Manager.Common;
 using Manager.Common.LogEntities;
+using Manager.Common.QuotationEntities;
 using ManagerService.Console;
 using System;
 using System.Collections.Generic;
@@ -213,8 +215,10 @@ namespace ManagerService.DataAccess
 
             entity.InstrumentId = (int)dr["InstrumentId"];
             entity.InstrumentCode = (string)dr["InstrumentCode"];
-            entity.OperationType = dr["OperationType"].ConvertToEnumValue<OperationType>();// (OperationType)dr["OperationType"];
-            entity.Price = (string)dr["Price"];
+            entity.OperationType = (PriceOperationType)(byte)dr["OperationType"];
+            if (dr["OperationType"] != DBNull.Value) entity.OutOfRangeType = (OutOfRangeType)(byte)dr["OperationType"];
+            entity.Bid = (string)dr["Bid"];
+            entity.Ask = (string)dr["Ask"];
             entity.Diff = (string)dr["Diff"];
         }
 
@@ -239,29 +243,14 @@ namespace ManagerService.DataAccess
 
     public class WriteLogManager
     {
-        public static string GetIpAdreess()
-        {
-            OperationContext context = OperationContext.Current;
-            MessageProperties properties = context.IncomingMessageProperties;
-            RemoteEndpointMessageProperty endpoint = properties[RemoteEndpointMessageProperty.Name] as RemoteEndpointMessageProperty;
-
-            return string.Format("{0}:{1}", endpoint.Address, endpoint.Port);
-        }
         public static void WriteQuotePriceLog(Answer answer, Client client, string eventType)
         {
             LogQuote logQuote = new LogQuote();
-
-            string hostname = Dns.GetHostName();
-            IPHostEntry localhost = Dns.GetHostEntry(hostname);
-            IPAddress localaddr = localhost.AddressList[0];
-            logQuote.IP = localaddr.ToString();
-            string id = GetIpAdreess();
-
+            logQuote.IP = client.IP;
             logQuote.UserId = client.userId;
             logQuote.UserName = client.user.UserName;
             logQuote.Event = eventType;
             logQuote.Timestamp = DateTime.Now;
-
             logQuote.AnswerLot = answer.AnswerLot;
             logQuote.Ask = answer.Ask;
             logQuote.Bid = answer.Bid;
@@ -372,6 +361,65 @@ namespace ManagerService.DataAccess
             catch (Exception ex)
             {
                 Logger.TraceEvent(TraceEventType.Error, "WriteLogManager.WriteSettingChangeLog:{0}, Error:\r\n{1}", ex.ToString());
+            }
+        }
+
+        public static void WritePriceLog(LogPrice logEntity)
+        {
+            try
+            {
+                using (SqlConnection sqlConnection = DataAccess.GetInstance().GetSqlConnection())
+                {
+                    SqlCommand command = sqlConnection.CreateCommand();
+                    command.CommandText = "P_LogPrice_Ins";
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@id", logEntity.Id));
+                    command.Parameters.Add(new SqlParameter("@userId", logEntity.UserId));
+                    command.Parameters.Add(new SqlParameter("@ip", logEntity.IP));
+                    command.Parameters.Add(new SqlParameter("@exchangeCode", logEntity.ExchangeCode));
+                    command.Parameters.Add(new SqlParameter("@event", logEntity.Event));
+                    command.Parameters.Add(new SqlParameter("@timestamp", DateTime.Now));
+                    command.Parameters.Add(new SqlParameter("@instrumentId", logEntity.InstrumentId));
+                    command.Parameters.Add(new SqlParameter("@instrumentCode", logEntity.InstrumentCode));
+                    command.Parameters.Add(new SqlParameter("@operationType", (byte)logEntity.OperationType));
+                    if (logEntity.OutOfRangeType.HasValue) command.Parameters.Add(new SqlParameter("@outOfRangeType", (byte)logEntity.OutOfRangeType));
+                    if (logEntity.Ask != null) command.Parameters.Add(new SqlParameter("@ask", logEntity.Ask));
+                    if (logEntity.Bid != null) command.Parameters.Add(new SqlParameter("@bid", logEntity.Bid));
+                    if (logEntity.Diff != null) command.Parameters.Add(new SqlParameter("@diff", logEntity.Diff));
+
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "WriteLogManager.WritePriceLog:{0}, Error:\r\n{1}", ex.ToString());
+            }
+        }
+    
+        public static void WriteSourceChangeLog(LogSourceChange logEntity)
+        {
+            try
+            {
+                using (SqlConnection sqlConnection = DataAccess.GetInstance().GetSqlConnection())
+                {
+                    SqlCommand command = sqlConnection.CreateCommand();
+                    command.CommandText = "P_LogSourceChange";
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@id", logEntity.Id));
+                    command.Parameters.Add(new SqlParameter("@userId", logEntity.UserId));
+                    command.Parameters.Add(new SqlParameter("@ip", logEntity.IP));
+                    command.Parameters.Add(new SqlParameter("@exchangeCode", logEntity.ExchangeCode));
+                    command.Parameters.Add(new SqlParameter("@event", logEntity.Event));
+                    command.Parameters.Add(new SqlParameter("@timestamp", DateTime.Now));
+                    command.Parameters.Add(new SqlParameter("@fromSourceId", logEntity.FromSourceId));
+                    command.Parameters.Add(new SqlParameter("@toSourceId", logEntity.ToSourceId));
+
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "WriteLogManager.WriteSourceChangeLog:{0}, Error:\r\n{1}", ex.ToString());
             }
         }
 

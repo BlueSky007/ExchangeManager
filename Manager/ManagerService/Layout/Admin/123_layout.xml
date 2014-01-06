@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xamDockManager version="13.1.20131.1009">
+  <contentPanes>
+    <contentPane name="module17_1" location="Document" lastActivatedTime="2014-01-03T00:27:24.4141078Z" />
+    <contentPane name="module17_2" location="Document" lastDockableState="Floating" lastFloatingSize="1700,962" lastFloatingWindowRect="950,531,1708,986" lastFloatingLocation="950,531" lastActivatedTime="2014-01-03T00:27:22.5330002Z" />
+    <contentPane name="FunctionTreePane" location="DockedLeft" lastActivatedTime="2014-01-03T00:27:17.5417147Z" />
+    <contentPane name="module5" location="Document" lastActivatedTime="2014-01-03T00:27:00.8227585Z" />
+    <contentPane name="module13" location="Document" lastActivatedTime="2013-12-24T06:41:12.0191367Z" />
+    <contentPane name="module12" location="Document" lastActivatedTime="2013-12-24T06:41:06.2568071Z" />
+    <contentPane name="module14" location="Document" lastActivatedTime="2013-12-24T06:41:02.11257Z" />
+    <contentPane name="module18" location="Document" lastActivatedTime="2013-12-24T06:40:50.1628866Z" />
+    <contentPane name="FloatPane" location="FloatingOnly" visibility="Collapsed" />
+  </contentPanes>
+  <panes>
+    <splitPane name="Z74e321f4e4fe484e9c28b82d614773e2" splitterOrientation="Vertical" location="DockedLeft">
+      <contentPane name="FunctionTreePane" />
+    </splitPane>
+    <splitPane name="Z41e46294a1e34f71a8e8b4e525eadcb0" splitterOrientation="Vertical" location="FloatingOnly" floatingLocation="300,300">
+      <contentPane name="FloatPane" />
+    </splitPane>
+    <splitPane name="Z95db3d3eeefd4e2ab21288276bdb6b0c" splitterOrientation="Vertical" location="Floating" floatingLocation="950,531" floatingSize="1700,962">
+      <contentPane name="module17_2" />
+    </splitPane>
+  </panes>
+  <documents splitterOrientation="Vertical">
+    <splitPane name="Z9818fa6d6b2e47d7bade76717d36acad" splitterOrientation="Vertical">
+      <splitPane name="Z749b3778235540eeb2e429e61e27844d" splitterOrientation="Horizontal" relativeSize="100,100">
+        <tabGroup name="Z0356bb61aa554241b72cd2eafc8ea4d1" selectedIndex="0">
+          <contentPane name="module17_1" />
+          <contentPane name="module5" />
+          <contentPane name="module18" />
+          <contentPane name="module14" />
+          <contentPane name="module12" />
+          <contentPane name="module13" />
+        </tabGroup>
+        <tabGroup name="Z402ca1286eb24d359c370c8364449569" selectedIndex="0">
+          <contentPane name="module17_2" />
+        </tabGroup>
+      </splitPane>
+    </splitPane>
+  </documents>
+</xamDockManager>

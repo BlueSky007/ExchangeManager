@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CommonTransaction = Manager.Common.Transaction;
+using OrderType = iExchange.Common.OrderType;
 
 namespace ManagerConsole.Model
 {

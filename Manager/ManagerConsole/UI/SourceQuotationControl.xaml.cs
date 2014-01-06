@@ -30,7 +30,7 @@ namespace ManagerConsole.UI
 
         public void BindToInstrument(VmInstrument instrument)
         {
-            if (instrument == null)
+            if (instrument == null || instrument.IsDerivative)
             {
                 this.DataContext = null;
             }

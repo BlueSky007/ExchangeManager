@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using OrderType = iExchange.Common.OrderType;
 
 namespace ManagerService.DataAccess
 {

@@ -14,7 +14,10 @@ using TaskScheduler = Manager.Common.Settings.TaskScheduler;
 using AccountGroupGNP = iExchange.Common.Manager.AccountGroupGNP;
 using AccountType = iExchange.Common.AccountType;
 using OpenInterestSummary = iExchange.Common.Manager.OpenInterestSummary;
+using TransactionError = iExchange.Common.TransactionError;
 using System.Collections.ObjectModel;
+using iExchange.Common.Manager;
+using iExchange.Common;
 
 namespace ManagerConsole.Model
 {
@@ -129,9 +132,20 @@ namespace ManagerConsole.Model
         IAsyncResult BeginCreateTaskScheduler(TaskScheduler taskScheduler, AsyncCallback callback, object asyncState);
         bool EndCreateTaskScheduler(IAsyncResult result);
 
+        [OperationContract(IsInitiating = false)]
+        void EnableTaskScheduler(TaskScheduler taskScheduler);  
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginStartRunTaskScheduler(TaskScheduler taskScheduler, AsyncCallback callback, object asyncState);
+        void EndStartRunTaskScheduler(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginDeleteTaskScheduler(TaskScheduler taskScheduler, AsyncCallback callback, object asyncState);
+        void EndDeleteTaskScheduler(IAsyncResult result);
+        
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginGetTaskSchedulersData(AsyncCallback callback, object asyncState);
-        ObservableCollection<TaskScheduler> EndGetTaskSchedulersData(IAsyncResult result);
+        List<TaskScheduler> EndGetTaskSchedulersData(IAsyncResult result);
         #endregion
 
         #region Report

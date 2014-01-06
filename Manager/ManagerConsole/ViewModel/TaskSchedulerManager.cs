@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using ExchangInstrument = Manager.Common.Settings.ExchangInstrument;
 using CommonTaskScheduler = Manager.Common.Settings.TaskScheduler;
 using ParameterDefine = Manager.Common.Settings.ParameterDefine;
 using ParameterSettingTask = Manager.Common.Settings.ParameterSettingTask;
@@ -46,7 +47,7 @@ namespace ManagerConsole.ViewModel
         {
             if (!this._IsGetTaskData)
             {
-                ConsoleClient.Instance.GetTaskSchedulersData(delegate(ObservableCollection<CommonTaskScheduler> taskSchedulers)
+                ConsoleClient.Instance.GetTaskSchedulersData(delegate(List<CommonTaskScheduler> taskSchedulers)
                 {
                     foreach (CommonTaskScheduler commonTaskScheduler in taskSchedulers)
                     {
@@ -59,7 +60,7 @@ namespace ManagerConsole.ViewModel
 
         public void TaskSchedulerStatusChangeNotify(UpdateSettingParameterMessage message)
         {
-            Guid taskSchedulerId = message.TaskSchedulerId;
+            Guid taskSchedulerId = message.TaskScheduler.Id;
             TaskScheduler currentTask = this._TaskSchedulers.SingleOrDefault(P => P.Id == taskSchedulerId);
             if (currentTask == null) return;
             currentTask.TaskStatus = TaskStatus.Run;
@@ -71,12 +72,24 @@ namespace ManagerConsole.ViewModel
         {
             this._TaskSchedulers.Add(taskScheduler);
         }
+
+        public void RemoveTaskScheduler(TaskScheduler taskScheduler)
+        {
+            if (!this._TaskSchedulers.Contains(taskScheduler)) return;
+            this._TaskSchedulers.Remove(taskScheduler);
+        }
+
+        public void ChangeTaskStatus(TaskScheduler taskScheduler,bool isDisable)
+        {
+            taskScheduler.TaskStatus = isDisable? TaskStatus.Disable:TaskStatus.Ready;
+        }
     }
 
     public class TaskScheduler : PropertyChangedNotifier
     {
         #region private property
         private Guid _Id;
+        private string _ExchangeCode;
         private string _Name;
         private string _Description;
         private TaskType _TaskType;
@@ -84,21 +97,24 @@ namespace ManagerConsole.ViewModel
         private ActionType _ActionType;
         private Guid _Creater;
         private DateTime _RunTime;
-        private DateTime? _LastRunTime;
+        private DateTime _LastRunTime;
         private DateTime _CreateDateTime;
 
         private ObservableCollection<ParameterSetting> _ParameterSettings;
+        private ObservableCollection<ExchangInstrument> _ExchangInstruments { get; set; }
         #endregion
 
         public TaskScheduler() 
         {
+            this._RunTime = DateTime.Now;
+            this._LastRunTime = DateTime.MaxValue;
             this._Id = Guid.NewGuid();
             this._ParameterSettings = new ObservableCollection<ParameterSetting>();
         }
 
         public TaskScheduler(CommonTaskScheduler commonTaskScheduler)
         {
-            this._Id = Guid.NewGuid();
+            this._Id = commonTaskScheduler.Id;
             this._ParameterSettings = new ObservableCollection<ParameterSetting>();
             this.Update(commonTaskScheduler);
         }
@@ -110,9 +126,21 @@ namespace ManagerConsole.ViewModel
             set { this._ParameterSettings = value; }
         }
 
+        public ObservableCollection<ExchangInstrument> ExchangInstruments
+        {
+            get { return this._ExchangInstruments; }
+            set { this._ExchangInstruments = value; }
+        }
+
         public Guid Id
         {
             get { return this._Id; }
+        }
+
+        public string ExchangeCode
+        {
+            get { return this._ExchangeCode; }
+            set { this._ExchangeCode = value; this.OnPropertyChanged("ExchangeCode"); }
         }
 
         public string Name
@@ -127,6 +155,7 @@ namespace ManagerConsole.ViewModel
             set { this._TaskStatus = value; this.OnPropertyChanged("TaskStatus"); }
 
         }
+
         public string Description
         {
             get { return this._Description; }
@@ -136,13 +165,13 @@ namespace ManagerConsole.ViewModel
         public TaskType TaskType
         {
             get { return this._TaskType; }
-            set { this._TaskType = value; }
+            set { this._TaskType = value; this.OnPropertyChanged("TaskType"); }
         }
 
         public ActionType ActionType
         {
             get { return this._ActionType; }
-            set { this._ActionType = value; }
+            set { this._ActionType = value; this.OnPropertyChanged("ActionType"); }
         }
 
         public DateTime RunTime
@@ -151,10 +180,10 @@ namespace ManagerConsole.ViewModel
             set { this._RunTime = value; }
         }
 
-        public DateTime? LastRunTime
+        public DateTime LastRunTime
         {
             get { return this._LastRunTime; }
-            set { this._LastRunTime = value; }
+            set { this._LastRunTime = value; this.OnPropertyChanged("LastRunTime"); }
         }
 
         public string Creater
@@ -167,6 +196,13 @@ namespace ManagerConsole.ViewModel
             get { return this._CreateDateTime; }
             set { this._CreateDateTime = value; }
         }
+
+        public bool IsEditorName
+        {
+            get;
+            set;
+        }
+
         #endregion
 
         internal CommonTaskScheduler ToCommonTaskScheduler()
@@ -174,19 +210,25 @@ namespace ManagerConsole.ViewModel
             CommonTaskScheduler commonTaskScheduler = new CommonTaskScheduler();
 
             commonTaskScheduler.Id = this.Id;
+            commonTaskScheduler.ExchangeCode = this.ExchangeCode;
             commonTaskScheduler.Name = this.Name;
             commonTaskScheduler.Description = this.Description;
             commonTaskScheduler.TaskStatus = Manager.Common.TaskStatus.Ready;
             commonTaskScheduler.RunTime = this.RunTime;
-            commonTaskScheduler.LastRunTime = null;
+            commonTaskScheduler.LastRunTime = this.LastRunTime;
             commonTaskScheduler.TaskType = Manager.Common.TaskType.SetParameterTask;
-            commonTaskScheduler.CreateDate = DateTime.Now;
+            commonTaskScheduler.CreateDate = this.CreateDateTime;
             commonTaskScheduler.ActionType = this.ActionType;
-            
-            foreach(ParameterSetting setting in this.ParameterSettings)
+            commonTaskScheduler.ExchangInstruments = this.ExchangInstruments;
+
+            IEnumerable<ParameterSetting> newParameterSettings = this.ParameterSettings.Where(P => P.IsSelected);
+
+            this.ParameterSettings = new ObservableCollection<ParameterSetting>();
+
+            foreach (ParameterSetting setting in newParameterSettings)
             {
-                if (!setting.IsSelected) continue;
                 setting.TaskSchedulerId = this.Id;
+                this.ParameterSettings.Add(setting);
                 commonTaskScheduler.ParameterSettings.Add(setting.ToCommonParameterSettingTask());
             }
            
@@ -196,6 +238,7 @@ namespace ManagerConsole.ViewModel
         internal void Update(CommonTaskScheduler commonTaskScheduler)
         {
             this._Id = commonTaskScheduler.Id;
+            this._ExchangeCode = commonTaskScheduler.ExchangeCode;
             this._Name = commonTaskScheduler.Name;
             this._Description = commonTaskScheduler.Description;
             this._TaskStatus = commonTaskScheduler.TaskStatus;

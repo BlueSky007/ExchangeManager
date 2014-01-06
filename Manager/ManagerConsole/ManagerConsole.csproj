@@ -139,11 +139,12 @@
     <Compile Include="ChangePassword.xaml.cs">
       <DependentUpon>ChangePassword.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ColorSettings.cs" />
-    <Compile Include="FramePages\DealingLogControl.xaml.cs">
+    <Compile Include="Helper\PriceHelper.cs" />
+    <Compile Include="LayoutManager.cs" />
+    <Compile Include="UI\FramePages\DealingLogControl.xaml.cs">
       <DependentUpon>DealingLogControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="FramePages\SourceManagerLogControl.xaml.cs">
+    <Compile Include="UI\FramePages\SourceManagerLogControl.xaml.cs">
       <DependentUpon>SourceManagerLogControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Helper\CommonDialogWin.cs" />
@@ -156,15 +157,20 @@
     <Compile Include="Helper\PropertyChangedNotifier.cs" />
     <Compile Include="Helper\Toolkit.cs" />
     <Compile Include="Helper\TopToolBarImages.cs" />
-    <Compile Include="InitDataManager.cs" />
+    <Compile Include="UI\RunSettingTaskDetail.xaml.cs">
+      <DependentUpon>RunSettingTaskDetail.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\TaskSchedulerNotify.xaml.cs">
+      <DependentUpon>TaskSchedulerNotify.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModel\InitDataManager.cs" />
     <Compile Include="LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="MessageProcessor.cs" />
+    <Compile Include="Model\MessageProcessor.cs" />
     <Compile Include="Model\Account.cs" />
     <Compile Include="Model\AccountGroup.cs" />
     <Compile Include="Model\ConsoleClient.cs" />
-    <Compile Include="Model\ConsoleClientMock.cs" />
     <Compile Include="Model\Customer.cs" />
     <Compile Include="Model\DealingPolicyDetail.cs" />
     <Compile Include="Model\EventLogEntity.cs" />
@@ -268,9 +274,9 @@
     <Compile Include="Model\TradePolicy.cs" />
     <Compile Include="Model\TradePolicyDetail.cs" />
     <Compile Include="Model\Transaction.cs" />
-    <Compile Include="OrderHandle.cs" />
-    <Compile Include="SettingsChangedEventArgs.cs" />
-    <Compile Include="SettingsManager.cs" />
+    <Compile Include="Model\OrderHandle.cs" />
+    <Compile Include="Model\SettingsChangedEventArgs.cs" />
+    <Compile Include="Model\SettingsManager.cs" />
     <Compile Include="UI\DQOrderTaskControl.xaml.cs">
       <DependentUpon>DQOrderTaskControl.xaml</DependentUpon>
     </Compile>
@@ -311,19 +317,23 @@
     <Compile Include="ViewModel\QuotePriceForInstrument.cs" />
     <Compile Include="ViewModel\UserModel.cs" />
     <Compile Include="ViewModel\VmWeightedPriceRule.cs" />
-    <Page Include="Asset\BlackColors.xaml">
+    <Page Include="Asset\BlackTheme\Office2010Black.xamGrid.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Asset\ScrollBarStyle.xaml">
+    <Page Include="Asset\BlackTheme\Styles.Shared.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Asset\ControlStyle.xaml">
+    <Page Include="Asset\BlackTheme\Styles.WPF.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Asset\XamGridStyle.xaml">
+    <Page Include="Asset\BlackTheme\Theme.Colors.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Asset\Theme_Black.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -331,7 +341,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Asset\WhiteColors.xaml">
+    <Page Include="Asset\Theme_White.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Asset\WhiteTheme\Office2010Blue.xamGrid.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Asset\WhiteTheme\Styles.Shared.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Asset\WhiteTheme\Styles.WPF.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Asset\WhiteTheme\Theme.Colors.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -375,6 +401,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UI\RunSettingTaskDetail.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\SettingParameterControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -391,6 +421,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UI\TaskSchedulerNotify.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\WeightedRuleControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -404,11 +438,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="FramePages\DealingLogControl.xaml">
+    <Page Include="UI\FramePages\DealingLogControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="FramePages\SourceManagerLogControl.xaml">
+    <Page Include="UI\FramePages\SourceManagerLogControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -594,6 +628,7 @@
     <Resource Include="Asset\Images\Reject.png" />
     <Resource Include="Asset\Images\Search.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

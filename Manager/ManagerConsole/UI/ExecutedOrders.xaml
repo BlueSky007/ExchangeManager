@@ -10,10 +10,10 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="800">
     <UserControl.Resources>
-        <Style x:Key="BuyOrderRowStyle" TargetType="igGrid:CellControl" BasedOn="{StaticResource XamGridBlackCellStyle}">
+        <Style x:Key="BuyOrderRowStyle" TargetType="igGrid:CellControl" >
             <Setter Property="Foreground" Value="Blue"/>
         </Style>
-        <Style x:Key="SellOrderRowStyle" TargetType="igGrid:CellControl" BasedOn="{StaticResource XamGridBlackCellStyle}">
+        <Style x:Key="SellOrderRowStyle" TargetType="igGrid:CellControl" >
             <Setter Property="Foreground" Value="Red"/>
         </Style>
     </UserControl.Resources>
@@ -22,7 +22,7 @@
             <RowDefinition Height="35"/>
             <RowDefinition Height="500*"/>
         </Grid.RowDefinitions>
-        <Border x:Name="_ListToolbar" CornerRadius="3" Background="{Binding Path=ColorTemplate.MainControlHeaderBackground, Source={StaticResource ColorSettings}}" Grid.Row="0">
+        <Border x:Name="_ListToolbar" CornerRadius="3" Grid.Row="0">
             <StackPanel Orientation="Horizontal">
                 <TextBlock  Margin="10,0,0,0" Text="Account Group" Foreground="White" VerticalAlignment="Center"/>
                 <ComboBox Margin="10,0,0,0" VerticalAlignment="Center" Style="{StaticResource ComboBoxStyle}" x:Name="_AccountGroupCombo" Height="23"  Width="100" SelectionChanged="_AccountGroupCombo_SelectionChanged" />
@@ -65,14 +65,9 @@
                                  TabLayoutStyle="MultiRowAutoSize"
                                  AllowTabClosing="True"
                                  SelectionChanged="ExecutedOrderTab_SelectionChanged">
-            <igWindows:TabItemEx x:Name="_ExecutedOrderListItem"  Header="Group Net Position"  Height="25"
-                                 Style="{Binding Path=ColorTemplate.TabItemStyle, Source={StaticResource ColorSettings}}">
+            <igWindows:TabItemEx x:Name="_ExecutedOrderListItem"  Header="Group Net Position"  Height="25">
                 <igGrid:XamGrid x:Name="_ExecutedOrderListGrid" Grid.Row="1" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto"
-                                InitializeRow="ExecutedOrderListGrid_InitializeRow"
-                                Background ="{Binding Path=ColorTemplate.Background, Source={StaticResource ColorSettings}}" 
-                                Foreground ="{Binding Path=ColorTemplate.Foreground, Source={StaticResource ColorSettings}}"
-                                CellStyle="{Binding Path=ColorTemplate.XamGridCellStyle, Source={StaticResource ColorSettings}}"
-                                HeaderStyle="{Binding Path=ColorTemplate.XamGridHeaderStyle, Source={StaticResource ColorSettings}}">
+                                InitializeRow="ExecutedOrderListGrid_InitializeRow">
                     <igGrid:XamGrid.FixedColumnSettings>
                         <igGrid:FixedColumnSettings AllowFixedColumns="DropArea"/>
                     </igGrid:XamGrid.FixedColumnSettings>
@@ -99,13 +94,8 @@
                     </igGrid:XamGrid.Columns>
                 </igGrid:XamGrid>
             </igWindows:TabItemEx>
-            <igWindows:TabItemEx Header="Net Summary" x:Name="_OrderSummaryItem"  Height="25"
-                                 Style="{Binding Path=ColorTemplate.TabItemStyle, Source={StaticResource ColorSettings}}">
-                <igGrid:XamGrid x:Name="_ExecutedOrderSummaryGrid" FontFamily="hei" Grid.Row="1" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto" InitializeRow="ExecutedOrderSummaryGrid_InitializeRow"
-                        Background ="{Binding Path=ColorTemplate.Background, Source={StaticResource ColorSettings}}" 
-                        Foreground ="{Binding Path=ColorTemplate.Foreground, Source={StaticResource ColorSettings}}"
-                        CellStyle="{Binding Path=ColorTemplate.XamGridCellStyle, Source={StaticResource ColorSettings}}"
-                        HeaderStyle="{Binding Path=ColorTemplate.XamGridHeaderStyle, Source={StaticResource ColorSettings}}">
+            <igWindows:TabItemEx Header="Net Summary" x:Name="_OrderSummaryItem"  Height="25">
+                <igGrid:XamGrid x:Name="_ExecutedOrderSummaryGrid" FontFamily="hei" Grid.Row="1" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto" InitializeRow="ExecutedOrderSummaryGrid_InitializeRow">    
                     <igGrid:XamGrid.FixedColumnSettings>
                         <igGrid:FixedColumnSettings AllowFixedColumns="DropArea"/>
                     </igGrid:XamGrid.FixedColumnSettings>

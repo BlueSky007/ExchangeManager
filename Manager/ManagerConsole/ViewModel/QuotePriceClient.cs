@@ -1,4 +1,5 @@
-﻿using Manager.Common;
+﻿using iExchange.Common.Manager;
+using Manager.Common;
 using ManagerConsole.Helper;
 using ManagerConsole.Model;
 using System;

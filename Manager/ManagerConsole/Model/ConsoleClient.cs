@@ -10,6 +10,9 @@ using iExchange.Common.Manager;
 using System.Xml;
 using Manager.Common.Settings;
 using System.Collections.ObjectModel;
+using TransactionError = iExchange.Common.TransactionError;
+using CancelReason = iExchange.Common.CancelReason;
+using iExchange.Common;
 
 namespace ManagerConsole.Model
 {
@@ -336,20 +339,49 @@ namespace ManagerConsole.Model
 
         public void CreateTaskScheduler(TaskScheduler taskScheduler, Action<bool> EndCreateTaskScheduler)
         {
-            this._ServiceProxy.BeginCreateTaskScheduler(taskScheduler,delegate(IAsyncResult result)
+            this._ServiceProxy.BeginCreateTaskScheduler(taskScheduler, delegate(IAsyncResult result)
             {
                 bool isCreateSucceed = this._ServiceProxy.EndCreateTaskScheduler(result);
                 EndCreateTaskScheduler(isCreateSucceed);
             }, null);
         }
 
-        public void GetTaskSchedulersData(Action<ObservableCollection<TaskScheduler>> EndGetTaskSchedulersData)
+        public void EnableTaskScheduler(TaskScheduler taskScheduler)
+        {
+            this._ServiceProxy.EnableTaskScheduler(taskScheduler);
+        }
+
+        public void StartRunTaskScheduler(TaskScheduler taskScheduler, Action EndStartRunTaskScheduler)
+        {
+            this._ServiceProxy.BeginStartRunTaskScheduler(taskScheduler, delegate(IAsyncResult result)
+            {
+                App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+                {
+                    this._ServiceProxy.EndStartRunTaskScheduler(result);
+                    EndStartRunTaskScheduler();
+                });
+            }, null);
+        }
+
+        public void DeleteTaskScheduler(TaskScheduler taskScheduler, Action EndDeleteTaskScheduler)
+        {
+            this._ServiceProxy.BeginDeleteTaskScheduler(taskScheduler, delegate(IAsyncResult result)
+            {
+                App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+                {
+                    this._ServiceProxy.EndDeleteTaskScheduler(result);
+                    EndDeleteTaskScheduler();
+                });
+            }, null);
+        }
+
+        public void GetTaskSchedulersData(Action<List<TaskScheduler>> EndGetTaskSchedulersData)
         {
             this._ServiceProxy.BeginGetTaskSchedulersData(delegate(IAsyncResult result)
             {
                 App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
                 {
-                    ObservableCollection<TaskScheduler> taskSchedulers = this._ServiceProxy.EndGetTaskSchedulersData(result);
+                    List<TaskScheduler> taskSchedulers = this._ServiceProxy.EndGetTaskSchedulersData(result);
                     EndGetTaskSchedulersData(taskSchedulers);
                 });
             }, null);

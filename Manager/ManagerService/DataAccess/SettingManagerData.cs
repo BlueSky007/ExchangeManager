@@ -8,14 +8,15 @@ using System.Text;
 using Manager.Common;
 using System.Xml;
 using System.Collections.ObjectModel;
+using ExchangeIntrument = Manager.Common.Settings.ExchangInstrument;
 
 namespace ManagerService.DataAccess
 {
     public class SettingManagerData
     {
-        public static ObservableCollection<TaskScheduler> InitailizedTaskSchedulers()
+        public static List<TaskScheduler> InitailizedTaskSchedulers()
         {
-            ObservableCollection<TaskScheduler> taskSchedulers = new ObservableCollection<TaskScheduler>();
+            List<TaskScheduler> taskSchedulers = new List<TaskScheduler>();
             string sql = "dbo.GetInitialDataForTaskScheduler";
             DataAccess.GetInstance().ExecuteReader(sql, CommandType.Text, delegate(SqlDataReader reader) {
                 while (reader.Read())
@@ -25,6 +26,8 @@ namespace ManagerService.DataAccess
                     taskScheduler.Name = (string)reader["Name"];
                     taskScheduler.Description = (string)reader["Description"];
                     taskScheduler.TaskStatus = reader["TaskStatus"].ConvertToEnumValue<TaskStatus>();
+                    taskScheduler.RunTime = (DateTime)reader["RunTime"];
+                    taskScheduler.LastRunTime = (reader["LastRunTime"] == DBNull.Value) ? DateTime.MaxValue : (DateTime)reader["LastRunTime"];
                     taskScheduler.TaskType = reader["TaskType"].ConvertToEnumValue<TaskType>();
                     taskScheduler.ActionType = reader["ActionType"].ConvertToEnumValue<ActionType>();
                     taskScheduler.Interval = reader["Interval"] == DBNull.Value ? null : (int?)reader["Interval"];
@@ -48,8 +51,21 @@ namespace ManagerService.DataAccess
                     if (taskScheduler == null) continue;
                     taskScheduler.ParameterSettings.Add(parameterSettingTask);
                 }
-            });
+                reader.NextResult();
+                while (reader.Read())
+                {
+                    ExchangeIntrument instrument = new ExchangeIntrument();
+                    instrument.Id = (Guid)reader["Id"];
+                    instrument.ExchangeCode = (string)reader["ExchangeCode"];
+                    instrument.InstrumentId = (Guid)reader["InstrumentId"];
+                    instrument.InstrumentCode = (string)reader["InstrumentCode"];
+                    Guid taskId = (Guid)reader["TaskSchedulerId"];
 
+                    TaskScheduler taskScheduler = taskSchedulers.SingleOrDefault(P => P.Id == taskId);
+                    if (taskScheduler == null) continue;
+                    taskScheduler.ExchangInstruments.Add(instrument);
+                }
+            });
             return taskSchedulers;
         }
 
@@ -73,6 +89,7 @@ namespace ManagerService.DataAccess
 
         public static bool CreateTaskScheduler(TaskScheduler taskScheduler)
         {
+            string instrumentSettings = GetInstrumentSettings(taskScheduler);
             string parameterSettings = GetParameterSettingTasks(taskScheduler);
             using (SqlConnection sqlConnection = DataAccess.GetInstance().GetSqlConnection())
             {
@@ -102,14 +119,7 @@ namespace ManagerService.DataAccess
                 sqlCommand.Parameters.Add(parameter);
 
                 parameter = new SqlParameter("@lastRunTime", SqlDbType.DateTime);
-                if (taskScheduler.LastRunTime == null)
-                {
-                    parameter.Value = DBNull.Value;
-                }
-                else
-                {
-                    parameter.Value = taskScheduler.LastRunTime.Value;
-                }
+                parameter.Value = taskScheduler.LastRunTime;
                 sqlCommand.Parameters.Add(parameter);
 
                 parameter = new SqlParameter("@taskType", SqlDbType.TinyInt);
@@ -129,11 +139,15 @@ namespace ManagerService.DataAccess
                 sqlCommand.Parameters.Add(parameter);
 
                 parameter = new SqlParameter("@timestamp", SqlDbType.DateTime);
-                parameter.Value = DateTime.Now;
+                parameter.Value = taskScheduler.CreateDate;
                 sqlCommand.Parameters.Add(parameter);
 
                 parameter = new SqlParameter("@parameterSettingsXml", SqlDbType.NText);
                 parameter.Value = parameterSettings;
+                sqlCommand.Parameters.Add(parameter);
+
+                parameter = new SqlParameter("@instrumentSettingsXml", SqlDbType.NText);
+                parameter.Value = instrumentSettings;
                 sqlCommand.Parameters.Add(parameter);
 
                 SqlParameter resultParameter = new SqlParameter("@result", SqlDbType.Bit);
@@ -167,6 +181,25 @@ namespace ManagerService.DataAccess
             return doc.OuterXml;
         }
 
+        private static string GetInstrumentSettings(TaskScheduler taskScheduler)
+        {
+            XmlDocument doc = new XmlDocument();
+            XmlElement settingRot = doc.CreateElement("InstrumentSettings");
+
+            foreach (ExchangInstrument instrument in taskScheduler.ExchangInstruments)
+            {
+                XmlElement settingElement = doc.CreateElement("InstrumentSetting");
+                settingElement.SetAttribute("Id", Guid.NewGuid().ToString());
+                settingElement.SetAttribute("ExchangeCode", instrument.ExchangeCode);
+                settingElement.SetAttribute("InstrumentId", instrument.InstrumentId.ToString());
+                settingElement.SetAttribute("InstrumentCode", instrument.InstrumentCode);
+
+                settingRot.AppendChild(settingElement);
+            }
+            doc.AppendChild(settingRot);
+            return doc.OuterXml;
+        }
+
         private static string GetSettingsDetails(TaskScheduler taskScheduler)
         {
             XmlDocument doc = new XmlDocument();
@@ -186,6 +219,28 @@ namespace ManagerService.DataAccess
             return doc.OuterXml;
         }
 
+        public static XmlNode GetInstrumentParametersXml(TaskScheduler taskScheduler)
+        {
+            XmlDocument exchangeDoc = new XmlDocument();
+            XmlElement xmlInstrumentRoot = exchangeDoc.CreateElement("Instruments");
+
+            foreach (ExchangeIntrument instrument in taskScheduler.ExchangInstruments)
+            {
+                XmlElement instrumentElement = exchangeDoc.CreateElement("Instrument");
+                instrumentElement.SetAttribute("ID", instrument.InstrumentId.ToString());
+                foreach (ParameterSettingTask setting in taskScheduler.ParameterSettings)
+                {
+                    if (setting.SettingParameterType == SettingParameterType.InstrumentParameter)
+                    {
+                        instrumentElement.SetAttribute(setting.ParameterKey, setting.ParameterValue);
+                    }
+                }
+                xmlInstrumentRoot.AppendChild(instrumentElement);
+            }
+            exchangeDoc.AppendChild(xmlInstrumentRoot);
+            return exchangeDoc.DocumentElement;
+        }
+
         public static bool UpdateSettingsParameter(TaskScheduler taskScheduler)
         {
             string settingDetails = GetSettingsDetails(taskScheduler);
@@ -196,7 +251,15 @@ namespace ManagerService.DataAccess
                 sqlCommand.CommandType = CommandType.StoredProcedure;
                 sqlCommand.CommandTimeout = 60 * 30;
 
-                SqlParameter parameter = new SqlParameter("@settingDetailsXml", SqlDbType.NText);
+                SqlParameter parameter = new SqlParameter("@taskSchedulerId", SqlDbType.UniqueIdentifier);
+                parameter.Value = taskScheduler.Id;
+                sqlCommand.Parameters.Add(parameter);
+
+                parameter = new SqlParameter("@lastRunTime", SqlDbType.DateTime);
+                parameter.Value = taskScheduler.RunTime;
+                sqlCommand.Parameters.Add(parameter);
+
+                parameter = new SqlParameter("@settingDetailsXml", SqlDbType.NText);
                 parameter.Value = settingDetails;
                 sqlCommand.Parameters.Add(parameter);
 

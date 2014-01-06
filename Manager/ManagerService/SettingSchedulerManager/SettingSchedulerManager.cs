@@ -7,21 +7,19 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Xml;
+using ExchangeSystem = ManagerService.Exchange.ExchangeSystem;
 
 namespace ManagerService.SettingScheduler
 {
     public class SettingSchedulerManager
     {
-        private SettingsForInstrument _SettingsForInstrument;
-        private SettingsForSetValue _SettingsForSetValue;
-        private SettingsForSystemParameter _SettingsForSystemParameter;
-
-        ObservableCollection<TaskScheduler> _TaskSchedulers;
+        List<TaskScheduler> _TaskSchedulers;
 
         private Scheduler Scheduler = new Scheduler();
         private Scheduler.Action _UpdateSettingAction;
 
-        public ObservableCollection<TaskScheduler> TaskSchedulers
+        public List<TaskScheduler> TaskSchedulers
         {
             get { return this._TaskSchedulers; }
             set{this._TaskSchedulers = value;}
@@ -29,19 +27,17 @@ namespace ManagerService.SettingScheduler
 
         public SettingSchedulerManager()
         {
-            this._SettingsForSystemParameter = new SettingsForSystemParameter();
-            this._SettingsForInstrument = new SettingsForInstrument();
-            this._SettingsForInstrument = new SettingsForInstrument();
-            this.TaskSchedulers = new ObservableCollection<TaskScheduler>();
+            this._TaskSchedulers = new List<TaskScheduler>();
             this._UpdateSettingAction = new Scheduler.Action(this.UpdateSettingAction);
         }
 
         public void Start()
         {
             this.InitailizedTaskSchedulerData();
-            foreach (TaskScheduler task in this._TaskSchedulers)
+            foreach (TaskScheduler taskScheduler in this._TaskSchedulers)
             {
-                this.Scheduler.Add(this._UpdateSettingAction, task, task.RunTime);
+                if (taskScheduler.RunTime <= DateTime.Now) continue;
+                this.Scheduler.Add(this._UpdateSettingAction, taskScheduler, taskScheduler.RunTime);
             }
         }
 
@@ -52,15 +48,40 @@ namespace ManagerService.SettingScheduler
 
         public void AddTaskScheduler(TaskScheduler taskScheduler)
         {
-            TaskScheduler task = this._TaskSchedulers.SingleOrDefault(P => P.Id == taskScheduler.Id);
-            if (task != null) return;
-            this._TaskSchedulers.Add(task);
+            var task = this._TaskSchedulers.Where(P => P.Id == taskScheduler.Id);
+            if (taskScheduler.RunTime <= DateTime.Now) return;
+            if (task.Count() == 0)
+            {
+                this._TaskSchedulers.Add(taskScheduler);
+            }
 
-            this.Scheduler.Add(this._UpdateSettingAction, taskScheduler, taskScheduler.RunTime);
+            taskScheduler.ScheduleID = this.Scheduler.Add(this._UpdateSettingAction, taskScheduler, taskScheduler.RunTime);
         }
 
-        public void RemoveTaskScheduler(TaskScheduler taskScheduler)
+        public void StartRunTaskScheduler(TaskScheduler taskScheduler)
         {
+            IEnumerable<TaskScheduler> task = this._TaskSchedulers.Where(P => P.Id == taskScheduler.Id);
+            TaskScheduler taskSchedulerEntity = task.ToList()[0];
+            if (taskScheduler.RunTime <= DateTime.Now) return;
+
+            if (taskSchedulerEntity != null)
+            {
+                this.Scheduler.Remove(taskSchedulerEntity.ScheduleID);
+            }
+
+            this.UpdateSettingParameter(taskScheduler);
+        }
+
+        public void DeleteTaskScheduler(TaskScheduler taskScheduler)
+        {
+            IEnumerable<TaskScheduler> task = this._TaskSchedulers.Where(P => P.Id == taskScheduler.Id);
+            TaskScheduler taskSchedulerEntity = task.ToList()[0];
+            if (taskScheduler.RunTime <= DateTime.Now) return;
+
+            if (taskSchedulerEntity != null)
+            {
+                this.Scheduler.Remove(taskSchedulerEntity.ScheduleID);
+            }
         }
 
         #region Action 
@@ -76,14 +97,23 @@ namespace ManagerService.SettingScheduler
                 default:
                     break;
             }
-
-            UpdateSettingParameterMessage message = new UpdateSettingParameterMessage(taskScheduler.Id);
-            MainService.ClientManager.Dispatch(message);
         }
 
         private void UpdateSettingParameter(TaskScheduler taskScheduler)
         {
-            SettingManagerData.UpdateSettingsParameter(taskScheduler);
+            if (!string.IsNullOrEmpty(taskScheduler.ExchangeCode))
+            {
+                ExchangeSystem exchangeSystem = MainService.ExchangeManager.GetExchangeSystem(taskScheduler.ExchangeCode);
+                XmlNode instrumentsXml = SettingManagerData.GetInstrumentParametersXml(taskScheduler);
+                bool isOk = exchangeSystem.UpdateInstrument(instrumentsXml);
+            }
+           
+            bool isUpdate = SettingManagerData.UpdateSettingsParameter(taskScheduler);
+            if (!isUpdate) return;
+            UpdateSettingParameterMessage message = new UpdateSettingParameterMessage(taskScheduler);
+            MainService.ClientManager.Dispatch(message);
+
+            this._TaskSchedulers.Remove(taskScheduler);
         }
         #endregion
     }

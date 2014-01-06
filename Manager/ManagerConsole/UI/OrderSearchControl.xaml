@@ -14,7 +14,7 @@
             <RowDefinition Height="65"/>
             <RowDefinition Height="500*"/>
         </Grid.RowDefinitions>
-        <Border CornerRadius="5" Background="{Binding Path=ColorTemplate.MainControlHeaderBackground, Source={StaticResource ColorSettings}}" BorderBrush="DarkGreen" Grid.Row="0">
+        <Border CornerRadius="5" BorderBrush="DarkGreen" Grid.Row="0">
 
             <StackPanel Orientation="Vertical">
                 <StackPanel Orientation="Horizontal"  >
@@ -54,11 +54,7 @@
                                  TabStripPlacement="Top"
                                  TabLayoutStyle="MultiRowAutoSize">
             <igWindows:TabItemEx x:Name="_OrderSercherItem" Header="单子查询"  Height="25" BorderThickness="0">
-                <igGrid:XamGrid x:Name="_OrderSerchGrid" Grid.Row="1" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto" 
-                            Background ="{Binding Path=ColorTemplate.Background, Source={StaticResource ColorSettings}}" 
-                            Foreground ="{Binding Path=ColorTemplate.Foreground, Source={StaticResource ColorSettings}}"
-                            CellStyle="{Binding Path=ColorTemplate.XamGridCellStyle, Source={StaticResource ColorSettings}}"
-                            HeaderStyle="{Binding Path=ColorTemplate.XamGridHeaderStyle, Source={StaticResource ColorSettings}}">
+                <igGrid:XamGrid x:Name="_OrderSerchGrid" Grid.Row="1" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto">
                     <igGrid:XamGrid.FixedColumnSettings>
                         <igGrid:FixedColumnSettings AllowFixedColumns="DropArea"/>
                     </igGrid:XamGrid.FixedColumnSettings>

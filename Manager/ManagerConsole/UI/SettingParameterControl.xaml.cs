@@ -23,5 +23,10 @@ namespace ManagerConsole.UI
         {
             InitializeComponent();
         }
+
+        private void OpenFileDialogBtn_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

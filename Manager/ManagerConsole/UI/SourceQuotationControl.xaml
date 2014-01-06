@@ -65,11 +65,6 @@
                         <ig:XamGrid x:Name="PriceGrid" AutoGenerateColumns="False" ItemsSource="{Binding SourceQuotations}" Width="220" ScrollViewer.PanningMode="None"
                                     HeaderVisibility="Collapsed" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Hidden"
                                     SelectedRowsCollectionChanged="XamGrid_SelectedRowsCollectionChanged" RowHeight="20">
-                            <ig:XamGrid.CellStyle>
-                                <Style TargetType="ig:CellControl" BasedOn="{StaticResource {x:Type ig:CellControl}}">
-                                    <Setter Property="Padding" Value="1"/>
-                                </Style>
-                            </ig:XamGrid.CellStyle>
                             <ig:XamGrid.SortingSettings>
                                 <ig:SortingSettings AllowSorting="False"/>
                             </ig:XamGrid.SortingSettings>

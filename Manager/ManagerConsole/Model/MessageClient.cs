@@ -25,6 +25,9 @@ namespace ManagerConsole.Model
         public delegate void DeletedOrderEventHandler(DeleteMessage deleteMessage);
         public event DeletedOrderEventHandler DeletedOrderEvent;
 
+        public delegate void SettingTaskRunEventHandler(UpdateSettingParameterMessage message);
+        public event SettingTaskRunEventHandler OnSettingTaskRunEvent;
+
         #endregion
 
         private RelayEngine<Message> _MessageRelayEngine;
@@ -100,6 +103,7 @@ namespace ManagerConsole.Model
         private void Process(UpdateSettingParameterMessage message)
         {
             this._MessageProcessor.Process(message);
+            this.OnSettingTaskRunEvent(message);
         }
 
         private void Process(QuoteMessage quoteMessage)

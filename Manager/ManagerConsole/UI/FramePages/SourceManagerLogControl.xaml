@@ -11,23 +11,25 @@
 
         </Grid.Resources>
         <Grid.RowDefinitions>
-            <RowDefinition Height="30" />
-            <RowDefinition Height="500"/>
+            <RowDefinition Height="35" />
+            <RowDefinition Height="*"/>
             <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal" Background="{StaticResource BackGroundForPanel}" Grid.Row="0">
-            <TextBlock x:Name="_FromTextBlock" Foreground="White" Text="From:" Margin="8,10,0,0" Height="25"/>
-            <DatePicker Width="120" x:Name="_FromDatePicker" Margin="2,0,0,0"  Height="25" ></DatePicker>
-            <TextBlock x:Name="_ToTextBlock"  Foreground="White" Text="To:" Margin="2,10,0,0" Height="25"/>
-            <DatePicker Width="120" x:Name="_ToDatePicker" Margin="2,0,0,0" Height="25"></DatePicker>
-            <Button x:Name="_QueryButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"  Click="ToolBar_Click" Width="25" Height="25" Margin="2" >
-                <Button.Content>
-                    <Image Source="../Asset/Images/Search.png" ToolTipService.ToolTip="Query Log"  Margin="1"/>
-                </Button.Content>
-            </Button>
-        </StackPanel>
-
-        <igGrid:XamGrid x:Name="_LogPriceGrid" AutoGenerateColumns="False" Grid.Row="1">
+        <Border Grid.Row="0" Background="#FF282828" CornerRadius="3" BorderBrush="Gray" BorderThickness="1">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock x:Name="_FromTextBlock" Foreground="White" Text="From:" Margin="8,10,0,0" Height="25"/>
+                <DatePicker Width="120" x:Name="_FromDatePicker" Margin="2,0,0,0"  Height="25" ></DatePicker>
+                <TextBlock x:Name="_ToTextBlock"  Foreground="White" Text="To:" Margin="2,10,0,0" Height="25"/>
+                <DatePicker Width="120" x:Name="_ToDatePicker" Margin="2,0,0,0" Height="25"></DatePicker>
+                <Button x:Name="_QueryButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"  Click="ToolBar_Click" Width="25" Height="25" Margin="2" >
+                    <Button.Content>
+                        <Image Source="../Asset/Images/Search.png" ToolTipService.ToolTip="Query Log"  Margin="1"/>
+                    </Button.Content>
+                </Button>
+            </StackPanel>
+        </Border>
+            
+        <igGrid:XamGrid x:Name="_LogPriceGrid" AutoGenerateColumns="False" Grid.Row="1" Margin="1,5,0,0">
             <igGrid:XamGrid.EditingSettings>
                 <igGrid:EditingSettings AllowEditing="None" IsEnterKeyEditingEnabled="True" IsF2EditingEnabled="True"/>
             </igGrid:XamGrid.EditingSettings>

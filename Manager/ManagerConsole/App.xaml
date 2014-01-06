@@ -7,14 +7,11 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Asset/Theme_Black.xaml"/>
                 <ResourceDictionary Source="Asset/Styles.xaml"/>
-                <ResourceDictionary Source="Asset/XamGridStyle.xaml"/>
-                <ResourceDictionary>
-                    <local:DeciamlTypeNullValueConverter x:Key="_LotNullValueConverter"/>
-                </ResourceDictionary>
-                
             </ResourceDictionary.MergedDictionaries>
+            
+            <local:DeciamlTypeNullValueConverter x:Key="_LotNullValueConverter"/>
         </ResourceDictionary>
-
     </Application.Resources>
 </Application>

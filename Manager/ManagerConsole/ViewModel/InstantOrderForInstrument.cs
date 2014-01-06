@@ -26,14 +26,14 @@ namespace ManagerConsole.ViewModel
         private string _Bid;
         private Price _CustomerPrice; //客定价
         private Price _MarketPrice;
+        private int _Diff;
         private string _SetPrice;
         private bool _IsAllowAdjustPrice = true;
         private string _OpenAvgPrice;
         
-        private int _BuyVariation;
-        private int _SellVariation;
+        private int _BuyVariation = 0;
+        private int _SellVariation = 0;
         private SolidColorBrush _IsBuyBrush;
-        private CellDataDefine _ExecuteAllCellDataDefine;
         #endregion
 
         public InstantOrderForInstrument()
@@ -117,13 +117,25 @@ namespace ManagerConsole.ViewModel
         public Price CustomerPrice
         {
             get { return this._CustomerPrice; }
-            set { this._CustomerPrice = value; this.OnPropertyChanged("CustomerPrice"); }
+            set
+            { 
+                this._CustomerPrice = value; 
+                this.OnPropertyChanged("CustomerPrice");
+                this.UpdateDiff();
+                this.OnPropertyChanged("Diff");
+            }
         }
 
         public Price MarketPrice
         {
             get { return this._MarketPrice; }
             set { this._MarketPrice = value; this.OnPropertyChanged("MarketPrice"); }
+        }
+
+        public int Diff
+        {
+            get { return this._Diff; }
+            set { this._Diff = value; this.OnPropertyChanged("Diff"); }
         }
 
         public bool IsAllowAdjustPrice
@@ -175,11 +187,12 @@ namespace ManagerConsole.ViewModel
             this.UpdateMarketPrice(this.BuySell == BuySell.Buy);
             this.IsAllowAdjustPrice = true;// OrderTaskManager.IsNeedDQMaxMove(orderTask);
             this.UpdateCustomerPrice();
+            this.UpdateDiff();
         }
 
         internal void UpdateBrush()
         {
-            this.IsBuyBrush = this.BuySell == BuySell.Buy ? new SolidColorBrush(Colors.Blue) : new SolidColorBrush(Colors.Red);
+            this.IsBuyBrush = this.BuySell == BuySell.Buy ? SolidColorBrushes.LightBlue: new SolidColorBrush(Colors.Red);
         }
 
         internal void UpdateSumBuySellLot(bool isAdd,OrderTask orderTask)
@@ -265,6 +278,31 @@ namespace ManagerConsole.ViewModel
                 this.CustomerPrice -= adjust;
             }
         }
+
+        internal void AdjustAutoPointVariation(bool isBuy,bool upOrDown)
+        {
+            int adjust = upOrDown ? 1:-1;
+            int variation = isBuy ? this.BuyVariation : this.SellVariation;
+            variation += ((int)this.Instrument.NumeratorUnit) * adjust;
+            if (this.Instrument.CheckVariation(variation))
+            {
+                if (isBuy)
+                {
+                    this.BuyVariation = variation;
+                }
+                else
+                {
+                    this.SellVariation = variation;
+                }
+            }
+        }
+
+        internal void UpdateDiff()
+        {
+            this.Diff = this.MarketPrice - this.CustomerPrice;
+        }
+
+        
                
     }
 }

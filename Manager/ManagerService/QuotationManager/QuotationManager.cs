@@ -235,7 +235,7 @@ namespace ManagerService.Quotation
             }
         }
 
-        internal void SendQuotation(int instrumentSourceRelationId, double ask, double bid)
+        internal void SendQuotation(int instrumentSourceRelationId, double ask, double bid, out PrimitiveQuotation primitiveQuotation)
         {
             InstrumentSourceRelation relation = null;
             foreach (Dictionary<string, InstrumentSourceRelation> relations in this._ConfigMetadata.InstrumentSourceRelations.Values)
@@ -243,7 +243,7 @@ namespace ManagerService.Quotation
                 relation = relations.Values.SingleOrDefault(r => r.Id == instrumentSourceRelationId);
                 if (relation != null) break;
             }
-            PrimitiveQuotation primitiveQuotation = new PrimitiveQuotation();
+            primitiveQuotation = new PrimitiveQuotation();
             primitiveQuotation.SourceId = relation.SourceId;
             primitiveQuotation.InstrumentId = relation.InstrumentId;
             primitiveQuotation.SourceName = this._ConfigMetadata.QuotationSources.Values.Single(s=>s.Id == relation.SourceId).Name;

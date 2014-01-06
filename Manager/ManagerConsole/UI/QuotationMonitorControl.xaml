@@ -16,7 +16,7 @@
             <Setter Property="BorderThickness" Value="1"/>
         </Style>
     </UserControl.Resources>
-    <Grid>
+    <Grid PreviewMouseRightButtonDown="Grid_PreviewMouseRightButtonDown">
         <ToolBar VerticalAlignment="Top" Margin="-3,-1,0,0" Padding="0">
             <ToolBarPanel Height="26" Orientation="Horizontal">
                 <Button x:Name="AddInstrument" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="AddInstrument_Click">
@@ -38,7 +38,7 @@
                 </Button>
             </ToolBarPanel>
         </ToolBar>
-        <Grid Margin="0,30,0,0">
+        <Grid x:Name="MainGrid" Margin="0,30,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition x:Name="SplitterColumn" Width="5" />
@@ -46,11 +46,6 @@
             </Grid.ColumnDefinitions>
             <ig:XamGrid x:Name="MonitorGrid" AutoGenerateColumns="False"
                         SelectedRowsCollectionChanged="MonitorGrid_SelectedRowsCollectionChanged">
-                <ig:XamGrid.CellStyle>
-                    <Style TargetType="ig:CellControl" BasedOn="{StaticResource {x:Type ig:CellControl}}">
-                        <Setter Property="Padding" Value="1"/>
-                    </Style>
-                </ig:XamGrid.CellStyle>
                 <ig:XamGrid.SelectionSettings>
                     <ig:SelectionSettings CellClickAction="SelectRow" />
                 </ig:XamGrid.SelectionSettings>
@@ -67,7 +62,7 @@
                         <ig:TemplateColumn.ItemTemplate>
                             <DataTemplate>
                                 <Border Style="{StaticResource TrendHighLight}" Background="{Binding BidTrendBrush}">
-                                    <TextBlock Text="{Binding Bid}" Margin="0,0,2,0" TextAlignment="Right" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Bid}" Padding="0,0,2,0" TextAlignment="Right" VerticalAlignment="Center"/>
                                 </Border>
                             </DataTemplate>
                         </ig:TemplateColumn.ItemTemplate>
@@ -76,7 +71,7 @@
                         <ig:TemplateColumn.ItemTemplate>
                             <DataTemplate>
                                 <Border Style="{StaticResource TrendHighLight}" Background="{Binding AskTrendBrush}">
-                                    <TextBlock Text="{Binding Ask}" Margin="0,0,2,0" TextAlignment="Right" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Ask}" Padding="0,0,2,0" TextAlignment="Right" VerticalAlignment="Center"/>
                                 </Border>
                             </DataTemplate>
                         </ig:TemplateColumn.ItemTemplate>

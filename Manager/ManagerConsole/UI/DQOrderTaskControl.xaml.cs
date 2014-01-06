@@ -16,7 +16,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using CommonTransactionError = Manager.Common.TransactionError;
 using Logger = Manager.Common.Logger;
 
 namespace ManagerConsole.UI

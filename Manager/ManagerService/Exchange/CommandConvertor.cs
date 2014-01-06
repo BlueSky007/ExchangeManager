@@ -28,7 +28,7 @@ namespace ManagerService.Exchange
         private static Message Convert(string exchangeCode, AcceptPlaceCommand acceptPlaceCommand)
         {
             AcceptPlaceMessage acceptPlaceMessage = new AcceptPlaceMessage(exchangeCode,acceptPlaceCommand.InstrumentID,
-                acceptPlaceCommand.AccountID, acceptPlaceCommand.TransactionID, (ManagerCommon.TransactionError)acceptPlaceCommand.ErrorCode);
+                acceptPlaceCommand.AccountID, acceptPlaceCommand.TransactionID, (TransactionError)acceptPlaceCommand.ErrorCode);
             return acceptPlaceMessage;
         }
 
@@ -107,7 +107,7 @@ namespace ManagerService.Exchange
         private static Message Convert(string exchangeCode, CancelCommand cancelCommand)
         {
             CancelMessage cancelMessage = new CancelMessage(cancelCommand.TransactionID,
-                (ManagerCommon.TransactionError)cancelCommand.ErrorCode, (ManagerCommon.CancelReason)cancelCommand.CancelReason);
+                (TransactionError)cancelCommand.ErrorCode, (iExchange.Common.CancelReason)cancelCommand.CancelReason);
             return cancelMessage;
         }
 
@@ -858,7 +858,7 @@ namespace ManagerService.Exchange
                 }
                 else if (nodeName == "OrderType")
                 {
-                    transaction.OrderType = (ManagerCommon.OrderType)(int.Parse(nodeValue));
+                    transaction.OrderType = (OrderType)(int.Parse(nodeValue));
                     continue;
                 }
                 else if (nodeName == "ContractSize")
@@ -878,7 +878,7 @@ namespace ManagerService.Exchange
                 }
                 else if (nodeName == "ErrorCode")
                 {
-                    transaction.Error = (ManagerCommon.TransactionError)Enum.Parse(typeof(ManagerCommon.TransactionError), nodeValue); ;
+                    transaction.Error = (TransactionError)Enum.Parse(typeof(TransactionError), nodeValue); ;
                     continue;
                 }
                 else if (nodeName == "AssigningOrderID" && !string.IsNullOrEmpty(nodeValue))

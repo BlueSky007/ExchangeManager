@@ -11,6 +11,9 @@ using iExchange.Common.Manager;
 using System.Xml;
 using Manager.Common.Settings;
 using System.Collections.ObjectModel;
+using TransactionError = iExchange.Common.TransactionError;
+using CancelReason = iExchange.Common.CancelReason;
+using iExchange.Common;
 
 namespace ManagerService.Console
 {
@@ -271,10 +274,28 @@ namespace ManagerService.Console
 
         public bool CreateTaskScheduler(TaskScheduler taskScheduler)
         {
+            taskScheduler.Creater = this._Client.userId;
             return this._Client.CreateTaskScheduler(taskScheduler);
         }
 
-        public ObservableCollection<TaskScheduler> GetTaskSchedulersData()
+        public void EnableTaskScheduler(TaskScheduler taskScheduler)
+        {
+            taskScheduler.Creater = this._Client.userId;
+            this._Client.EnableTaskScheduler(taskScheduler);
+        }
+
+        public void StartRunTaskScheduler(TaskScheduler taskScheduler)
+        {
+            taskScheduler.Creater = this._Client.userId;
+            this._Client.StartRunTaskScheduler(taskScheduler);
+        }
+
+        public void DeleteTaskScheduler(TaskScheduler taskScheduler)
+        {
+            this._Client.DeleteTaskScheduler(taskScheduler);
+        }
+
+        public List<TaskScheduler> GetTaskSchedulersData()
         {
             return this._Client.GetTaskSchedulersData();
         }

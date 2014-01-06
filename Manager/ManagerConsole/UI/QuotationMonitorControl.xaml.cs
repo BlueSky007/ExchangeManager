@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,13 +13,14 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Infragistics.Controls.Grids;
-using Manager.Common.QuotationEntities;
-using ManagerConsole.ViewModel;
-using ManagerConsole.Model;
-using Manager.Common;
-using Infragistics.Controls.Interactions;
 using Infragistics;
+using Infragistics.Controls.Grids;
+using Infragistics.Controls.Interactions;
+using Manager.Common;
+using Manager.Common.QuotationEntities;
+using ManagerConsole.Helper;
+using ManagerConsole.Model;
+using ManagerConsole.ViewModel;
 
 namespace ManagerConsole.UI
 {
@@ -35,25 +37,19 @@ namespace ManagerConsole.UI
             InitializeComponent();
             this.MonitorGrid.ItemsSource = VmQuotationManager.Instance.Instruments;
             this._Timer = new Timer(this.ShowRelation);
-            this.MonitorGrid.Filtering += MonitorGrid_Filtering;
-            this.MonitorGrid.Filtered += MonitorGrid_Filtered;
-
-            RowsFilter rowsFilter = new RowsFilter(typeof(string), this.MonitorGrid.Columns.DataColumns["Code"]);
-            rowsFilter.Conditions.LogicalOperator = LogicalOperator.Or;
-            rowsFilter.Conditions.Add(new ComparisonCondition() { FilterValue = "XAU", Operator= ComparisonOperator.Equals });
-            rowsFilter.Conditions.Add(new ComparisonCondition() { FilterValue = "XAUD", Operator = ComparisonOperator.Equals });
-            this.MonitorGrid.FilteringSettings.RowFiltersCollection.Add(rowsFilter);
+            //this.MonitorGrid.Filtering += MonitorGrid_Filtering;
+            //this.MonitorGrid.Filtered += MonitorGrid_Filtered;
         }
 
-        void MonitorGrid_Filtering(object sender, CancellableFilteringEventArgs e)
-        {
-            e.Cancel = false;
-        }
+        //void MonitorGrid_Filtering(object sender, CancellableFilteringEventArgs e)
+        //{
+        //    e.Cancel = false;
+        //}
 
-        void MonitorGrid_Filtered(object sender, FilteredEventArgs e)
-        {
-            RowFiltersCollection collection = e.RowFiltersCollection;
-        }
+        //void MonitorGrid_Filtered(object sender, FilteredEventArgs e)
+        //{
+        //    RowFiltersCollection collection = e.RowFiltersCollection;
+        //}
 
         private void ShowRelation(object state)
         {
@@ -67,7 +63,6 @@ namespace ManagerConsole.UI
         {
             TextBox textBox = (TextBox)sender;
             textBox.BorderBrush = Brushes.Gray;
-            //this.MonitorGrid.
         }
 
         private void AdjustPrice_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -230,71 +225,71 @@ namespace ManagerConsole.UI
             window.Show();
         }
 
+        /// <summary>
+        /// Layout format:
+        ///   <Fitler LogicalOperator="Or(And)" ><Condition op="=" value="XAU"/><Condition op="!=" value="XAUD"/></Fitler>
+        ///   <Spliter width0=""/>
+        /// </summary>
+        /// <returns></returns>
         public string GetLayout()
         {
-            throw new NotImplementedException();
-        }
-
-        public void SetLayout(string layout)
-        {
-            throw new NotImplementedException();
-        }
-    }
-    public class PriceHelper
-    {
-        public static void GetSendPrice(string adjustPriceText, int decimalPlace, string ask, string bid, out decimal sendAsk, out decimal sendBid)
-        {
-            sendAsk = sendBid = 0;
-            decimal spread = decimal.Parse(ask) - decimal.Parse(bid);
-            bid = new string('0', adjustPriceText.Length) + bid;
-            int offset = adjustPriceText.IndexOf('.');
-            if (decimalPlace > 0)
+            StringBuilder layoutBuilder = new StringBuilder();
+            if (this.MonitorGrid.FilteringSettings.RowFiltersCollection.Count > 0)
             {
-                if (bid.IndexOf('.') < 0) bid += '.';
-                bid += new string('0', decimalPlace);
-                bid = PriceHelper.Cut(bid, decimalPlace);
-
-                if (offset < 0)
+                IRecordFilter rowsFilter = this.MonitorGrid.FilteringSettings.RowFiltersCollection[0];
+                if (rowsFilter.FieldName == "Code")
                 {
-                    if (adjustPriceText.Length > decimalPlace)
+                    
+                    layoutBuilder.AppendFormat("<Fitler LogicalOperator=\"{0}\">", (int)rowsFilter.Conditions.LogicalOperator);
+                    foreach (IFilterCondition condition in rowsFilter.Conditions)
                     {
-                        adjustPriceText = adjustPriceText.Substring(0, decimalPlace);
+                        ComparisonCondition comparisonCondition = condition as ComparisonCondition;
+                        if (comparisonCondition != null)
+                        {
+                            layoutBuilder.AppendFormat("<Condition op=\"{0}\" val=\"{1}\"/>", (int)comparisonCondition.Operator, comparisonCondition.FilterValue);
+                        }
                     }
-                    bid = bid.Substring(0, bid.Length - adjustPriceText.Length) + adjustPriceText;
-                }
-                else
-                {
-                    adjustPriceText = PriceHelper.Cut(adjustPriceText, decimalPlace);
-
-                    int startIndex = bid.IndexOf('.') - offset;
-                    bid = bid.Substring(0, startIndex) + adjustPriceText + bid.Substring(startIndex + adjustPriceText.Length);
+                    layoutBuilder.Append("</Fitler>");
                 }
             }
-            else
-            {
-                if (offset == 0) throw new ArgumentException();
-                if (offset > 0) adjustPriceText = adjustPriceText.Substring(0, offset);
-                if (bid.IndexOf('.') >= 0)
-                {
-                    bid = bid.Substring(0, bid.IndexOf('.'));
-                }
-                bid = bid.Substring(0, bid.Length - adjustPriceText.Length) + adjustPriceText;
-            }
-            sendBid = decimal.Parse(bid);
-            sendAsk = sendBid + spread;
+            layoutBuilder.AppendFormat("<Spliter width0=\"{0}\"/>", this.MainGrid.ColumnDefinitions[0].ActualWidth);
+            return layoutBuilder.ToString();
         }
 
-        public static string Cut(string value, int decimalPlace)
+        public void SetLayout(XElement layout)
         {
-            int position = value.IndexOf('.') + 1;
-            if (position > 0)
+            try
             {
-                if (value.Length - position > decimalPlace)
+                if (layout.HasElements)
                 {
-                    value = value.Substring(0, position + decimalPlace);
+                    XElement filterElement = layout.Element("Fitler");
+                    if (filterElement != null)
+                    {
+                        RowsFilter rowsFilter = new RowsFilter(typeof(string), this.MonitorGrid.Columns.DataColumns["Code"]);
+                        rowsFilter.Conditions.LogicalOperator = (LogicalOperator)int.Parse(filterElement.Attribute("LogicalOperator").Value);
+
+                        foreach (XElement element in filterElement.Elements("Condition"))
+                        {
+                            rowsFilter.Conditions.Add(new ComparisonCondition() { FilterValue = element.Attribute("val").Value, Operator = (ComparisonOperator)int.Parse(element.Attribute("op").Value) });
+                        }
+                        this.MonitorGrid.FilteringSettings.RowFiltersCollection.Add(rowsFilter);
+                    }
+                    XElement spliterElement = layout.Element("Spliter");
+                    if(spliterElement != null)
+                    {
+                        this.MainGrid.ColumnDefinitions[0].Width = new GridLength(double.Parse(spliterElement.Attribute("width0").Value));
+                    }
                 }
             }
-            return value;
+            catch (Exception ex)
+            {
+                Logger.AddEvent(System.Diagnostics.TraceEventType.Error, "QuotationMonitorControl.SetLayout\r\n{0}", ex.ToString());
+            }
+        }
+
+        private void Grid_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            RowFiltersCollection collection = this.MonitorGrid.FilteringSettings.RowFiltersCollection;
         }
     }
 }

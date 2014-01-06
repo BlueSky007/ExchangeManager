@@ -124,34 +124,58 @@ BEGIN
 					   ([ParameterKey]
 					   ,[SettingType]
 					   ,[SqlDbType])
-		SELECT 'InactiveWaitTime',0,8
-		UNION SELECT 'EnquiryWaitTime',0,8
-		UNION SELECT 'PriceOrderSetting',0,8
-		UNION SELECT 'DisablePopup',0,2
-		UNION SELECT 'AutoConfirm',0,2
-		UNION SELECT 'LimitStopSummaryIsTimeRange',0,2
-		UNION SELECT 'LimitStopSummaryTimeRangeValue',0,8
-		UNION SELECT 'LimitStopSummaryPriceRangeValue',0,8
-		UNION SELECT 'OriginInactiveTime',1,8
-		UNION SELECT 'AlertVariation',1,8
-		UNION SELECT 'NormalWaitTime',1,8
-		UNION SELECT 'AlertWaitTime',1,8
-		UNION SELECT 'MaxDQLot',1,5
-		UNION SELECT 'MaxOtherLot',1,5
-		UNION SELECT 'DQQuoteMinLot',1,5
-		UNION SELECT 'AutoDQMaxLot',1,5
-		UNION SELECT 'AutoLmtMktMaxLot',1,5
-		UNION SELECT 'AcceptDQVariation',1,8
-		UNION SELECT 'AcceptLmtVariation',1,8
-		UNION SELECT 'AcceptCloseLmtVariation',1,8
-		UNION SELECT 'CancelLmtVariation',1,8
-		UNION SELECT 'IsBetterPrice',1,2
-		UNION SELECT 'AutoAcceptMaxLot',1,5
-		UNION SELECT 'AutoCancelMaxLot',1,5
-		UNION SELECT 'AllowedNewTradeSides',1,8
-		UNION SELECT 'HitTimes',1,8
-		UNION SELECT 'PenetrationPoint',1,8
-		UNION SELECT 'PriceValidTime',1,8
-		UNION SELECT 'AutoDQDelay',1,8
-		UNION SELECT 'HitPriceVariationForSTP',1,8
+		SELECT 'InactiveWaitTime',1,8
+		UNION SELECT 'EnquiryWaitTime',1,8
+		UNION SELECT 'PriceOrderSetting',1,8
+		UNION SELECT 'DisablePopup',1,2
+		UNION SELECT 'AutoConfirm',1,2
+		UNION SELECT 'LimitStopSummaryIsTimeRange',1,2
+		UNION SELECT 'LimitStopSummaryTimeRangeValue',1,8
+		UNION SELECT 'LimitStopSummaryPriceRangeValue',1,8
+		UNION SELECT 'OriginInactiveTime',2,8
+		UNION SELECT 'AlertVariation',2,8
+		UNION SELECT 'NormalWaitTime',2,8
+		UNION SELECT 'AlertWaitTime',2,8
+		UNION SELECT 'MaxDQLot',2,5
+		UNION SELECT 'MaxOtherLot',2,5
+		UNION SELECT 'DQQuoteMinLot',2,5
+		UNION SELECT 'AutoDQMaxLot',2,5
+		UNION SELECT 'AutoLmtMktMaxLot',2,5
+		UNION SELECT 'AcceptDQVariation',2,8
+		UNION SELECT 'AcceptLmtVariation',2,8
+		UNION SELECT 'AcceptCloseLmtVariation',2,8
+		UNION SELECT 'CancelLmtVariation',2,8
+		UNION SELECT 'IsBetterPrice',2,2
+		UNION SELECT 'AutoAcceptMaxLot',2,5
+		UNION SELECT 'AutoCancelMaxLot',2,5
+		UNION SELECT 'AllowedNewTradeSides',2,8
+		UNION SELECT 'HitTimes',2,8
+		UNION SELECT 'PenetrationPoint',2,8
+		UNION SELECT 'PriceValidTime',2,8
+		UNION SELECT 'AutoDQDelay',2,8
+		UNION SELECT 'HitPriceVariationForSTP',2,8
+		UNION SELECT 'MaxDQLot',3,5
+		UNION SELECT 'MaxOtherLot',3,5
+		UNION SELECT 'DQQuoteMinLot',3,5
+END
+
+IF NOT EXISTS(SELECT * FROM [dbo].[SoundDefine])
+BEGIN
+	   INSERT INTO [dbo].[SoundDefine]([SoundKey] ,[SoundType])
+		SELECT 'DQNewOrder',0
+		UNION SELECT 'DQDealerIntervene',0
+		UNION SELECT 'DQCancelOrder',0
+		UNION SELECT 'DQTradeSucceed',0
+		UNION SELECT 'DQTradeFailed',0
+		UNION SELECT 'DQAlertHiLo',0
+		UNION SELECT 'LimitNewOrder',1
+		UNION SELECT 'LimitDealerIntervene',1
+		UNION SELECT 'LimitCancelOrderRequest',1
+		UNION SELECT 'LimitCancelOrder',1
+		UNION SELECT 'LimitTradeSucceed',1
+		UNION SELECT 'LimitTradeFailed',1
+		UNION SELECT 'LimitHit',1
+		UNION SELECT 'OutOfRange',2
+		UNION SELECT 'Inactive',2
+		UNION SELECT 'Enquiry',2
 END

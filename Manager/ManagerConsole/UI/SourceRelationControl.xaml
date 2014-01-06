@@ -13,11 +13,6 @@
             <Button x:Name="AddRelationButton" Content="Add Relation" Click="AddRelationButton_Click" Height="22" BorderThickness="1" Visibility="Hidden" Style="{DynamicResource ButtonStyle}"/>
         </StackPanel>
         <ig:XamGrid x:Name="RelationGrid" AutoGenerateColumns="False" Margin="10,30,0,0" CellDoubleClicked="RelationGrid_CellDoubleClicked" KeyDown="RelationGrid_KeyDown">
-            <ig:XamGrid.CellStyle>
-                <Style TargetType="ig:CellControl" BasedOn="{StaticResource {x:Type ig:CellControl}}">
-                    <Setter Property="Padding" Value="1"/>
-                </Style>
-            </ig:XamGrid.CellStyle>
             <ig:XamGrid.SelectionSettings>
                 <ig:SelectionSettings CellClickAction="SelectRow"/>
             </ig:XamGrid.SelectionSettings>

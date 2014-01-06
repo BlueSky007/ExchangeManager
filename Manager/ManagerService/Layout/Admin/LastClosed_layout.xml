@@ -1,28 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xamDockManager version="13.1.20131.1009">
   <contentPanes>
-    <contentPane name="module13" location="Document" lastActivatedTime="2013-12-24T06:41:12.0191367Z" />
-    <contentPane name="module12" location="Document" lastActivatedTime="2013-12-24T06:41:06.2568071Z" />
-    <contentPane name="module14" location="Document" lastActivatedTime="2013-12-24T06:41:02.11257Z" />
-    <contentPane name="module18" location="Document" lastActivatedTime="2013-12-24T06:40:50.1628866Z" />
-    <contentPane name="FunctionTreePane" location="DockedLeft" lastActivatedTime="2013-12-20T08:40:15.7823924Z" />
+    <contentPane name="SettingScheduler" location="Document" lastActivatedTime="2014-01-06T09:33:35.4400585Z" />
+    <contentPane name="FunctionTreePane" location="DockedLeft" lastActivatedTime="2014-01-06T09:33:32.966917Z" />
+    <contentPane name="SettingParameter" location="Document" lastActivatedTime="2014-01-06T09:32:51.600551Z" />
+    <contentPane name="QuotePolicy" location="Document" lastActivatedTime="2014-01-06T09:32:47.6123229Z" />
+    <contentPane name="InstrumentManager" location="Document" lastActivatedTime="2014-01-06T09:32:46.7392729Z" />
+    <contentPane name="DQOrderProcess_1" location="Document" lastActivatedTime="2014-01-03T13:08:59.4007116Z" />
     <contentPane name="FloatPane" location="FloatingOnly" visibility="Collapsed" />
   </contentPanes>
   <panes>
-    <splitPane name="Z74e321f4e4fe484e9c28b82d614773e2" splitterOrientation="Vertical" location="DockedLeft">
+    <splitPane name="Z46846d2656764de7b3582ef22941a44d" splitterOrientation="Vertical" location="DockedLeft">
       <contentPane name="FunctionTreePane" />
     </splitPane>
-    <splitPane name="Z41e46294a1e34f71a8e8b4e525eadcb0" splitterOrientation="Vertical" location="FloatingOnly" floatingLocation="300,300">
+    <splitPane name="Z1966a37725ee48e4b7a09702fdf789c8" splitterOrientation="Vertical" location="FloatingOnly" floatingLocation="300,300">
       <contentPane name="FloatPane" />
     </splitPane>
   </panes>
   <documents splitterOrientation="Vertical">
-    <splitPane name="Z9818fa6d6b2e47d7bade76717d36acad" splitterOrientation="Vertical">
-      <tabGroup name="Z0356bb61aa554241b72cd2eafc8ea4d1" selectedIndex="3">
-        <contentPane name="module18" />
-        <contentPane name="module14" />
-        <contentPane name="module12" />
-        <contentPane name="module13" />
+    <splitPane name="Zfb8ae975e6d046ccb4c32eea1f6e1e82" splitterOrientation="Vertical">
+      <tabGroup name="Z301c33d35d8d482cb6e99e2f759a88fd" selectedIndex="3">
+        <contentPane name="QuotePolicy" />
+        <contentPane name="InstrumentManager" />
+        <contentPane name="SettingParameter" />
+        <contentPane name="SettingScheduler" />
+        <contentPane name="DQOrderProcess_1" />
       </tabGroup>
     </splitPane>
   </documents>

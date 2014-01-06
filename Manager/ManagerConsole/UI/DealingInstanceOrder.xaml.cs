@@ -77,9 +77,9 @@ namespace ManagerConsole.UI
 
         private void FilterOrderByInstrument(InstrumentClient instrument)
         {
-            this.LayRootGrid.DataContext = this._ProcessInstantOrder.InstantOrderForInstrument;
             this._OrderTaskGrid.ItemsSource = this._ProcessInstantOrder.OrderTasks.Where(P => P.InstrumentId == instrument.Id);
             this._ProcessInstantOrder.InitializeBinding(instrument.Id);
+            this.LayRootGrid.DataContext = this._ProcessInstantOrder.InstantOrderForInstrument;
         }
 
         #region Grid Event
@@ -88,6 +88,7 @@ namespace ManagerConsole.UI
         #region Dealing Order Event
         private void AdjustBtn_Click(object sender, RoutedEventArgs e)
         {
+            if (this._ProcessInstantOrder.OrderTasks.Count == 0) return;
             e.Handled = true;
             Button btn = sender as Button;
             
@@ -100,12 +101,16 @@ namespace ManagerConsole.UI
                     this._ProcessInstantOrder.AdjustPrice(false);
                     break;
                 case "_IncreaseSellAutoPointsButton":
+                    this._ProcessInstantOrder.AdjustAutoPointVariation(false, true);
                     break;
                 case "_DecreaseSellAutoPointsButton":
+                    this._ProcessInstantOrder.AdjustAutoPointVariation(false, false);
                     break;
                 case "_IncreaseBuyAutoPointsButton":
+                    this._ProcessInstantOrder.AdjustAutoPointVariation(true, true);
                     break;
                 case "_DecreaseBuyAutoPointsButton":
+                    this._ProcessInstantOrder.AdjustAutoPointVariation(true, false);
                     break;
                 default: break;
             }

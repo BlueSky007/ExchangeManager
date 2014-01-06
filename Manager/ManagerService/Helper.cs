@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using Manager.Common.QuotationEntities;
 using System.Reflection;
+using System.ServiceModel;
+using System.ServiceModel.Channels;
 
 namespace ManagerService
 {
@@ -48,6 +50,14 @@ namespace ManagerService
                     keyFieldName = "InstrumentId";
                     break;
             }
+        }
+        public static string GetIpAdreess()
+        {
+            OperationContext context = OperationContext.Current;
+            MessageProperties properties = context.IncomingMessageProperties;
+            RemoteEndpointMessageProperty endpoint = properties[RemoteEndpointMessageProperty.Name] as RemoteEndpointMessageProperty;
+
+            return string.Format("{0}:{1}", endpoint.Address, endpoint.Port);
         }
 
     }

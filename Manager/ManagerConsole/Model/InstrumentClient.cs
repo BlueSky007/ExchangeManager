@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using Quotation = Manager.Common.Settings.Quotation;
 using Price = Manager.Common.Price;
 using CommonInstrument = Manager.Common.Settings.Instrument;
+using ExchangeInstrument = Manager.Common.Settings.ExchangInstrument;
 
 namespace ManagerConsole.Model
 {
@@ -57,6 +58,11 @@ namespace ManagerConsole.Model
             set;
         }
         public string Code
+        {
+            get;
+            set;
+        }
+        public string ExchangeCode
         {
             get;
             set;
@@ -302,7 +308,16 @@ namespace ManagerConsole.Model
             this.Id = instrument.Id;
         }
 
-        //
+        internal ExchangeInstrument ToExchangeInstrument()
+        {
+            ExchangeInstrument exchangeInstrument = new ExchangeInstrument();
+            exchangeInstrument.ExchangeCode = this.ExchangeCode;
+            exchangeInstrument.InstrumentId = this.Id;
+            exchangeInstrument.InstrumentCode = this.Code;
+
+            return exchangeInstrument;
+        }
+
         public bool CheckVariation(decimal variation)
         {
             if (variation < 0 && variation < (0 - this.AcceptDQVariation))

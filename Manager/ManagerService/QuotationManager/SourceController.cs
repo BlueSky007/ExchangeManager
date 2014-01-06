@@ -6,6 +6,7 @@ using System.Threading;
 using Manager.Common.QuotationEntities;
 using Manager.Common;
 using ManagerService.DataAccess;
+using Manager.Common.LogEntities;
 
 namespace ManagerService.Quotation
 {
@@ -130,8 +131,9 @@ namespace ManagerService.Quotation
         private Timer _Timer;
         private DateTime _LastActiveTime;
         private bool _IsPriceEnabled = true;
-
         private double _Agio = 0;
+
+        private LogSourceChange _LogSourceChange;
 
         // Map for: SourceId - InstrumentSourceRelation
         private Dictionary<int, InstrumentSourceRelation> _Relations = new Dictionary<int, InstrumentSourceRelation>();
@@ -171,6 +173,14 @@ namespace ManagerService.Quotation
             TimeSpan inactiveTimeSpan = TimeSpan.FromSeconds(this._Instrument.InactiveTime.Value);
             this._Timer = new Timer(this.CheckInactiveTime, null, inactiveTimeSpan, inactiveTimeSpan);
             this._LastActiveTime = DateTime.Now;
+
+            // log
+            this._LogSourceChange = new LogSourceChange()
+            {
+                UserId = Guid.Empty,
+                UserName = "System",
+                Event = "SourceChange"
+            };
         }
 
         public void AddInstrumentSourceRelation(InstrumentSourceRelation relation)
@@ -304,6 +314,13 @@ namespace ManagerService.Quotation
                     NewRelationId = newRelationId
                 };
                 MainService.ClientManager.Dispatch(switchActiveSourceMessage);
+
+                // write log
+                this._LogSourceChange.Id = Guid.NewGuid();
+                this._LogSourceChange.Timestamp = DateTime.Now;
+                this._LogSourceChange.FromSourceId = oldSourceId;
+                this._LogSourceChange.ToSourceId = newSourceId;
+                WriteLogManager.WriteSourceChangeLog(this._LogSourceChange);
             }
         }
     }

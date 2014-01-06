@@ -12,7 +12,7 @@
         </LinearGradientBrush>
         <Style TargetType="TextBlock">
             <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Foreground" Value="{Binding Path=ColorTemplate.Foreground, Source={StaticResource ColorSettings}}"/>
+            <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontWeight" Value="Black"/>
             <Setter Property="FontFamily" Value="hei"/>
             <Setter Property="Margin" Value="5,0,0,0"/>
@@ -23,23 +23,27 @@
             <Setter Property="CornerRadius" Value="3"/>
             <Setter Property="BorderBrush" Value="Gray"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Background" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="Background" Value="#FF282828"/>
         </Style>
         <Style x:Key="CellStyle" TargetType="igGrid:CellControl">
             <Setter Property="Padding" Value="0,0,3,0"/>
             <Setter Property="BorderThickness" Value="0,0,1,1"/>
             <Setter Property="BorderBrush" Value="#FFDEDEDE" />
         </Style>
+        <Style TargetType="Button">
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="Black"/>
+        </Style>
     </UserControl.Resources>
-    <Grid x:Name="LayRootGrid" Background="{Binding Path=ColorTemplate.Background, Source={StaticResource ColorSettings}}">
+    <Grid x:Name="LayRootGrid" Background="Black">
         <Grid.RowDefinitions>
-            <RowDefinition Height="115"/>
+            <RowDefinition Height="120"/>
             <RowDefinition Height="36"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="230"/>
-            <ColumnDefinition Width="220"/>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="250"/>
             <ColumnDefinition Width="300"/>
             <ColumnDefinition Width="270"/>
             <ColumnDefinition Width="*"/>
@@ -53,39 +57,39 @@
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="30"/>
-                <ColumnDefinition Width="80"/>
-                <ColumnDefinition Width="80"/>
+                <ColumnDefinition Width="90"/>
+                <ColumnDefinition Width="90"/>
                 <ColumnDefinition Width="30"/>
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4"  Margin="1,1,0,0">
+            <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4"  Margin="1,5,0,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="30"/>
+                        <ColumnDefinition Width="40"/>
                         <ColumnDefinition Width="80"/>
                         <ColumnDefinition Width="80"/>
-                        <ColumnDefinition Width="30"/>
+                        <ColumnDefinition Width="40"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock x:Name="_LotTexCaption" Margin="5 0 0 0" FontWeight="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="0" Text="Lot" ></TextBlock>
-                    <TextBlock x:Name="_LotTextBlock" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="1" Text="{Binding Lot,StringFormat={}{0:N2}}" Margin="5 0 5 0"></TextBlock>
+                    <TextBlock x:Name="_LotTextBlock" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Text="{Binding Lot,StringFormat={}{0:N2}}" Margin="5 0 5 0" Foreground="#FF9090FF"></TextBlock>
 
                     <TextBlock Text="{Binding MarketPrice}" FontSize="12" Foreground="{Binding IsBuyBrush}" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="2"/>
-                     <TextBlock Text="+ 1" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="14" FontWeight="Bold" Grid.Column="4"/>
+                    <TextBlock Text="{Binding Diff}" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="14" FontWeight="Bold" Grid.Column="4" Margin="0,0,4,0"/>
                 </Grid>
             </Border>
 
 
-            <Border BorderBrush="White" Opacity="0.6" BorderThickness="1" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Background="{Binding IsBuyBrush}" Margin="0,1,0,0">
+            <Border Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Background="{Binding IsBuyBrush}" Margin="0,1,0,0">
                 <TextBlock x:Name="_CustomerPriceTextBlock" Foreground="White" FontSize="17" Grid.Row="0" Grid.Column="0" Text="{Binding CustomerPrice}" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
             </Border>
-            <Button IsEnabled="{Binding IsAllowAdjustPrice}" BorderThickness="1" BorderBrush="Black" Height="38" Width="28" FontSize="14" Grid.Row="1" Grid.Column="0" Margin="1,1,1,1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_UpPriceButton" Content="+" Background="#FF92D050" Click="AdjustBtn_Click"/>
-            <Button IsEnabled="{Binding IsAllowAdjustPrice}" BorderThickness="1" BorderBrush="Black" Height="38" Width="28" FontSize="14" Grid.Row="1" Grid.Column="3" Margin="1,1,1,1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_DownPriceButton" Content="-" Background="#FFFFCC00" Click="AdjustBtn_Click"/>
+            <Button IsEnabled="{Binding IsAllowAdjustPrice}"  Height="38" Width="29" FontSize="14" Grid.Row="1" Grid.Column="0" Margin="1,1,1,1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_UpPriceButton" Content="+" Background="#FF92D050" Click="AdjustBtn_Click"/>
+            <Button IsEnabled="{Binding IsAllowAdjustPrice}"  Height="38" Width="29" FontSize="14" Grid.Row="1" Grid.Column="3" Margin="1,1,1,1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_DownPriceButton" Content="-" Background="#FFFFCC00" Click="AdjustBtn_Click"/>
             <Button BorderThickness="1" BorderBrush="Black" x:Name="_ExecutedButton"  Background="DarkBlue" FontSize="14" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="1,1,1,1" Click="OrderHandlerBtn_Click">
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="Border" CornerRadius="3" BorderBrush="#FFA0A0A0" BorderThickness="1">
+                        <Border x:Name="Border" CornerRadius="0" BorderBrush="#FFA0A0A0" BorderThickness="1">
                             <Grid x:Name="Grid1" Background="{TemplateBinding Background}">
-                                <Rectangle x:Name="BackgroundGradient" RadiusX ="3" RadiusY ="3">
+                                <Rectangle x:Name="BackgroundGradient" RadiusX ="0" RadiusY ="0">
                                     <Rectangle.Fill>
                                         <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5, 1">
                                             <GradientStop Color="#FFFFFFFF" Offset="0" />
@@ -112,9 +116,9 @@
             <Button BorderThickness="1" BorderBrush="Black" x:Name="_RejectButton"  Background="Red" FontSize="14" Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Margin="1,1,1,1" Click="OrderHandlerBtn_Click">
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="Border" CornerRadius="3" BorderBrush="#FFA0A0A0" BorderThickness="1">
+                        <Border x:Name="Border" CornerRadius="0" BorderBrush="#FFA0A0A0" BorderThickness="1">
                             <Grid x:Name="Grid1" Background="{TemplateBinding Background}">
-                                <Rectangle x:Name="BackgroundGradient" RadiusX ="3" RadiusY ="3">
+                                <Rectangle x:Name="BackgroundGradient" RadiusX ="1" RadiusY ="1">
                                     <Rectangle.Fill>
                                         <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5, 1">
                                             <GradientStop Color="#FFFFFFFF" Offset="0" />
@@ -141,7 +145,7 @@
         </Grid>
         
         <!--Order Information-->
-        <Border  BorderBrush="DarkGray" BorderThickness="1" Grid.Row="0" Grid.Column="1" Margin="10,1,0,0">
+        <Border  BorderBrush="DarkGray" BorderThickness="1" Grid.Row="0" Grid.Column="1" Margin="10,5,0,0">
             <!--<Border.Background>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <GradientStop Color="#FF5A7A7A" Offset="1"/>
@@ -157,21 +161,21 @@
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="110"/>
-                    <ColumnDefinition Width="90"/>
+                    <ColumnDefinition Width="110"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock x:Name="InstrumentCaption" Grid.Row="0" Grid.Column="0" Text="Item" FontStyle="Italic" VerticalAlignment="Bottom"></TextBlock>
-                <TextBlock x:Name="InstrumentTextBlock" Grid.Row="0" Grid.Column="1" Text="{Binding InstrumentCode}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Foreground="DarkGreen"></TextBlock>
+                <TextBlock x:Name="InstrumentTextBlock" Grid.Row="0" Grid.Column="1" Text="{Binding InstrumentCode}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Foreground="#FF9090FF"></TextBlock>
                 <TextBlock x:Name="AccountCaption" Grid.Row="1" Grid.Column="0" Text="Account No" FontStyle="Italic" VerticalAlignment="Bottom"></TextBlock>
-                <TextBlock x:Name="AccountTextBlock" Grid.Row="1" Grid.Column="1" Text="{Binding AccountCode}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Foreground="DarkGreen"></TextBlock>
+                <TextBlock x:Name="AccountTextBlock" Grid.Row="1" Grid.Column="1" Text="{Binding AccountCode}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Foreground="#FF9090FF"></TextBlock>
                 <TextBlock x:Name="LotCaption" Grid.Row="2" Grid.Column="0" Text="Lot" FontStyle="Italic" VerticalAlignment="Bottom"></TextBlock>
-                <TextBlock x:Name="LotTextBlock" Grid.Row="2" Grid.Column="1" Text="{Binding Lot,StringFormat={}{0:N2}}" HorizontalAlignment="Right" Foreground="DarkGreen" VerticalAlignment="Bottom"></TextBlock>
+                <TextBlock x:Name="LotTextBlock" Grid.Row="2" Grid.Column="1" Text="{Binding Lot,StringFormat={}{0:N2}}" HorizontalAlignment="Right" Foreground="#FF9090FF" VerticalAlignment="Bottom"></TextBlock>
                 <TextBlock x:Name="OpenAveragePriceCaption" Grid.Row="3" Grid.Column="0" Text="Open Avg Price" FontStyle="Italic" VerticalAlignment="Bottom"></TextBlock>
-                <TextBlock x:Name="OpenAveragePriceTextBlock" Grid.Row="3" Grid.Column="1" Text="{Binding OpenAvgPrice}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Foreground="DarkGreen"></TextBlock>
+                <TextBlock x:Name="OpenAveragePriceTextBlock" Grid.Row="3" Grid.Column="1" Text="{Binding OpenAvgPrice}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Foreground="#FF9090FF"></TextBlock>
             </Grid>
         </Border>
 
         <!--Dealing Multiple Sell Order-->
-        <Grid Grid.Row="0" Grid.Column="2" Margin="30,1,0,0">
+        <Grid Grid.Row="0" Grid.Column="2" Margin="30,5,0,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"/>
                 <RowDefinition Height="40"/>
@@ -189,26 +193,27 @@
                     <TextBlock x:Name="_SumSellLotTexCaption" Width="60" FontWeight="Black" HorizontalAlignment="Left" Text="Total Lot"></TextBlock>
                     <TextBlock x:Name="_SumSellLotTexTextBlock" Width="35" TextAlignment="Right" Text="{Binding SumSellLot,StringFormat={}{0:N2}}" Foreground="Red"></TextBlock>
                     <TextBlock x:Name="_SellOrderCountCaption" Width="40" Margin="10 0 0 0" FontWeight="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Text="Count"></TextBlock>
-                    <TextBlock x:Name="_SellOrderCountTextBlock" Width="25" TextAlignment="Right" VerticalAlignment="Center" Foreground="Blue" Text="{Binding SellOrderCount}" ></TextBlock>
+                    <TextBlock x:Name="_SellOrderCountTextBlock" Width="25" TextAlignment="Right" VerticalAlignment="Center" Foreground="#FF9090FF" Text="{Binding SellOrderCount}" ></TextBlock>
                     <TextBlock x:Name="_SellDifferCaption" Width="32" Margin="10 0 0 0" FontWeight="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Text="Differ"></TextBlock>
-                    <TextBlock x:Name="_SellDifferTextBlock" Width="25" TextAlignment="Right" Text="0.1"></TextBlock>
+                    <TextBlock x:Name="_SellDifferTextBlock" Width="30" TextAlignment="Right" Text="{Binding SellVariation}" Foreground="#FF9090FF" Margin="0,0,4,0"></TextBlock>
                 </StackPanel>
             </Border>
-            <Border Opacity="0.6" Grid.Row="1" Grid.Column="1" BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="2" Background="Red" Margin="0,1,0,0">
+            <Border Grid.Row="1" Grid.Column="1" BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="2" Background="Red" Margin="0,1,0,0">
                 <TextBlock x:Name="_MarketSellPrice" Foreground="White" FontSize="17" Grid.Row="0" Grid.Column="0" Text="{Binding Bid}" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
             </Border>
-            <Button BorderThickness="1" BorderBrush="Black" Height="38" Width="29" FontSize="14" Grid.Row="1" Grid.Column="0" Margin="1,1,1,1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_IncreaseSellAutoPointsButton" Content="+" Background="#FF92D050" Click="AdjustBtn_Click"/>
-            <Button BorderThickness="1" BorderBrush="Black" Height="38" Width="29" FontSize="14" Grid.Row="1" Grid.Column="3" Margin="1,1,1,1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_DecreaseSellAutoPointsButton" Content="-" Background="#FFFFCC00" Click="AdjustBtn_Click"/>
+            <Button BorderThickness="1" BorderBrush="Black" Height="38" Width="29" FontSize="14" Grid.Row="1" Grid.Column="0" Margin="1,1,1,1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_IncreaseSellAutoPointsButton" Content="+" Background="#FF92D050" IsEnabled="{Binding IsAllowAdjustPrice}" Click="AdjustBtn_Click"/>
+            <Button BorderThickness="1" BorderBrush="Black" Height="38" Width="29" FontSize="14" Grid.Row="1" Grid.Column="3" Margin="1,1,1,1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_DecreaseSellAutoPointsButton" Content="-" Background="#FFFFCC00" IsEnabled="{Binding IsAllowAdjustPrice}" Click="AdjustBtn_Click"/>
             <Button x:Name="_ExecuteRejectSellButton"  Background="Blue" FontSize="14" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="4" Margin="1,1,1,1" Click="OrderHandlerBtn_Click">
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="Border" BorderThickness="1" CornerRadius="3" BorderBrush="Black">
+                        <Border x:Name="Border" BorderThickness="1" CornerRadius="0" BorderBrush="Black">
                             <Grid x:Name="Grid1" Background="{TemplateBinding Background}">
-                                <Rectangle x:Name="BackgroundGradient" RadiusX ="3" RadiusY ="3">
+                                <Rectangle x:Name="BackgroundGradient" RadiusX ="0" RadiusY ="0">
                                     <Rectangle.Fill>
                                         <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5, 1">
                                             <GradientStop Color="#FFFFFFFF" Offset="0" />
                                             <GradientStop Color="#E8FFFFFF" Offset="0.4" />
+                                            <GradientStop Color="#FFBEBEFF" Offset="0.7" />
                                             <GradientStop Color="#88FFFFFF" Offset="1" />
                                         </LinearGradientBrush>
                                     </Rectangle.Fill>
@@ -218,7 +223,7 @@
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="150"/>
-                                        <ColumnDefinition Width="25"/>
+                                        <ColumnDefinition Width="100"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock x:Name="_ExecuteRejectSellButtonCaption" Foreground="Black" FontFamily="hei" FontSize="13" Margin="5 0 0 0" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Text="Execute/Reject" ></TextBlock>
                                     <Image Source="../Asset/Images/Accept.png" Grid.Column="1" Width="18" Height="18" HorizontalAlignment="Center"/>
@@ -232,7 +237,7 @@
         </Grid>
 
         <!--Dealing Multiple Buy Order-->
-        <Grid Grid.Row="0" Grid.Column="3" Margin="5,1,0,0">
+        <Grid Grid.Row="0" Grid.Column="3" Margin="5,5,0,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"/>
                 <RowDefinition Height="40"/>
@@ -248,28 +253,29 @@
             <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4"  Margin="1,1,0,0">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock x:Name="_SumBuyLotTexCaption" Width="60" FontWeight="Black" HorizontalAlignment="Left" Text="Total Lot"></TextBlock>
-                    <TextBlock x:Name="_SumBuyLotTexTextBlock" Width="35" TextAlignment="Right" Text="{Binding SumBuyLot,StringFormat={}{0:N2}}" Foreground="Blue"></TextBlock>
+                    <TextBlock x:Name="_SumBuyLotTexTextBlock" Width="35" TextAlignment="Right" Text="{Binding SumBuyLot,StringFormat={}{0:N2}}" Foreground="#FF9090FF"></TextBlock>
                     <TextBlock x:Name="_BuyOrderCountCaption" Width="40" Margin="10 0 0 0" FontWeight="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Text="Count"></TextBlock>
-                    <TextBlock x:Name="_BuyOrderCountTextBlock" Width="25" TextAlignment="Right" VerticalAlignment="Center" Foreground="Blue" Text="{Binding BuyOrderCount}"></TextBlock>
+                    <TextBlock x:Name="_BuyOrderCountTextBlock" Width="25" TextAlignment="Right" VerticalAlignment="Center" Foreground="#FF9090FF" Text="{Binding BuyOrderCount}"></TextBlock>
                     <TextBlock x:Name="_BuyPriceDifferCaption" Width="32" Margin="10 0 0 0" FontWeight="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Text="Differ"></TextBlock>
-                    <TextBlock x:Name="_BuyPriceDifferTextBlock" Width="25" TextAlignment="Right" Text="0.1"></TextBlock>
+                    <TextBlock x:Name="_BuyPriceDifferTextBlock" Width="30" TextAlignment="Right" Text="{Binding BuyVariation}" Foreground="#FF9090FF" Margin="0,0,4,0"></TextBlock>
                 </StackPanel>
             </Border>
             <Border BorderThickness="1" BorderBrush="Black" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Background="#FF75923C">
                 <TextBlock x:Name="_MarketBuyPrice" Foreground="White" FontSize="17" Grid.Row="0" Grid.Column="0" Text="{Binding Ask}" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
             </Border>
-            <Button BorderThickness="1" BorderBrush="Black" Height="38" Width="29" FontSize="14" Grid.Row="1" Grid.Column="0" Margin="1,1,1,1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_IncreaseBuyAutoPointsButton" Content="+" Background="#FF92D050" Click="AdjustBtn_Click"/>
-            <Button BorderThickness="1" BorderBrush="Black" Height="38" Width="29" FontSize="14" Grid.Row="1" Grid.Column="3" Margin="1,1,1,1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_DecreaseBuyAutoPointsButton" Content="-" Background="#FFFFCC00" Click="AdjustBtn_Click"/>
+            <Button Height="38" Width="29" FontSize="14" Grid.Row="1" Grid.Column="0" Margin="1,1,1,1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_IncreaseBuyAutoPointsButton" Content="+" Background="#FF92D050" Click="AdjustBtn_Click"/>
+            <Button Height="38" Width="29" FontSize="14" Grid.Row="1" Grid.Column="3" Margin="1,1,1,1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_DecreaseBuyAutoPointsButton" Content="-" Background="#FFFFCC00" Click="AdjustBtn_Click"/>
             <Button x:Name="_ExecuteRejectBuyButton"  Background="Blue" FontSize="14" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="4" Margin="1,1,1,1" Click="OrderHandlerBtn_Click">
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="Border" BorderThickness="1" CornerRadius="3" BorderBrush="#FFA0A0A0">
+                        <Border x:Name="Border" BorderThickness="1" CornerRadius="0" BorderBrush="#FFA0A0A0">
                             <Grid x:Name="Grid1" Background="{TemplateBinding Background}">
-                                <Rectangle x:Name="BackgroundGradient" RadiusX ="3" RadiusY ="3">
+                                <Rectangle x:Name="BackgroundGradient" RadiusX ="0" RadiusY ="0">
                                     <Rectangle.Fill>
                                         <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5, 1">
                                             <GradientStop Color="#FFFFFFFF" Offset="0" />
                                             <GradientStop Color="#E8FFFFFF" Offset="0.4" />
+                                            <GradientStop Color="#FFBEBEFF" Offset="0.7" />
                                             <GradientStop Color="#88FFFFFF" Offset="1" />
                                         </LinearGradientBrush>
                                     </Rectangle.Fill>
@@ -279,7 +285,7 @@
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="150"/>
-                                        <ColumnDefinition Width="25"/>
+                                        <ColumnDefinition Width="100"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock x:Name="_ExecuteRejectSellButtonCaption" Foreground="Black" FontFamily="hei" FontSize="13" Margin="5 0 0 0" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Text="Execute/Reject" ></TextBlock>
                                     <Image Source="../Asset/Images/Accept.png" Grid.Column="1" Width="18" Height="18" HorizontalAlignment="Center"/>
@@ -302,6 +308,7 @@
                 </Button>
             </StackPanel>
         </Border>
+        
         <Border Margin="0 3 0 0" BorderBrush="Black" Grid.Row="2" Grid.ColumnSpan="5">
             <Border.Resources>
                 <Style TargetType="TextBlock">
@@ -309,11 +316,7 @@
                     <Setter Property="FontWeight" Value="Black"/>
                 </Style>
             </Border.Resources>
-            <igGrid:XamGrid Margin="0" FontFamily="hei" FontWeight="Bold" x:Name="_OrderTaskGrid" RowHeight="25"  AutoGenerateColumns="False" IsAlternateRowsEnabled="True"
-                    Background ="{Binding Path=ColorTemplate.Background, Source={StaticResource ColorSettings}}" 
-                    Foreground ="{Binding Path=ColorTemplate.Foreground, Source={StaticResource ColorSettings}}"
-                    CellStyle="{Binding Path=ColorTemplate.XamGridCellStyle, Source={StaticResource ColorSettings}}"
-                    HeaderStyle="{Binding Path=ColorTemplate.XamGridHeaderStyle, Source={StaticResource ColorSettings}}">
+            <igGrid:XamGrid Margin="0" FontFamily="hei" FontWeight="Bold" x:Name="_OrderTaskGrid" RowHeight="25"  AutoGenerateColumns="False" IsAlternateRowsEnabled="True" >
                 <!--CellControlAttached="OrderTaskGrid_CellControlAttached"-->
                 <igGrid:XamGrid.EditingSettings>
                     <igGrid:EditingSettings IsEnterKeyEditingEnabled="True" IsF2EditingEnabled="True"/>

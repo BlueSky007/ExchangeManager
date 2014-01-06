@@ -11,7 +11,7 @@
              MaximizeButtonVisibility="Visible" 
              CloseButtonVisibility="Visible"
              Width="651.642" StartupPosition="Center">
-    <Grid x:Name="QuoteGrid" Background="{Binding Path=ColorTemplate.Background, Source={StaticResource ColorSettings}}">
+    <Grid x:Name="QuoteGrid">
         <Grid.Resources>
             <localui:InstrumentToBuySellColorConverter  x:Key="InstrumentToBuySellColorConverter" />
         </Grid.Resources>
@@ -187,11 +187,7 @@
         
         <Border Margin="0 3 0 0" Grid.Row="3" Grid.ColumnSpan="6">
             <igGrid:XamGrid ColumnWidth="Auto" Width="800" FontFamily="hei" FontWeight="Bold" FontSize="13" x:Name="_QuotePriceGrid" RowHeight="25" AutoGenerateColumns="False" 
-                        InitializeRow="QuotePriceGrid_InitializeRow"
-                        Background ="{Binding Path=ColorTemplate.Background, Source={StaticResource ColorSettings}}" 
-                        Foreground ="{Binding Path=ColorTemplate.Foreground, Source={StaticResource ColorSettings}}"
-                        CellStyle="{Binding Path=ColorTemplate.XamGridCellStyle, Source={StaticResource ColorSettings}}"
-                        HeaderStyle="{Binding Path=ColorTemplate.XamGridHeaderStyle, Source={StaticResource ColorSettings}}">
+                        InitializeRow="QuotePriceGrid_InitializeRow">
                 <igGrid:XamGrid.EditingSettings>
                     <igGrid:EditingSettings AllowEditing="Cell" IsEnterKeyEditingEnabled="True" IsF2EditingEnabled="True" IsMouseActionEditingEnabled="SingleClick" />
                 </igGrid:XamGrid.EditingSettings>

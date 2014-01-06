@@ -18,8 +18,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using OrderType = Manager.Common.OrderType;
-
+using OrderType = iExchange.Common.OrderType;
 namespace ManagerConsole.UI
 {
     /// <summary>

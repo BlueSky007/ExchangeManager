@@ -16,12 +16,17 @@ using System.Xml;
 using System.Text;
 using Manager.Common.Settings;
 using System.Collections.ObjectModel;
+using ManagerService.Quotation;
+using TransactionError = iExchange.Common.TransactionError;
+using OrderType = iExchange.Common.OrderType;
+using CancelReason = iExchange.Common.CancelReason;
 
 namespace ManagerService.Console
 {
     public class Client
     {
         private string _SessionId;
+        private string _IP;
         private User _User;
         private IClientProxy _ClientProxy;
         private RelayEngine<Message> _MessageRelayEngine;
@@ -32,6 +37,7 @@ namespace ManagerService.Console
         public Client(string sessionId, User user, IClientProxy clientProxy, Language language)
         {
             this._SessionId = sessionId;
+            this._IP = ServiceHelper.GetIpAdreess();
             this._User = user;
             this._ClientProxy = clientProxy;
             this._Language = language;
@@ -39,6 +45,8 @@ namespace ManagerService.Console
         }
 
         public string SessionId { get { return this._SessionId; } }
+
+        public string IP { get { return this._IP; } }
         public Guid userId { get { return this._User.UserId; } }
         public User user { get { return this._User; } }
         public Language language { get { return this._Language; } }
@@ -468,7 +476,7 @@ namespace ManagerService.Console
                 {
                     List<Answer> newSendQuotations = group.ToList<Answer>();
                     ExchangeSystem exchangeSystem = MainService.ExchangeManager.GetExchangeSystem(newSendQuotations[0].ExchangeCode);
-                    exchangeSystem.Answer(newSendQuotations);
+                    exchangeSystem.Answer(this._User.UserId,newSendQuotations);
 
                     //Write Log QuotePrice
                     foreach (Answer answer in newSendQuotations)
@@ -652,7 +660,43 @@ namespace ManagerService.Console
             return result;
         }
 
-        public ObservableCollection<TaskScheduler> GetTaskSchedulersData()
+        public void EnableTaskScheduler(TaskScheduler taskScheduler)
+        {
+            try
+            {
+                MainService.SettingSchedulerManager.AddTaskScheduler(taskScheduler);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerService.Console.Client/EnableTaskScheduler.\r\n{0}", ex.ToString());
+            }
+        }
+
+        public void StartRunTaskScheduler(TaskScheduler taskScheduler)
+        {
+            try
+            {
+                MainService.SettingSchedulerManager.StartRunTaskScheduler(taskScheduler);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerService.Console.Client/StartRunTaskScheduler.\r\n{0}", ex.ToString());
+            }
+        }
+
+        public void DeleteTaskScheduler(TaskScheduler taskScheduler)
+        {
+            try
+            {
+                MainService.SettingSchedulerManager.DeleteTaskScheduler(taskScheduler); 
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerService.Console.Client/DeleteTaskScheduler.\r\n{0}", ex.ToString());
+            }
+        }
+
+        public List<TaskScheduler> GetTaskSchedulersData()
         {
             try
             {
@@ -942,7 +986,18 @@ namespace ManagerService.Console
 
         internal void SendQuotation(int instrumentSourceRelationId, double ask, double bid)
         {
-            MainService.QuotationManager.SendQuotation(instrumentSourceRelationId, ask, bid);
+            PrimitiveQuotation primitiveQuotation;
+            MainService.QuotationManager.SendQuotation(instrumentSourceRelationId, ask, bid, out primitiveQuotation);
+
+            LogEntity logEntity = new LogEntity() { Id = Guid.NewGuid(), UserId = this.userId, UserName = this.user.UserName, IP = this._IP, ExchangeCode = string.Empty, Event = "SendQuotation", Timestamp = DateTime.Now };
+            LogPrice logPrice = new LogPrice(logEntity);
+            logPrice.InstrumentId = primitiveQuotation.InstrumentId;
+            logPrice.InstrumentCode = MainService.QuotationManager.ConfigMetadata.Instruments[primitiveQuotation.InstrumentId].Code;
+            logPrice.OperationType = PriceOperationType.SendPrice;
+            string format = string.Format("F{0}", MainService.QuotationManager.ConfigMetadata.Instruments[primitiveQuotation.InstrumentId].DecimalPlace);
+            logPrice.Ask = ask.ToString(format);
+            logPrice.Bid = bid.ToString(format);
+            WriteLogManager.WritePriceLog(logPrice);
         }
 
         internal void SwitchDefaultSource(SwitchRelationBooleanPropertyMessage message)
@@ -953,7 +1008,20 @@ namespace ManagerService.Console
 
         internal void ConfirmAbnormalQuotation(int instrumentId, int confirmId, bool accepted)
         {
-            MainService.QuotationManager.AbnormalQuotationManager.Confirm(instrumentId, confirmId, accepted);
+            ConfirmResult confirmResult = MainService.QuotationManager.AbnormalQuotationManager.Confirm(instrumentId, confirmId, accepted);
+            if (confirmResult.Confirmed)
+            {
+                LogEntity logEntity = new LogEntity() { Id = Guid.NewGuid(), UserId = this.userId, UserName = this.user.UserName, IP = this._IP, ExchangeCode = string.Empty, Event = "SendQuotation", Timestamp = DateTime.Now };
+                LogPrice logPrice = new LogPrice(logEntity);
+                logPrice.InstrumentId = confirmResult.SourceQuotation.InstrumentId;
+                logPrice.InstrumentCode = confirmResult.SourceQuotation.InstrumentCode;
+                logPrice.OperationType = accepted ? PriceOperationType.OutOfRangeAccept : PriceOperationType.OutOfRangeReject;
+                logPrice.OutOfRangeType = confirmResult.SourceQuotation.OutOfRangeType;
+                logPrice.Bid = confirmResult.SourceQuotation.PrimitiveQuotation.Ask;
+                logPrice.Ask = confirmResult.SourceQuotation.PrimitiveQuotation.Bid;
+                logPrice.Diff = confirmResult.SourceQuotation.DiffPoints.ToString();
+                WriteLogManager.WritePriceLog(logPrice);
+            }
         }
     }
 }

@@ -6,31 +6,32 @@
         Loaded="Window_Loaded" Closing="Window_Closing" Icon="Asset\manager.ico"
         Title="Manager" Height="350" Width="525" WindowState="Maximized">
     <Grid x:Name="MainFrame">
-        <Grid Background="{Binding Path=ColorTemplate.MainControlHeaderBackground, Source={StaticResource ColorSettings}}">
+        <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="22"/>
                 <RowDefinition Height="240*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <ig:XamMenu Grid.Row="0" x:Name="MainMenu" Background="Transparent" Foreground="{Binding Path=ColorTemplate.MainControlHeaderForeground, Source={StaticResource ColorSettings}}" ItemClicked="HandleMenuItemClickedEvent">
-                <ig:XamMenuItem Header="File" Foreground="{Binding Path=ColorTemplate.MainMenuForeground, Source={StaticResource ColorSettings}}">
+            <ig:XamMenu Grid.Row="0" x:Name="MainMenu" Background="Transparent">
+                <ig:XamMenuItem Header="File">
                     <ig:XamMenuItem Header="Load Layout" Click="XamMenuItem_Click"/>
                     <ig:XamMenuItem Header="Change Password" Click="ChangePassword_Click"/>
                     <ig:XamMenuItem Header="Exit"/>
                 </ig:XamMenuItem>
-                <ig:XamMenuItem x:Name="layout" Header="布局" Foreground="{Binding Path=ColorTemplate.MainMenuForeground, Source={StaticResource ColorSettings}}">
+                <ig:XamMenuItem x:Name="layout" Header="布局">
                     <ig:XamMenuItem Header="Save Layout" Click="SaveLayout_Click"></ig:XamMenuItem>
                     <ig:XamMenuItem Header="Reset" Click="Reset_Click"/>
                     <ig:XamMenuItem Header="test" Click="XamMenuItem_Click_2"/>
                     <ig:XamMenuSeparator/>
                 </ig:XamMenuItem>
-                <ig:XamMenuItem Name="WindowItem" Background="Transparent" Foreground="{Binding Path=ColorTemplate.MainMenuForeground, Source={StaticResource ColorSettings}}" Header="样式">
+                <ig:XamMenuItem Name="WindowItem" Background="Transparent" Header="样式">
+                    <ig:XamMenuItem x:Name="ChangeThemeMenuItem" Header="Change Theme" Click="ChangeTheme_Click" />
                 </ig:XamMenuItem>
             </ig:XamMenu>
-            <igWPF:XamDockManager Theme="IGTheme" x:Name="DockManager" Grid.Row="1" BorderBrush="Black" Foreground="White" Background="Black" BorderThickness="0">
+            <igWPF:XamDockManager Theme="IGTheme" x:Name="DockManager" Grid.Row="1">
                 <igWPF:XamDockManager.Panes>
                     <igWPF:SplitPane igWPF:XamDockManager.InitialLocation="DockedLeft">
-                        <igWPF:ContentPane Name="FunctionTreePane" Header="Functions" BorderThickness="3" BorderBrush="{Binding Path=ColorTemplate.BorderBrush, Source={StaticResource ColorSettings}}">
+                        <igWPF:ContentPane Name="FunctionTreePane" Header="Functions" >
                             <TreeView x:Name="FunctionTree" MinWidth="200"/>
                         </igWPF:ContentPane>
                     </igWPF:SplitPane>
@@ -42,7 +43,7 @@
                         </igWPF:ContentPane>
                     </igWPF:SplitPane>
                 </igWPF:XamDockManager.Panes>
-                <igWPF:DocumentContentHost BorderBrush="#FF282828" BorderThickness="0">
+                <igWPF:DocumentContentHost BorderThickness="0">
                 </igWPF:DocumentContentHost>
             </igWPF:XamDockManager>
             <MediaElement x:Name="_Media" Volume="1" Grid.Row="2"/>

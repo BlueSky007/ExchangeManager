@@ -1,4 +1,5 @@
-﻿using Manager.Common;
+﻿using iExchange.Common;
+using Manager.Common;
 using Manager.Common.ReportEntities;
 using Manager.Common.Settings;
 using System;

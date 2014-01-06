@@ -386,7 +386,19 @@
     <Build Include="Schema Objects\Schemas\dbo\Programmability\Stored Procedures\GetInitialDataForTaskScheduler.proc.sql">
       <SubType>Code</SubType>
     </Build>
-    <Build Include="Schema Objects\Schemas\dbo\Programmability\Stored Procedures\P_Settings_Upd.proc.sql">
+    <Build Include="Schema Objects\Schemas\dbo\Programmability\Stored Procedures\P_SettingsDetail_Upd.proc.sql">
+      <SubType>Code</SubType>
+    </Build>
+    <Build Include="Schema Objects\Schemas\dbo\Tables\InstrumentSettings.table.sql">
+      <SubType>Code</SubType>
+    </Build>
+    <Build Include="Schema Objects\Schemas\dbo\Programmability\Stored Procedures\P_LogPrice_Ins.proc.sql">
+      <SubType>Code</SubType>
+    </Build>
+    <Build Include="Schema Objects\Schemas\dbo\Programmability\Stored Procedures\P_LogSourceChange.Ins.proc.sql">
+      <SubType>Code</SubType>
+    </Build>
+    <Build Include="Schema Objects\Schemas\dbo\Tables\SoundDefine.table.sql">
       <SubType>Code</SubType>
     </Build>
   </ItemGroup>
@@ -413,6 +425,15 @@
       <SubType>NotInBuild</SubType>
     </NotInBuild>
     <NotInBuild Include="Schema Objects\Schemas\dbo\Tables\Keys\PK_ParameterSettingTask.sql">
+      <SubType>NotInBuild</SubType>
+    </NotInBuild>
+    <NotInBuild Include="Schema Objects\Schemas\dbo\Tables\Keys\PK_InstrumentSettings.pkey.sql">
+      <SubType>NotInBuild</SubType>
+    </NotInBuild>
+    <NotInBuild Include="Schema Objects\Schemas\dbo\Tables\Indexes\IX_SettingsDetail.index.sql">
+      <SubType>NotInBuild</SubType>
+    </NotInBuild>
+    <NotInBuild Include="Schema Objects\Schemas\dbo\Tables\Keys\PK_SoundDefine.pkey.sql">
       <SubType>NotInBuild</SubType>
     </NotInBuild>
   </ItemGroup>

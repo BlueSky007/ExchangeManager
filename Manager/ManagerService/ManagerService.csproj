@@ -125,9 +125,6 @@
     <Compile Include="QuotationManager\QuotationReceiver.cs" />
     <Compile Include="QuotationManager\SourceController.cs" />
     <Compile Include="SettingSchedulerManager\SettingSchedulerManager.cs" />
-    <Compile Include="SettingSchedulerManager\SettingsForInstrument.cs" />
-    <Compile Include="SettingSchedulerManager\SettingsForSetValue.cs" />
-    <Compile Include="SettingSchedulerManager\SettingsForSystemParameter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Audit\" />

@@ -39,21 +39,14 @@ namespace ManagerConsole.ViewModel
             get;
             set;
         }
+
         #endregion
-
-        public void AdjustPrice(bool upOrDown)
-        {
-            if (this._InstantOrderForInstrument == null) return;
-
-            this._InstantOrderForInstrument.AdjustCustomerPrice(upOrDown);
-        }
-
         public void AddInstanceOrder(OrderTask orderTask)
         {
             this.OrderTasks.Add(orderTask);
             orderTask.SetCellDataDefine(orderTask.OrderStatus);
 
-            if (this.SelectedInstrumentId != null && this.SelectedInstrumentId != orderTask.InstrumentId) return;
+            //if (this.SelectedInstrumentId != null && this.SelectedInstrumentId != orderTask.InstrumentId) return;
 
             if (this.InstantOrderForInstrument.Instrument.Id == Guid.Empty)
             {
@@ -69,6 +62,20 @@ namespace ManagerConsole.ViewModel
             {
                 this.OnSettingFirstRowStyleEvent();
             }
+        }
+
+        public void AdjustPrice(bool upOrDown)
+        {
+            if (this._InstantOrderForInstrument == null) return;
+
+            this._InstantOrderForInstrument.AdjustCustomerPrice(upOrDown);
+        }
+
+        public void AdjustAutoPointVariation(bool isBuy,bool upOrDown)
+        {
+            if (this._InstantOrderForInstrument == null) return;
+
+            this._InstantOrderForInstrument.AdjustAutoPointVariation(isBuy,upOrDown);
         }
 
         public void RemoveInstanceOrder(List<OrderTask> orderTasks)

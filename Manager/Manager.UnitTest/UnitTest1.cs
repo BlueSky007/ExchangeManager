@@ -6,12 +6,19 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ManagerService.DataAccess;
 using Manager.Common.QuotationEntities;
 using ManagerConsole.UI;
+using ManagerConsole.Helper;
 
 namespace Manager.UnitTest
 {
     [TestClass]
     public class UnitTest1
     {
+        [TestMethod]
+        public void MyTest()
+        {
+            string result;
+            TestClass.Test01("adfd", out result);
+        }
         [TestMethod]
         public void TestMethod1()
         {

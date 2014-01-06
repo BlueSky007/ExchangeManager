@@ -1,0 +1,17 @@
+﻿<ig:XamDialogWindow xmlns:ig="http://schemas.infragistics.com/xaml" x:Class="ManagerConsole.UI.TaskSchedulerNotify"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Width="357" Height="158" FontSize="12"
+           Header="任务提示" FontWeight="Bold" HeaderIconVisibility="Visible" MaximizeButtonVisibility="Collapsed" MinimizeButtonVisibility="Collapsed" IsResizable="False" 
+                    HeaderHorizontalContentAlignment="Left" CloseButtonVisibility="Collapsed"  MouseLeftButtonUp="XamDialogWindow_MouseLeftButtonUp" Background="#200000FF">
+    <Grid x:Name="LayoutRoot" Margin="2">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="30" />
+        </Grid.RowDefinitions>
+        <TextBlock Text="当前有参数任务执行"  Grid.Row="0" Margin="2,10,2,5"/>
+        <TextBlock FontWeight="Normal" Text="Task Name:"  Name="TaskTitleTextCaption" Grid.Row="1" Margin="2,5,2,5"/>
+        <TextBlock FontWeight="Normal"  Name="TaskTitleTextBlock" Grid.Row="2" Margin="30,5,2,5" MouseLeftButtonUp="TaskTitleTextBlock_MouseLeftButtonUp"/>
+    </Grid>
+</ig:XamDialogWindow>

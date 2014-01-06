@@ -7,8 +7,7 @@ using System.Diagnostics;
 using iExchange.Common;
 using Manager.Common;
 using Manager.Common.QuotationEntities;
-using CommonTransactionError = Manager.Common.TransactionError;
-using CommonCancelReason = Manager.Common.CancelReason;
+using TransactionError = iExchange.Common.TransactionError;
 using ManagerService.QuotationExchange;
 using iExchange.Common.Manager;
 
@@ -125,13 +124,15 @@ namespace ManagerService.Exchange
         #region DealingConsole
         public void AbandonQuote(List<Answer> abandonQutes)
         {
+            return;
+        }
+
+        public void Answer(Guid userId,List<Answer> answerQutos)
+        {
             try
             {
-                foreach (Answer quotes in abandonQutes)
-                {
-                    //this._StateServer.Answer(
-                }
-                //this._StateServer.AbandonQuote(quoteQuotation);
+                Token token = new Token(userId, UserType.System, AppType.DealingConsole);
+                this._StateServer.Answer(token,answerQutos);
             }
             catch (Exception ex)
             {
@@ -139,48 +140,42 @@ namespace ManagerService.Exchange
             }
         }
 
-        public void Answer(List<Answer> answerQutos)
+        public TransactionError AcceptPlace(Guid transactionId)
         {
-            try
-            {
-                //this._StateServer.Answer(answerQutos);
-            }
-            catch (Exception ex)
-            {
-                Logger.TraceEvent(TraceEventType.Error, "ExchangeSystem.Answer Error:\r\n" + ex.ToString());
-            }
-        }
-
-        public CommonTransactionError AcceptPlace(Guid transactionId)
-        {
-            CommonTransactionError errorCode = CommonTransactionError.OK;
-
-            //errorCode = this._StateServer.AcceptPlace(transactionId);
+            TransactionError errorCode = TransactionError.OK;
+            Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
+            errorCode = this._StateServer.AcceptPlace(token,transactionId);
             return errorCode;
         }
 
-        public CommonTransactionError CancelPlace(Guid transactionId, CommonCancelReason cancelReason)
+        public TransactionError CancelPlace(Guid transactionId, CancelReason cancelReason)
         {
-            CommonTransactionError errorCode = CommonTransactionError.OK;
-
-            //errorCode = this._StateServer.AcceptPlace(transactionId);
+            TransactionError errorCode = TransactionError.OK;
+            Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
+            errorCode = this._StateServer.CancelPlace(token,transactionId);
             return errorCode;
         }
 
-        public CommonTransactionError Cancel(Guid transactionId, CommonCancelReason cancelReason)
+        public TransactionError Cancel(Guid transactionId, CancelReason cancelReason)
         {
-            CommonTransactionError errorCode = CommonTransactionError.OK;
-
-            //TransactionError transactionError = this.StateServer.Cancel(token, tranGuid, cancelReason);
+            TransactionError errorCode = TransactionError.OK;
+            Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
+            TransactionError transactionError = this._StateServer.Cancel(token, transactionId, cancelReason);
             return errorCode;
         }
 
-        public CommonTransactionError Execute(Guid transactionId, string buyPrice, string sellPrice, decimal lot, Guid orderId)
+        public TransactionError Execute(Guid transactionId, string buyPrice, string sellPrice, decimal lot, Guid executedOrderGuid)
         {
-            CommonTransactionError errorCode = CommonTransactionError.OK;
-
-            //errorCode = this._StateServer.AcceptPlace(transactionId);
+            TransactionError errorCode = TransactionError.OK;
+            Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
+            errorCode = this._StateServer.Execute(token, transactionId, buyPrice, sellPrice, lot.ToString(), executedOrderGuid);
             return errorCode;
+        }
+
+        public bool UpdateInstrument(XmlNode instruments)
+        {
+            //bool isOk = this._StateServer.UpdateInstrument(token, instruments);
+            return true;
         }
         #endregion
 

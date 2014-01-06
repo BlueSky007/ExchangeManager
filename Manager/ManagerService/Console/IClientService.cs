@@ -12,6 +12,9 @@ using System.ServiceModel;
 using System.Text;
 using System.Xml;
 using AccountType = iExchange.Common.AccountType;
+using TransactionError = iExchange.Common.TransactionError;
+using CancelReason = iExchange.Common.CancelReason;
+using OrderType = iExchange.Common.OrderType;
 
 namespace ManagerService.Console
 {
@@ -106,7 +109,16 @@ namespace ManagerService.Console
         bool CreateTaskScheduler(TaskScheduler taskScheduler);
 
         [OperationContract(IsInitiating = false)]
-        ObservableCollection<TaskScheduler> GetTaskSchedulersData();
+        void EnableTaskScheduler(TaskScheduler taskScheduler);
+
+        [OperationContract(IsInitiating = false)]
+        void StartRunTaskScheduler(TaskScheduler taskScheduler);
+
+        [OperationContract(IsInitiating = false)]
+        void DeleteTaskScheduler(TaskScheduler taskScheduler);
+        
+        [OperationContract(IsInitiating = false)]
+        List<TaskScheduler> GetTaskSchedulersData();
         #endregion
 
         #region LogAudit

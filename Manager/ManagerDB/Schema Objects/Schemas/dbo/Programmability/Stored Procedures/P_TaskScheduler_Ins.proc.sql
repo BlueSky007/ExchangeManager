@@ -1,18 +1,19 @@
 ﻿CREATE PROCEDURE [dbo].[P_TaskScheduler_Ins]
 (
-    @id                    UNIQUEIDENTIFIER,
-	@name                  NVARCHAR(50),
-	@description           NVARCHAR(50),
-	@taskStatus            TINYINT,
-	@runTime               DATETIME,
-	@lastRunTime           DATETIME,
-	@taskType              TINYINT,
-	@actionType            TINYINT,
-	@interval              INT = NULL,
-	@userId                UNIQUEIDENTIFIER,
-	@timestamp             DATETIME,
-	@parameterSettingsXml  NTEXT=NULL,
-	@result                BIT=1 OUTPUT
+    @id                     UNIQUEIDENTIFIER,
+	@name                   NVARCHAR(50),
+	@description            NVARCHAR(50),
+	@taskStatus             TINYINT,
+	@runTime                DATETIME,
+	@lastRunTime            DATETIME,
+	@taskType               TINYINT,
+	@actionType             TINYINT,
+	@interval               INT = NULL,
+	@userId                 UNIQUEIDENTIFIER,
+	@timestamp              DATETIME,
+	@parameterSettingsXml   NTEXT=NULL,
+	@instrumentSettingsXml  NTEXT=NULL,
+	@result                 BIT=1 OUTPUT
 )
 AS
 BEGIN
@@ -38,6 +39,14 @@ BEGIN
         [ParameterValue]    NVARCHAR(1000) NOT NULL,
 	    [SettingType]       TINYINT        NOT NULL,
 		[SqlDbType]         TINYINT        NOT NULL
+	)
+
+	DECLARE @instrumentSettingTable TABLE
+	(
+	    [Id]                 UNIQUEIDENTIFIER  NOT NULL, 
+	    [ExchangeCode]       NVARCHAR(50)      NOT NULL,
+	    [InstrumentId]       UNIQUEIDENTIFIER  NOT NULL, 
+		[InstrumentCode]     NVARCHAR(50)      NOT NULL
 	)
 
 	IF @parameterSettingsXml IS NOT NULL
@@ -79,6 +88,43 @@ BEGIN
 			SET @errorMessage = 'Unknown error, failed to add new ParameterSettingTask'
 			GOTO P_Failed
 		END
+	END
+
+	IF @instrumentSettingsXml IS NOT NULL
+	BEGIN
+		 DECLARE @instrumentDoc XML
+		 SET @instrumentDoc = CAST(@instrumentSettingsXml AS NVARCHAR(MAX))
+
+		 INSERT INTO @instrumentSettingTable
+		 (
+		    [Id],
+			[ExchangeCode],
+			[InstrumentId],
+			[InstrumentCode]
+		 )
+		 SELECT
+		 xmlColumn.value('./@Id','UNIQUEIDENTIFIER'),
+		 xmlColumn.value('./@ExchangeCode','NVARCHAR(50)'),
+		 xmlColumn.value('./@InstrumentId','UNIQUEIDENTIFIER'),
+		 xmlColumn.value('./@InstrumentCode','NVARCHAR(50)')
+		 FROM @instrumentDoc.nodes('/InstrumentSettings/InstrumentSetting') AS xmlTable(xmlColumn)
+
+		 INSERT INTO [ManagerDB].[dbo].[InstrumentSettings]
+           ([Id]
+           ,[TaskSchedulerId]
+           ,[ExchangeCode]
+           ,[InstrumentId]
+           ,[InstrumentCode])
+		 SELECT i.Id,@id,i.ExchangeCode,i.InstrumentId,i.InstrumentCode
+		 FROM @instrumentSettingTable AS i
+
+		 SET @error=@@ERROR
+		 IF @error<>0
+		 BEGIN
+			SET @result = 0
+			SET @errorMessage = 'Unknown error, failed to add new InstrumentSettings'
+			GOTO P_Failed
+		 END
 	END
 
 

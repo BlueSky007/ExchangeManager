@@ -5,11 +5,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ManagerConsole.UI"
              mc:Ignorable="d" MaximizeButtonVisibility="Collapsed" MinimizeButtonVisibility="Collapsed" CloseButtonVisibility="Collapsed"
-             Header="Create New Task" Width="600" d:DesignWidth="600" Height="600" StartupPosition="Center">
+             Header="Create New Task" Width="910" d:DesignWidth="600" Height="800" StartupPosition="Center">
     <Control.Resources>
         <Style TargetType="TextBlock">
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontFamily" Value="hei"/>
+            <Setter Property="FontWeight" Value="Bold"/>
         </Style>
         <Style TargetType="TextBox">
             <Setter Property="Height" Value="20" />
@@ -26,9 +28,9 @@
     </Control.Resources>
     <Grid x:Name="LayOutGrid" Background="Black">
         <Grid.RowDefinitions>
-            <RowDefinition Height="115"/>
+            <RowDefinition Height="110"/>
             <RowDefinition Height="40"/>
-            <RowDefinition Height="300"/>
+            <RowDefinition Height="0.7*"/>
             <RowDefinition Height="80"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -45,17 +47,17 @@
                 <RowDefinition Height="90"/>
             </Grid.RowDefinitions>
             <TextBlock Grid.Row="0" Text="Task Name:"/>
-            <TextBox Grid.Row="0" Grid.Column="1" x:Name="_TaskNameTextBox" Text="{Binding Name,Mode=TwoWay}"/>
+            <TextBox Grid.Row="0" Grid.Column="1" x:Name="_TaskNameTextBox" IsEnabled="{Binding IsEditorName}" Text="{Binding Name,Mode=TwoWay}"/>
             <TextBlock Grid.Row="0" Grid.Column="2" Text="Task Type:" Margin="8,0,0,0" HorizontalAlignment="Right"/>
             <ComboBox x:Name="TaskTypeComboBox" Grid.Row="0" Grid.Column="3" Width="90" Height="22"  Style="{StaticResource ComboBoxStyle}" SelectedItem="{Binding TaskType,Mode=TwoWay}"/>
             <TextBlock Grid.Row="1" Text="Description:" VerticalAlignment="Top"/>
-            <TextBox Background="WhiteSmoke"  Grid.Row="1" Grid.Column="1" Text="{Binding Description,Mode=TwoWay}" TextAlignment="Left" FlowDirection="LeftToRight" x:Name="_TaskDescriptionText" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" Grid.ColumnSpan="4" Height="Auto" />
+            <TextBox  Grid.Row="1" Grid.Column="1" Text="{Binding Description,Mode=TwoWay}" TextAlignment="Left" FlowDirection="LeftToRight" x:Name="_TaskDescriptionText" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" Grid.ColumnSpan="4" Height="Auto" />
         </Grid>
 
         <Border Style="{StaticResource BorderStyle}" Grid.Row="1" Margin="3 5 3 0">
             <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
                 <TextBlock Text="Start:"/>
-                <ig:XamDateTimeInput x:Name="_ActionTimePicker" Margin="8,0,0,0"  Width="150" Height="23" 
+                <ig:XamDateTimeInput x:Name="_ActionTimePicker" Margin="5,0,0,0"  Width="145" Height="23" Background="Black" Foreground="White"
                                      AutoFillDate="MonthAndYear"  DropDownButtonDisplayMode="Always" 
                                      SpinButtonDisplayMode="Focused" 
                                      SpinIncrement="0.05d" 
@@ -67,16 +69,23 @@
                 <TextBlock Text="Action Type:" Margin="8,0,0,0"/>
                 <ComboBox x:Name="ActionTypeComboBox" Width="80" Height="22" Margin="8,0,0,0" Style="{StaticResource ComboBoxStyle}" SelectedItem="{Binding ActionType,Mode=TwoWay}"/>
                 <TextBlock Text="Parameter Type:" Margin="8,0,0,0"/>
-                <ComboBox x:Name="SettingsTypeComboBox" Width="80" Height="22" Margin="8,0,0,0" Style="{StaticResource ComboBoxStyle}"/>
+                <ComboBox x:Name="SettingsTypeComboBox" Width="80" Height="22" Margin="8,0,0,0" Style="{StaticResource ComboBoxStyle}" SelectionChanged="SettingsTypeComboBox_SelectionChanged"/>
+
+                <TextBlock x:Name="InstrumentCaption" Text="Instrument:" Margin="8,0,0,0"/>
+                <ComboBox x:Name="InstrumentComboBox" Visibility="Collapsed" Width="80" Height="22" Margin="8,0,0,0" Style="{StaticResource ComboBoxStyle}"/>
+                <ig:XamComboEditor x:Name="_InstrumentComboBox"
+                                   IsEditable="False" ItemsSource="{Binding}" CheckBoxVisibility="Visible"
+                                   AllowMultipleSelection="True"
+                                   Width="120" Margin="5,0,10,0"
+                                   VerticalAlignment="Center" HorizontalAlignment="Left" Height="25" SelectionChanged="InstrumentComboBox_SelectionChanged"/>
+
+                <TextBlock x:Name="ExchangeCodeCaption" Text="ExchangeCode:" Margin="2,0,0,0"/>
+                <ComboBox x:Name="ExchangeComboBox" Width="80" Height="22" Margin="8,0,0,0" Style="{StaticResource ComboBoxStyle}" SelectedItem="{Binding ExchangeCode,Mode=TwoWay}"/>
             </StackPanel>
         </Border>
 
         <Border Grid.Row="2" Margin="3 5 3 0" Style="{StaticResource BorderStyle}">
-            <ig:XamGrid x:Name="_ParameterSettingGrid" Grid.Row="1" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto" 
-                            Background ="{Binding Path=ColorTemplate.Background, Source={StaticResource ColorSettings}}" 
-                            Foreground ="{Binding Path=ColorTemplate.Foreground, Source={StaticResource ColorSettings}}"
-                            CellStyle="{Binding Path=ColorTemplate.XamGridCellStyle, Source={StaticResource ColorSettings}}"
-                            HeaderStyle="{Binding Path=ColorTemplate.XamGridHeaderStyle, Source={StaticResource ColorSettings}}" Margin="-1,9,1,-9">
+            <ig:XamGrid x:Name="_ParameterSettingGrid" Grid.Row="1" FontFamily="hei" FontWeight="Black" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto">
                 <ig:XamGrid.EditingSettings>
                     <ig:EditingSettings AllowEditing="Cell"/>
                 </ig:XamGrid.EditingSettings>
@@ -84,7 +93,7 @@
                     <ig:FixedColumnSettings AllowFixedColumns="DropArea"/>
                 </ig:XamGrid.FixedColumnSettings>
                 <ig:XamGrid.GroupBySettings>
-                    <ig:GroupBySettings AllowGroupByArea="Top" IsGroupable="True" EmptyGroupByAreaContent="参数修改     拖动列标题栏在此分组"/>
+                    <ig:GroupBySettings AllowGroupByArea="Top" IsGroupable="True" EmptyGroupByAreaContent="参数列表     拖动列标题栏在此分组"/>
                 </ig:XamGrid.GroupBySettings>
 
                 <!--Column Setting-->
@@ -102,7 +111,7 @@
                         <ig:TemplateColumn.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Vertical">
-                                    <TextBlock Foreground="Blue" Text="{Binding SqlDbTypeCellData.NumberSetValue}" Visibility="{Binding SqlDbTypeCellData.IsNumberType}" Height="25" TextAlignment="Right"  HorizontalAlignment="Center"/>
+                                    <TextBlock Foreground="#FF9090FF" Text="{Binding SqlDbTypeCellData.NumberSetValue}" Visibility="{Binding SqlDbTypeCellData.IsNumberType}" Height="25" TextAlignment="Right"  HorizontalAlignment="Center"/>
                                     <CheckBox  IsChecked="{Binding SqlDbTypeCellData.BoolSetValue,Mode=TwoWay}" Visibility="{Binding SqlDbTypeCellData.IsBoolType}"/>
                                 </StackPanel>
                             </DataTemplate>
@@ -110,7 +119,7 @@
                         <ig:TemplateColumn.EditorTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Vertical">
-                                    <TextBox x:Name="_NumberValue" Width="100" BorderBrush="Yellow" Foreground="Blue" BorderThickness="0" Text="{Binding SqlDbTypeCellData.NumberSetValue,Mode=TwoWay}" Visibility="{Binding SqlDbTypeCellData.IsNumberType}" TextAlignment="Right" Margin="0,2,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                    <TextBox x:Name="_NumberValue" Width="103" BorderBrush="Yellow" Foreground="#FF9090FF" BorderThickness="1" Text="{Binding SqlDbTypeCellData.NumberSetValue,Mode=TwoWay}" Visibility="{Binding SqlDbTypeCellData.IsNumberType}" TextAlignment="Right" Margin="0,2,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                     <CheckBox x:Name="_BoolValue" IsChecked="{Binding SqlDbTypeCellData.BoolSetValue,Mode=TwoWay}" Visibility="{Binding SqlDbTypeCellData.IsBoolType}"/>
                                 </StackPanel>
                             </DataTemplate>

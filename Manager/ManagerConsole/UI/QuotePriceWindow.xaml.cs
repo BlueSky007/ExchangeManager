@@ -1,4 +1,5 @@
-﻿using Infragistics.Controls.Grids;
+﻿using iExchange.Common.Manager;
+using Infragistics.Controls.Grids;
 using Infragistics.Controls.Interactions;
 using Manager.Common;
 using ManagerConsole.Helper;

@@ -16,8 +16,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ManagerConsole.ViewModel;
 using System.Collections.ObjectModel;
-using CommonTransactionError = Manager.Common.TransactionError;
 using CommonParameter = Manager.Common.Settings.SystemParameter;
+using OrderType = iExchange.Common.OrderType;
 using Logger = Manager.Common.Logger;
 using Infragistics.Controls.Interactions;
 using Infragistics.Controls.Grids;
@@ -106,20 +106,20 @@ namespace ManagerConsole.UI
             switch (clickImg.Name)
             {
                 case "_UpdateBtn":
-                    if (orderTask == null || orderTask.OrderType != ManagerCommon.OrderType.Limit) return;
+                    if (orderTask == null || orderTask.OrderType != OrderType.Limit) return;
                     this._App.OrderHandle.OnOrderUpdate(orderTask);
                     break;
                 case "_ModifyBtn":
-                    if (orderTask == null || orderTask.OrderType != ManagerCommon.OrderType.Limit) return;
+                    if (orderTask == null || orderTask.OrderType != OrderType.Limit) return;
                     this._App.OrderHandle.OnOrderModify(orderTask);
                     break;
                 case "_CancelBtn":
-                    if (orderTask == null || orderTask.OrderType != ManagerCommon.OrderType.Limit) return;
+                    if (orderTask == null || orderTask.OrderType != OrderType.Limit) return;
                     this._App.OrderHandle.OnOrderWait(orderTask);
                     this.BackHitOrder(orderTask, 0);
                     break;
                 case "_ExecuteBtn":
-                    if (orderTask == null || orderTask.OrderType != ManagerCommon.OrderType.Limit) return;
+                    if (orderTask == null || orderTask.OrderType != OrderType.Limit) return;
                     this._App.OrderHandle.OnOrderExecute(orderTask);
                     break;
                 case "_ShowGroupPanelBtn":

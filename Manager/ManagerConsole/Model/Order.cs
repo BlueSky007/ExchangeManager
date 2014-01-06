@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Media;
 using CommonOrder = Manager.Common.Order;
-using OrderType = Manager.Common.OrderType;
+using OrderType = iExchange.Common.OrderType;
 using Helper = Manager.Common.Helper;
 
 namespace ManagerConsole.Model
@@ -596,8 +596,6 @@ namespace ManagerConsole.Model
         {
             switch (orderType)
             {
-                case OrderType.FAK_Market:
-                    return "FAK_Market";
                 case OrderType.Limit:
                     return "LMT";
                 case OrderType.Market:

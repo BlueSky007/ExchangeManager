@@ -54,6 +54,7 @@ namespace ManagerConsole.Model
                 string guidStr = "66adc06c-c5fe-4428-867f-be97650eb3b" + i;
                 instrument.Id = new Guid(guidStr);
                 instrument.Code = "GBPUSA" + i;
+                instrument.ExchangeCode = "WF01";
                 instrument.Ask = "121.32";
                 instrument.Bid = "121.30";
                 if (i == 1)
@@ -67,7 +68,7 @@ namespace ManagerConsole.Model
                 instrument.NumeratorUnit = 1;
                 instrument.MaxSpread = 100;
                 instrument.MaxAutoPoint = 100;
-                instrument.AcceptDQVariation = 100;
+                instrument.AcceptDQVariation = 10;
                 instrument.Spread = 2;
                 instrument.AutoPoint = 10;
                 instrument.Origin = "121.30";
