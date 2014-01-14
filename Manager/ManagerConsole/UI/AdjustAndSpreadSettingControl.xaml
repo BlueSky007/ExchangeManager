@@ -3,25 +3,24 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ManagerConsole.UI"
              xmlns:ig="http://schemas.infragistics.com/xaml" x:Class="ManagerConsole.UI.AdjustAndSpreadSettingControl" 
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="800">
     <Grid Name="AdjustSpreadWindow">
         <Grid.Resources>
-            <Style x:Key="CellStylePadding" TargetType="ig:CellControl">
-                <Setter Property="Padding" Value="0,0,0,0"/>
-            </Style>
         </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Canvas Height="30" Width="800" HorizontalAlignment="Left">
-            <Button Canvas.Left="0" Canvas.Top="0" Height="30" Width="80" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Content="New Relation" Foreground="Blue" Click="NewButton_Click"/>
-            <Label Canvas.Left="80" Canvas.Top="0" Height="30" Width="290" Content="AutoAdjustPoints" BorderThickness="1,1,0,0" Background="#FFCADAEE" BorderBrush="#FF8BA5C8" />
-            <Label Canvas.Left="370" Canvas.Top="0" Height="30" Width="291" Content="SpreadPoints" Background="#FFCADAEE" BorderThickness="1,1,1,0" BorderBrush="#FF8BA5C8"/>
+            <Button Canvas.Left="0" Canvas.Top="0" Height="30" Width="80" Content="New Relation" Foreground="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:AdjustAndSpreadSettingControl}}" Click="NewButton_Click"/>
+            <Label Canvas.Left="80" Canvas.Top="0" Height="30" Width="290" Content="AutoAdjustPoints" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" BorderBrush="#FF8BA5C8" BorderThickness="1,0,1,0" Foreground="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:AdjustAndSpreadSettingControl}}"/>
+
+            <TextBlock Canvas.Left="370" Canvas.Top="0" Height="30" Width="291" Text="SpreadPoints" TextAlignment="Center" Foreground="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:AdjustAndSpreadSettingControl}}" />
         </Canvas>
-        <ig:XamGrid Margin="0" Grid.Row="1" x:Name="AdjustSettingGrid" RowHeight="18" CellStyle="{StaticResource CellStylePadding}" CellEnteredEditMode="AdjustSettingGrid_CellEnteredEditMode" CellExitedEditMode="AdjustSettingGrid_CellExitedEditMode">
+        <ig:XamGrid Margin="0" Grid.Row="1" x:Name="AdjustSettingGrid" RowHeight="20" CellEnteredEditMode="AdjustSettingGrid_CellEnteredEditMode" CellExitedEditMode="AdjustSettingGrid_CellExitedEditMode">
             <ig:XamGrid.ColumnResizingSettings>
                 <ig:ColumnResizingSettings AllowColumnResizing="Disabled"/>
             </ig:XamGrid.ColumnResizingSettings>
@@ -38,21 +37,21 @@
                 <ig:TemplateColumn Key="Name" HeaderText="Name" Width="80" IsReadOnly="True">
                     <ig:TemplateColumn.ItemTemplate>
                         <DataTemplate>
-                            <Button Content="{Binding Name}" Width="80" Tag="{Binding Id}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="Button_Click"></Button>
+                            <Button Content="{Binding Name}" Width="80" Tag="{Binding Id}" Click="Button_Click"></Button>
                         </DataTemplate>
                     </ig:TemplateColumn.ItemTemplate>
                 </ig:TemplateColumn>
                 <ig:TemplateColumn Key="AdjustActionUp" HeaderText="Up" Width="35" IsReadOnly="True">
                     <ig:TemplateColumn.ItemTemplate>
                         <DataTemplate>
-                            <Button Background="#FF4169E1" Tag="{Binding Id}" Height="18" Width="35" FontSize="12" Padding="0,0,0,2" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Content="+" Click="AdjustUp_Click"/>
+                            <Button Background="#FF4169E1" Tag="{Binding Id}" Height="20" Width="35" FontSize="12" Padding="0,0,0,2" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Content="+" Click="AdjustUp_Click"/>
                         </DataTemplate>
                     </ig:TemplateColumn.ItemTemplate>
                 </ig:TemplateColumn>
                 <ig:TemplateColumn Key="AdjustActionDN" HeaderText="Dn" Width="35" IsReadOnly="True">
                     <ig:TemplateColumn.ItemTemplate>
                         <DataTemplate>
-                            <Button Background="#FFCD5C5C" Tag="{Binding Id}" Height="18" Width="35" FontSize="12" Padding="0,0,0,2" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Content="-" Click="AdjustDn_Click"/>
+                            <Button Background="#FFCD5C5C" Tag="{Binding Id}" Height="20" Width="35" FontSize="12" Padding="0,0,0,2" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Content="-" Click="AdjustDn_Click"/>
                         </DataTemplate>
                     </ig:TemplateColumn.ItemTemplate>
                 </ig:TemplateColumn>
@@ -61,12 +60,12 @@
                 <ig:TemplateColumn Key="AdjustIncrement" HeaderText="Increment" Width="80" >
                     <ig:TemplateColumn.ItemTemplate>
                         <DataTemplate>
-                            <Label Content="{Binding AdjustIncrement}" Margin="0" Padding="0" Width="80" HorizontalContentAlignment="Right"/>
+                            <TextBlock Text="{Binding AdjustIncrement}" Margin="0" Padding="0" Width="80" TextAlignment="Right"/>
                         </DataTemplate>
                     </ig:TemplateColumn.ItemTemplate>
                     <ig:TemplateColumn.EditorTemplate>
                         <DataTemplate>
-                            <TextBox Text="{Binding AdjustIncrement, Mode=TwoWay}" HorizontalContentAlignment="Right" GotFocus="TextBox_GotFocus" Width="80"/>
+                            <TextBox Text="{Binding AdjustIncrement, Mode=TwoWay}" Margin="0" Padding="0" HorizontalContentAlignment="Right" GotFocus="TextBox_GotFocus" Width="80"/>
                         </DataTemplate>
                     </ig:TemplateColumn.EditorTemplate>
                 </ig:TemplateColumn>
@@ -74,12 +73,12 @@
                 <ig:TemplateColumn Key="AdjustReplacement" HeaderText="Replacement" Width="80" >
                     <ig:TemplateColumn.ItemTemplate>
                         <DataTemplate>
-                            <Label Content="{Binding AdjustReplacement}" Margin="0" Padding="0" Width="80" HorizontalContentAlignment="Right"/>
+                            <TextBlock Text="{Binding AdjustReplacement}" Margin="0" Padding="0" Width="80" TextAlignment="Right"/>
                         </DataTemplate>
                     </ig:TemplateColumn.ItemTemplate>
                     <ig:TemplateColumn.EditorTemplate>
                         <DataTemplate>
-                            <TextBox Text="{Binding AdjustReplacement, Mode=TwoWay}" HorizontalContentAlignment="Right" GotFocus="TextBox_GotFocus" Width="80"/>
+                            <TextBox Text="{Binding AdjustReplacement, Mode=TwoWay}"  Margin="0" Padding="0" HorizontalContentAlignment="Right" GotFocus="TextBox_GotFocus" Width="80"/>
                         </DataTemplate>
                     </ig:TemplateColumn.EditorTemplate>
                 </ig:TemplateColumn>
@@ -93,14 +92,14 @@
                 <ig:TemplateColumn Key="SpreadActionUp" HeaderText="Up" Width="35" IsReadOnly="True">
                     <ig:TemplateColumn.ItemTemplate>
                         <DataTemplate>
-                            <Button Background="#FF4169E1" Height="18" Width="35" FontSize="12" Tag="{Binding Id}" Padding="0,0,0,2" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Content="+" Click="SpreadUp_Click"/>
+                            <Button Background="#FF4169E1" Height="20" Width="35" FontSize="12" Tag="{Binding Id}" Padding="0,0,0,2" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Content="+" Click="SpreadUp_Click"/>
                         </DataTemplate>
                     </ig:TemplateColumn.ItemTemplate>
                 </ig:TemplateColumn>
                 <ig:TemplateColumn Key="SpreadActionDN" HeaderText="Dn" Width="35" IsReadOnly="True">
                     <ig:TemplateColumn.ItemTemplate>
                         <DataTemplate>
-                            <Button Background="#FFCD5C5C" Height="18" Width="35" FontSize="12" Tag="{Binding Id}" Padding="0,0,0,2" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Content="-" Click="SpreadDn_Click"/>
+                            <Button Background="#FFCD5C5C" Height="20" Width="35" FontSize="12" Tag="{Binding Id}" Padding="0,0,0,2" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Content="-" Click="SpreadDn_Click"/>
                         </DataTemplate>
                     </ig:TemplateColumn.ItemTemplate>
                 </ig:TemplateColumn>
@@ -108,12 +107,12 @@
                 <ig:TemplateColumn Key="SpreadIncrement" HeaderText="Increment" Width="80" >
                     <ig:TemplateColumn.ItemTemplate>
                         <DataTemplate>
-                            <Label Content="{Binding SpreadIncrement}" Margin="0" Padding="0" Width="80" HorizontalContentAlignment="Right"/>
+                            <TextBlock Text="{Binding SpreadIncrement}" Margin="0" Padding="0" Width="80" TextAlignment="Right"/>
                         </DataTemplate>
                     </ig:TemplateColumn.ItemTemplate>
                     <ig:TemplateColumn.EditorTemplate>
                         <DataTemplate>
-                            <TextBox Text="{Binding SpreadIncrement, Mode=TwoWay}" HorizontalContentAlignment="Right" GotFocus="TextBox_GotFocus" Width="80"/>
+                            <TextBox Text="{Binding SpreadIncrement, Mode=TwoWay}"  Margin="0" Padding="0" HorizontalContentAlignment="Right" GotFocus="TextBox_GotFocus" Width="80"/>
                         </DataTemplate>
                     </ig:TemplateColumn.EditorTemplate>
                 </ig:TemplateColumn>
@@ -121,12 +120,12 @@
                 <ig:TemplateColumn Key="SpreadReplacement" HeaderText="Replacement" Width="80" >
                     <ig:TemplateColumn.ItemTemplate>
                         <DataTemplate>
-                            <Label Content="{Binding SpreadReplacement}" Margin="0" Padding="0" Width="80" HorizontalContentAlignment="Right"/>
+                            <TextBlock Text="{Binding SpreadReplacement}" Margin="0" Padding="0" Width="80" TextAlignment="Right"/>
                         </DataTemplate>
                     </ig:TemplateColumn.ItemTemplate>
                     <ig:TemplateColumn.EditorTemplate>
                         <DataTemplate>
-                            <TextBox Text="{Binding SpreadReplacement, Mode=TwoWay}" HorizontalContentAlignment="Right" GotFocus="TextBox_GotFocus" Width="80"/>
+                            <TextBox Text="{Binding SpreadReplacement, Mode=TwoWay}"  Margin="0" Padding="0" HorizontalContentAlignment="Right" GotFocus="TextBox_GotFocus" Width="80"/>
                         </DataTemplate>
                     </ig:TemplateColumn.EditorTemplate>
                 </ig:TemplateColumn>

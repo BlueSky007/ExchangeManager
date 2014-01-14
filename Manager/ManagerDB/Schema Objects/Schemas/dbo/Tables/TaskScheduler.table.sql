@@ -8,7 +8,9 @@
 	LastRunTime     DATETIME          NULL,
 	TaskType        TINYINT           NOT NULL,
 	ActionType      TINYINT           NOT NULL,
-	Interval        INT                  NULL,
+	RecurDay        INT               NOT NULL,
+	WeekDaySN       NVARCHAR(50)          NULL,
+	Interval        INT               NOT NULL,
 	[UserId]        UNIQUEIDENTIFIER  NOT NULL,
 	[Timestamp]     DATETIME          NOT NULL,
 )

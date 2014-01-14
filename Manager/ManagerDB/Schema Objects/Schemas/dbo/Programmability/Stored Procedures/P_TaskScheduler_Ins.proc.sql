@@ -8,7 +8,9 @@
 	@lastRunTime            DATETIME,
 	@taskType               TINYINT,
 	@actionType             TINYINT,
-	@interval               INT = NULL,
+	@recurDay               INT,
+	@weekDaySN              NVARCHAR(50) = NULL,
+	@interval               INT,
 	@userId                 UNIQUEIDENTIFIER,
 	@timestamp              DATETIME,
 	@parameterSettingsXml   NTEXT=NULL,
@@ -137,6 +139,8 @@ BEGIN
 		   ,[LastRunTime] 
            ,[TaskType]
            ,[ActionType]
+		   ,[RecurDay] 
+		   ,[WeekDaySN] 
            ,[Interval]
 		   ,[UserId] 
            ,[Timestamp])
@@ -149,6 +153,8 @@ BEGIN
 		   ,@lastRunTime 
            ,@taskType
            ,@actionType
+		   ,@recurDay 
+		   ,@weekDaySN 
            ,@interval
 		   ,@userId
            ,@timestamp)

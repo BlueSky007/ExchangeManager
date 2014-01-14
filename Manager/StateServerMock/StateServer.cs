@@ -42,6 +42,17 @@ namespace iExchange.StateServer.Manager
         {
             throw new NotImplementedException();
         }
+
+        internal void ResetHit(Token token, Guid[] orderIDs)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal XmlNode GetAcountInfo(Token token, Guid tranID)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 
     public class ManagerHelper
@@ -63,6 +74,68 @@ namespace iExchange.StateServer.Manager
             }
             doc.AppendChild(root);
             return doc.DocumentElement;
+        }
+
+        public static XmlNode GetInstrumentParametersXml(ParameterUpdateTask settingTask)
+        {
+            XmlDocument exchangeDoc = new XmlDocument();
+            XmlElement xmlInstrumentRoot = exchangeDoc.CreateElement("Instruments");
+
+            foreach (Guid instrumentId in settingTask.Instruments)
+            {
+                XmlElement instrumentElement = exchangeDoc.CreateElement("Instrument");
+                instrumentElement.SetAttribute("ID", instrumentId.ToString());
+                foreach (ExchangeSetting setting in settingTask.ExchangeSettings)
+                {
+                    instrumentElement.SetAttribute(setting.ParameterKey, setting.ParameterValue);
+                }
+                xmlInstrumentRoot.AppendChild(instrumentElement);
+            }
+            exchangeDoc.AppendChild(xmlInstrumentRoot);
+            return exchangeDoc.DocumentElement;
+        }
+
+        public static AccountInformation GetAcountInfo(XmlNode accountInforNode)
+        {
+            AccountInformation accountInfor = new AccountInformation();
+
+            XmlNode accountNode = accountInforNode.ChildNodes[0];
+
+            foreach (XmlAttribute attribute in accountNode)
+            {
+                string nodeName = attribute.Name;
+                string nodeValue = attribute.Value;
+                if (nodeName == "ID")
+                {
+                    accountInfor.AccountId = new Guid(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "Balance")
+                {
+                    accountInfor.Balance = decimal.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "Equity")
+                {
+                    accountInfor.Equity = decimal.Parse(nodeValue);
+                    continue;
+                }
+                else if (nodeName == "Necessary")
+                {
+                    accountInfor.Necessary = decimal.Parse(nodeValue);
+                    continue;
+                }
+            }
+            XmlNode instrumentNode = accountNode.ChildNodes[0];
+            accountInfor.InstrumentId = new Guid(instrumentNode.Attributes["ID"].Value);
+            accountInfor.BuyLotBalanceSum = decimal.Parse(instrumentNode.Attributes["BuyLotBalanceSum"].Value);
+            accountInfor.SellLotBalanceSum = decimal.Parse(instrumentNode.Attributes["SellLotBalanceSum"].Value);
+            return accountInfor;
+        }
+
+        internal static ExecutedTransaction GetExecutedTransaction(XmlNode xmlTran)
+        {
+            return null;
         }
     }
 }

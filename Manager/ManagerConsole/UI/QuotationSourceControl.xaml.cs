@@ -58,7 +58,7 @@ namespace ManagerConsole.UI
         {
             Button deleteButton = (Button)sender;
             VmQuotationSource quotationSource = (VmQuotationSource)deleteButton.Tag;
-            if (MessageBox.Show(App.MainWindow, string.Format("确认删除{0}吗？", quotationSource.Name), "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel) == MessageBoxResult.OK)
+            if (MessageBox.Show(App.MainFrameWindow, string.Format("确认删除{0}吗？", quotationSource.Name), "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel) == MessageBoxResult.OK)
             {
                 ConsoleClient.Instance.DeleteMetadataObject(MetadataType.QuotationSource, quotationSource.Id, delegate(bool deleted)
                 {
@@ -66,12 +66,12 @@ namespace ManagerConsole.UI
                     {
                         if (deleted2)
                         {
-                            MessageBox.Show(App.MainWindow, "删除成功！");
+                            MessageBox.Show(App.MainFrameWindow, "删除成功！");
                             this._QuotationConfigData.RemoveQuotationSource(quotationSource.Id);
                         }
                         else
                         {
-                            MessageBox.Show(App.MainWindow, "删除失败！");
+                            MessageBox.Show(App.MainFrameWindow, "删除失败！");
                         }
                     }, deleted);
                 });

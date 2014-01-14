@@ -146,24 +146,7 @@ namespace ManagerService.Quotation
         public SourceInstrument(int instrumentId, Dictionary<int, InstrumentSourceRelation> relations)
         {
             this._Relations = relations;
-
-            int activeSourceId;
-            InstrumentSourceRelation relation = relations.Values.SingleOrDefault(s => s.IsActive);
-            if (relation == null)
-            {
-                relation = relations.Values.SingleOrDefault(r => r.IsDefault == true);
-                if(relation == null)
-                {
-                    int maxPriority = relations.Values.Max(r => r.Priority);
-                    relation = relations.Values.Single(r => r.Priority == maxPriority);
-                }
-                Dictionary<string, object> fieldsAndValues = new Dictionary<string,object>();
-                fieldsAndValues.Add(FieldSR.IsActive, true);
-                QuotationData.UpdateMetadataObject(MetadataType.InstrumentSourceRelation, relation.Id, fieldsAndValues);
-            }
-            activeSourceId = relation.SourceId;
-            TimeSpan timeoutTimeSpan = TimeSpan.FromSeconds(this._Relations[activeSourceId].SwitchTimeout);
-            this._ActiveSource = new ActiveSource(activeSourceId, timeoutTimeSpan);
+            this.MakeActiveSource();
 
             this._Instrument = MainService.QuotationManager.ConfigMetadata.Instruments[instrumentId];
             if (this._Instrument.IsSwitchUseAgio.Value)
@@ -174,7 +157,7 @@ namespace ManagerService.Quotation
             this._Timer = new Timer(this.CheckInactiveTime, null, inactiveTimeSpan, inactiveTimeSpan);
             this._LastActiveTime = DateTime.Now;
 
-            // log
+            // audit log default properties
             this._LogSourceChange = new LogSourceChange()
             {
                 UserId = Guid.Empty,
@@ -183,18 +166,43 @@ namespace ManagerService.Quotation
             };
         }
 
+        public int InstrumentId { get { return this._Instrument.Id; } }
+
+        private void MakeActiveSource()
+        {
+            InstrumentSourceRelation relation = this._Relations.Values.SingleOrDefault(s => s.IsActive);
+            if (relation == null)
+            {
+                relation = this._Relations.Values.SingleOrDefault(r => r.IsDefault == true);
+                if (relation == null)
+                {
+                    int maxPriority = this._Relations.Values.Max(r => r.Priority);
+                    relation = this._Relations.Values.Single(r => r.Priority == maxPriority);
+                }
+                Dictionary<string, object> fieldsAndValues = new Dictionary<string, object>();
+                fieldsAndValues.Add(FieldSR.IsActive, true);
+                QuotationData.UpdateMetadataObject(MetadataType.InstrumentSourceRelation, relation.Id, fieldsAndValues);
+            }
+            this._ActiveSource = new ActiveSource(relation.SourceId, TimeSpan.FromSeconds(relation.SwitchTimeout));
+        }
+
         public void AddInstrumentSourceRelation(InstrumentSourceRelation relation)
         {
             this._Relations.Add(relation.SourceId, relation);
         }
 
-        public void RemoveInstrumentSourceRelation(int relationId)
+        public bool RemoveInstrumentSourceRelation(int relationId, out int sourceCount)
         {
+            sourceCount = -1;
+            bool removed = false;
             InstrumentSourceRelation relation = this._Relations.Values.SingleOrDefault(r => r.Id == relationId);
             if (relation != null)
             {
                 this._Relations.Remove(relation.SourceId);
+                sourceCount = this._Relations.Count;
+                removed = true;
             }
+            return removed;
         }
 
         public TimeSpan ActiveSourceTimeoutSpan
@@ -305,7 +313,7 @@ namespace ManagerService.Quotation
                 // Update database and notify Console
                 int newRelationId = this._Relations[newSourceId].Id;
                 int oldRelationId = this._Relations[oldSourceId].Id;
-                DataAccess.QuotationData.SwitchActiveSource(oldRelationId, newRelationId);
+                DataAccess.QuotationData.SwitchActiveSource(newRelationId, oldRelationId);
                 SwitchRelationBooleanPropertyMessage switchActiveSourceMessage = new SwitchRelationBooleanPropertyMessage()
                 {
                     InstrumentId = this._Instrument.Id,
@@ -384,7 +392,7 @@ namespace ManagerService.Quotation
                 }
                 else
                 {
-                    // SourceId - InstrumentSourceRelation
+                    // Map for SourceId - InstrumentSourceRelation
                     Dictionary<int, InstrumentSourceRelation> relations = new Dictionary<int, InstrumentSourceRelation>();
                     relations.Add(relation.SourceId, relation);
                     SourceInstrument sourceInstrument = new SourceInstrument(relation.InstrumentId, relations);
@@ -399,7 +407,16 @@ namespace ManagerService.Quotation
             {
                 foreach (SourceInstrument sourceInstrument in this._SourceInstruments.Values)
                 {
-                    sourceInstrument.RemoveInstrumentSourceRelation(relationId);
+                    int sourceCount;
+                    if (sourceInstrument.RemoveInstrumentSourceRelation(relationId, out sourceCount))
+                    {
+                        if(sourceCount == 0)
+                        {
+                            sourceInstrument.Stop();
+                            this._SourceInstruments.Remove(sourceInstrument.InstrumentId);
+                        }
+                        break;
+                    }
                 }
             }
         }

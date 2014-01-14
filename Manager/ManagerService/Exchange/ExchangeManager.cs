@@ -15,19 +15,17 @@ namespace ManagerService.Exchange
         private ServiceHost _ServiceHost;
         private ConnectionManager _ConnectionManager;
         private Dictionary<string, ExchangeSystem> _ExchangeSystems = new Dictionary<string,ExchangeSystem>();
-        private RelayEngine<List<GeneralQuotation>> _QuotationRelayEngine;
 
         public ExchangeManager(ExchangeSystemSetting[] exchangeSystemSettings)
         {
+            this._ConnectionManager = new ConnectionManager(this._ExchangeSystems);
             for (int i = 0; i < exchangeSystemSettings.Length; i++)
             {
-                this._ExchangeSystems.Add(exchangeSystemSettings[i].Code, new ExchangeSystem(exchangeSystemSettings[i]));
+                this._ExchangeSystems.Add(exchangeSystemSettings[i].Code, new ExchangeSystem(exchangeSystemSettings[i], this._ConnectionManager));
             }
-            this._ConnectionManager = new ConnectionManager(this._ExchangeSystems);
-            this._QuotationRelayEngine = new RelayEngine<List<GeneralQuotation>>(this.SetQuotation, this.HandlEngineException);
         }
 
-        internal ICollection<ExchangeSystem> GetExchangeSystems()
+        public ICollection<ExchangeSystem> GetExchangeSystems()
         {
             return new List<ExchangeSystem>(this._ExchangeSystems.Values);
         }
@@ -87,21 +85,14 @@ namespace ManagerService.Exchange
                 this.SwitchPriceEnableState(relation.Id, enable);
             }
         }
-        internal void AddQuotations(List<GeneralQuotation> quotations)
-        {
-            this._QuotationRelayEngine.AddItem(quotations);
-        }
-        private bool SetQuotation(List<GeneralQuotation> quotations)
+
+        public bool AddQuotations(List<GeneralQuotation> quotations)
         {
             foreach (ExchangeSystem exchangeSystem in this._ExchangeSystems.Values)
             {
-                exchangeSystem.SetQuotation(quotations);
+                exchangeSystem.AddQuotation(quotations);
             }
             return true;
-        }
-        private void HandlEngineException(Exception ex)
-        {
-            Logger.TraceEvent(TraceEventType.Error, "ExchangeManager.HandlEngineException RelayEngine stopped:\r\n" + ex.ToString());
         }
     }
 }

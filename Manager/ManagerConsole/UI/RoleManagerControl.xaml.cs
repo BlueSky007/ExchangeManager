@@ -19,13 +19,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
+using System.Xml.Linq;
 
 namespace ManagerConsole.UI
 {
     /// <summary>
     /// RoleManagerControl.xaml 的交互逻辑
     /// </summary>
-    public partial class RoleManagerControl : UserControl
+    public partial class RoleManagerControl : UserControl,IControlLayout
     {
         private ObservableCollection<RoleData> _roleDatas;
         private ObservableCollection<RoleGridData> _RoleGridDatas;
@@ -309,7 +310,7 @@ namespace ManagerConsole.UI
                 Button btn = sender as Button;
                 int roleId = (int)btn.Tag;
                 this._SelectRole = this._roleDatas.SingleOrDefault(r => r.RoleId == roleId);
-                if (MessageBox.Show(App.MainWindow,string.Format("确认删除{0}角色吗？", this._SelectRole.RoleName), "", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No, MessageBoxOptions.DefaultDesktopOnly) == MessageBoxResult.Yes)
+                if (MessageBox.Show(App.MainFrameWindow,string.Format("确认删除{0}角色吗？", this._SelectRole.RoleName), "", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No, MessageBoxOptions.DefaultDesktopOnly) == MessageBoxResult.Yes)
                 {
                     ConsoleClient.Instance.DeleteRole(roleId, DeleteResult);
                 }
@@ -345,6 +346,33 @@ namespace ManagerConsole.UI
         private void TabGroupPane_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
+        }
+
+        public string GetLayout()
+        {
+            try
+            {
+                string layout = this.permissionDock.SaveLayout();
+                return layout.Replace("<?xml version=\"1.0\" encoding=\"utf-8\"?>", " ");
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "RoleManager SaveLayout.\r\n{0}", ex.ToString());
+                return string.Empty;
+            }
+        }
+
+        public void SetLayout(XElement layout)
+        {
+            try
+            {
+                
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "RoleManager ContentLayout Error\r\n{0}", ex.ToString());
+            }
+            
         }
     }
 }

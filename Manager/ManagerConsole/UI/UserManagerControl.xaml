@@ -128,7 +128,7 @@
     </UserControl.Resources>
     <Grid x:Name="UseManagerFrame">
         <Border Margin="0 0 5 0" BorderBrush="Black" Grid.Row="0">
-            <ig:XamGrid x:Name="UserManager" Loaded="UserControl_Loaded" RowHeight="19" IsAlternateRowsEnabled="False" AutoGenerateColumns="False" CellStyle="{StaticResource CellStylePadding}">      
+            <ig:XamGrid x:Name="UserManager" Loaded="UserControl_Loaded" RowHeight="19" IsAlternateRowsEnabled="False" AutoGenerateColumns="False">      
                     <ig:XamGrid.PagerSettings>
                     <ig:PagerSettings AllowPaging="Top" PageSize="30" DisplayPagerWhenOnlyOnePage="True">
                     </ig:PagerSettings>

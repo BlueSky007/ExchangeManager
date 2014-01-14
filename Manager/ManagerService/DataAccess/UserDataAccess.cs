@@ -639,5 +639,32 @@ namespace ManagerService.DataAccess
             }
            return layoutNames;
         }
+
+        public static bool CheckPermission(Guid userId, Guid groupId, string type, string exchangeCode)
+        {
+            bool hasPermission = false;
+            using (SqlConnection con = DataAccess.GetInstance().GetSqlConnection())
+            {
+                using (SqlCommand command = con.CreateCommand())
+                {
+                    command.CommandText = "[dbo].[GetDataTargetPermission]";
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@userId", userId));
+                    command.Parameters.Add(new SqlParameter("@exchangeCode", exchangeCode));
+                    command.Parameters.Add(new SqlParameter("@type", type));
+                    command.Parameters.Add(new SqlParameter("@groupId", groupId));
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            hasPermission = (bool)reader["Status"];
+                        }
+
+                    }
+                }
+            }
+
+            return hasPermission;
+        }
     }
 }

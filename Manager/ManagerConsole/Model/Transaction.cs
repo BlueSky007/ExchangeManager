@@ -1,11 +1,16 @@
-﻿using Manager.Common;
+﻿using iExchange.Common.Manager;
+using Manager.Common;
 using ManagerConsole.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CommonTransaction = Manager.Common.Transaction;
+using CommonTransaction = iExchange.Common.Manager.Transaction;
 using OrderType = iExchange.Common.OrderType;
+using TransactionSubType = iExchange.Common.TransactionSubType;
+using TransactionType = iExchange.Common.TransactionType;
+using OrderPhase = iExchange.Common.OrderPhase;
+using InstrumentCategory = iExchange.Common.InstrumentCategory;
 
 namespace ManagerConsole.Model
 {
@@ -50,15 +55,15 @@ namespace ManagerConsole.Model
             set;
         }
 
-        private Phase _Phase;
-        public Phase Phase
+        private OrderPhase _Phase;
+        public OrderPhase Phase
         {
             get { return this._Phase; }
             set
             {
                 if (this._Phase != value)
                 {
-                    if (this._Phase == Phase.Executed && (value == Phase.Canceled || value == Phase.Placed || value == Phase.Placing)) return;
+                    if (this._Phase == OrderPhase.Executed && (value == OrderPhase.Canceled || value == OrderPhase.Placed || value == OrderPhase.Placing)) return;
 
                     this._Phase = value;
                     this.OnPropertyChanged("Phase");
@@ -103,7 +108,7 @@ namespace ManagerConsole.Model
             set;
         }
 
-        public Manager.Common.InstrumentCategory InstrumentCategory
+        public InstrumentCategory InstrumentCategory
         {
             get;
             set;
@@ -195,7 +200,7 @@ namespace ManagerConsole.Model
             this.Type = transaction.Type;
             this.SubType = transaction.SubType;
             this.AssigningOrderId = transaction.AssigningOrderId;
-            this.InstrumentCategory = transaction.InstrumentCategory == null ? Manager.Common.InstrumentCategory.Forex : transaction.InstrumentCategory.Value;
+            this.InstrumentCategory = transaction.InstrumentCategory == null ? InstrumentCategory.Forex : transaction.InstrumentCategory.Value;
         }
     }
 }

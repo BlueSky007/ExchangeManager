@@ -64,7 +64,7 @@ namespace ManagerConsole.UI
                 if (vmRelation != null)
                 {
                     InstrumentSourceRelationWindow window = new InstrumentSourceRelationWindow((VmInstrument)this.DataContext, EditMode.Modify, vmRelation);
-                    App.MainWindow.MainFrame.Children.Add(window);
+                    App.MainFrameWindow.MainFrame.Children.Add(window);
                     window.IsModal = true;
                     window.Show();
                 }
@@ -81,7 +81,7 @@ namespace ManagerConsole.UI
                     VmInstrumentSourceRelation vmRelation = selectedRow.Data as VmInstrumentSourceRelation;
                     if (vmRelation != null)
                     {
-                        if (MessageBox.Show(App.MainWindow, string.Format("Confirm delete InstrumentSourceRelation for SourceSymbol:{0}?", vmRelation.SourceSymbol), "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel) == MessageBoxResult.OK)
+                        if (MessageBox.Show(App.MainFrameWindow, string.Format("Confirm delete InstrumentSourceRelation for SourceSymbol:{0}?", vmRelation.SourceSymbol), "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel) == MessageBoxResult.OK)
                         {
                             ConsoleClient.Instance.DeleteMetadataObject(MetadataType.InstrumentSourceRelation, vmRelation.Id, delegate(bool success)
                             {
@@ -100,7 +100,7 @@ namespace ManagerConsole.UI
         private void DeleteRelation_Click(object sender, RoutedEventArgs e)
         {
             VmInstrumentSourceRelation vmRelation = (VmInstrumentSourceRelation)((Button)sender).Tag;
-            if (MessageBox.Show(App.MainWindow, string.Format("Confirm delete relation from SourceSymbol: {0}?", vmRelation.SourceSymbol), "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel) == MessageBoxResult.OK)
+            if (MessageBox.Show(App.MainFrameWindow, string.Format("Confirm delete relation from SourceSymbol: {0}?", vmRelation.SourceSymbol), "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel) == MessageBoxResult.OK)
             {
                 ConsoleClient.Instance.DeleteMetadataObject(MetadataType.InstrumentSourceRelation, vmRelation.Id, delegate(bool succss)
                 {
@@ -131,7 +131,7 @@ namespace ManagerConsole.UI
             {
                 Button button = (Button)sender;
                 InstrumentSourceRelationWindow window = new InstrumentSourceRelationWindow((VmInstrument)this.DataContext, EditMode.AddNew);
-                App.MainWindow.MainFrame.Children.Add(window);
+                App.MainFrameWindow.MainFrame.Children.Add(window);
                 window.IsModal = true;
                 window.Show();
             }

@@ -112,7 +112,7 @@ namespace ManagerService.QuotationExchange
             }
             catch (Exception ex)
             {
-                AppDebug.LogEvent("QuotationServer", ex.ToString(), EventLogEntryType.Error);
+               Manager.Common.Logger.TraceEvent(TraceEventType.Error,"QuotationServer{0}",ex.ToString());
             }
         }
 
@@ -632,6 +632,7 @@ namespace ManagerService.QuotationExchange
                     try
                     {                        
                         //?? Object reference not set to an instance of an object.
+                        Debugger.Break();  // this will never happen.
                         this._StateServer.BroadcastQuotation(QuotationServer.Token, originQs, overridedQs);
                         //IAsyncResult asyncResult = this._StateServer.BeginBroadcastQuotation(QuotationServer.Token, originQs, overridedQs, null, null);
                         //asyncResult.AsyncWaitHandle.WaitOne();

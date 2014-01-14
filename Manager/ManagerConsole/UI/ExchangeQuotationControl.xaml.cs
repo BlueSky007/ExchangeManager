@@ -18,13 +18,15 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml;
 using Manager.Common.QuotationEntities;
+using System.Xml.Linq;
+using PriceType = iExchange.Common.PriceType;
 
 namespace ManagerConsole.UI
 {
     /// <summary>
     /// ExchangeQuotationControl.xaml 的交互逻辑
     /// </summary>
-    public partial class ExchangeQuotationControl : UserControl
+    public partial class ExchangeQuotationControl : UserControl, IControlLayout
     {
         private bool _IsChange = false;
         private string _Value;
@@ -59,7 +61,7 @@ namespace ManagerConsole.UI
                     {
                         this.QuotationGrid.ItemsSource = ExchangeQuotationViewModel.Instance.Exchanges;
                         InstrumentQuotation ins = new InstrumentQuotation();
-                        this.QuotationProperty.SelectedObject = ExchangeQuotationViewModel.Instance.Exchanges[0];
+                        this.QuotationProperty.SetSource(ExchangeQuotationViewModel.Instance.Exchanges[0]);
                     });
                     return true;
                 }
@@ -77,55 +79,55 @@ namespace ManagerConsole.UI
 
         private void QuotationGrid_CellClicked(object sender, Infragistics.Controls.Grids.CellClickedEventArgs e)
         {
-            this.QuotationProperty.SelectedObject = e.Cell.Row.Data;
+            this.QuotationProperty.SetSource((InstrumentQuotation)e.Cell.Row.Data);
         }
 
-        private void QuotationProperty_PropertyValueChanged(object sender, Xceed.Wpf.Toolkit.PropertyGrid.PropertyValueChangedEventArgs e)
-        {
-            if (e.NewValue.ToString() != e.OldValue.ToString())
-            {
-                this._IsChange = true;
-                this._Value = e.NewValue.ToString();
-                this._DisplayName = this.QuotationProperty.SelectedProperty.ToString();
-                this._ChangeQuotation = this.QuotationProperty.SelectedObject as InstrumentQuotation;
-                // ConsoleClient.Instance.UpdateExchangeQuotation(instrument.ExchangeCode, updateNode);
-            }
+        //private void QuotationProperty_PropertyValueChanged(object sender, Xceed.Wpf.Toolkit.PropertyGrid.PropertyValueChangedEventArgs e)
+        //{
+        //    if (e.NewValue.ToString() != e.OldValue.ToString())
+        //    {
+        //        this._IsChange = true;
+        //        this._Value = e.NewValue.ToString();
+        //        //this._DisplayName = this.QuotationProperty.SelectedProperty.ToString();
+        //        //this._ChangeQuotation = this.QuotationProperty.SelectedObject as InstrumentQuotation;
+        //        // ConsoleClient.Instance.UpdateExchangeQuotation(instrument.ExchangeCode, updateNode);
+        //    }
             
-        }
+        //}
 
-        private void QuotationProperty_SelectedPropertyItemChanged(object sender, RoutedPropertyChangedEventArgs<Xceed.Wpf.Toolkit.PropertyGrid.PropertyItemBase> e)
-        {
-            if (this._IsChange)
-            {
-                InstrumentQuotation instrument = this._ChangeQuotation;
-                QuotePolicyDetailSet set = new QuotePolicyDetailSet();
-                set.ExchangeCode = instrument.ExchangeCode;
-                set.QoutePolicyId = instrument.QuotationPolicyId;
-                set.InstrumentId = instrument.InstruemtnId;
-                set.type = (QuotePolicyEditType)Enum.Parse(typeof(QuotePolicyEditType), this._DisplayName);
-                if (this._DisplayName == "PriceType")
-                {
-                    set.Value = (int)Enum.Parse(typeof(PriceType), this._Value);
-                }
-                else if (this._DisplayName == "IsOriginHiLo")
-                {
-                    if (bool.Parse(this._Value))
-                    {
-                        set.Value = 1;
-                    }
-                    else
-                    {
-                        set.Value = 0;
-                    }
-                }
-                else
-                {
-                    set.Value = int.Parse(this._Value);
-                }
-                ConsoleClient.Instance.UpdateExchangeQuotation(set);
-                this._IsChange = false;
-            }
-        }
+        //private void QuotationProperty_SelectedPropertyItemChanged(object sender, RoutedPropertyChangedEventArgs<Xceed.Wpf.Toolkit.PropertyGrid.PropertyItemBase> e)
+        //{
+        //    if (this._IsChange)
+        //    {
+        //        InstrumentQuotation instrument = this._ChangeQuotation;
+        //        QuotePolicyDetailSet set = new QuotePolicyDetailSet();
+        //        set.ExchangeCode = instrument.ExchangeCode;
+        //        set.QoutePolicyId = instrument.QuotationPolicyId;
+        //        set.InstrumentId = instrument.InstruemtnId;
+        //        set.type = (QuotePolicyEditType)Enum.Parse(typeof(QuotePolicyEditType), this._DisplayName);
+        //        if (this._DisplayName == "PriceType")
+        //        {
+        //            set.Value = (int)Enum.Parse(typeof(PriceType), this._Value);
+        //        }
+        //        else if (this._DisplayName == "IsOriginHiLo")
+        //        {
+        //            if (bool.Parse(this._Value))
+        //            {
+        //                set.Value = 1;
+        //            }
+        //            else
+        //            {
+        //                set.Value = 0;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            set.Value = int.Parse(this._Value);
+        //        }
+        //        ConsoleClient.Instance.UpdateExchangeQuotation(set);
+        //        this._IsChange = false;
+        //    }
+        //}
 
         private void New_Click(object sender, RoutedEventArgs e)
         {
@@ -138,6 +140,17 @@ namespace ManagerConsole.UI
         private void Filter_Click(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        public string GetLayout()
+        {
+            string layout = "";
+            return layout;
+        }
+
+        public void SetLayout(XElement layout)
+        {
+            
         }
     }
 }

@@ -156,9 +156,7 @@ namespace ManagerService.DataAccess
             }
 
             string sql = "dbo.GetInitialDataForManager";
-            SqlParameter[] parameters = new SqlParameter[4];
-            //just test
-            SqlParameter userIdParameter = new SqlParameter("@userId", new Guid("D8DCAF50-5021-41F2-A848-80A540F980C1"));
+            SqlParameter[] parameters = new SqlParameter[3];
             SqlParameter accountParameter =  new SqlParameter("@accountDeafultStatus",accountDeafultStatus);
             SqlParameter instrumentParameter = new SqlParameter("@instrumentDeafuleStatus", instrumentDeafuleStatus);
             SqlParameter tableParameter = new SqlParameter("@dataPermissions", groupPermission);
@@ -166,10 +164,9 @@ namespace ManagerService.DataAccess
             tableParameter.TypeName = "[dbo].[DataPermissions]";
             
 
-            parameters[0] = userIdParameter;
-            parameters[1] = accountParameter;
-            parameters[2] = instrumentParameter;
-            parameters[3] = tableParameter;
+            parameters[0] = accountParameter;
+            parameters[1] = instrumentParameter;
+            parameters[2] = tableParameter;
             DataAccess.GetInstance(exchangeCode).ExecuteReader(sql, CommandType.StoredProcedure, delegate(SqlDataReader reader)
             {
                 try

@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ManagerConsole.UI"
              mc:Ignorable="d" MaximizeButtonVisibility="Collapsed" MinimizeButtonVisibility="Collapsed" CloseButtonVisibility="Collapsed"
-             Header="Create New Task" Width="910" d:DesignWidth="600" Height="800" StartupPosition="Center">
+             Header="Create New Task" Width="925" d:DesignWidth="600" Height="800" StartupPosition="Center">
     <Control.Resources>
         <Style TargetType="TextBlock">
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -25,11 +25,16 @@
             <Setter Property="BorderBrush" Value="Gray"/>
             <Setter Property="Background" Value="#FF282828"/>
         </Style>
+        <Style TargetType="CheckBox">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="15,0,15,0"/>
+        </Style>
     </Control.Resources>
     <Grid x:Name="LayOutGrid" Background="Black">
         <Grid.RowDefinitions>
             <RowDefinition Height="110"/>
             <RowDefinition Height="40"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="0.7*"/>
             <RowDefinition Height="80"/>
             <RowDefinition Height="Auto"/>
@@ -67,7 +72,7 @@
                                      InvalidValueBehavior="DisplayErrorMessage"
                                      Value="{Binding RunTime,Mode=TwoWay}"/>
                 <TextBlock Text="Action Type:" Margin="8,0,0,0"/>
-                <ComboBox x:Name="ActionTypeComboBox" Width="80" Height="22" Margin="8,0,0,0" Style="{StaticResource ComboBoxStyle}" SelectedItem="{Binding ActionType,Mode=TwoWay}"/>
+                <ComboBox x:Name="ActionTypeComboBox" Width="80" Height="22" Margin="8,0,0,0" Style="{StaticResource ComboBoxStyle}" SelectedItem="{Binding ActionType,Mode=TwoWay}" SelectionChanged="ActionTypeComboBox_SelectionChanged"/>
                 <TextBlock Text="Parameter Type:" Margin="8,0,0,0"/>
                 <ComboBox x:Name="SettingsTypeComboBox" Width="80" Height="22" Margin="8,0,0,0" Style="{StaticResource ComboBoxStyle}" SelectionChanged="SettingsTypeComboBox_SelectionChanged"/>
 
@@ -84,7 +89,38 @@
             </StackPanel>
         </Border>
 
-        <Border Grid.Row="2" Margin="3 5 3 0" Style="{StaticResource BorderStyle}">
+        <Border Height="35" x:Name="DailyTypeBorder" Style="{StaticResource BorderStyle}" Grid.Row="2" Margin="3 5 3 0" Visibility="Collapsed">
+            <StackPanel Orientation="Horizontal" Margin="2,0,0,0">
+                <TextBlock Text="Recur every:"/>
+                <TextBox x:Name="RecurDay" Text="{Binding RecurDay,Mode=TwoWay}" Width="50" Margin="8,0,0,0"/>
+                <TextBlock Text="天" Margin="5,0,0,0"/>
+
+                <TextBlock Text="Interval:" Margin="15,0,0,0"/>
+                <TextBox x:Name="IntervalTextBox" Text="{Binding Interval,Mode=TwoWay}" Width="50" Margin="8,0,0,0"/>
+                <TextBlock Text="秒" Margin="5,0,0,0"/>
+            </StackPanel>
+        </Border>
+        
+        <Border Height="35" x:Name="WeeklyTypeBorder" Style="{StaticResource BorderStyle}" Grid.Row="2" Margin="3 5 3 0" Visibility="Visible">
+            <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                <TextBlock Text="星期一:"/>
+                <CheckBox x:Name="MonCheckBox" IsChecked="{Binding WeekDays.IsMonDay}"/>
+                <TextBlock Text="星期二:"/>
+                <CheckBox x:Name="TuesCheckBox" IsChecked="{Binding WeekDays.IsTuesDay,Mode=TwoWay}"/>
+                <TextBlock Text="星期三:"/>
+                <CheckBox x:Name="WedCheckBox" IsChecked="{Binding WeekDays.IsWedDay,Mode=TwoWay}"/>
+                <TextBlock Text="星期四:"/>
+                <CheckBox x:Name="ThurCheckBox" IsChecked="{Binding WeekDays.IsThurDay,Mode=TwoWay}"/>
+                <TextBlock Text="星期五:"/>
+                <CheckBox x:Name="FriCheckBox" IsChecked="{Binding WeekDays.IsFriDay,Mode=TwoWay}"/>
+                <TextBlock Text="星期六:"/>
+                <CheckBox x:Name="SatCheckBox" IsChecked="{Binding WeekDays.IsSateDay,Mode=TwoWay}"/>
+                <TextBlock Text="星期日:"/>
+                <CheckBox x:Name="SunCheckBox" IsChecked="{Binding WeekDays.IsSunDay,Mode=TwoWay}"/>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="3" Margin="3 5 3 0" Style="{StaticResource BorderStyle}">
             <ig:XamGrid x:Name="_ParameterSettingGrid" Grid.Row="1" FontFamily="hei" FontWeight="Black" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto">
                 <ig:XamGrid.EditingSettings>
                     <ig:EditingSettings AllowEditing="Cell"/>
@@ -98,15 +134,15 @@
 
                 <!--Column Setting-->
                 <ig:XamGrid.Columns>
-                    <ig:TemplateColumn Key="IsSelected"  Width="50" HorizontalContentAlignment="Center" IsReadOnly="False" HeaderText="Select">
+                    <ig:TemplateColumn Key="IsSelected"  Width="80" HorizontalContentAlignment="Center" IsReadOnly="False" HeaderText="Select">
                         <ig:TemplateColumn.ItemTemplate>
                             <DataTemplate>
                                 <CheckBox IsChecked="{Binding IsSelected,Mode=TwoWay}" HorizontalAlignment="Center"/>
                             </DataTemplate>
                         </ig:TemplateColumn.ItemTemplate>
                     </ig:TemplateColumn>
-                    <ig:TextColumn Key="SettingParameterType" Width="100" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Setting Type" />
-                    <ig:TextColumn Key="ParameterKey" Width="120" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Parameter Name" />
+                    <ig:TextColumn Key="SettingParameterType" Width="120" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Setting Type" />
+                    <ig:TextColumn Key="ParameterKey" Width="150" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Parameter Name" />
                     <ig:TemplateColumn Key="SetValue" Width="110" HorizontalContentAlignment="Center" IsReadOnly="False" HeaderText="SetValue" IsResizable="False">
                         <ig:TemplateColumn.ItemTemplate>
                             <DataTemplate>
@@ -141,7 +177,7 @@
             </ig:XamGrid>
         </Border>
         
-        <StackPanel Grid.Row="3" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,32,0,0">
+        <StackPanel Grid.Row="4" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,32,0,0">
             <Button x:Name="OKButton" Content="OK" Height="23" Width="80" Click="OKButton_Click" />
             <Button x:Name="CancelButton" Content="Cancel" Height="23" Width="80" Margin="40,0,10,0" Click="CancelButton_Click" />
         </StackPanel>

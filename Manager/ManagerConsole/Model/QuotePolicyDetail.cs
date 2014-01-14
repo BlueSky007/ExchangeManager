@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CommonQuotePolicyDetail = Manager.Common.Settings.QuotePolicyDetail;
-using PriceType = Manager.Common.PriceType;
+using PriceType = iExchange.Common.PriceType;
 
 namespace ManagerConsole.Model
 {

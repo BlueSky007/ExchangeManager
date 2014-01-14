@@ -12,7 +12,7 @@ namespace ManagerConsole
     /// </summary>
     public partial class App : Application
     {
-        public static MainWindow MainWindow;
+        public static MainWindow MainFrameWindow;
 
         private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {

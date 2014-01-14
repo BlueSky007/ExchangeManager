@@ -8,18 +8,19 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using CommonParameter = Manager.Common.Settings.SystemParameter;
-using TransactionError = iExchange.Common.TransactionError;
-using OrderType = iExchange.Common.OrderType;
-using TransactionType = Manager.Common.TransactionType;
-using AccountInfor = Manager.Common.AccountInformation;
+using AccountInfor = iExchange.Common.Manager.AccountInformation;
 using OperationType = Manager.Common.OperationType;
 using ConfigParameters = Manager.Common.Settings.ConfigParameters;
-using CancelReason = iExchange.Common.CancelReason;
+using TransactionError = iExchange.Common.TransactionError;
 using System.Xml;
 using System.Collections.ObjectModel;
 using Manager.Common.LogEntities;
+using iExchange.Common.Manager;
+using OrderType = iExchange.Common.OrderType;
+using TransactionType = iExchange.Common.TransactionType;
+using CancelReason = iExchange.Common.CancelReason;
 
-namespace ManagerConsole
+namespace ManagerConsole.Model
 {
     public class OrderHandle
     {
@@ -59,23 +60,29 @@ namespace ManagerConsole
         public void OnOrderAccept(OrderTask orderTask)
         {
             SystemParameter systemParameter = this._App.InitDataManager.SettingsManager.SystemParameter;
+            ConfigParameters configParameter = this._App.InitDataManager.ConfigParameters[orderTask.ExchangeCode];
+            bool allowModifyOrderLot = configParameter.AllowModifyOrderLot;
             systemParameter.CanDealerViewAccountInfo = true;
-            bool isOK = OrderTaskManager.CheckDQOrder(orderTask, systemParameter);
+            bool isOK = OrderTaskManager.CheckDQOrder(orderTask, systemParameter, configParameter);
             isOK = true;
 
             if (isOK)
+            {
+                if (OrderTaskManager.IsNeedDQMaxMove(orderTask))
+                {
+                    this.Commit(orderTask, orderTask.SetPrice, (decimal)orderTask.Lot);
+                }
+                else
+                {
+                    this.Commit(orderTask, string.Empty, (decimal)orderTask.Lot);
+                }
+            }
+            else
             {
                 if (systemParameter.CanDealerViewAccountInfo)
                 {
                     this.ShowConfirmOrderFrm(systemParameter.CanDealerViewAccountInfo, orderTask, HandleAction.OnOrderAccept);
                     return;
-                }
-                else
-                {
-                    if (MessageBox.Show("Accept the order?", "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                    {
-                        this.Commit(orderTask, string.Empty, (decimal)orderTask.Lot);
-                    }
                 }
             }
         }
@@ -302,7 +309,7 @@ namespace ManagerConsole
             if (canDealerViewAccountInfo)
             {
                 //just test data
-                Manager.Common.AccountInformation accountInfor = ConsoleClient.Instance.GetAcountInfo(Guid.Empty);
+                AccountInformation accountInfor = ConsoleClient.Instance.GetAcountInfo(Guid.Empty);
                 this._App._ConfirmOrderDialogWin.ShowDialogWin(accountInfor, title, orderTask, action);
             }
             else
@@ -361,13 +368,9 @@ namespace ManagerConsole
             executePrice = string.IsNullOrEmpty(executePrice) ? orderTask.SetPrice:executePrice;
 
             if(orderTask.IsBuy == BuySell.Buy)
-            {
                 buyPrice = executePrice;
-            }
             else
-            {
                 sellPrice = executePrice;
-            }
 
             switch(orderTask.Transaction.Type)
             {
@@ -386,9 +389,9 @@ namespace ManagerConsole
                             executePrice = orderTemp.SetPrice;
 
                             if (orderTemp.BuySell == BuySell.Buy)
-                                buyPrice = (executePrice == null) ? "" : executePrice.ToString();
+                                buyPrice = (string.IsNullOrEmpty(executePrice)) ? "" : executePrice.ToString();
                             else
-                                sellPrice = (executePrice == null) ? "" : executePrice.ToString();
+                                sellPrice = (string.IsNullOrEmpty(executePrice)) ? "" : executePrice.ToString();
                             break;
                         }
                     }
@@ -494,11 +497,11 @@ namespace ManagerConsole
         //Call Back Event
         private void AcceptPlaceCallback(Transaction tran, TransactionError transactionError)
         {
-            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+            App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
                 if (transactionError == TransactionError.OK)
                 {
-                    tran.Phase = Manager.Common.Phase.Placed;
+                    tran.Phase = iExchange.Common.OrderPhase.Placed;
                     TranPhaseManager.UpdateTransaction(tran);
                 }
             });
@@ -506,7 +509,7 @@ namespace ManagerConsole
 
         private void RejectPlaceCallback(Transaction tran,TransactionError transactionError)
         {
-            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+            App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
                 if (transactionError == TransactionError.OK)
                 {
@@ -517,7 +520,7 @@ namespace ManagerConsole
 
         private void CancelTransactionCallback(Transaction tran,TransactionError transactionError)
         {
-            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+            App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
                 if (transactionError == TransactionError.OK)
                 {
@@ -543,11 +546,12 @@ namespace ManagerConsole
         }
 
         //Execute DQ Order/Lmt Order
-        private void ExecuteCallback(Transaction tran,TransactionError transactionError)
+        private void ExecuteCallback(Transaction tran, TransactionResult transactionResult)
         {
-            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+            App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
-                if (transactionError == TransactionError.OK)
+                if (transactionResult == null) return;
+                if (transactionResult.TransactionError == TransactionError.OK)
                 {
                     foreach (Order order in tran.Orders)
                     {
@@ -582,17 +586,8 @@ namespace ManagerConsole
                 }
             }
 
+            if (instanceOrders.Count <= 0) return;
             this._App.InitDataManager.ProcessInstantOrder.RemoveInstanceOrder(instanceOrders);
         }
-
-        //    foreach (OrderTask orderTask in instanceOrders)
-        //    {
-        //        if (this.OnExecuteOrderNotifyEvent != null)
-        //        {
-        //            this.OnExecuteOrderNotifyEvent(orderTask);
-        //        }
-        //        this._App.InitDataManager.OrderTaskModel.RemoveOrderTask(orderTask);
-        //    }
-        //}
     }
 }

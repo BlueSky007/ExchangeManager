@@ -5,16 +5,16 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:sys="clr-namespace:System;assembly=mscorlib" 
              mc:Ignorable="d" 
-             d:DesignHeight="125" d:DesignWidth="208" Background="White" >
+             d:DesignHeight="125" d:DesignWidth="208" >
     <Control.Resources>
-        <Style TargetType="TextBlock">
+        <!--<Style TargetType="TextBlock">
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
         <Style TargetType="TextBox">
             <Setter Property="Height" Value="20" />
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="TextAlignment" Value="Right"/>
-        </Style>
+        </Style>-->
         <ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}" x:Key="OutOfRangeTypes">
             <ObjectDataProvider.MethodParameters>
                 <x:Type TypeName="cm:OutOfRangeType" />

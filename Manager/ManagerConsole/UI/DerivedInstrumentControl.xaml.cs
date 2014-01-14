@@ -31,7 +31,6 @@ namespace ManagerConsole.UI
         {
             InitializeComponent();
             this.Loaded += DerivedInstrumentControl_Loaded;
-            Instrument1ComboBox.ItemsSource = VmQuotationManager.Instance.Instruments;
             VmQuotationManager.Instance.Instruments.CollectionChanged += Instruments_CollectionChanged;
         }
 
@@ -49,6 +48,7 @@ namespace ManagerConsole.UI
         private void DerivedInstrumentControl_Loaded(object sender, RoutedEventArgs e)
         {
             this.Instruments_CollectionChanged(null, null);
+            Instrument1ComboBox.ItemsSource = VmQuotationManager.Instance.Instruments;
         }
 
         private void Instrument2ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

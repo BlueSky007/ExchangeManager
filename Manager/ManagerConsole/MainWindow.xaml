@@ -12,7 +12,7 @@
                 <RowDefinition Height="240*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <ig:XamMenu Grid.Row="0" x:Name="MainMenu" Background="Transparent">
+            <ig:XamMenu Grid.Row="0" x:Name="MainMenu" >
                 <ig:XamMenuItem Header="File">
                     <ig:XamMenuItem Header="Load Layout" Click="XamMenuItem_Click"/>
                     <ig:XamMenuItem Header="Change Password" Click="ChangePassword_Click"/>
@@ -28,11 +28,11 @@
                     <ig:XamMenuItem x:Name="ChangeThemeMenuItem" Header="Change Theme" Click="ChangeTheme_Click" />
                 </ig:XamMenuItem>
             </ig:XamMenu>
-            <igWPF:XamDockManager Theme="IGTheme" x:Name="DockManager" Grid.Row="1">
+            <igWPF:XamDockManager x:Name="DockManager" Grid.Row="1">
                 <igWPF:XamDockManager.Panes>
                     <igWPF:SplitPane igWPF:XamDockManager.InitialLocation="DockedLeft">
-                        <igWPF:ContentPane Name="FunctionTreePane" Header="Functions" >
-                            <TreeView x:Name="FunctionTree" MinWidth="200"/>
+                        <igWPF:ContentPane Name="FunctionTreePane" Header="Functions"  >
+                            <TreeView x:Name="FunctionTree" MinWidth="200" Margin="-1" />
                         </igWPF:ContentPane>
                     </igWPF:SplitPane>
                     <igWPF:SplitPane igWPF:XamDockManager.InitialLocation="FloatingOnly" igWPF:XamDockManager.FloatingLocation="300,300">
@@ -41,9 +41,10 @@
                                 <UI:AbnormalQuotationProcessControl x:Name="AbnormalQuotationProcessControl" />
                             </igWPF:ContentPane.Content>
                         </igWPF:ContentPane>
+                        
                     </igWPF:SplitPane>
                 </igWPF:XamDockManager.Panes>
-                <igWPF:DocumentContentHost BorderThickness="0">
+                <igWPF:DocumentContentHost BorderThickness="0" >
                 </igWPF:DocumentContentHost>
             </igWPF:XamDockManager>
             <MediaElement x:Name="_Media" Volume="1" Grid.Row="2"/>

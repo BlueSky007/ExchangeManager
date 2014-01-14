@@ -1,10 +1,13 @@
-﻿using Manager.Common;
+﻿using iExchange.Common;
+using iExchange.Common.Manager;
+using Manager.Common;
 using Manager.Common.Settings;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using OrderType = iExchange.Common.OrderType;
+using PriceType = iExchange.Common.PriceType;
 
 namespace ManagerService.DataAccess
 {
@@ -60,7 +63,7 @@ namespace ManagerService.DataAccess
                 settingSet.TradePolicyDetails = InitializationHelper.CreateArray<TradePolicyDetail>(dr, Initialize);
                 settingSet.Instruments = InitializationHelper.CreateArray<Instrument>(dr, Initialize);
                 dr.NextResult();
-                settingSet.OverridedQuotations = InitializationHelper.CreateArray<OverridedQuotation>(dr, Initialize);
+                settingSet.OverridedQuotations = InitializationHelper.CreateArray<Manager.Common.Settings.OverridedQuotation>(dr, Initialize);
             }
             catch (Exception ex)
             {
@@ -117,7 +120,9 @@ namespace ManagerService.DataAccess
             account.Name = dr.GetItemValue<string>("Name", null);
             account.CustomerId = (Guid)dr["CustomerID"];
             account.TradePolicyId = (Guid)dr["TradePolicyID"];
-            account.Type = (AccountType)dr["Type"];
+            account.GroupId = (Guid)dr["GroupId"];
+            account.GroupCode = (string)dr["GroupCode"];
+            account.AccountType = (AccountType)dr["Type"];
         }
 
         private static void Initialize(QuotePolicy quotePolicy, SqlDataReader dr)
@@ -226,8 +231,8 @@ namespace ManagerService.DataAccess
             instrument.IsAutoEnablePrice = (bool)dr["IsAutoEnablePrice"];
             instrument.NextDayOpenTime = dr.GetItemValue<DateTime?>("NextDayOpenTime", null);
             instrument.MOCTime = dr.GetItemValue<DateTime?>("MOCTime", null);
-            instrument.DayOpenTime = dr.GetItemValue<DateTime?>("DayOpenTime", null);
-            instrument.DayCloseTime = dr.GetItemValue<DateTime?>("DayCloseTime", null);
+            instrument.DayOpenTime = DateTime.Parse(dr["DayOpenTime"].ToString());
+            instrument.DayCloseTime =  DateTime.Parse(dr["DayCloseTime"].ToString());
             instrument.AutoDQDelay = (short)dr["AutoDQDelay"];
             instrument.SummaryGroupId = dr.GetItemValue<Guid?>("SummaryGroupId", null);
             instrument.SummaryGroupCode = dr.GetItemValue<string>("SummaryGroupCode", null);
@@ -242,7 +247,7 @@ namespace ManagerService.DataAccess
         {
             order.Id = (Guid)dr["ID"];
             order.Code = (string)dr["Code"];
-            order.Phase = dr["Phase"].ConvertToEnumValue<Phase>();
+            order.Phase = dr["Phase"].ConvertToEnumValue<OrderPhase>();
             order.TransactionId = (Guid)dr["TransactionId"];
             order.TransactionCode = (string)dr["TransactionCode"];
             order.TransactionType = dr["TransactionType"].ConvertToEnumValue<TransactionType>();
@@ -276,7 +281,7 @@ namespace ManagerService.DataAccess
             order.BlotterCode = (string)dr["BlotterCode"];
         }
 
-        private static void Initialize(OverridedQuotation overridedQuotations, SqlDataReader dr)
+        private static void Initialize(Manager.Common.Settings.OverridedQuotation overridedQuotations, SqlDataReader dr)
         {
             overridedQuotations.InstrumentId = (Guid)dr["InstrumentID"];
             overridedQuotations.QuotePolicyId = (Guid)dr["QuotePolicyID"];

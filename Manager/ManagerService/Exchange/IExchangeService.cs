@@ -23,16 +23,13 @@ namespace ManagerService.Exchange
     [ServiceContract]
     public interface IStateServer
     {
-        [OperationContract(IsOneWay = true)]
-        void SetQuotation(string price);
-
         [OperationContract]
         bool SwitchPriceState(List<Tuple<Guid, bool?, bool?>> tuples);  // Tuple: InstrumentId,IsPriceEnabled,IsAutoEnablePrice
 
         [OperationContract]
         void Update(Token token, XmlNode udpateNode);
 
-        [OperationContract]
+        [OperationContract(IsOneWay = true)]
         void BroadcastQuotation(Token token, OriginQuotation[] originQs, OverridedQuotation[] overridedQs);
 
         [OperationContract]
@@ -48,8 +45,15 @@ namespace ManagerService.Exchange
         TransactionError CancelPlace(Token token, Guid tranID);
 
         [OperationContract]
-        TransactionError Execute(Token token, Guid tranID, string buyPrice, string sellPrice, string lot, Guid executedOrderID);
+        TransactionResult Execute(Token token, Guid tranID, string buyPrice, string sellPrice, string lot, Guid executedOrderID);
 
+        [OperationContract]
+        void ResetHit(Token token, Guid[] orderIDs);
 
+        [OperationContract]
+        bool UpdateInstrument(Token token, ParameterUpdateTask parameterUpdateTask);
+
+        [OperationContract]
+        AccountInformation GetAcountInfo(Token token, Guid tranID);
     }
 }

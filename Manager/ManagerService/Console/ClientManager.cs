@@ -6,6 +6,7 @@ using System.Text;
 using System.Diagnostics;
 using Manager.Common;
 using ManagerService.DataAccess;
+using System.Xml;
 
 namespace ManagerService.Console
 {
@@ -37,6 +38,21 @@ namespace ManagerService.Console
             }
             this._Clients.Add(client.SessionId, client);
             return client;
+        }
+
+        public void UpdateGroup(string exchangeCode,XmlNode node)
+        {
+            string type = node.FirstChild.FirstChild.Attributes["Type"].Value;
+            Guid id = Guid.Parse(node.FirstChild.FirstChild.Attributes["Id"].Value);
+            List<Guid> memberIds = new List<Guid>();
+            foreach (XmlNode child in node.FirstChild.LastChild.ChildNodes)
+            {
+                memberIds.Add(Guid.Parse(child.Attributes["Id"].Value));
+            }
+            foreach (Client client in this._Clients.Values)
+            {
+                client.UpdateDataPermission(exchangeCode, type, id, memberIds);
+            }
         }
 
         public void UpdatePermission(RoleData role)

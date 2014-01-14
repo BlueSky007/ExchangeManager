@@ -90,6 +90,10 @@ namespace ManagerService.Quotation
         {
             List<GeneralQuotation> quotations = new List<GeneralQuotation>();
             this._DerivativeController.Derive(quotation.Quotation, quotations);
+            for (int i = 0; i < quotations.Count; i++)
+            {
+                quotations[i].OriginCode = this._ConfigMetadata.Instruments[quotations[i].InstrumentId].Code;
+            }
             quotations.Add(quotation.Quotation);
 
             // adjust quotation according to adjuestment on instrument

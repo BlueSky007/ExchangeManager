@@ -183,7 +183,7 @@ namespace ManagerConsole.ViewModel
             {
                 this._BidScheduleId = null;
             }
-            App.MainWindow.Dispatcher.BeginInvoke((Action<string>)delegate(string propName)
+            App.MainFrameWindow.Dispatcher.BeginInvoke((Action<string>)delegate(string propName)
             {
                 if(propName.Equals("Ask"))
                 {

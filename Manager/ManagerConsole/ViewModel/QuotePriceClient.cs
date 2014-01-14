@@ -1,5 +1,6 @@
 ﻿using iExchange.Common.Manager;
 using Manager.Common;
+using Manager.Common.QuotationEntities;
 using ManagerConsole.Helper;
 using ManagerConsole.Model;
 using System;
@@ -129,6 +130,7 @@ namespace ManagerConsole.ViewModel
         private string _ExchangeCode;
         private Guid _InstrumentId;
         private InstrumentClient _Instrument;
+        private ExchangeQuotation _ExchangeQuotation;
         private decimal _BuyLot = decimal.Zero;
         private decimal _SellLot = decimal.Zero;
         private decimal _Lot = decimal.Zero;
@@ -141,8 +143,10 @@ namespace ManagerConsole.ViewModel
         private DateTime _TimeStamp;
         #endregion
 
-        public QuotePriceClient(QuoteMessage quoteMessage, int waitTimes, InstrumentClient instrument, Customer customer)
+        public QuotePriceClient(QuoteMessage quoteMessage, int waitTimes, InstrumentClient instrument, Customer customer, ExchangeQuotation quotation)
         {
+            this._ExchangeQuotation = quotation;
+            this._Origin = quotation.Origin;
             this._CustomerClient = customer;
             this._Instrument = instrument;
             this._ExchangeCode = quoteMessage.ExchangeCode;
@@ -190,6 +194,16 @@ namespace ManagerConsole.ViewModel
         {
             get { return this._InstrumentId; }
             set { this._InstrumentId = value; }
+        }
+
+        public ExchangeQuotation ExchangeQuotation
+        {
+            get { return this._ExchangeQuotation; }
+            set
+            {
+                this._ExchangeQuotation = value;
+                this.OnPropertyChanged("ExchangeQuotation");
+            }
         }
 
         public InstrumentClient Instrument

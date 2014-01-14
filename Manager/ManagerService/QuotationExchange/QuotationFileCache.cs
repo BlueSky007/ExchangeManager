@@ -256,7 +256,7 @@ namespace ManagerService.QuotationExchange
         {
             try
             {
-                AppDebug.LogEvent("QuotationServer", string.Format("begin QuotationFileCache.SaveMemoryToDatabase, Queue.Count={0}", this._Queue.Count), EventLogEntryType.Information);
+                //AppDebug.LogEvent("QuotationServer", string.Format("begin QuotationFileCache.SaveMemoryToDatabase, Queue.Count={0}", this._Queue.Count), EventLogEntryType.Information);
                 lock (this._QueueLock)
                 {
                     while (this._Queue.Count > 0)
@@ -276,7 +276,7 @@ namespace ManagerService.QuotationExchange
                         }
                     }
                 }
-                AppDebug.LogEvent("QuotationServer", string.Format("end QuotationFileCache.SaveMemoryToDatabase, Queue.Count={0}", this._Queue.Count), EventLogEntryType.Information);
+                //AppDebug.LogEvent("QuotationServer", string.Format("end QuotationFileCache.SaveMemoryToDatabase, Queue.Count={0}", this._Queue.Count), EventLogEntryType.Information);
                 return true;
             }
             catch (Exception exception)

@@ -20,13 +20,17 @@ namespace ManagerService.Exchange
         private ExchangeSystemSetting _ExchangeSystemSetting;
         private QuotationServer _QuotationServer;
         private RelayEngine<Command> _CommandRelayEngine;
+        private RelayEngine<List<GeneralQuotation>> _QuotationRelayEngine;
 
         private ConnectionState _ConnectionState = ConnectionState.Unknown;
+        private ConnectionManager _ConnectionManager;
 
-        public ExchangeSystem(ExchangeSystemSetting exchangeSystemSetting)
+        public ExchangeSystem(ExchangeSystemSetting exchangeSystemSetting, ConnectionManager connectionManager)
         {
             this._ExchangeSystemSetting = exchangeSystemSetting;
-            this._CommandRelayEngine = new RelayEngine<Command>(this.Dispatch, this.HandlEngineException);
+            this._ConnectionManager = connectionManager;
+            this._CommandRelayEngine = new RelayEngine<Command>(this.Dispatch, this.HandleEngineException);
+            this._QuotationRelayEngine = new RelayEngine<List<GeneralQuotation>>(this.SetQuotation, this.HandleQuotationRelayEngineException);
             this._QuotationServer = new QuotationServer(exchangeSystemSetting);
         }
 
@@ -37,10 +41,8 @@ namespace ManagerService.Exchange
         public void Channel_Broken(object sender, EventArgs e)
         {
             this._ConnectionState = ConnectionState.Disconnected;
-        }
-
-        public void Initailize()
-        {
+            this._ConnectionManager.NotifyExchangeToConnect(this.StateServerUrl, this.ExchangeCode);
+            Logger.AddEvent(TraceEventType.Warning, "ExchangeSystem Channel_Broken of ExchangeCode:{0} sessionId:{1}", ExchangeCode, this._SessionId);
         }
 
         public void Replace(string sessionId, IStateServer stateServer)
@@ -49,16 +51,23 @@ namespace ManagerService.Exchange
             this._StateServer = stateServer;
             this._ConnectionState = ConnectionState.Connected;
             this._QuotationServer.SetStateServer(stateServer);
+            this._QuotationRelayEngine.Resume();
+            Logger.AddEvent(TraceEventType.Warning, "ExchangeCode:{0},Connection to StateSever established. sessionId:{1}", ExchangeCode, this._SessionId);
         }
 
         public void AddCommand(Command command)
         {
             this._CommandRelayEngine.AddItem(command);
         }
-
-        public void SetQuotation(List<GeneralQuotation> quotations)
+        
+        public void AddQuotation(List<GeneralQuotation> quotations)
         {
-            // TODO: Override Quotation here.
+            this._QuotationRelayEngine.AddItem(quotations);
+        }
+
+        private bool SetQuotation(List<GeneralQuotation> quotations)
+        {
+            if (this._StateServer == null) return false;
             bool isSucceed = false;
             iExchange.Common.OriginQuotation[] originQs = null;
             iExchange.Common.OverridedQuotation[] overridedQs = null;
@@ -66,7 +75,12 @@ namespace ManagerService.Exchange
             try
             {
                 isSucceed = this._QuotationServer.SetQuotation(token, quotations, out originQs, out overridedQs);
-                if (overridedQs.Length>0)
+                if (isSucceed && (originQs != null || overridedQs != null))
+                {
+                    token.AppType = AppType.QuotationServer;
+                    this._StateServer.BroadcastQuotation(token, originQs, overridedQs);
+                }
+                if (overridedQs != null && overridedQs.Length > 0)
                 {
                     OverridedQuotationMessage message = new OverridedQuotationMessage();
                     message.ExchangeCode = this.ExchangeCode;
@@ -76,9 +90,10 @@ namespace ManagerService.Exchange
             }
             catch (Exception e)
             {
-                AppDebug.LogEvent("StateServer", e.ToString(), EventLogEntryType.Error);
+                Logger.TraceEvent(TraceEventType.Error, "ExchangeSystem.SetQuotation\r\n{0}", e.ToString());
+                return false;
             }
-            return;
+            return true;
         }
 
         public void SwitchPriceState(string instrumentCode, bool enable)
@@ -109,6 +124,10 @@ namespace ManagerService.Exchange
         {
             try
             {
+                if (command.GetType() == typeof(ChangeGroupCommand))
+                {
+                     
+                }
                 Message message = CommandConvertor.Convert(this.ExchangeCode, command);
                 MainService.ClientManager.Dispatch(message);
                 return true;
@@ -143,39 +162,106 @@ namespace ManagerService.Exchange
         public TransactionError AcceptPlace(Guid transactionId)
         {
             TransactionError errorCode = TransactionError.OK;
-            Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
-            errorCode = this._StateServer.AcceptPlace(token,transactionId);
+            try
+            {
+                Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
+                errorCode = this._StateServer.AcceptPlace(token, transactionId);
+            }
+            catch (Exception ex)
+            {
+                errorCode = TransactionError.NoLinkedServer;
+                Logger.TraceEvent(TraceEventType.Error, "ExchangeSystem.AcceptPlace Error:\r\n" + ex.ToString());
+            }
             return errorCode;
         }
 
         public TransactionError CancelPlace(Guid transactionId, CancelReason cancelReason)
         {
             TransactionError errorCode = TransactionError.OK;
-            Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
-            errorCode = this._StateServer.CancelPlace(token,transactionId);
+            try
+            {
+                Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
+                errorCode = this._StateServer.CancelPlace(token, transactionId);
+            }
+            catch (Exception ex)
+            {
+                errorCode = TransactionError.NoLinkedServer;
+                Logger.TraceEvent(TraceEventType.Error, "ExchangeSystem.CancelPlace Error:\r\n" + ex.ToString());
+            }
             return errorCode;
         }
 
         public TransactionError Cancel(Guid transactionId, CancelReason cancelReason)
         {
             TransactionError errorCode = TransactionError.OK;
+            try
+            {
             Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
             TransactionError transactionError = this._StateServer.Cancel(token, transactionId, cancelReason);
+            }
+            catch (Exception ex)
+            {
+                errorCode = TransactionError.NoLinkedServer;
+                Logger.TraceEvent(TraceEventType.Error, "ExchangeSystem.Cancel Error:\r\n" + ex.ToString());
+            }
             return errorCode;
         }
 
-        public TransactionError Execute(Guid transactionId, string buyPrice, string sellPrice, decimal lot, Guid executedOrderGuid)
+        public TransactionResult Execute(Guid transactionId, string buyPrice, string sellPrice, decimal lot, Guid executedOrderGuid)
         {
-            TransactionError errorCode = TransactionError.OK;
-            Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
-            errorCode = this._StateServer.Execute(token, transactionId, buyPrice, sellPrice, lot.ToString(), executedOrderGuid);
-            return errorCode;
+            TransactionResult tranResult = null;
+            try
+            {
+                Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
+                tranResult = this._StateServer.Execute(token, transactionId, buyPrice, sellPrice, lot.ToString(), executedOrderGuid);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "ExchangeSystem.Execute Error:\r\n" + ex.ToString());
+            }
+            return tranResult;
         }
 
-        public bool UpdateInstrument(XmlNode instruments)
+        public void ResetHit(Guid[] orderIDs)
         {
-            //bool isOk = this._StateServer.UpdateInstrument(token, instruments);
-            return true;
+            try
+            {
+                Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
+                this._StateServer.ResetHit(token, orderIDs);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "ExchangeSystem.ResetHit Error:\r\n" + ex.ToString());
+            }
+        }
+
+        public bool UpdateInstrument(ParameterUpdateTask parameterUpdateTask)
+        {
+            try
+            {
+                Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
+                bool isOk = this._StateServer.UpdateInstrument(token, parameterUpdateTask);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "ExchangeSystem.UpdateInstrument Error:\r\n" + ex.ToString());
+                return false;
+            }
+        }
+
+        public AccountInformation GetAcountInfo(Guid tranID)
+        {
+            try
+            {
+                Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
+                return this._StateServer.GetAcountInfo(token, tranID);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "ExchangeSystem.GetAcountInfo Error:\r\n" + ex.ToString());
+                return null;
+            }
         }
         #endregion
 
@@ -200,10 +286,14 @@ namespace ManagerService.Exchange
             return NetGroupManager.GetOrderSummary(accountType);
         }
         #endregion
-        private void HandlEngineException(Exception ex)
+        private void HandleEngineException(Exception ex)
         {
-            Logger.TraceEvent(TraceEventType.Error, "ExchangeSystem.HandlEngineException RelayEngine stopped:\r\n" + ex.ToString());
+            Logger.TraceEvent(TraceEventType.Error, "ExchangeSystem.HandlEngineException CommandRelayEngine stopped:\r\n" + ex.ToString());
         }
-        
+
+        private void HandleQuotationRelayEngineException(Exception ex)
+        {
+            Logger.TraceEvent(TraceEventType.Error, "ExchangeManager.HandleQuotationRelayEngineException QuotationRelayEngine stopped:\r\n" + ex.ToString());
+        }
     }
 }

@@ -6,7 +6,7 @@
              xmlns:ig="http://schemas.infragistics.com/xaml"
              xmlns:igPrim="http://schemas.infragistics.com/xaml/primitives"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="600">
+             d:DesignHeight="600" d:DesignWidth="600" >
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibility"/>
         <Style x:Key="MetroButton" TargetType="{x:Type Button}">
@@ -137,15 +137,15 @@
                 <Button x:Name="Cancel" Content="Cancel" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="Cancel_Click" Margin="20,0,0,0"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Grid.Row="1">
-                <Label Content="RoleName" Width="AUTO" HorizontalContentAlignment="Left" VerticalContentAlignment="Center"/>
+                <TextBlock Text="RoleName:" Width="AUTO" FontSize="13" VerticalAlignment="Center" />
                 <TextBox x:Name="RoleName" IsReadOnly="True" Width="200" Height="25" Margin="30,0,0,0" />
             </StackPanel>
-            <igWPF:XamDockManager Theme="IGTheme" Grid.Row="2" AllowDrop="True" BorderThickness="0" Margin="0" Padding="0">
+            <igWPF:XamDockManager x:Name="permissionDock" Grid.Row="2" Foreground="Black" AllowDrop="True" BorderThickness="0" Margin="0" Padding="0">
                 <igWPF:DocumentContentHost BorderThickness="0" Margin="0" Padding="0">
                     <igWPF:SplitPane>
                         <igWPF:TabGroupPane TabStripPlacement="Top" BorderThickness="0" Margin="0" Padding="0">
-                            <igWPF:ContentPane Header="FunctionPermission" AllowClose="False" AllowDockingFloating="True" AllowDocking="True" AllowDrop="True" BorderThickness="0" Margin="0" Padding="0">
-                                <ig:XamGrid x:Name="FunctionPermission" ColumnWidth="*" ScrollViewer.CanContentScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Visible" AutoGenerateColumns="False"  Margin="0,0,0,0"  Height="AUTO" BorderThickness="0">
+                            <igWPF:ContentPane x:Name="FunctionPane" Header="FunctionPermission" AllowClose="False" AllowDockingFloating="True" AllowDocking="True" AllowDrop="True" BorderThickness="0" Margin="0" Padding="0">
+                                <ig:XamGrid x:Name="FunctionPermission" ColumnWidth="*" ScrollViewer.CanContentScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Visible" AutoGenerateColumns="False"  Margin="0,0,0,0"  Height="AUTO" BorderThickness="0" >
                                     <ig:XamGrid.ColumnResizingSettings>
                                         <ig:ColumnResizingSettings AllowCellAreaResizing="False" AllowColumnResizing="Disabled" AllowDoubleClickToSize="False" AllowMultipleColumnResize="False" />
                                     </ig:XamGrid.ColumnResizingSettings>
@@ -240,7 +240,7 @@
                                     </ig:XamGrid.Columns>
                                 </ig:XamGrid>
                             </igWPF:ContentPane>
-                            <igWPF:ContentPane Header="DataPermission" AllowClose="False" AllowDockingFloating="True" AllowDocking="True" AllowDrop="True" BorderThickness="0" Margin="0" Padding="0">
+                            <igWPF:ContentPane x:Name="DataPane" Header="DataPermission" AllowClose="False" AllowDockingFloating="True" AllowDocking="True" AllowDrop="True" BorderThickness="0" Margin="0" Padding="0">
                                 <ig:XamGrid x:Name="DataPermission" ColumnWidth="*" ScrollViewer.CanContentScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Visible" AutoGenerateColumns="False"  Margin="0,0,0,0"  Height="AUTO" BorderThickness="0">
                                     <ig:XamGrid.ColumnResizingSettings>
                                         <ig:ColumnResizingSettings AllowCellAreaResizing="False" AllowColumnResizing="Disabled" AllowDoubleClickToSize="False" AllowMultipleColumnResize="False" />
@@ -563,7 +563,7 @@
                 </ig:XamGrid>
             </Grid>
         </Grid>-->
-        <ig:XamGrid x:Name="RoleGrid" Grid.Column="0" Grid.RowSpan="2" CellClicked="RoleGrid_CellClicked" >
+        <ig:XamGrid x:Name="RoleGrid" Grid.Column="0" Grid.RowSpan="2" CellClicked="RoleGrid_CellClicked"  >
             <ig:XamGrid.SelectionSettings>
                 <ig:SelectionSettings CellClickAction="SelectRow" CellSelection="Single" ColumnSelection="Single" RowSelection="Single"></ig:SelectionSettings>
             </ig:XamGrid.SelectionSettings>

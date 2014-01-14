@@ -44,7 +44,7 @@ namespace ManagerConsole.ViewModel
                 return true;
             }
             bool isSuccess = false;
-            isSuccess = this.Convert(App.MainWindow.InitDataManager.ExchangeQuotations);
+            isSuccess = this.Convert(App.MainFrameWindow.InitDataManager.ExchangeQuotations);
             
             IsInitData = isSuccess;
             return isSuccess;
@@ -129,7 +129,7 @@ namespace ManagerConsole.ViewModel
                 switch (set.type)
                 {
                     case QuotePolicyEditType.PriceType:
-                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).PriceType = (Manager.Common.PriceType)set.Value;
+                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).PriceType = (PriceType)set.Value;
                         break;
                     case QuotePolicyEditType.AutoAdjustPoints:
                         this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).AutoAdjustPoints = set.Value;
@@ -210,7 +210,7 @@ namespace ManagerConsole.ViewModel
         private string _Low;
         private string _Origin;
         private string _TimeSpan;
-        private Manager.Common.PriceType _PriceType;
+        private PriceType _PriceType;
         private int _AutoAdjustPoints1;
         private int _AutoAdjustPoints2;
         private int _AutoAdjustPoints3;
@@ -224,6 +224,8 @@ namespace ManagerConsole.ViewModel
         private bool _IsOriginHiLo;
         private PriceTrend _AskTrend;
         private PriceTrend _BidTrend;
+        private string _BidSchedulerId;
+        private string _AskSchedulerId;
 
         private Scheduler _Scheduler = new Scheduler();
 
@@ -369,7 +371,7 @@ namespace ManagerConsole.ViewModel
         //public string TotalVolume { get; set; }
         //public string Volume { get; set; }
         [Category("Quotation")]
-        public Manager.Common.PriceType PriceType
+        public PriceType PriceType
         {
             get { return _PriceType; }
             set
@@ -539,16 +541,20 @@ namespace ManagerConsole.ViewModel
                 double newPrice = double.Parse(newValue);
                 if (propertyName == "bid")
                 {
+                    if (!string.IsNullOrEmpty(this._BidSchedulerId))
+                    {
+                        this._Scheduler.Remove(this._BidSchedulerId);
+                    }
                     oldPrice = double.Parse(this._Bid);
                     if (newPrice > oldPrice)
                     {
                         this._BidTrend = PriceTrend.Up;
-                        this._Scheduler.Add(this.ResetTrendState, "Bid", DateTime.Now.AddSeconds(2));
+                        this._BidSchedulerId = this._Scheduler.Add(this.ResetTrendState, "Bid", DateTime.Now.AddSeconds(2));
                     }
                     else if (newPrice < oldPrice)
                     {
                         this._BidTrend = PriceTrend.Down;
-                        this._Scheduler.Add(this.ResetTrendState, "Bid", DateTime.Now.AddSeconds(2));
+                        this._BidSchedulerId = this._Scheduler.Add(this.ResetTrendState, "Bid", DateTime.Now.AddSeconds(2));
                     }
                     else
                     {
@@ -558,16 +564,20 @@ namespace ManagerConsole.ViewModel
                 }
                 else
                 {
+                    if (!string.IsNullOrEmpty(this._AskSchedulerId))
+                    {
+                        this._Scheduler.Remove(this._AskSchedulerId);
+                    }
                     oldPrice = double.Parse(this._Ask);
                     if (newPrice > oldPrice)
                     {
                         this._AskTrend = PriceTrend.Up;
-                        this._Scheduler.Add(this.ResetTrendState, "Ask", DateTime.Now.AddSeconds(2));
+                        this._AskSchedulerId = this._Scheduler.Add(this.ResetTrendState, "Ask", DateTime.Now.AddSeconds(2));
                     }
                     else if (newPrice < oldPrice)
                     {
                         this._AskTrend = PriceTrend.Down;
-                        this._Scheduler.Add(this.ResetTrendState, "Ask", DateTime.Now.AddSeconds(2));
+                        this._AskSchedulerId = this._Scheduler.Add(this.ResetTrendState, "Ask", DateTime.Now.AddSeconds(2));
                     }
                     else
                     {
@@ -580,7 +590,7 @@ namespace ManagerConsole.ViewModel
 
         private void ResetTrendState(object sender, object actionArgs)
         {
-            App.MainWindow.Dispatcher.BeginInvoke((Action<string>)delegate(string propName)
+            App.MainFrameWindow.Dispatcher.BeginInvoke((Action<string>)delegate(string propName)
             {
                 if (propName.Equals("Ask"))
                 {

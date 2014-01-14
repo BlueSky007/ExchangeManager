@@ -6,9 +6,10 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using TransactionError = iExchange.Common.TransactionError;
-using CommonTransaction = Manager.Common.Transaction;
-using CommonOrder = Manager.Common.Order;
-using CommonOrderRelation = Manager.Common.OrderRelation;
+using CommonTransaction = iExchange.Common.Manager.Transaction;
+using CommonOrder = iExchange.Common.Manager.Order;
+using CommonOrderRelation = iExchange.Common.Manager.OrderRelation;
+using OverridedQuotationMessage = Manager.Common.OverridedQuotationMessage;
 using PlaceMessage = Manager.Common.PlaceMessage;
 using QuoteMessage = Manager.Common.QuoteMessage;
 using HitMessage = Manager.Common.HitMessage;
@@ -19,11 +20,12 @@ using ManagerConsole.Helper;
 using SettingSet = Manager.Common.SettingSet;
 using InitializeData = Manager.Common.InitializeData;
 using ConfigParameters = Manager.Common.Settings.ConfigParameters;
-using Phase = Manager.Common.Phase;
+using Phase = iExchange.Common.OrderPhase;
 using OrderRelationType = Manager.Common.OrderRelationType;
+using OverridedQuotation = iExchange.Common.OverridedQuotation;
 using Manager.Common.QuotationEntities;
 
-namespace ManagerConsole
+namespace ManagerConsole.ViewModel
 {
     public class InitDataManager
     {
@@ -161,8 +163,6 @@ namespace ManagerConsole
         public InitDataManager()
         {
             this.SettingsManager = new SettingsManager();
-            this._Accounts = TestData.GetInitializeTestDataForAccount();
-            this._Instruments = TestData.GetInitializeTestDataForInstrument();
             this._TranPhaseManager = new TranPhaseManager(this);
         }
 
@@ -228,21 +228,52 @@ namespace ManagerConsole
         #endregion
 
         #region Received Notify Convert
+
+        public void ProcessOverridedQuotation(OverridedQuotationMessage overridedQuotationMessage)
+        {
+            string exchangeCode = overridedQuotationMessage.ExchangeCode;
+            if(!this._ExchangeQuotations.ContainsKey(exchangeCode))return;
+
+            List<ExchangeQuotation> exchangeQuotations = this._ExchangeQuotations[exchangeCode];
+            foreach (OverridedQuotation quotation in overridedQuotationMessage.OverridedQs)
+            {
+                ExchangeQuotation exchangeQuotation = exchangeQuotations.SingleOrDefault(P => P.QuotationPolicyId == quotation.QuotePolicyID && P.InstruemtnId == quotation.InstrumentID);
+
+                if (exchangeQuotation == null) continue;
+                exchangeQuotation.Ask = quotation.Ask;
+                exchangeQuotation.Bid = quotation.Bid;
+                exchangeQuotation.High = quotation.High;
+                exchangeQuotation.Low = quotation.Low;
+                exchangeQuotation.Origin = quotation.Origin;
+
+                //Update DQ UI Price
+                if (this._ProcessInstantOrder.InstantOrderForInstrument != null)
+                {
+                    this._ProcessInstantOrder.InstantOrderForInstrument.UpdateOverridedQuotation(exchangeQuotation);
+                }
+            }
+        }
         
         public void ProcessQuoteMessage(QuoteMessage quoteMessage)
         {
-            int waiteTime = this.SettingsManager.GetSettingsParameter(quoteMessage.ExchangeCode).ParameterSetting.EnquiryWaitTime;
+            int waiteTime = 50; // this.SettingsManager.GetSettingsParameter(quoteMessage.ExchangeCode).ParameterSetting.EnquiryWaitTime;
+            string exhcangeCode = quoteMessage.ExchangeCode;
             Guid customerId = quoteMessage.CustomerID;
-            //通过CustomerId获取Customer对象
-            //Customer customer = this.SettingsManager.GetCustomers().SingleOrDefault(P => P.Id == customerId);
-            var customer = new Customer();
-            customer.Id = quoteMessage.CustomerID;
-            customer.Code = "WF007";
+            Customer customer = this.SettingsManager.GetCustomers().SingleOrDefault(P => P.Id == customerId);
+            if (customer == null)
+            {
+                //get from db
+                return;
+            }
 
             if (!this._Instruments.ContainsKey(quoteMessage.InstrumentID)) return;
             InstrumentClient instrument = this._Instruments[quoteMessage.InstrumentID];
 
-            QuotePriceClient quotePriceClient = new QuotePriceClient(quoteMessage,waiteTime,instrument,customer);
+            QuotePolicyDetail quotePolicy = this.SettingsManager.GetQuotePolicyDetail(instrument.Id, customer);
+
+            ExchangeQuotation quotation = this.GetExchangeQuotation(exhcangeCode, quotePolicy);
+
+            QuotePriceClient quotePriceClient = new QuotePriceClient(quoteMessage, waiteTime, instrument, customer, quotation);
             this._QuotePriceClientModel.AddSendQuotePrice(quotePriceClient);
         }
 
@@ -448,15 +479,15 @@ namespace ManagerConsole
             }
             else
             {
-                if (isExecuted && commonTransaction.SubType == Manager.Common.TransactionSubType.Match)
+                if (isExecuted && commonTransaction.SubType == iExchange.Common.TransactionSubType.Match)
                 {
                     Transaction transaction = this._Transactions[commonTransaction.Id];
-                    if (transaction.Phase == Manager.Common.Phase.Canceled || transaction.Phase == Manager.Common.Phase.Executed)
+                    if (transaction.Phase == iExchange.Common.OrderPhase.Canceled || transaction.Phase == iExchange.Common.OrderPhase.Executed)
                     {
                         return;
                     }
                 }
-                if (this._Transactions[commonTransaction.Id].Phase == Manager.Common.Phase.Executed && isExecuted)
+                if (this._Transactions[commonTransaction.Id].Phase == iExchange.Common.OrderPhase.Executed && isExecuted)
                     return;
                 this._Transactions[commonTransaction.Id].Update(commonTransaction);
             }
@@ -478,12 +509,12 @@ namespace ManagerConsole
             {
                 transaction = this._Orders[commonOrder.Id].Transaction;
 
-                if (isExecuted && transaction.SubType == Manager.Common.TransactionSubType.Match
-                    && (transaction.Phase == Manager.Common.Phase.Canceled || transaction.Phase == Manager.Common.Phase.Executed))
+                if (isExecuted && transaction.SubType == iExchange.Common.TransactionSubType.Match
+                    && (transaction.Phase == iExchange.Common.OrderPhase.Canceled || transaction.Phase == iExchange.Common.OrderPhase.Executed))
                 {
                     return;
                 }
-                if (this._Orders[commonOrder.Id].Phase == Manager.Common.Phase.Executed && isExecuted)
+                if (this._Orders[commonOrder.Id].Phase == iExchange.Common.OrderPhase.Executed && isExecuted)
                     return;
                 this._Orders[commonOrder.Id].Update(commonOrder);
             }
@@ -491,10 +522,7 @@ namespace ManagerConsole
 
         private void Process(CommonOrderRelation commonOrderRelation)
         {
-            if(commonOrderRelation.RelationType == OrderRelationType.Close)
-            {
- 
-            }
+
         }
 
         private void AddOrderTaskEntity(Order order)
@@ -559,6 +587,21 @@ namespace ManagerConsole
             if (this.OnExecutedOrderNotifyEvent != null)
             {
                 this.OnExecutedOrderNotifyEvent(order);
+            }
+        }
+
+        internal ExchangeQuotation GetExchangeQuotation(string exchangeCode, QuotePolicyDetail quotePolicyDetail)
+        {
+            List<ExchangeQuotation> exchangeQuotations = null;
+
+            if(this._ExchangeQuotations.TryGetValue(exchangeCode,out exchangeQuotations))
+            {
+                ExchangeQuotation exchangeQuotation = exchangeQuotations.SingleOrDefault(P => P.QuotationPolicyId == quotePolicyDetail.QuotePolicyId && P.InstruemtnId == quotePolicyDetail.InstrumentId);
+                return exchangeQuotation;
+            }
+            else
+            {
+                return null;
             }
         }
 

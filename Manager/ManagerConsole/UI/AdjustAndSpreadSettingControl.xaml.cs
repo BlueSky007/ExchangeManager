@@ -16,13 +16,14 @@ using System.Collections.ObjectModel;
 using ManagerConsole.Model;
 using Manager.Common.QuotationEntities;
 using Manager.Common;
+using System.Xml.Linq;
 
 namespace ManagerConsole.UI
 {
     /// <summary>
     /// AdjustAndSpreadSettingControl.xaml 的交互逻辑
     /// </summary>
-    public partial class AdjustAndSpreadSettingControl : UserControl
+    public partial class AdjustAndSpreadSettingControl : UserControl,IControlLayout 
     {
         private ObservableCollection<AdjustRelationViewModel> _ItemSource = new ObservableCollection<AdjustRelationViewModel>();
         private bool IsEditing = false;
@@ -61,7 +62,7 @@ namespace ManagerConsole.UI
         {
             Button btn = sender as Button;
             NewRelationWindow newRelaWin = new NewRelationWindow(this.AddNewSuccess);
-            App.MainWindow.MainFrame.Children.Add(newRelaWin);
+            App.MainFrameWindow.MainFrame.Children.Add(newRelaWin);
             newRelaWin.IsModal = true;
             newRelaWin.Show();
             newRelaWin.BringToFront();
@@ -158,7 +159,7 @@ namespace ManagerConsole.UI
             Button btn = sender as Button;
             List<int> instrumentIds = this._ItemSource.SingleOrDefault(i => i.Id == (Guid)btn.Tag).InstrumentIds;
             NewRelationWindow newRelaWin = new NewRelationWindow(instrumentIds, this.EditSuccess);
-            App.MainWindow.MainFrame.Children.Add(newRelaWin);
+            App.MainFrameWindow.MainFrame.Children.Add(newRelaWin);
             newRelaWin.IsModal = true;
             newRelaWin.Show();
             newRelaWin.BringToFront();
@@ -167,6 +168,16 @@ namespace ManagerConsole.UI
         private void EditSuccess(AdjustRelationViewModel result)
         {
             this._ItemSource.SingleOrDefault(i => i.Id == result.Id).InstrumentIds = result.InstrumentIds;
+        }
+
+        public string GetLayout()
+        {
+            string layout = "";
+            return layout;
+        }
+
+        public void SetLayout(XElement layout)
+        {
         }
     }
 }

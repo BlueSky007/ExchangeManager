@@ -9,6 +9,7 @@ using Manager.Common;
 using System.Xml;
 using System.Collections.ObjectModel;
 using ExchangeIntrument = Manager.Common.Settings.ExchangInstrument;
+using iExchange.Common.Manager;
 
 namespace ManagerService.DataAccess
 {
@@ -30,7 +31,9 @@ namespace ManagerService.DataAccess
                     taskScheduler.LastRunTime = (reader["LastRunTime"] == DBNull.Value) ? DateTime.MaxValue : (DateTime)reader["LastRunTime"];
                     taskScheduler.TaskType = reader["TaskType"].ConvertToEnumValue<TaskType>();
                     taskScheduler.ActionType = reader["ActionType"].ConvertToEnumValue<ActionType>();
-                    taskScheduler.Interval = reader["Interval"] == DBNull.Value ? null : (int?)reader["Interval"];
+                    taskScheduler.RecurDay = reader["RecurDay"] == DBNull.Value ? 0 : (int)reader["RecurDay"];
+                    taskScheduler.WeekDaySN = reader["WeekDaySN"] == DBNull.Value ? string.Empty : (string)reader["WeekDaySN"];
+                    taskScheduler.Interval = reader["Interval"] == DBNull.Value ? 0 : (int)reader["Interval"];
                     taskScheduler.Creater = (Guid)reader["UserId"];
                     taskScheduler.CreateDate = (DateTime)reader["Timestamp"];
 
@@ -89,7 +92,11 @@ namespace ManagerService.DataAccess
 
         public static bool CreateTaskScheduler(TaskScheduler taskScheduler)
         {
-            string instrumentSettings = GetInstrumentSettings(taskScheduler);
+            string instrumentSettings = string.Empty;
+            if(taskScheduler.ExchangInstruments != null)
+            {
+                instrumentSettings = GetInstrumentSettings(taskScheduler);
+            }
             string parameterSettings = GetParameterSettingTasks(taskScheduler);
             using (SqlConnection sqlConnection = DataAccess.GetInstance().GetSqlConnection())
             {
@@ -130,6 +137,14 @@ namespace ManagerService.DataAccess
                 parameter.Value = (byte)taskScheduler.ActionType;
                 sqlCommand.Parameters.Add(parameter);
 
+                parameter = new SqlParameter("@recurDay", SqlDbType.Int);
+                parameter.Value = taskScheduler.RecurDay;
+                sqlCommand.Parameters.Add(parameter);
+
+                parameter = new SqlParameter("@weekDaySN", SqlDbType.NVarChar);
+                parameter.Value = taskScheduler.WeekDaySN;
+                sqlCommand.Parameters.Add(parameter);
+
                 parameter = new SqlParameter("@interval", SqlDbType.Int);
                 parameter.Value = taskScheduler.Interval;
                 sqlCommand.Parameters.Add(parameter);
@@ -153,6 +168,114 @@ namespace ManagerService.DataAccess
                 SqlParameter resultParameter = new SqlParameter("@result", SqlDbType.Bit);
                 resultParameter.Direction = ParameterDirection.Output;
                 sqlCommand.Parameters.Add(resultParameter);
+
+                sqlCommand.ExecuteNonQuery();
+
+                return (bool)sqlCommand.Parameters["@result"].Value;
+            }
+        }
+
+        public static bool EditorTaskScheduler(TaskScheduler taskScheduler)
+        {
+            string instrumentSettings = string.Empty;
+            if (taskScheduler.ExchangInstruments != null)
+            {
+                instrumentSettings = GetInstrumentSettings(taskScheduler);
+            }
+            string parameterSettings = GetParameterSettingTasks(taskScheduler);
+            using (SqlConnection sqlConnection = DataAccess.GetInstance().GetSqlConnection())
+            {
+                SqlCommand sqlCommand = sqlConnection.CreateCommand();
+                sqlCommand.CommandText = "dbo.P_TaskScheduler_Upd";
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.CommandTimeout = 60 * 30;
+
+                SqlParameter parameter = new SqlParameter("@id", SqlDbType.UniqueIdentifier);
+                parameter.Value = taskScheduler.Id;
+                sqlCommand.Parameters.Add(parameter);
+
+                parameter = new SqlParameter("@name", SqlDbType.NVarChar);
+                parameter.Value = taskScheduler.Name;
+                sqlCommand.Parameters.Add(parameter);
+
+                parameter = new SqlParameter("@description", SqlDbType.NVarChar);
+                parameter.Value = taskScheduler.Description;
+                sqlCommand.Parameters.Add(parameter);
+
+                parameter = new SqlParameter("@taskStatus", SqlDbType.TinyInt);
+                parameter.Value = (byte)taskScheduler.TaskStatus;
+                sqlCommand.Parameters.Add(parameter);
+
+                parameter = new SqlParameter("@runTime", SqlDbType.DateTime);
+                parameter.Value = taskScheduler.RunTime;
+                sqlCommand.Parameters.Add(parameter);
+
+                parameter = new SqlParameter("@lastRunTime", SqlDbType.DateTime);
+                parameter.Value = taskScheduler.LastRunTime;
+                sqlCommand.Parameters.Add(parameter);
+
+                parameter = new SqlParameter("@taskType", SqlDbType.TinyInt);
+                parameter.Value = (byte)taskScheduler.TaskType;
+                sqlCommand.Parameters.Add(parameter);
+
+                parameter = new SqlParameter("@actionType", SqlDbType.TinyInt);
+                parameter.Value = (byte)taskScheduler.ActionType;
+                sqlCommand.Parameters.Add(parameter);
+
+                parameter = new SqlParameter("@recurDay", SqlDbType.Int);
+                parameter.Value = taskScheduler.RecurDay;
+                sqlCommand.Parameters.Add(parameter);
+
+                parameter = new SqlParameter("@weekDaySN", SqlDbType.NVarChar);
+                parameter.Value = taskScheduler.WeekDaySN;
+                sqlCommand.Parameters.Add(parameter);
+
+                parameter = new SqlParameter("@interval", SqlDbType.Int);
+                parameter.Value = taskScheduler.Interval;
+                sqlCommand.Parameters.Add(parameter);
+
+                parameter = new SqlParameter("@userId", SqlDbType.UniqueIdentifier);
+                parameter.Value = taskScheduler.Creater;
+                sqlCommand.Parameters.Add(parameter);
+
+                parameter = new SqlParameter("@timestamp", SqlDbType.DateTime);
+                parameter.Value = taskScheduler.CreateDate;
+                sqlCommand.Parameters.Add(parameter);
+
+                parameter = new SqlParameter("@parameterSettingsXml", SqlDbType.NText);
+                parameter.Value = parameterSettings;
+                sqlCommand.Parameters.Add(parameter);
+
+                parameter = new SqlParameter("@instrumentSettingsXml", SqlDbType.NText);
+                parameter.Value = instrumentSettings;
+                sqlCommand.Parameters.Add(parameter);
+
+                SqlParameter resultParameter = new SqlParameter("@result", SqlDbType.Bit);
+                resultParameter.Direction = ParameterDirection.Output;
+                sqlCommand.Parameters.Add(resultParameter);
+
+                sqlCommand.ExecuteNonQuery();
+
+                return (bool)sqlCommand.Parameters["@result"].Value;
+            }
+        }
+
+        public static bool DeleteTaskScheduler(TaskScheduler taskScheduler)
+        {
+            using (SqlConnection sqlConnection = DataAccess.GetInstance().GetSqlConnection())
+            {
+                SqlCommand sqlCommand = sqlConnection.CreateCommand();
+                sqlCommand.CommandText = "dbo.P_TaskScheduler_Del";
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+
+                SqlParameter parameter = new SqlParameter("@id", SqlDbType.UniqueIdentifier);
+                parameter.Value = taskScheduler.Id;
+                sqlCommand.Parameters.Add(parameter);
+
+                SqlParameter resultParameter = new SqlParameter("@result", SqlDbType.Bit);
+                resultParameter.Direction = ParameterDirection.Output;
+                sqlCommand.Parameters.Add(resultParameter);
+
 
                 sqlCommand.ExecuteNonQuery();
 
@@ -239,6 +362,28 @@ namespace ManagerService.DataAccess
             }
             exchangeDoc.AppendChild(xmlInstrumentRoot);
             return exchangeDoc.DocumentElement;
+        }
+
+        public static ParameterUpdateTask GetExchangeParametersTask(TaskScheduler taskScheduler)
+        {
+            ParameterUpdateTask task = new ParameterUpdateTask();
+            List<Guid> instruments = new List<Guid>();
+            foreach (ExchangeIntrument instrument in taskScheduler.ExchangInstruments)
+            {
+                instruments.Add(instrument.Id);
+            }
+            foreach (ParameterSettingTask setting in taskScheduler.ParameterSettings)
+            {
+                if (setting.SettingParameterType == SettingParameterType.InstrumentParameter)
+                {
+                    ExchangeSetting exchangeSetting = new ExchangeSetting();
+                    exchangeSetting.ParameterKey = setting.ParameterKey;
+                    exchangeSetting.ParameterValue = setting.ParameterValue;
+                    task.ExchangeSettings.Add(exchangeSetting);
+                }
+            }
+            task.Instruments = instruments.ToArray();
+            return task;
         }
 
         public static bool UpdateSettingsParameter(TaskScheduler taskScheduler)

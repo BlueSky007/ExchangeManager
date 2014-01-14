@@ -43,8 +43,16 @@ namespace ManagerService.Quotation
                 PrimitiveQuotation last;
                 if (this.TryGetLastQuotation(primitiveQuotation.SourceId, primitiveQuotation.InstrumentId, out last))
                 {
-                    if (fixAsk) primitiveQuotation.Ask = last.Ask;
-                    if (fixBid) primitiveQuotation.Bid = last.Bid;
+                    if (fixAsk)
+                    {
+                        primitiveQuotation.Ask = last.Ask;
+                        ask = double.Parse(primitiveQuotation.Ask);
+                    }
+                    if (fixBid)
+                    {
+                        primitiveQuotation.Bid = last.Bid;
+                        bid = double.Parse(primitiveQuotation.Bid);
+                    }
                     @fixed = true;
                 }
             }

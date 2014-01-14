@@ -86,7 +86,7 @@ namespace ManagerService.Console
         TransactionError CancelPlace(Guid transactionId, CancelReason cancelReason);
 
         [OperationContract(IsInitiating = false)]
-        TransactionError Execute(Guid transactionId, string buyPrice, string sellPrice, decimal lot, Guid orderId, LogOrder logEntity);
+        TransactionResult Execute(Guid transactionId, string buyPrice, string sellPrice, decimal lot, Guid orderId, LogOrder logEntity);
 
         [OperationContract(IsInitiating = false)]
         TransactionError Cancel(Guid transactionId,CancelReason cancelReason,LogOrder logEntity);
@@ -109,13 +109,16 @@ namespace ManagerService.Console
         bool CreateTaskScheduler(TaskScheduler taskScheduler);
 
         [OperationContract(IsInitiating = false)]
+        bool EditorTaskScheduler(TaskScheduler taskScheduler);
+
+        [OperationContract(IsInitiating = false)]
         void EnableTaskScheduler(TaskScheduler taskScheduler);
 
         [OperationContract(IsInitiating = false)]
         void StartRunTaskScheduler(TaskScheduler taskScheduler);
 
         [OperationContract(IsInitiating = false)]
-        void DeleteTaskScheduler(TaskScheduler taskScheduler);
+        bool DeleteTaskScheduler(TaskScheduler taskScheduler);
         
         [OperationContract(IsInitiating = false)]
         List<TaskScheduler> GetTaskSchedulersData();
@@ -204,6 +207,7 @@ namespace ManagerService.Console
         #endregion
     }
 
+    //[ServiceKnownType("GetCallbackKnownTypes", typeof(KnownTypes))]
     [ServiceContract]
     public interface IClientProxy
     {

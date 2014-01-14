@@ -1,5 +1,4 @@
-﻿using Manager.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -7,22 +6,23 @@ using System.Diagnostics;
 using System.Linq;
 using System.ServiceProcess;
 using System.Text;
+using Manager.Common;
 
 namespace ManagerService
 {
     public partial class ManagerService : ServiceBase
     {
-        private MainService _Manager = new MainService();
+        private MainService _Manager;
 
         public ManagerService()
         {
             InitializeComponent();
+            this._Manager = new MainService();
         }
 
 #if(DEBUG)
         public void Start()
         {
-            Logger.AddEvent(TraceEventType.Information, "Manager started at:{0}, pid:{1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), 10);
             //return;
             this.OnStart(null);
         }

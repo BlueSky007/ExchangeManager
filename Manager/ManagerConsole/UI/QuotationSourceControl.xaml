@@ -15,12 +15,12 @@
                 </ToolBarPanel>
             </ToolBar>
             <ig:XamGrid Name="DataGrid" AutoGenerateColumns="False" IsAlternateRowsEnabled="True" >
-                <ig:XamGrid.CellStyle>
+                <!--<ig:XamGrid.CellStyle>
                     <Style TargetType="ig:CellControl">
                         <Setter Property="Padding" Value="0,0,0,0"/>
                         <Setter Property="BorderThickness" Value="0,0,1,1"/>
                     </Style>
-                </ig:XamGrid.CellStyle>
+                </ig:XamGrid.CellStyle>-->
                 <ig:XamGrid.Columns>
                     <ig:TemplateColumn Key="Id" HeaderText="Action">
                         <ig:TemplateColumn.ItemTemplate>
@@ -50,6 +50,8 @@
                             MinimizeButtonVisibility="Hidden"
                             MaximizeButtonVisibility="Hidden"
                             Header="Quotation Source"
+                            Background="{Binding Background, RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}"
+                            Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}"
                             IsModal="True"
                             Visibility="Collapsed" >
             <Grid Margin="15">
@@ -64,11 +66,11 @@
                     <RowDefinition Height="23" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <Label>Name:</Label>
+                <TextBlock>Name:</TextBlock>
                 <TextBox x:Name="NameTextBox" Text="{Binding Name}" TextChanged="EditText_TextChanged" Grid.Column="1" Margin="0,0,0,2" />
-                <Label Grid.Row="1" >AuthName:</Label>
+                <TextBlock Grid.Row="1" >AuthName:</TextBlock>
                 <TextBox x:Name="AuthNameTextBox" Text="{Binding AuthName}" TextChanged="EditText_TextChanged" Grid.Row="1" Grid.Column="1" Margin="0,0,0,2" />
-                <Label Grid.Row="2" >Password:</Label>
+                <TextBlock Grid.Row="2" >Password:</TextBlock>
                 <TextBox x:Name="PasswordTextBox" Text="{Binding Password}" TextChanged="EditText_TextChanged" Grid.Row="2" Grid.Column="1" Margin="0,0,0,2" />
                 <TextBlock x:Name="HintTextBlock" Grid.Row="3" Grid.ColumnSpan="2" TextWrapping="Wrap"/>
 

@@ -140,17 +140,17 @@ namespace ManagerConsole.UI
             RoleData role = (RoleData)this.RoleName_List.SelectedItem;
             if (this.NewPassword.Password != this.Confirm.Password)
             {
-                this.Message.Content = "两次填写密码不一致";
+                this.Message.Text = "两次填写密码不一致";
                 return false;
             }
             if (this.RoleName_List.SelectedItems.Count == 0)
             {
-                this.Message.Content = "请选择角色";
+                this.Message.Text = "请选择角色";
                 return false;
             }
             if (string.IsNullOrEmpty(this.UserName.Text))
             {
-                this.Message.Content = "请输入用户名";
+                this.Message.Text = "请输入用户名";
                 return false;
             }
             return true;
@@ -163,7 +163,7 @@ namespace ManagerConsole.UI
                 if (!result)
                 {
                     this.Message.Foreground = Brushes.Red;
-                    this.Message.Content = "录入失败";
+                    this.Message.Text = "录入失败";
                 }
                 else
                 {
@@ -183,7 +183,7 @@ namespace ManagerConsole.UI
                          this.Message.Foreground = Brushes.Green;
                          if (this._IsNewUser)
                          {
-                             this.Message.Content = "添加成功";
+                             this.Message.Text = "添加成功";
                              this.UserName.Text = string.Empty;
                              this.NewPassword.Password = string.Empty;
                              this.Confirm.Password = string.Empty;
@@ -191,7 +191,7 @@ namespace ManagerConsole.UI
                          }
                          else
                          {
-                             this.Message.Content = "修改成功";
+                             this.Message.Text = "修改成功";
                          }
                          this._UpdateSuccessAction(this._IsNewUser,this._user);
                      }
@@ -200,11 +200,11 @@ namespace ManagerConsole.UI
                          this.Message.Foreground = Brushes.Red;
                          if (this._IsNewUser)
                          {
-                             this.Message.Content = "添加失败";
+                             this.Message.Text = "添加失败";
                          }
                          else
                          {
-                             this.Message.Content = "修改失败";
+                             this.Message.Text = "修改失败";
                          }
                          
                      }

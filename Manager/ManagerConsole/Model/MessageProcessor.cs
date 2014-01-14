@@ -39,6 +39,7 @@ namespace ManagerConsole
 
         private void AttachEvent()
         {
+            ConsoleClient.Instance.MessageClient.ExchangeQuotationUpdateEvent += this.MessageClient_OverridedQuotationReceived;
             ConsoleClient.Instance.MessageClient.QuotePriceToDealerEvent += this.MessageClient_QuotePriceReceived;
             ConsoleClient.Instance.MessageClient.QuoteOrderToDealerEvent += this.MessageClient_QuoteOrderReceived;
             ConsoleClient.Instance.MessageClient.ExecutedOrderToDealerEvent += this.MessageClient_ExecutedOrderReceived;
@@ -46,9 +47,17 @@ namespace ManagerConsole
             ConsoleClient.Instance.MessageClient.DeletedOrderEvent += this.MessageClient_DeletedOrderReceived;
         }
 
+        internal void MessageClient_OverridedQuotationReceived(OverridedQuotationMessage overridedQuotationMessage)
+        {
+            App.Current.Dispatcher.BeginInvoke((Action)delegate() 
+            {
+                this.InitDataManager.ProcessOverridedQuotation(overridedQuotationMessage);
+            });
+        }
+
         internal void MessageClient_QuotePriceReceived(QuoteMessage quoteMessage)
         {
-            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+            App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
                 MediaManager.PlayMedia(this._MediaElement, MediaManager._EnquiryMediaSource);
                 this.InitDataManager.ProcessQuoteMessage(quoteMessage);
@@ -57,7 +66,7 @@ namespace ManagerConsole
 
         internal void MessageClient_QuoteOrderReceived(PlaceMessage placeMessage)
         {
-            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+            App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
                 this.InitDataManager.ProcessPlaceMessage(placeMessage);
             });
@@ -65,7 +74,7 @@ namespace ManagerConsole
 
         internal void MessageClient_ExecutedOrderReceived(ExecuteMessage executedMessage)
         {
-            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+            App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
                 this.InitDataManager.ProcessExecuteMessage(executedMessage);
             });
@@ -73,7 +82,7 @@ namespace ManagerConsole
 
         internal void MessageClient_HitPriceReceived(HitMessage hitMessage)
         {
-            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate() 
+            App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate() 
             {
                 this.InitDataManager.ProcessHitMessage(hitMessage);
             });
@@ -81,7 +90,7 @@ namespace ManagerConsole
 
         internal void MessageClient_DeletedOrderReceived(DeleteMessage deleteMessage)
         {
-            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+            App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
                 this.InitDataManager.ProcessDeleteMessage(deleteMessage);
             });
@@ -89,7 +98,7 @@ namespace ManagerConsole
 
         internal void Process(UpdateSettingParameterMessage message)
         {
-            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+            App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
                 TaskSchedulerModel.Instance.TaskSchedulerStatusChangeNotify(message);
             });

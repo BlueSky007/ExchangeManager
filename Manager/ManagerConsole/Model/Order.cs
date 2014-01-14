@@ -8,9 +8,11 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Windows.Media;
-using CommonOrder = Manager.Common.Order;
+using CommonOrder = iExchange.Common.Manager.Order;
 using OrderType = iExchange.Common.OrderType;
 using Helper = Manager.Common.Helper;
+using iExchange.Common;
+using Phase = iExchange.Common.OrderPhase;
 
 namespace ManagerConsole.Model
 {
@@ -447,7 +449,7 @@ namespace ManagerConsole.Model
             }
         }
 
-        internal Manager.Common.Order ToCommonOrder()
+        internal iExchange.Common.Manager.Order ToCommonOrder()
         {
             return null;
         }
@@ -509,7 +511,7 @@ namespace ManagerConsole.Model
                 if (this.HitCount > 0
                     || (this.Transaction.OrderType == OrderType.Limit 
                     && !instrument.Mit && instrument.PenetrationPoint >= 0
-                    && Math.Abs(Price.Subtract(bestPrice, setPrice)) >= instrument.PenetrationPoint))
+                    && Math.Abs(bestPrice - setPrice) >= instrument.PenetrationPoint))
                 {
                     this.ChangeStatus(OrderStatus.WaitOutLotLMT);
                     //this.mainWindow.oDealingConsole.PlaySound(SoundOption.LimitDealerIntervene);

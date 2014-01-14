@@ -7,7 +7,7 @@
              xmlns:localui="clr-namespace:ManagerConsole.Helper"
              xmlns:igOB="http://infragistics.com/OutlookBar"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="800">
+             d:DesignHeight="800" d:DesignWidth="800">
     <UserControl.Resources>
         <localui:TaskSchedulerDateConverter  x:Key="TaskSchedulerDateConverter" />
         <Style TargetType="TextBlock">
@@ -32,6 +32,10 @@
             <Setter Property="BorderBrush" Value="Gray"/>
             <Setter Property="Background" Value="Black"/>
         </Style>
+        <Style TargetType="CheckBox">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="15,0,15,0"/>
+        </Style>
     </UserControl.Resources>
     <Grid Background="Black">
         <Grid.RowDefinitions>
@@ -47,7 +51,7 @@
         <!--Task List-->
         <Border Margin="3,3,0,0">
             <igGrid:XamGrid x:Name="_SettingSchedulerGrid" Grid.Row="1" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto" 
-                            CellClicked="SettingSchedulerGrid_RowSelected">
+                            CellClicked="SettingSchedulerGrid_RowSelected" CellDoubleClicked="SettingSchedulerGrid_CellDoubleClicked">
                 <igGrid:XamGrid.SelectionSettings>
                     <igGrid:SelectionSettings CellClickAction="SelectRow"  CellSelection="Single"  ColumnSelection="Single" RowSelection="Single" />
                 </igGrid:XamGrid.SelectionSettings>
@@ -55,7 +59,7 @@
                     <igGrid:FixedColumnSettings AllowFixedColumns="DropArea"/>
                 </igGrid:XamGrid.FixedColumnSettings>
                 <igGrid:XamGrid.GroupBySettings>
-                    <igGrid:GroupBySettings AllowGroupByArea="Top" IsGroupable="True" EmptyGroupByAreaContent="任务列表     拖动列标题栏在此分组"/>
+                    <igGrid:GroupBySettings AllowGroupByArea="Hidden" IsGroupable="False" EmptyGroupByAreaContent="任务列表     拖动列标题栏在此分组"/>
                 </igGrid:XamGrid.GroupBySettings>
 
                 <!--Column Setting-->
@@ -92,8 +96,8 @@
         </Border>
 
         <!--Create Task Menu-->
-        <igOB:XamOutlookBar Grid.Row="0" Grid.RowSpan="3" Grid.Column="2" MinWidth="220"  Margin="3,3,0,0" x:Name="_TaskMenu"
-                            Background="Black" IsMinimized="False">
+        <igOB:XamOutlookBar Grid.Row="0" Grid.RowSpan="3" Grid.Column="2" MinWidth="220"  Margin="3,3,0,0" x:Name="_TaskMenu" Theme ="Office2k7Black" Background="Black"
+                            IsMinimized="False">
                 <igOB:OutlookBarGroup Header="Task Scheduler">
                     <igOB:OutlookBarGroup.Content>
                         <StackPanel Orientation="Vertical" Background="Black">
@@ -121,7 +125,8 @@
             <Grid x:Name="_TaskDetailGrid" >
                 <Grid.RowDefinitions>
                     <RowDefinition Height="55"/>
-                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="45"/>
+                    <RowDefinition Height="45"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0">
@@ -141,7 +146,7 @@
                     <TextBlock Grid.Row="0" Grid.Column="2" Text="Task Type:" Margin="8,0,0,0" HorizontalAlignment="Right"/>
                     <ComboBox x:Name="_TaskTypeComboBox" Grid.Row="0" Grid.Column="3" Width="90" Height="22"  Style="{StaticResource ComboBoxStyle}" SelectedItem="{Binding TaskType,Mode=TwoWay}"/>
                     <TextBlock Grid.Row="1" Text="Description:" VerticalAlignment="Top"/>
-                    <TextBox Background="WhiteSmoke"  Grid.Row="1" Grid.Column="1" Text="{Binding Description,Mode=TwoWay}" TextAlignment="Left" FlowDirection="LeftToRight" x:Name="_TaskDescriptionText" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" Grid.ColumnSpan="4" Height="Auto" />
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Description,Mode=TwoWay}" TextAlignment="Left" FlowDirection="LeftToRight" Height="Auto" />
                 </Grid>
 
                 <Border Style="{StaticResource BorderStyle}" Grid.Row="1" Margin="3 5 3 0">
@@ -163,11 +168,27 @@
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Row="2" Margin="3 5 3 0" Style="{StaticResource BorderStyle}">
+                <Border Grid.Row="2" x:Name="WeeklyTypeBorder" Style="{StaticResource BorderStyle}" Margin="3 5 3 0" Visibility="Visible">
+                    <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
+                        <TextBlock Text="星期一:"/>
+                        <CheckBox x:Name="MonCheckBox" IsChecked="{Binding WeekDays.IsMonDay}"/>
+                        <TextBlock Text="星期二:"/>
+                        <CheckBox x:Name="TuesCheckBox" IsChecked="{Binding WeekDays.IsTuesDay,Mode=TwoWay}"/>
+                        <TextBlock Text="星期三:"/>
+                        <CheckBox x:Name="WedCheckBox" IsChecked="{Binding WeekDays.IsWedDay,Mode=TwoWay}"/>
+                        <TextBlock Text="星期四:"/>
+                        <CheckBox x:Name="ThurCheckBox" IsChecked="{Binding WeekDays.IsThurDay,Mode=TwoWay}"/>
+                        <TextBlock Text="星期五:"/>
+                        <CheckBox x:Name="FriCheckBox" IsChecked="{Binding WeekDays.IsFriDay,Mode=TwoWay}"/>
+                        <TextBlock Text="星期六:"/>
+                        <CheckBox x:Name="SatCheckBox" IsChecked="{Binding WeekDays.IsSateDay,Mode=TwoWay}"/>
+                        <TextBlock Text="星期日:"/>
+                        <CheckBox x:Name="SunCheckBox" IsChecked="{Binding WeekDays.IsSunDay,Mode=TwoWay}"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="3" Margin="3 5 3 0" Style="{StaticResource BorderStyle}">
                     <igGrid:XamGrid x:Name="_ParameterSettingGrid" Grid.Row="1" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto">
-                        <!--<igGrid:XamGrid.EditingSettings>
-                            <igGrid:EditingSettings AllowEditing="Cell"/>
-                        </igGrid:XamGrid.EditingSettings>-->
                         <igGrid:XamGrid.FixedColumnSettings>
                             <igGrid:FixedColumnSettings AllowFixedColumns="DropArea"/>
                         </igGrid:XamGrid.FixedColumnSettings>

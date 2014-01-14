@@ -74,6 +74,13 @@ namespace ManagerConsole.UI
             this._ActionTypeComboBox.SelectedIndex = (int)currentTaskScheduler.ActionType;
         }
 
+        private void SettingSchedulerGrid_CellDoubleClicked(object sender, CellClickedEventArgs e)
+        {
+            TaskScheduler currentTaskScheduler = e.Cell.Row.Data as TaskScheduler;
+
+            this.ShowNewTaskWindow(EditMode.Modify, currentTaskScheduler);
+        }
+
         private bool CheckActiveRow()
         {
             if (this._SettingSchedulerGrid.ActiveCell == null)
@@ -163,14 +170,13 @@ namespace ManagerConsole.UI
         {
             this._NewTaskWindow = new NewTaskWindow(ditorMode, taskScheduler);
             this._NewTaskWindow.OnConfirmDialogResult += new NewTaskWindow.ConfirmDialogResultHandle(this.CreateTaskCompleted);
-            App.MainWindow.MainFrame.Children.Add(this._NewTaskWindow);
+            App.MainFrameWindow.MainFrame.Children.Add(this._NewTaskWindow);
             this._NewTaskWindow.IsModal = true;
             this._NewTaskWindow.Show();
         }
 
         private void DeleteTaskScheduler(TaskScheduler taskScheduler)
         {
-            this._TaskSchedulerModel.RemoveTaskScheduler(taskScheduler);
             CommonTaskScheduler commonTaskScheduler = taskScheduler.ToCommonTaskScheduler();
             ConsoleClient.Instance.DeleteTaskScheduler(commonTaskScheduler, this.DeleteTaskSchedulerCallback);
         }
@@ -185,7 +191,7 @@ namespace ManagerConsole.UI
         {
             this._TaskSchedulerModel.ChangeTaskStatus(taskScheduler,true);
             CommonTaskScheduler commonTaskScheduler = taskScheduler.ToCommonTaskScheduler();
-            ConsoleClient.Instance.DeleteTaskScheduler(commonTaskScheduler, this.DeleteTaskSchedulerCallback);
+            ConsoleClient.Instance.DeleteTaskScheduler(commonTaskScheduler,this.DeleteTaskSchedulerCallback);
         }
 
         private void EnableTaskScheduler(TaskScheduler taskScheduler)
@@ -200,15 +206,23 @@ namespace ManagerConsole.UI
             this._App._CommonDialogWin.ShowDialogWin("Run Task succeed!", "Manager");
         }
 
-        private void DeleteTaskSchedulerCallback()
-        { 
+        private void DeleteTaskSchedulerCallback(Guid taskSchedulerId, bool result)
+        {
+            if (result)
+            {
+                this._TaskSchedulerModel.RemoveTaskScheduler(taskSchedulerId);
+            }
         }
 
-        private void CreateTaskCompleted(bool yesOrNo,TaskScheduler taskScheduler)
+        private void CreateTaskCompleted(EditMode editMode,TaskScheduler taskScheduler)
         {
-            if (yesOrNo)
+            if (editMode == EditMode.AddNew)
             {
                 this._TaskSchedulerModel.AddTaskScheduler(taskScheduler);
+            }
+            else
+            {
+                this._TaskSchedulerModel.UpdateTaskScheduler(taskScheduler);
             }
         }
     }

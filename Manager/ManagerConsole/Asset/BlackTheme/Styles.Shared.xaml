@@ -19,7 +19,8 @@
     <SolidColorBrush x:Key="HyperlinkForegroundBrush" Color="{StaticResource Color_026}"/>
     <SolidColorBrush x:Key="GridBackgroundBrush" Color="{StaticResource Color_005}"/>
     <SolidColorBrush x:Key="GridBorderBrush" Color="{StaticResource Color_027}"/>
-
+    <SolidColorBrush x:Key="DisabledVisualElement" Color="{StaticResource Color_012}"/>
+    
     <LinearGradientBrush x:Key="LightGradientBrush" EndPoint="0.5,1" StartPoint="0.5,0">
         <GradientStop Color="{StaticResource Color_031}" Offset="1"/>
         <GradientStop Color="{StaticResource Color_032}"/>

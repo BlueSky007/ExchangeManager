@@ -105,7 +105,7 @@ namespace ManagerConsole.Model
 
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginExecute(Guid transactionId, string buyPrice, string sellPrice, decimal lot, Guid orderId, LogOrder logEntity, AsyncCallback callback, object asyncState);
-        TransactionError EndExecute(IAsyncResult result);
+        TransactionResult EndExecute(IAsyncResult result);
 
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginCancel(Guid transactionId, CancelReason cancelReason, LogOrder logEntity, AsyncCallback callback, object asyncState);
@@ -132,6 +132,10 @@ namespace ManagerConsole.Model
         IAsyncResult BeginCreateTaskScheduler(TaskScheduler taskScheduler, AsyncCallback callback, object asyncState);
         bool EndCreateTaskScheduler(IAsyncResult result);
 
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginEditorTaskScheduler(TaskScheduler taskScheduler, AsyncCallback callback, object asyncState);
+        bool EndEditorTaskScheduler(IAsyncResult result);
+
         [OperationContract(IsInitiating = false)]
         void EnableTaskScheduler(TaskScheduler taskScheduler);  
 
@@ -141,7 +145,7 @@ namespace ManagerConsole.Model
 
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginDeleteTaskScheduler(TaskScheduler taskScheduler, AsyncCallback callback, object asyncState);
-        void EndDeleteTaskScheduler(IAsyncResult result);
+        bool EndDeleteTaskScheduler(IAsyncResult result);
         
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginGetTaskSchedulersData(AsyncCallback callback, object asyncState);

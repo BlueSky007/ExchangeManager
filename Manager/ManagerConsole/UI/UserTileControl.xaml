@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:ig="http://schemas.infragistics.com/xaml"
              xmlns:Custom="http://infragistics.com/Editors" x:Class="ManagerConsole.UI.UserTileControl" 
-             mc:Ignorable="d" Height="290" Width="320" StartupPosition="Center" MinimizeButtonVisibility="Collapsed" MaximizeButtonVisibility="Hidden" CloseButtonVisibility="Collapsed">
+             mc:Ignorable="d" Height="290" Width="320" StartupPosition="Center" MinimizeButtonVisibility="Collapsed" MaximizeButtonVisibility="Hidden" CloseButtonVisibility="Collapsed" >
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="40*"/>
@@ -14,18 +14,18 @@
             <RowDefinition Height="40*"/>
             <RowDefinition Height="55*"/>
         </Grid.RowDefinitions>
-        <Label Content="UserName" HorizontalAlignment="Left" Margin="10,18,0,0" Width="90" Grid.Row="0" Height="23" VerticalAlignment="Top"/>
+        <TextBlock Text="UserName" HorizontalAlignment="Left" Margin="10,18,0,0" Width="90" Grid.Row="0" Height="23" VerticalAlignment="Top"/>
         <TextBox x:Name="UserName" TextWrapping="Wrap" Grid.Row="0" IsReadOnly="False" Margin="120,20,10,0" Height="23" VerticalAlignment="Top"/>
-        <Label Content="New PassWord" HorizontalAlignment="Left" Margin="10,20,0,0" Width="90" Grid.Row="1" Height="23" VerticalAlignment="Top"/>
+        <TextBlock Text="New PassWord" HorizontalAlignment="Left" Margin="10,20,0,0" Width="90" Grid.Row="1" Height="23" VerticalAlignment="Top"/>
         <PasswordBox x:Name="NewPassword" Margin="120,20,10,0" Grid.Row="1" Height="23" VerticalAlignment="Top" ></PasswordBox>
-        <Label x:Name="ConfirmPassword" Visibility="Visible" Content="Confirm Password:" HorizontalAlignment="Left" Margin="10,20,0,0" VerticalAlignment="Top" Width="90" Grid.Row="2"/>
+        <TextBlock x:Name="ConfirmPassword" Visibility="Visible" Text="Confirm Password:" HorizontalAlignment="Left" Margin="10,20,0,0" VerticalAlignment="Top" Width="90" Grid.Row="2"/>
         <PasswordBox x:Name="Confirm" Height="23" VerticalAlignment="Top" Margin="120,20,10,0" Grid.Row="2"></PasswordBox>
-        <Label x:Name="Role_LabelEdit" Content="Role" HorizontalAlignment="Left" Margin="10,20,0,0" Visibility="Visible" VerticalAlignment="Top" Width="90" Grid.Row="3"/>
+        <TextBlock x:Name="Role_LabelEdit" Text="Role" HorizontalAlignment="Left" Margin="10,20,0,0" Visibility="Visible" VerticalAlignment="Top" Width="90" Grid.Row="3"/>
         <ig:XamComboEditor x:Name="RoleName_List" Visibility="Visible" VerticalAlignment="Top" AllowMultipleSelection="True" MultiSelectValueDelimiter=","  Margin="120,20,10,0"
                            IsEditable="False" Grid.Row="3" Height="23" CheckBoxVisibility="Visible" Loaded="RoleName_List_Loaded" />
         <Button x:Name="Cancel" Content="Cancel" Grid.Row="4" Visibility="Visible" Margin="211,35,10,10" Click="Cancel_Click"/>
         <Button x:Name="Submit" Content="Submit" Grid.Row="4" Visibility="Visible" Margin="120,35,101,10" Click="Submit_Click"/>
-        <Label x:Name="Message" Foreground="Red" Grid.Row="4" HorizontalAlignment="Left" Margin="10,10,0,35" Width="280"/>
+        <TextBlock x:Name="Message" Foreground="Red" Grid.Row="4" HorizontalAlignment="Left" Margin="10,10,0,35" Width="280"/>
 
     </Grid>
 </ig:XamDialogWindow>

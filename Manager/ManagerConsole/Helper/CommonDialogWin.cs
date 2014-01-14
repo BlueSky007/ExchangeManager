@@ -7,7 +7,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using AccountInfor = Manager.Common.AccountInformation;
+using AccountInfor = iExchange.Common.Manager.AccountInformation;
 
 namespace ManagerConsole.Helper
 {

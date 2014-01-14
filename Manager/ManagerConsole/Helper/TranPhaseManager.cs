@@ -3,9 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Phase = Manager.Common.Phase;
+using Phase = iExchange.Common.OrderPhase;
 using OrderType = iExchange.Common.OrderType;
 using System.Collections.ObjectModel;
+using ManagerConsole.ViewModel;
 
 namespace ManagerConsole.Helper
 {

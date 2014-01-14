@@ -533,12 +533,14 @@ namespace ManagerService.QuotationExchange
 
         public bool IsProblematic(Price origin)
         {
-            return ((origin == null || this.lastOrigin == null) ? false : Math.Abs(origin - this.lastOrigin) >= this.alertVariation);
+            return false;
+            //return ((origin == null || this.lastOrigin == null) ? false : Math.Abs(origin - this.lastOrigin) >= this.alertVariation);
         }
 
         public int GetWaitTime(Price origin)
         {
-            return (IsProblematic(origin) ? this.alertWaitTime : this.normalWaitTime);
+            return 0;
+            //return (IsProblematic(origin) ? this.alertWaitTime : this.normalWaitTime);
         }
 
         public void RefreshOrigins(DateTime time, Price lastOrigin, string volume, string totalVolume, Price originHigh, Price originLow, bool updateLastOriginQuotation)

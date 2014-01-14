@@ -7,8 +7,10 @@ using SettingSet = Manager.Common.SettingSet;
 using Logger = Manager.Common.Logger;
 using UpdateAction = Manager.Common.UpdateAction;
 using CommonCustomer = Manager.Common.Settings.Customer;
-using CommonAccount = Manager.Common.Settings.Account;
+using CommonQuotePolicy = Manager.Common.Settings.QuotePolicy;
+using CommonQuotePolicyDetail = Manager.Common.Settings.QuotePolicyDetail;
 using CommonInstrument = Manager.Common.Settings.Instrument;
+using CommonAccount = Manager.Common.Settings.Account;
 using CommonTradePolicy = Manager.Common.Settings.TradePolicy;
 using CommonTradePolicyDetail = Manager.Common.Settings.TradePolicyDetail;
 using CommonAccountGroup = Manager.Common.Settings.AccountGroup;
@@ -19,7 +21,7 @@ using SoundSetting = Manager.Common.Settings.SoundSetting;
 using SetValueSetting = Manager.Common.Settings.SetValueSetting;
 using System.Xml.Linq;
 
-namespace ManagerConsole
+namespace ManagerConsole.Model
 {
     public class SettingsManager
     {
@@ -30,6 +32,7 @@ namespace ManagerConsole
         private Dictionary<Guid, Account> _Accounts = new Dictionary<Guid, Account>();
         private Dictionary<Guid, AccountGroup> _AccountGroups = new Dictionary<Guid, AccountGroup>();
         private Dictionary<Guid, InstrumentClient> _Instruments = new Dictionary<Guid, InstrumentClient>();
+        private Dictionary<Guid, QuotePolicy> _QuotePolicies = new Dictionary<Guid, QuotePolicy>();
         private Dictionary<Guid, Dictionary<Guid, QuotePolicyDetail>> _QuotePolicyDetails = new Dictionary<Guid, Dictionary<Guid, QuotePolicyDetail>>();
         
         private Dictionary<Guid, TradePolicy> _TradePolicies = new Dictionary<Guid, TradePolicy>();
@@ -41,10 +44,6 @@ namespace ManagerConsole
         public SettingsManager()
         {
             Toolkit.SettingsManager = this;
-
-            //just test
-            this._Instruments = TestData.GetInitializeTestDataForInstrument();
-            this._Accounts = TestData.GetInitializeTestDataForAccount();
         }
 
         #region Public Property
@@ -138,6 +137,14 @@ namespace ManagerConsole
                     this.SystemParameter.Update(settingSet.SystemParameter);
                 }
             }
+            if (settingSet.Instruments != null)
+            {
+                foreach (CommonInstrument instrument in settingSet.Instruments)
+                {
+                    SettingsManagerHelper.UpdateEntity<CommonInstrument, InstrumentClient>
+                            (instrument, this._Instruments, action, instrument.Id, SettingsManagerHelper.UpdateManagerEntity);
+                }
+            }
             if (settingSet.AccountGroups != null)
             {
                 foreach (CommonAccountGroup accountGroup in settingSet.AccountGroups)
@@ -161,6 +168,49 @@ namespace ManagerConsole
                 {
                     SettingsManagerHelper.UpdateEntity<CommonCustomer, Customer>
                         (customer, this._Customers, action, customer.Id, SettingsManagerHelper.UpdateManagerEntity);
+                }
+            }
+
+            if (settingSet.QuotePolicies != null)
+            {
+                foreach (CommonQuotePolicy quotePolicy in settingSet.QuotePolicies)
+                {
+                    SettingsManagerHelper.UpdateEntity<CommonQuotePolicy, QuotePolicy>
+                        (quotePolicy, this._QuotePolicies, action, quotePolicy.Id, SettingsManagerHelper.UpdateManagerEntity);
+                }
+            }
+      
+            if (settingSet.QuotePolicyDetails != null)
+            {
+                foreach (CommonQuotePolicyDetail quotePolicyDetail in settingSet.QuotePolicyDetails)
+                {
+                    if (action == UpdateAction.Initialize || action == UpdateAction.Add)
+                    {
+                        Dictionary<Guid, QuotePolicyDetail> quotePolicyDetails = null;
+                        if (!this._QuotePolicyDetails.TryGetValue(quotePolicyDetail.QuotePolicyId, out quotePolicyDetails))
+                        {
+                            quotePolicyDetails = new Dictionary<Guid, QuotePolicyDetail>();
+                            this._QuotePolicyDetails.Add(quotePolicyDetail.QuotePolicyId, quotePolicyDetails);
+                        }
+                        quotePolicyDetails[quotePolicyDetail.InstrumentId] = new QuotePolicyDetail(quotePolicyDetail);
+                    }
+                    else if (action == UpdateAction.Modify)
+                    {
+                        Dictionary<Guid, QuotePolicyDetail> quotePolicyDetails = null;
+                        if (this._QuotePolicyDetails.TryGetValue(quotePolicyDetail.QuotePolicyId, out quotePolicyDetails)
+                            && quotePolicyDetails.ContainsKey(quotePolicyDetail.InstrumentId))
+                        {
+                            quotePolicyDetails[quotePolicyDetail.InstrumentId].Update(quotePolicyDetail);
+                        }
+                    }
+                    else if (action == UpdateAction.Delete)
+                    {
+                        Dictionary<Guid, QuotePolicyDetail> quotePolicyDetails = null;
+                        if (this._QuotePolicyDetails.TryGetValue(quotePolicyDetail.QuotePolicyId, out quotePolicyDetails))
+                        {
+                            quotePolicyDetails.Remove(quotePolicyDetail.QuotePolicyId);
+                        }
+                    }
                 }
             }
 
@@ -204,7 +254,6 @@ namespace ManagerConsole
                             && tradePolicyDetails.ContainsKey(tradePolicyDetail.InstrumentId))
                         {
                             tradePolicyDetails[tradePolicyDetail.InstrumentId].Update(tradePolicyDetail);
-                            //this.IsCalculateNecessary = true;
                         }
                     }
                     else if (action == UpdateAction.Delete)
@@ -311,6 +360,11 @@ namespace ManagerConsole
             return this._Accounts[id];
         }
 
+        internal Customer GetCustomer(Guid id)
+        {
+            return this._Customers[id];
+        }
+
         internal bool ContainsInstrument(Guid id)
         {
             return this._Instruments.ContainsKey(id);
@@ -359,7 +413,10 @@ namespace ManagerConsole
             }
             else
             {
-                return null;
+                //return null;
+                //just test
+                quotePolicyDetails = this._QuotePolicyDetails[new Guid("DE03F6DA-C501-4B87-8E5E-09733ACB4FDD")];
+                return quotePolicyDetails[new Guid("547EE4C0-7292-4611-AB1D-14CE326792EE")];
             }
         }
         internal SettingsParameter GetSettingsParameter(string exchangeCode)
@@ -607,6 +664,10 @@ namespace ManagerConsole
         }
 
         #region 更新静态方法
+        internal static void UpdateManagerEntity(this InstrumentClient instrument, CommonInstrument commonInstrument, UpdateAction action)
+        {
+            instrument.Update(commonInstrument);
+        }
         internal static void UpdateManagerEntity(this AccountGroup accountGroup, CommonAccountGroup commonAccountGroup, UpdateAction action)
         {
             accountGroup.Update(commonAccountGroup);
@@ -619,6 +680,11 @@ namespace ManagerConsole
         {
             customer.Update(commonCustomer);
         }
+        internal static void UpdateManagerEntity(this QuotePolicy quotePolicy, CommonQuotePolicy commonQuotePolicy, UpdateAction action)
+        {
+            quotePolicy.Update(commonQuotePolicy);
+        }
+
         #endregion
 
 

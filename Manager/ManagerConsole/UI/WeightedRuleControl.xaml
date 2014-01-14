@@ -6,7 +6,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="118" d:DesignWidth="330">
     <Control.Resources>
-        <Style TargetType="TextBox">
+        <!--<Style TargetType="TextBox">
             <Setter Property="Margin" Value="3,2,3,2"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="TextAlignment" Value="Right"/>
@@ -14,7 +14,7 @@
         <Style TargetType="TextBlock">
             <Setter Property="TextAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
+        </Style>-->
     </Control.Resources>
     <Grid>
         <Grid.ColumnDefinitions>

@@ -5,7 +5,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using AccountType = iExchange.Common.AccountType;
-using Price = Manager.Common.Price;
+using Price = iExchange.Common.Price;
 using CommonAccountGroupGNP = iExchange.Common.Manager.AccountGroupGNP;
 using CommonAccountGNP = iExchange.Common.Manager.AccountGNP;
 using CommonInstrumentGNP = iExchange.Common.Manager.InstrumentGNP;

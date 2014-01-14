@@ -78,7 +78,7 @@ namespace ManagerConsole.ViewModel
 
         public ObservableCollection<VmSourceQuotation> SourceQuotations { get; set; }
 
-        public VmInstrument Instrument { get { return this._Instrument; } }
+        public VmInstrument vmInstrument { get { return this._Instrument; } }
         public VmQuotationSource QuotationSource { get { return this._QuotationSource; } }
 
         public int ZIndex

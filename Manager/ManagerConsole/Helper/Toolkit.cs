@@ -1,5 +1,6 @@
 ﻿using iExchange.Common;
 using Manager.Common;
+using ManagerConsole.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,7 +32,7 @@ namespace ManagerConsole
                 int.Parse(value);
                 return true;
             }
-            catch (Exception ex)
+            catch
             {
                 return false;
             }

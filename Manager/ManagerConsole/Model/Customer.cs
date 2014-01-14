@@ -66,6 +66,8 @@ namespace ManagerConsole.Model
         internal void Update(CommonCustomer customer)
         {
             this.Id = customer.Id;
+            this.Code = customer.Code;
+            this.Name = customer.Name;
             this.Email = customer.Email;
             this.Name = customer.Name;
             if (customer.PrivateQuotePolicyId != null) this.PrivateQuotePolicyId = customer.PrivateQuotePolicyId.Value;

@@ -1,4 +1,5 @@
-﻿using ManagerConsole.Helper;
+﻿using Manager.Common.QuotationEntities;
+using ManagerConsole.Helper;
 using ManagerConsole.Model;
 using System;
 using System.Collections.Generic;
@@ -33,7 +34,7 @@ namespace ManagerConsole.ViewModel
         
         private int _BuyVariation = 0;
         private int _SellVariation = 0;
-        private SolidColorBrush _IsBuyBrush;
+        private SolidColorBrush _IsBuyBrush = SolidColorBrushes.BorderBrush;
         #endregion
 
         public InstantOrderForInstrument()
@@ -121,7 +122,7 @@ namespace ManagerConsole.ViewModel
             { 
                 this._CustomerPrice = value; 
                 this.OnPropertyChanged("CustomerPrice");
-                this.UpdateDiff();
+                //this.UpdateDiff();
                 this.OnPropertyChanged("Diff");
             }
         }
@@ -170,6 +171,15 @@ namespace ManagerConsole.ViewModel
 
         #endregion
 
+        internal void UpdateOverridedQuotation(ExchangeQuotation exchangeQuotation)
+        {
+            if (exchangeQuotation.InstruemtnId == this.Instrument.Id)
+            {
+                this.Ask = exchangeQuotation.Ask;
+                this.Bid = exchangeQuotation.Bid;
+            }
+        }
+
         internal void Update(OrderTask orderTask)
         {
             this.OrderId = orderTask.OrderId;
@@ -188,6 +198,25 @@ namespace ManagerConsole.ViewModel
             this.IsAllowAdjustPrice = true;// OrderTaskManager.IsNeedDQMaxMove(orderTask);
             this.UpdateCustomerPrice();
             this.UpdateDiff();
+        }
+
+        internal void CreateEmptyEntity()
+        {
+            this.OrderId = Guid.Empty;
+            this.Instrument = new InstrumentClient();
+            this.InstrumentCode = string.Empty;
+            this.Ask = "-";
+            this.Bid = "-";
+            this.AccountCode = string.Empty;
+            this.BuySell = BuySell.Buy;
+            this.Lot = decimal.Zero;
+            this._SetPrice = string.Empty;
+            this.OpenAvgPrice = string.Empty;
+
+            this.UpdateBrush();
+            this.IsAllowAdjustPrice = false;
+            this.CustomerPrice = new Price(1, 1, 10);
+            this.Diff = 0;
         }
 
         internal void UpdateBrush()
@@ -228,6 +257,7 @@ namespace ManagerConsole.ViewModel
 
         internal void UpdateMarketPrice(bool isBuy)
         {
+            if (!this._Instrument.NumeratorUnit.HasValue) return;
             if (isBuy)
             {
                 Price bid = new Price(this.Instrument.Bid, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);

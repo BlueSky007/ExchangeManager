@@ -16,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Logger = Manager.Common.Logger;
 
 namespace ManagerConsole.UI
 {
@@ -77,6 +78,11 @@ namespace ManagerConsole.UI
 
         private void FilterOrderByInstrument(InstrumentClient instrument)
         {
+            if (instrument.Id == Guid.Empty) //All
+            {
+                this._OrderTaskGrid.ItemsSource = this._ProcessInstantOrder.OrderTasks;
+                return;
+            }
             this._OrderTaskGrid.ItemsSource = this._ProcessInstantOrder.OrderTasks.Where(P => P.InstrumentId == instrument.Id);
             this._ProcessInstantOrder.InitializeBinding(instrument.Id);
             this.LayRootGrid.DataContext = this._ProcessInstantOrder.InstantOrderForInstrument;
@@ -119,6 +125,7 @@ namespace ManagerConsole.UI
         private void OrderHandlerBtn_Click(object sender, RoutedEventArgs e)
         {
             e.Handled = true;
+            if (this._ProcessInstantOrder.OrderTasks.Count == 0) return;
             Button btn = sender as Button;
             OrderTask orderTask = null;
             CellDataDefine currentCellData = null;
@@ -126,12 +133,10 @@ namespace ManagerConsole.UI
             switch (btn.Name)
             {
                 case "_ExecutedButton":
-                    if(orderId == Guid.Empty) return;
                     orderTask = this._ProcessInstantOrder.OrderTasks.First(P => P.OrderId == orderId);
                     currentCellData = orderTask.DQCellDataDefine1;
                     break;
                 case "_RejectButton":
-                    if (orderId == Guid.Empty) return;
                     orderTask = this._ProcessInstantOrder.OrderTasks.First(P => P.OrderId == orderId);
                     currentCellData = orderTask.DQCellDataDefine2;
                     break;
@@ -143,8 +148,53 @@ namespace ManagerConsole.UI
                     orderTask = btn.DataContext as OrderTask;
                     currentCellData = orderTask.DQCellDataDefine2;
                     break;
+                case "_ExecuteRejectSellButton":
+                    this.ExcuteAllDQOrder(false);
+                    return;
+                case "_ExecuteRejectBuyButton":
+                    this.ExcuteAllDQOrder(true);
+                    return;
+                default:
+                    break;
             }
-            this.ProcessPendingOrder(orderTask, currentCellData);
+            try
+            {
+                this.ProcessPendingOrder(orderTask, currentCellData);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "DealingInstanceOrder.OrderHandlerBtn_Click Error\r\n{0}", ex.ToString());
+                this._App._CommonDialogWin.ShowDialogWin("Dealing Instance Order Error", "Error");
+            }
+        }
+
+        private void ExcuteAllDQOrder(bool isBuy)
+        {
+            for (int i = 0; i < this._OrderTaskGrid.Rows.Count; i++)
+            {
+                OrderTask order = this._OrderTaskGrid.Rows[i].Data as OrderTask;
+                bool buySell = (order.IsBuy == BuySell.Buy);
+                if (buySell != isBuy) continue;
+
+                int currentDQVarition = isBuy ? this._ProcessInstantOrder.InstantOrderForInstrument.BuyVariation:this._ProcessInstantOrder.InstantOrderForInstrument.SellVariation;
+                string marketPrice = isBuy ? order.Instrument.Ask : order.Instrument.Bid;
+                InstrumentClient instrument = order.Transaction.Instrument;
+                int acceptDQVarition = this._ProcessInstantOrder.CheckDQVariation(instrument, currentDQVarition);
+
+                //just test
+                Customer customer = this._App.InitDataManager.SettingsManager.GetCustomer(new Guid("4556F2F0-3C1B-4C27-AA67-03DE2D0C1E0C"));
+                QuotePolicyDetail quotePolicyDetail = this._App.InitDataManager.SettingsManager.GetQuotePolicyDetail(order.InstrumentId.Value, customer);
+
+                bool isAllowed = this._ProcessInstantOrder.AllowAccept(order, quotePolicyDetail, isBuy, marketPrice, currentDQVarition);
+                if (isAllowed)
+                {
+                    this._App.OrderHandle.OnOrderAccept(order);
+                }
+                else
+                {
+                    this._App.OrderHandle.OnOrderReject(order);
+                }
+            }
         }
 
         private void ProcessPendingOrder(OrderTask orderTask, CellDataDefine currentCellData)
@@ -183,7 +233,7 @@ namespace ManagerConsole.UI
         private void InstrumentCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             InstrumentClient instrument = (InstrumentClient)this._InstrumentCombo.SelectedItem;
-            if (instrument == null || instrument.Id == Guid.Empty) return;
+            if (instrument == null) return;
             this.FilterOrderByInstrument(instrument);
         }
 

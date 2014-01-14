@@ -53,61 +53,68 @@ namespace ManagerConsole.ViewModel
 
         private void LoadMetadata()
         {
-            if (this._MetadataNotLoaded)
+            try
             {
-                ConsoleClient.Instance.GetConfigMetadata(delegate(ConfigMetadata metadata)
+                if (this._MetadataNotLoaded)
                 {
-                    this._QuotationSources.Clear();
-                    foreach (var source in metadata.QuotationSources.Values)
+                    ConsoleClient.Instance.GetConfigMetadata(delegate(ConfigMetadata metadata)
                     {
-                        this._QuotationSources.Add(new VmQuotationSource(source));
-                    }
-
-                    this._Instruments.Clear();
-                    foreach (var instrument in metadata.Instruments.Values)
-                    {
-                        VmInstrument vmInstrument = new VmInstrument(instrument);
-                        if (instrument.IsDerivative)
+                        this._QuotationSources.Clear();
+                        foreach (var source in metadata.QuotationSources.Values)
                         {
-                            vmInstrument.VmDerivativeRelation = new VmDerivativeRelation(metadata.DerivativeRelations[instrument.Id]);
+                            this._QuotationSources.Add(new VmQuotationSource(source));
                         }
-                        else
+
+                        this._Instruments.Clear();
+                        foreach (var instrument in metadata.Instruments.Values)
                         {
-                            foreach (Dictionary<string, InstrumentSourceRelation> dict in metadata.InstrumentSourceRelations.Values)
+                            VmInstrument vmInstrument = new VmInstrument(instrument);
+                            if (instrument.IsDerivative)
                             {
-                                var relation = dict.Values.SingleOrDefault(r => r.InstrumentId == instrument.Id);
-                                if (relation != null)
+                                vmInstrument.VmDerivativeRelation = new VmDerivativeRelation(metadata.DerivativeRelations[instrument.Id]);
+                            }
+                            else
+                            {
+                                foreach (Dictionary<string, InstrumentSourceRelation> dict in metadata.InstrumentSourceRelations.Values)
                                 {
-                                    VmQuotationSource vmQuotationSource = this._QuotationSources.Single(s => s.Id == relation.SourceId);
-                                    vmInstrument.SourceRelations.Add(new VmInstrumentSourceRelation(relation, vmInstrument, vmQuotationSource));
+                                    var relation = dict.Values.SingleOrDefault(r => r.InstrumentId == instrument.Id);
+                                    if (relation != null)
+                                    {
+                                        VmQuotationSource vmQuotationSource = this._QuotationSources.Single(s => s.Id == relation.SourceId);
+                                        vmInstrument.SourceRelations.Add(new VmInstrumentSourceRelation(relation, vmInstrument, vmQuotationSource));
+                                    }
+                                }
+
+                                if (!instrument.IsDerivative)
+                                {
+                                    vmInstrument.VmPriceRangeCheckRule = new VmPriceRangeCheckRule(metadata.PriceRangeCheckRules[instrument.Id]);
+                                    if (metadata.WeightedPriceRules.ContainsKey(instrument.Id))
+                                    {
+                                        vmInstrument.VmWeightedPriceRule = new VmWeightedPriceRule(metadata.WeightedPriceRules[instrument.Id]);
+                                    }
+                                    else
+                                    {
+                                        vmInstrument.VmWeightedPriceRule = new VmWeightedPriceRule(new WeightedPriceRule());
+                                    }
                                 }
                             }
 
-                            if(!instrument.IsDerivative)
+                            // set quotation
+                            GeneralQuotation generalQuotation;
+                            if (metadata.LastQuotations.TryGetValue(instrument.Id, out generalQuotation))
                             {
-                                vmInstrument.VmPriceRangeCheckRule = new VmPriceRangeCheckRule(metadata.PriceRangeCheckRules[instrument.Id]);
-                                if(metadata.WeightedPriceRules.ContainsKey(instrument.Id))
-                                {
-                                    vmInstrument.VmWeightedPriceRule = new VmWeightedPriceRule(metadata.WeightedPriceRules[instrument.Id]);
-                                }
-                                else
-                                {
-                                    vmInstrument.VmWeightedPriceRule = new VmWeightedPriceRule(new WeightedPriceRule());
-                                }
+                                vmInstrument.SetQuotation(generalQuotation, vmInstrument.DecimalPlace);
                             }
-                        }
 
-                        // set quotation
-                        GeneralQuotation generalQuotation;
-                        if(metadata.LastQuotations.TryGetValue(instrument.Id, out generalQuotation))
-                        {
-                            vmInstrument.SetQuotation(generalQuotation, vmInstrument.DecimalPlace);
+                            this._Instruments.Add(vmInstrument);
                         }
-
-                        this._Instruments.Add(vmInstrument);
-                    }
-                    this._MetadataNotLoaded = false;
-                });
+                        this._MetadataNotLoaded = false;
+                    });
+                }
+            }
+            catch(Exception exception)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "VmQuotationManager.LoadMetadata\r\n{0}", exception);
             }
         }
 

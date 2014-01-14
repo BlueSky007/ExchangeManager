@@ -1,4 +1,5 @@
-﻿using ManagerConsole.Helper;
+﻿using iExchange.Common;
+using ManagerConsole.Helper;
 using ManagerConsole.Model;
 using System;
 using System.Collections.Generic;
@@ -31,9 +32,10 @@ namespace ManagerConsole.ViewModel
         private Account _Account;
         private Transaction _Transaction;
         private InstrumentClient _Instrument;
+        private QuotePolicyDetail _QuotePolicyDetail;
         private Guid _OrderId;
         private string _Code;
-        private ManagerCommon.Phase _Phase;
+        private iExchange.Common.OrderPhase _Phase;
         private OrderStatus _OrderStatus = OrderStatus.Placing;
         private string _OrderStatuString;
         private DateTime? _TimeStamp;
@@ -41,14 +43,14 @@ namespace ManagerConsole.ViewModel
         private BuySell _IsBuy;
         private OpenClose _IsOPen;
         private decimal? _Lot;
-        private ManagerCommon.TradeOption _TradeOption;
+        private iExchange.Common.TradeOption _TradeOption;
         private string _SetPrice;
         private string _BestPrice;
         private int _DiffPrice;
         private int _DQMaxMove;
         private int? _HitCount = 0;
         private DateTime? _BestTime;
-        private int? _ContractSize;
+        private decimal _ContractSize;
         private OrderType _OrderType;
         private string _OrderTypeString;
         private DateTime? _ExpireTime;
@@ -112,7 +114,7 @@ namespace ManagerConsole.ViewModel
             get { return this._Code; }
             set { this._Code = value; }
         }
-        public ManagerCommon.Phase Phase
+        public iExchange.Common.OrderPhase Phase
         {
             get { return this._Phase; }
             set { this._Phase = value; }
@@ -254,7 +256,7 @@ namespace ManagerConsole.ViewModel
             set { this._Lot = value; this.OnPropertyChanged("Lot"); }
         }
 
-        public ManagerCommon.TradeOption TradeOption
+        public iExchange.Common.TradeOption TradeOption
         {
             get { return this._TradeOption; }
             set { this._TradeOption = value; this.OnPropertyChanged("TradeOption"); }
@@ -328,7 +330,7 @@ namespace ManagerConsole.ViewModel
             get { return this.Transaction.Code; }
         }
 
-        public int? ContractSize
+        public decimal ContractSize
         {
             get { return this._ContractSize; }
             set { this._ContractSize = value; this.OnPropertyChanged("ContractSize"); }
@@ -441,8 +443,8 @@ namespace ManagerConsole.ViewModel
             if ((this._IsBuy == BuySell.Buy && string.Equals(askBid, "Ask")
                 || (this._IsBuy == BuySell.Sell && string.Equals(askBid, "Bid"))))
             {
-                ManagerCommon.Price setPrice = ManagerCommon.Price.CreateInstance(this._SetPrice, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
-                ManagerCommon.Price refPrice = ManagerCommon.Price.CreateInstance(newPrice, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+                Price setPrice = Price.CreateInstance(this._SetPrice, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+                Price refPrice = Price.CreateInstance(newPrice, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
                 if (refPrice != null && setPrice != null)
                 {
                     this._DiffPrice = Math.Abs(refPrice - setPrice);
@@ -529,7 +531,7 @@ namespace ManagerConsole.ViewModel
                 else if (this.OrderStatus == OrderStatus.WaitOutPriceLMT 
                         || this.OrderStatus == OrderStatus.WaitOutLotLMTOrigin 
                         || this.OrderStatus == OrderStatus.WaitOutLotLMT 
-                        || this.Transaction.SubType == ManagerCommon.TransactionSubType.IfDone)
+                        || this.Transaction.SubType == TransactionSubType.IfDone)
                 {
                     bool btnUpdateIsEnable = (this.OrderStatus == OrderStatus.WaitOutPriceLMT) ? false : true;
                     bool btnModifyIsEnable = (this.OrderStatus == OrderStatus.WaitOutLotLMT) ? true : false;
@@ -628,6 +630,7 @@ namespace ManagerConsole.ViewModel
             this._IsBuy = order.BuySell;
             this._IsOPen = order.OpenClose;
             this._Lot = order.Lot;
+            this._ContractSize = order.Transaction.ContractSize;
             this._OrderType = order.Transaction.OrderType;
             this._OrderTypeString = order.Type;
             this._SetPrice = order.SetPrice;

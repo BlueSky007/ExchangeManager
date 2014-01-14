@@ -55,8 +55,8 @@ namespace ManagerConsole.UI
         {
             this.Dispatcher.BeginInvoke((Action)delegate()
             {
-                if (App.MainWindow.SourceQuotationControl != null) App.MainWindow.SourceQuotationControl.BindToInstrument(this._CurrentVmInstrument);
-                if (App.MainWindow.SourceRelationControl != null) App.MainWindow.SourceRelationControl.BindToInstrument(this._CurrentVmInstrument);
+                if (App.MainFrameWindow.SourceQuotationControl != null) App.MainFrameWindow.SourceQuotationControl.BindToInstrument(this._CurrentVmInstrument);
+                if (App.MainFrameWindow.SourceRelationControl != null) App.MainFrameWindow.SourceRelationControl.BindToInstrument(this._CurrentVmInstrument);
             });
         }
         private void AdjustPrice_TextChanged(object sender, TextChangedEventArgs e)
@@ -137,7 +137,7 @@ namespace ManagerConsole.UI
         private void AddInstrument_Click(object sender, RoutedEventArgs e)
         {
             InstrumentWindow window = new InstrumentWindow(EditMode.AddNew);
-            App.MainWindow.MainFrame.Children.Add(window);
+            App.MainFrameWindow.MainFrame.Children.Add(window);
             window.IsModal = true;
             window.Show();
         }
@@ -157,7 +157,7 @@ namespace ManagerConsole.UI
                 {
                     window = new InstrumentWindow(EditMode.Modify, vmInstrument);
                 }
-                App.MainWindow.MainFrame.Children.Add(window);
+                App.MainFrameWindow.MainFrame.Children.Add(window);
                 window.IsModal = true;
                 window.Show();
             }
@@ -169,7 +169,7 @@ namespace ManagerConsole.UI
             if (selectedRow != null)
             {
                 VmInstrument vmInstrument = (VmInstrument)selectedRow.Data;
-                if (MessageBox.Show(App.MainWindow, string.Format("Confirm delete Instrument:{0}?", vmInstrument.Code), "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel) == MessageBoxResult.OK)
+                if (MessageBox.Show(App.MainFrameWindow, string.Format("Confirm delete Instrument:{0}?", vmInstrument.Code), "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning, MessageBoxResult.Cancel) == MessageBoxResult.OK)
                 {
                     ConsoleClient.Instance.DeleteMetadataObject(MetadataType.Instrument, vmInstrument.Id, delegate(bool success)
                     {
@@ -183,8 +183,8 @@ namespace ManagerConsole.UI
                                 {
                                     //int newIndex = (selectedRow.Index == 0) ? 0 : selectedRow.Index - 1;
                                 }
-                                if (App.MainWindow.SourceQuotationControl != null) App.MainWindow.SourceQuotationControl.BindToInstrument(null);
-                                if (App.MainWindow.SourceRelationControl != null) App.MainWindow.SourceRelationControl.BindToInstrument(null);
+                                if (App.MainFrameWindow.SourceQuotationControl != null) App.MainFrameWindow.SourceQuotationControl.BindToInstrument(null);
+                                if (App.MainFrameWindow.SourceRelationControl != null) App.MainFrameWindow.SourceRelationControl.BindToInstrument(null);
                                 this.DataContext = null;
                             }
                         }, success);
@@ -220,7 +220,7 @@ namespace ManagerConsole.UI
         private void AddDeriveInstrument_Click(object sender, RoutedEventArgs e)
         {
             DerivedInstrumentWindow window = new DerivedInstrumentWindow(EditMode.AddNew);
-            App.MainWindow.MainFrame.Children.Add(window);
+            App.MainFrameWindow.MainFrame.Children.Add(window);
             window.IsModal = true;
             window.Show();
         }
@@ -290,6 +290,21 @@ namespace ManagerConsole.UI
         private void Grid_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             RowFiltersCollection collection = this.MonitorGrid.FilteringSettings.RowFiltersCollection;
+        }
+
+        private void SuspendResumeButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void ResumeAll_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void SuspendAll_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Infragistics.Controls.Grids;
 using ManagerConsole.Helper;
+using ManagerConsole.Model;
 using ManagerConsole.ViewModel;
 using System;
 using System.Collections.Generic;

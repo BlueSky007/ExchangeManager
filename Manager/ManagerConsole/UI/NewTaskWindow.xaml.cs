@@ -29,7 +29,7 @@ namespace ManagerConsole.UI
     /// </summary>
     public partial class NewTaskWindow : XamDialogWindow
     {
-        public delegate void ConfirmDialogResultHandle(bool yesOrNo, TaskScheduler taskScheduler);
+        public delegate void ConfirmDialogResultHandle(EditMode editMode, TaskScheduler taskScheduler);
         public event ConfirmDialogResultHandle OnConfirmDialogResult;
 
         private EditMode _EditMode;
@@ -43,12 +43,7 @@ namespace ManagerConsole.UI
             InitializeComponent();
             this._App = ((ManagerConsole.MainWindow)Application.Current.MainWindow);
             this._EditMode = editMode;
-            this._EditorTaskScheduler = taskScheduler;
-            this.Loaded += this.NewTaskWindow_Loaded;
-        }
 
-        private void NewTaskWindow_Loaded(object sender,RoutedEventArgs e)
-        {
             if (this._EditMode == EditMode.AddNew)
             {
                 this._TaskScheduler = new TaskScheduler();
@@ -57,6 +52,7 @@ namespace ManagerConsole.UI
             }
             else
             {
+                this._EditorTaskScheduler = taskScheduler.Clone();
                 this.SettingsUIBinding();
             }
             this._IsLoaded = true;
@@ -135,10 +131,6 @@ namespace ManagerConsole.UI
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            if (this.OnConfirmDialogResult != null)
-            {
-                this.OnConfirmDialogResult(false, null);
-            }
             this.Close();
         }
 
@@ -165,7 +157,14 @@ namespace ManagerConsole.UI
             taskEntity.ExchangInstruments = instruments;
             taskEntity.CreateDateTime = DateTime.Now;
             CommonTaskScheduler taskScheduler = taskEntity.ToCommonTaskScheduler();
-            ConsoleClient.Instance.CreateTaskScheduler(taskScheduler, this.CreateTaskSchedulerCallback);
+            if (this._EditMode == EditMode.AddNew)
+            {
+                ConsoleClient.Instance.CreateTaskScheduler(taskScheduler, this.CreateTaskSchedulerCallback);
+            }
+            else
+            {
+                ConsoleClient.Instance.EditorTaskScheduler(taskScheduler, this.EditorTaskSchedulerCallback);
+            }
         }
 
         private ObservableCollection<ExchangInstrument> GetExchangeInstruments()
@@ -196,7 +195,7 @@ namespace ManagerConsole.UI
                 {
                     if (this.OnConfirmDialogResult != null)
                     {
-                        this.OnConfirmDialogResult(true, this._TaskScheduler);
+                        this.OnConfirmDialogResult(EditMode.AddNew, this._TaskScheduler);
                     }
                 }
                 else
@@ -205,21 +204,32 @@ namespace ManagerConsole.UI
                 }
             }, isSucceed);
         }
+
+        private void EditorTaskSchedulerCallback(bool isSucceed)
+        {
+            this.Dispatcher.BeginInvoke((Action<bool>)delegate(bool result)
+            {
+                if (result)
+                {
+                    this._App._CommonDialogWin.ShowDialogWin("Editor task Succeed!", "Manager");
+                    if (this.OnConfirmDialogResult != null)
+                    {
+                        this.OnConfirmDialogResult(EditMode.Modify, this._EditorTaskScheduler);
+                    }
+                }
+                else
+                {
+                    this._App._CommonDialogWin.ShowDialogWin("Create task failed!", "Error");
+                }
+            }, isSucceed);
+        }
+        
         #endregion
 
         private void SettingsTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (!this._IsLoaded) return;
             SettingParameterType settingType = (SettingParameterType)Enum.ToObject(typeof(SettingParameterType), this.SettingsTypeComboBox.SelectedIndex);
-
-            //if (settingType == SettingParameterType.All)
-            //{
-            //    this._ParameterSettingGrid.ItemsSource = this._TaskScheduler.ParameterSettings;
-            //}
-            //else
-            //{
-            //    this._ParameterSettingGrid.ItemsSource = this._TaskScheduler.ParameterSettings.Where(P => P.SettingParameterType == settingType);
-            //}
 
             if (settingType == SettingParameterType.InstrumentParameter || settingType == SettingParameterType.All)
             {
@@ -267,5 +277,28 @@ namespace ManagerConsole.UI
                 }
             }
         }
+
+        private void ActionTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (!this._IsLoaded) return;
+            ActionType actionType = (ActionType)Enum.ToObject(typeof(ActionType), this.ActionTypeComboBox.SelectedIndex);
+
+            if (actionType == ActionType.Daily)
+            {
+                this.DailyTypeBorder.Visibility = Visibility.Visible;
+                this.WeeklyTypeBorder.Visibility = Visibility.Collapsed;
+            }
+            else if (actionType == ActionType.Weekly)
+            {
+                this.DailyTypeBorder.Visibility = Visibility.Collapsed;
+                this.WeeklyTypeBorder.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                this.DailyTypeBorder.Visibility = Visibility.Collapsed;
+                this.WeeklyTypeBorder.Visibility = Visibility.Collapsed;
+            }
+        }
+
     }
 }

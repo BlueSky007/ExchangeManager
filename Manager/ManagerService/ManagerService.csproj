@@ -115,6 +115,7 @@
     <Compile Include="QuotationExchange\QuotationServer.cs" />
     <Compile Include="QuotationExchange\QuotePolicyDetail.cs" />
     <Compile Include="QuotationExchange\TempQuotation.cs" />
+    <Compile Include="QuotationManager\AbnormalInstrument.cs" />
     <Compile Include="QuotationManager\DerivativeController.cs" />
     <Compile Include="QuotationManager\AbnormalQuotationManager.cs" />
     <Compile Include="QuotationManager\Extension.cs" />
@@ -124,7 +125,8 @@
     <Compile Include="QuotationManager\QuotationManager.cs" />
     <Compile Include="QuotationManager\QuotationReceiver.cs" />
     <Compile Include="QuotationManager\SourceController.cs" />
-    <Compile Include="SettingSchedulerManager\SettingSchedulerManager.cs" />
+    <Compile Include="SettingsTaskManager\TaskCheckManager.cs" />
+    <Compile Include="SettingsTaskManager\SettingsTaskSchedulerManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Audit\" />

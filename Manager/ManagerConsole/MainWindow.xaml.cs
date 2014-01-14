@@ -137,7 +137,7 @@ namespace ManagerConsole
             loginWindow.IsModal = true;
             loginWindow.Show();
             loginWindow.BringToFront();
-            App.MainWindow = this;  
+            App.MainFrameWindow = this;  
         }
 
         private void AddQuotePriceFrm()
@@ -223,16 +223,16 @@ namespace ManagerConsole
             // initialize layout
             try
             {
-                this._Layouts = new ObservableCollection<string>(result.LayoutNames);
-                foreach (string layoutName in result.LayoutNames)
-                {
-                    XamMenuItem item = new XamMenuItem();
-                    item.Header = layoutName;
-                    item.Click += Layout_Click;
-                    this.layout.Items.Add(item);
-                }
+            this._Layouts = new ObservableCollection<string>(result.LayoutNames);
+            foreach (string layoutName in result.LayoutNames)
+            {
+                XamMenuItem item = new XamMenuItem();
+                item.Header = layoutName;
+                item.Click += Layout_Click;
+                this.layout.Items.Add(item);
+            }
                 if (!string.IsNullOrEmpty(result.DockLayout))
-                {
+            {
                     this._LayoutManager.LoadLayout(result.DockLayout, result.ContentLayout);
                 }
             }

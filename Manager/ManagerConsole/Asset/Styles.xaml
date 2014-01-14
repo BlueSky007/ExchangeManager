@@ -34,6 +34,7 @@
         <Setter Property="TextWrapping" Value="Wrap" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Foreground" Value="Black"/>
     </Style>
     
     <Style x:Key="TxtBlockStyle_NickName" TargetType="{x:Type TextBlock}">
@@ -178,6 +179,8 @@
     <Style x:Key="TimesCellStyle" TargetType="ig:CellControl">
         <Setter Property="Foreground" Value="Red" />
         <Setter Property="FontSize" Value="15"></Setter>
+        <Setter Property="Background" Value="Black"/>
+        <Setter Property="BorderBrush" Value="#FF26355D"/>
     </Style>
 
 
@@ -309,6 +312,90 @@
         <Setter Property="Padding" Value="0"/>
         <Setter Property="BorderThickness" Value="0,1,0,0"/>
         <Setter Property="BorderBrush" Value="Gray"/>
+    </Style>
+
+    <Style x:Key="DealingOrderBuyButtonStyle" TargetType="Button">
+        <Setter Property="Opacity" Value="1" />
+        <Setter Property="Height" Value="35" />
+        <Setter Property="Background" Value="Blue"/>
+        <Style.Triggers>
+            <Trigger Property="Button.IsMouseOver" Value="True">
+                <Setter Property="Button.Foreground" Value="Blue"/>
+                <Setter Property="Button.Background" Value="Blue"/>
+                <Setter Property="Button.Height" Value="35"/>
+            </Trigger>
+            <Trigger Property="Button.IsPressed" Value="True">
+                <Setter Property="Button.Foreground" Value="#FF314D34"/>
+                <Setter Property="Button.Background" Value="Blue"/>
+                <Setter Property="Button.Height" Value="37"/>
+                <Setter Property="Button.BorderBrush" Value="Green"/>
+                <Setter Property="Button.BorderThickness" Value="1"/>
+            </Trigger>
+            <EventTrigger RoutedEvent="Mouse.MouseEnter">
+                <EventTrigger.Actions>
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation
+                                Duration="0:0:0.2"
+                                Storyboard.TargetProperty="Opacity"
+                                To="0.9"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger.Actions>
+            </EventTrigger>
+            <EventTrigger RoutedEvent="Mouse.MouseLeave">
+                <EventTrigger.Actions>
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation
+                                Duration="0:0:1"
+                                Storyboard.TargetProperty="Opacity"  />
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger.Actions>
+            </EventTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="DealingOrderSellButtonStyle" TargetType="Button">
+        <Setter Property="Opacity" Value="1" />
+        <Setter Property="Height" Value="35" />
+        <Setter Property="Background" Value="Red"/>
+        <Style.Triggers>
+            <Trigger Property="Button.IsMouseOver" Value="True">
+                <Setter Property="Button.Foreground" Value="LightPink"/>
+                <Setter Property="Button.Height" Value="35"/>
+            </Trigger>
+            <Trigger Property="Button.IsPressed" Value="True">
+                <Setter Property="Button.Foreground" Value="Pink"/>
+                <Setter Property="Button.Height" Value="37"/>
+                <Setter Property="Button.BorderBrush" Value="Green"/>
+                <Setter Property="Button.BorderThickness" Value="1"/>
+            </Trigger>
+            <EventTrigger RoutedEvent="Mouse.MouseEnter">
+                <EventTrigger.Actions>
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation
+                                Duration="0:0:0.2"
+                                Storyboard.TargetProperty="Opacity"
+                                To="0.9"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger.Actions>
+            </EventTrigger>
+            <EventTrigger RoutedEvent="Mouse.MouseLeave">
+                <EventTrigger.Actions>
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation
+                                Duration="0:0:1"
+                                Storyboard.TargetProperty="Opacity"  />
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger.Actions>
+            </EventTrigger>
+        </Style.Triggers>
     </Style>
 
 

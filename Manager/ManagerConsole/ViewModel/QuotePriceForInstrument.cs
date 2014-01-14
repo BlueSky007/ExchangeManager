@@ -6,6 +6,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
 using System.Windows.Media;
+using Price = iExchange.Common.Price;
 
 namespace ManagerConsole.ViewModel
 {
@@ -239,9 +240,9 @@ namespace ManagerConsole.ViewModel
             this._QuoteId = quotePriceClient.Id;
             this._Instrument = quotePriceClient.Instrument;
             this._InstrumentCode = this._Instrument.Code;
-            this._Origin = this._Instrument.Origin;
-            this._Ask = this._Instrument.Ask;
-            this._Bid = this._Instrument.Bid;
+            this._Origin = quotePriceClient.ExchangeQuotation.Origin;
+            this._Ask = quotePriceClient.ExchangeQuotation.Ask;
+            this._Bid = quotePriceClient.ExchangeQuotation.Bid;
             this._SumBuyLot = quotePriceClient.BuyLot;
             this._SumSellLot = quotePriceClient.SellLot;
             this._Lot = quotePriceClient.Lot;
@@ -388,12 +389,13 @@ namespace ManagerConsole.ViewModel
 
         public bool? IsValidPrice(QuotePriceClient quotePriceClient, decimal adjust)
         {
+            if (quotePriceClient.Origin == null) return false;
             Price lastOriginPrice = Price.CreateInstance(quotePriceClient.Origin, this.Instrument.NumeratorUnit.Value, this.Instrument.Denominator.Value);
             string validInt = "^-?\\d+$";
             Price originPrice;
             if (Regex.IsMatch(adjust.ToString(), validInt))
             {
-                originPrice = Price.Adjust(lastOriginPrice, (int)adjust);
+                originPrice = lastOriginPrice + (int)adjust;
             }
             else
             {
@@ -423,7 +425,7 @@ namespace ManagerConsole.ViewModel
             Price originPrice;
             if (Regex.IsMatch(adjust.ToString(), validInt))
             {
-                originPrice = Price.Adjust(lastOriginPrice, (int)adjust);
+                originPrice = lastOriginPrice + (int)adjust;
             }
             else
             {

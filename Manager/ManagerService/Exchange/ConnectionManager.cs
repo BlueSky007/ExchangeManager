@@ -21,11 +21,12 @@ namespace ManagerService.Exchange
     public class ConnectionManager
     {
         private Dictionary<string, ExchangeSystem> _ExchangeSystems;
-        private Thread _MonitorThread;
+        private Timer _MonitorTimer;
 
         public ConnectionManager(Dictionary<string, ExchangeSystem> exchangeSystems)
         {
             this._ExchangeSystems = exchangeSystems;
+            this._MonitorTimer = new Timer(this.Monitor);
         }
 
         public void NotifyExchangeManagerStarted()
@@ -34,12 +35,11 @@ namespace ManagerService.Exchange
             {
                 this.NotifyExchangeToConnect(exchangeSystem.StateServerUrl, exchangeSystem.ExchangeCode);
             }
-            this._MonitorThread = new Thread(this.Monitor) { IsBackground = true };
-            this._MonitorThread.Start();
         }
 
-        private void NotifyExchangeToConnect(string stateServerUrl, string exchangeSystemCode)
+        public void NotifyExchangeToConnect(string stateServerUrl, string exchangeSystemCode)
         {
+            bool callFailed = true;
             try
             {
                 EndpointAddress address = new EndpointAddress(stateServerUrl);
@@ -48,6 +48,7 @@ namespace ManagerService.Exchange
                 binding.Elements.Add(new HttpTransportBindingElement());
                 IStateServerWebService stateServer = ChannelFactory<IStateServerWebService>.CreateChannel(binding, address);
                 stateServer.NotifyManagerStarted(MainService.ManagerSettings.ServiceAddressForExchange, exchangeSystemCode);
+                callFailed = false;
             }
             catch (EndpointNotFoundException)
             {
@@ -56,32 +57,39 @@ namespace ManagerService.Exchange
                     "ConnectionManager.NotifyExchangeToConnect EndpointNotFoundException\r\nstateServerUrl:{0}\r\nexchangeSystemCode:{1}",
                     stateServerUrl, exchangeSystemCode);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                Logger.AddEvent(TraceEventType.Error, "ConnectionManager.NotifyExchangeToConnect error:\r\n{0}", ex.ToString());
+                Logger.AddEvent(TraceEventType.Error,
+                    "ConnectionManager.NotifyExchangeToConnect\r\nstateServerUrl:{0}\r\nexchangeSystemCode:{1}\r\n{2}",
+                    stateServerUrl, exchangeSystemCode, exception);
+            }
+            if(callFailed)
+            {
+                this._MonitorTimer.Change(5000, 30000);
             }
         }
 
-        private void Monitor()
+        private void Monitor(object state)
         {
             try
             {
-                TimeSpan interval = TimeSpan.FromMinutes(5);
-                while (true)
+                bool allConnected = true;
+                foreach (var exchangeSystem in this._ExchangeSystems.Values)
                 {
-                    foreach (var exchangeSystem in this._ExchangeSystems.Values)
+                    if (exchangeSystem.ConnectionState == ConnectionState.Disconnected)
                     {
-                        if (exchangeSystem.ConnectionState == ConnectionState.Disconnected)
-                        {
-                            this.NotifyExchangeToConnect(exchangeSystem.StateServerUrl, exchangeSystem.ExchangeCode);
-                        }
+                        this.NotifyExchangeToConnect(exchangeSystem.StateServerUrl, exchangeSystem.ExchangeCode);
+                        allConnected = false;
                     }
-                    Thread.Sleep(interval);
+                }
+                if (allConnected)
+                {
+                    this._MonitorTimer.Change(Timeout.Infinite, Timeout.Infinite);
                 }
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                Logger.AddEvent(TraceEventType.Error, "ConnectionManager.Monitor thread exit.\r\n" + ex.ToString());
+                Logger.AddEvent(TraceEventType.Error, "ConnectionManager.Monitor\r\n{0}", exception);
             }
         }
     }

@@ -57,7 +57,52 @@ namespace ManagerService.Console
             this._ClientProxy = clientProxy;
             this._MessageRelayEngine.Resume();
         }
-        
+
+        public void UpdateDataPermission(string exchangeCode, string type, Guid groupId, List<Guid> memberIds)
+        {
+            bool hasPermission = UserDataAccess.CheckPermission(userId,groupId, type, exchangeCode);
+            if (hasPermission)
+            {
+                foreach (Guid memberId in memberIds)
+                {
+                    if (type == "Account")
+                    {
+                        if (!this._AccountPermission[exchangeCode].Contains(memberId))
+                        {
+                            this._AccountPermission[exchangeCode].Add(memberId);
+                        }
+                    }
+                    else
+                    {
+                        if (!this._InstrumentPermission[exchangeCode].Contains(memberId))
+                        {
+                            this._InstrumentPermission[exchangeCode].Add(memberId);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                foreach (Guid memberId in memberIds)
+                {
+                    if (type == "Account")
+                    {
+                        if (this._AccountPermission[exchangeCode].Contains(memberId))
+                        {
+                            this._AccountPermission[exchangeCode].Remove(memberId);
+                        }
+                    }
+                    else
+                    {
+                        if (this._InstrumentPermission[exchangeCode].Contains(memberId))
+                        {
+                            this._InstrumentPermission[exchangeCode].Remove(memberId);
+                        }
+                    }
+                }
+            }
+        }
+
         public void UpdatePermission(Dictionary<string, List<Guid>> accountPermissions, Dictionary<string, List<Guid>> instrumentPermission)
         {
             this._AccountPermission = accountPermissions;
@@ -82,6 +127,7 @@ namespace ManagerService.Console
         public void Channel_Broken(object sender, EventArgs e)
         {
             this._MessageRelayEngine.Suspend();
+            Logger.AddEvent(TraceEventType.Warning, "Client Channel_Broken of UserName:{0} sessionId:{1}", this.user.UserName, this._SessionId);
         }
 
         public void Close()
@@ -115,7 +161,6 @@ namespace ManagerService.Console
 
         private Message Filter(Message message)
         {
-            return message;
             IFilterable filterableMessage = message as IFilterable;
             ExchangeMessage exchangeMessage = message as ExchangeMessage;
             if (filterableMessage != null && exchangeMessage != null)
@@ -459,8 +504,8 @@ namespace ManagerService.Console
                     {
                         WriteLogManager.WriteQuotePriceLog(answer, this, "AbandQuotePrice");
                     }
-    }
-}
+                }
+            }
             catch (Exception ex)
             {
                 Logger.AddEvent(TraceEventType.Error, "Client.AbandonQuote error:\r\n{0}", ex.ToString());
@@ -494,7 +539,7 @@ namespace ManagerService.Console
         internal TransactionError AcceptPlace(Guid transactionId, LogOrder logEntity)
         {
             TransactionError transactionError = TransactionError.OK;
-            string exchangeCode = "WF01";
+            string exchangeCode = logEntity.ExchangeCode;
             try
             {
                 ExchangeSystem exchangeSystem = MainService.ExchangeManager.GetExchangeSystem(exchangeCode);
@@ -528,16 +573,17 @@ namespace ManagerService.Console
             return transactionError;
         }
 
-        internal TransactionError Execute(Guid transactionId, string buyPrice, string sellPrice, decimal lot, Guid orderId, LogOrder logEntity)
+        internal TransactionResult Execute(Guid transactionId, string buyPrice, string sellPrice, decimal lot, Guid orderId, LogOrder logEntity)
         {
-            TransactionError transactionError = TransactionError.OK;
+            TransactionResult transactionResult = null;
             string exchangeCode = logEntity.ExchangeCode;
+
             try
             {
                 ExchangeSystem exchangeSystem = MainService.ExchangeManager.GetExchangeSystem(exchangeCode);
-                transactionError = exchangeSystem.Execute(transactionId, buyPrice, sellPrice, lot, orderId);
+                transactionResult = exchangeSystem.Execute(transactionId, buyPrice, sellPrice, lot, orderId);
 
-                if (transactionError == TransactionError.OK)
+                if (transactionResult.TransactionError == TransactionError.OK)
                 {
                     WriteLogManager.WriteQuoteOrderLog(logEntity);
                 }
@@ -546,7 +592,7 @@ namespace ManagerService.Console
             {
                 Logger.AddEvent(TraceEventType.Error, "Client.Execute error:\r\n{0}", ex.ToString());
             }
-            return transactionError;
+            return transactionResult;
         }
 
         internal TransactionError Cancel(Guid transactionId, CancelReason cancelReason, LogOrder logEntity)
@@ -572,9 +618,11 @@ namespace ManagerService.Console
 
         internal void ResetHit(Guid[] orderIds)
         {
+            string exchangeCode = "WF01";
             try
             {
-                //this.StateServer.ResetHit(token, orderIDs);
+                ExchangeSystem exchangeSystem = MainService.ExchangeManager.GetExchangeSystem(exchangeCode);
+                exchangeSystem.ResetHit(orderIds);
             }
             catch (Exception ex)
             {
@@ -585,17 +633,11 @@ namespace ManagerService.Console
         internal AccountInformation GetAcountInfo(Guid transactionId)
         {
             AccountInformation accountInfor = new AccountInformation();
+            string exchangeCode = "WF01";
             try
             {
-                //just test data
-                accountInfor.AccountId = new Guid("9538eb6e-57b1-45fa-8595-58df7aabcfc9");
-                accountInfor.InstrumentId = new Guid("66adc06c-c5fe-4428-867f-be97650eb3b1");
-                accountInfor.Balance = 88888888;
-                accountInfor.Equity = 10000000;
-                accountInfor.Necessary = 99999999;
-                accountInfor.BuyLotBalanceSum = 100;
-                accountInfor.SellLotBalanceSum = 200;
-                accountInfor.Usable = accountInfor.Equity - accountInfor.Necessary;
+                ExchangeSystem exchangeSystem = MainService.ExchangeManager.GetExchangeSystem(exchangeCode);
+                accountInfor = exchangeSystem.GetAcountInfo(transactionId);
             }
             catch (Exception ex)
             {
@@ -650,7 +692,7 @@ namespace ManagerService.Console
 
                 if (result)
                 {
-                    MainService.SettingSchedulerManager.AddTaskScheduler(taskScheduler);
+                    MainService.SettingsTaskSchedulerManager.AddTaskScheduler(taskScheduler);
                 }
             }
             catch (Exception ex)
@@ -660,11 +702,30 @@ namespace ManagerService.Console
             return result;
         }
 
+        public bool EditorTaskScheduler(TaskScheduler taskScheduler)
+        {
+            bool result = false;
+            try
+            {
+                result = SettingManagerData.EditorTaskScheduler(taskScheduler);
+
+                if (result)
+                {
+                    MainService.SettingsTaskSchedulerManager.ModifyTaskScheduler(taskScheduler);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerService.Console.Client/EditorTaskScheduler.\r\n{0}", ex.ToString());
+            }
+            return result;
+        }
+
         public void EnableTaskScheduler(TaskScheduler taskScheduler)
         {
             try
             {
-                MainService.SettingSchedulerManager.AddTaskScheduler(taskScheduler);
+                MainService.SettingsTaskSchedulerManager.AddTaskScheduler(taskScheduler);
             }
             catch (Exception ex)
             {
@@ -676,7 +737,7 @@ namespace ManagerService.Console
         {
             try
             {
-                MainService.SettingSchedulerManager.StartRunTaskScheduler(taskScheduler);
+                MainService.SettingsTaskSchedulerManager.StartRunTaskScheduler(taskScheduler);
             }
             catch (Exception ex)
             {
@@ -684,23 +745,29 @@ namespace ManagerService.Console
             }
         }
 
-        public void DeleteTaskScheduler(TaskScheduler taskScheduler)
+        public bool DeleteTaskScheduler(TaskScheduler taskScheduler)
         {
+            bool result = false;
             try
             {
-                MainService.SettingSchedulerManager.DeleteTaskScheduler(taskScheduler); 
+                result = SettingManagerData.DeleteTaskScheduler(taskScheduler);
+                if (result)
+                {
+                    MainService.SettingsTaskSchedulerManager.DeleteTaskScheduler(taskScheduler);
+                }
             }
             catch (Exception ex)
             {
                 Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerService.Console.Client/DeleteTaskScheduler.\r\n{0}", ex.ToString());
             }
+            return result;
         }
 
         public List<TaskScheduler> GetTaskSchedulersData()
         {
             try
             {
-                return MainService.SettingSchedulerManager.TaskSchedulers;
+                return MainService.SettingsTaskSchedulerManager.TaskSchedulers;
             }
             catch (Exception ex)
             {

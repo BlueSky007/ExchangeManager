@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CommonAccount = Manager.Common.Settings.Account;
+using AccountType = iExchange.Common.AccountType;
 
 namespace ManagerConsole.Model
 {
@@ -10,16 +11,11 @@ namespace ManagerConsole.Model
     {
         public Guid Id { get; set; }
         public string Code { get; set; }
-        public Guid TradePolicyId
-        {
-            get;
-            private set;
-        }
-
+        public AccountType AccountType { get; set; }
+        public Guid TradePolicyId { get; set; }
         public Guid CustomerId { get; set; }
-
         public Guid GroupId { get; set; }
-
+        public string GroupCode { get; set; }
         public bool IsBlack { get; set; }
 
         public Account() { }
@@ -33,8 +29,11 @@ namespace ManagerConsole.Model
         {
             this.Id = account.Id;
             this.Code = account.Code;
+            this.AccountType = account.AccountType;
             this.CustomerId = account.CustomerId;
+            this.TradePolicyId = account.TradePolicyId;
             this.GroupId = account.GroupId;
+            this.GroupCode = account.GroupCode;
             this.IsBlack = account.IsBlack;
         }
     }

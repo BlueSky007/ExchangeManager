@@ -297,12 +297,12 @@ namespace ManagerConsole.Model
             }, null);
         }
 
-        public void Execute(Transaction tran, string buyPrice, string sellPrice, decimal lot, Guid orderId, LogOrder logEntity, Action<Transaction,TransactionError> EndExecute)
+        public void Execute(Transaction tran, string buyPrice, string sellPrice, decimal lot, Guid orderId, LogOrder logEntity, Action<Transaction, TransactionResult> EndExecute)
         {
             this._ServiceProxy.BeginExecute(tran.Id, buyPrice, sellPrice, lot, orderId, logEntity, delegate(IAsyncResult result)
             {
-                TransactionError transactionError = this._ServiceProxy.EndExecute(result);
-                EndExecute(tran,transactionError);
+                TransactionResult tranResult = this._ServiceProxy.EndExecute(result);
+                EndExecute(tran, tranResult);
             }, null);
         }
 
@@ -346,6 +346,15 @@ namespace ManagerConsole.Model
             }, null);
         }
 
+        public void EditorTaskScheduler(TaskScheduler taskScheduler, Action<bool> EndEditorTaskScheduler)
+        {
+            this._ServiceProxy.BeginEditorTaskScheduler(taskScheduler, delegate(IAsyncResult result)
+            {
+                bool isOk = this._ServiceProxy.EndEditorTaskScheduler(result);
+                EndEditorTaskScheduler(isOk);
+            }, null);
+        }
+
         public void EnableTaskScheduler(TaskScheduler taskScheduler)
         {
             this._ServiceProxy.EnableTaskScheduler(taskScheduler);
@@ -355,7 +364,7 @@ namespace ManagerConsole.Model
         {
             this._ServiceProxy.BeginStartRunTaskScheduler(taskScheduler, delegate(IAsyncResult result)
             {
-                App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+                App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
                 {
                     this._ServiceProxy.EndStartRunTaskScheduler(result);
                     EndStartRunTaskScheduler();
@@ -363,14 +372,14 @@ namespace ManagerConsole.Model
             }, null);
         }
 
-        public void DeleteTaskScheduler(TaskScheduler taskScheduler, Action EndDeleteTaskScheduler)
+        public void DeleteTaskScheduler(TaskScheduler taskScheduler, Action<Guid,bool> EndDeleteTaskScheduler)
         {
             this._ServiceProxy.BeginDeleteTaskScheduler(taskScheduler, delegate(IAsyncResult result)
             {
-                App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+                App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
                 {
-                    this._ServiceProxy.EndDeleteTaskScheduler(result);
-                    EndDeleteTaskScheduler();
+                    bool isOk = this._ServiceProxy.EndDeleteTaskScheduler(result);
+                    EndDeleteTaskScheduler(taskScheduler.Id,isOk);
                 });
             }, null);
         }
@@ -379,7 +388,7 @@ namespace ManagerConsole.Model
         {
             this._ServiceProxy.BeginGetTaskSchedulersData(delegate(IAsyncResult result)
             {
-                App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+                App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
                 {
                     List<TaskScheduler> taskSchedulers = this._ServiceProxy.EndGetTaskSchedulersData(result);
                     EndGetTaskSchedulersData(taskSchedulers);
@@ -491,7 +500,7 @@ namespace ManagerConsole.Model
         {
             this._ServiceProxy.BeginGetConfigMetadata(delegate(IAsyncResult ar)
             {
-                App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+                App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
                 {
                     ConfigMetadata metaData = this._ServiceProxy.EndGetConfigMetadata(ar);
                     setMetadata(metaData);
@@ -524,7 +533,7 @@ namespace ManagerConsole.Model
             this._ServiceProxy.BeginUpdateMetadataObject(type, objectId, fieldAndValues, delegate(IAsyncResult ar)
             {
                 bool result = this._ServiceProxy.EndUpdateMetadataObject(ar);
-                App.MainWindow.Dispatcher.BeginInvoke((Action<bool>)delegate(bool success)
+                App.MainFrameWindow.Dispatcher.BeginInvoke((Action<bool>)delegate(bool success)
                 {
                     NotifyResult(success);
                 }, result);
@@ -536,7 +545,7 @@ namespace ManagerConsole.Model
             this._ServiceProxy.BeginUpdateMetadataObjects(updateDatas, delegate(IAsyncResult ar)
             {
                 bool result = this._ServiceProxy.EndUpdateMetadataObjects(ar);
-                App.MainWindow.Dispatcher.BeginInvoke((Action<bool>)delegate(bool success)
+                App.MainFrameWindow.Dispatcher.BeginInvoke((Action<bool>)delegate(bool success)
                 {
                     NotifyResult(success);
                 }, result);
@@ -548,7 +557,7 @@ namespace ManagerConsole.Model
             this._ServiceProxy.BeginUpdateMetadataObjectField(type, objectId, field, value, delegate(IAsyncResult ar)
             {
                 bool result = this._ServiceProxy.EndUpdateMetadataObjectField(ar);
-                App.MainWindow.Dispatcher.BeginInvoke((Action<bool>)delegate(bool success)
+                App.MainFrameWindow.Dispatcher.BeginInvoke((Action<bool>)delegate(bool success)
                 {
                     NotifyResult(success);
                 }, result);

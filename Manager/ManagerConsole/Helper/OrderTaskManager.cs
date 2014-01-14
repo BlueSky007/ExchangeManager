@@ -5,19 +5,20 @@ using System.Text;
 using ManagerConsole.Model;
 using ManagerConsole.ViewModel;
 using OrderType = iExchange.Common.OrderType;
-using Price = Manager.Common.Price;
-using PriceType = Manager.Common.PriceType;
+using Price = iExchange.Common.Price;
+using PriceType = iExchange.Common.PriceType;
+using ConfigParameters = Manager.Common.Settings.ConfigParameters;
 using System.Text.RegularExpressions;
 namespace ManagerConsole.Helper
 {
     public class OrderTaskManager
     {
-        public static bool CheckDQOrder(OrderTask order,SystemParameter parameter)
+        public static bool CheckDQOrder(OrderTask order, SystemParameter parameter, ConfigParameters configParameter)
         {
             bool isOK = false;
             if((order.OrderType == OrderType.SpotTrade) && (order.OrderStatus == OrderStatus.WaitOutPriceDQ || order.OrderStatus == OrderStatus.WaitOutLotDQ))
             {
-			    if (parameter.AutoConfirmOrder && ((IsNeedDQMaxMove(order) || parameter.CanDealerViewAccountInfo)==false))
+                if (parameter.AutoConfirmOrder && ((IsNeedDQMaxMove(order) || (configParameter.AllowModifyOrderLot && parameter.CanDealerViewAccountInfo)) == false))
                 {
 			        isOK = true;
                 }
@@ -45,10 +46,6 @@ namespace ManagerConsole.Helper
             bool result = false;
 
             InstrumentClient instrument = order.Transaction.Instrument;
-
-            
-            
-
             return result;
         }
 
@@ -59,7 +56,7 @@ namespace ManagerConsole.Helper
             Price originPrice;
             if (Regex.IsMatch(adjust.ToString(), validInt))
             {
-                originPrice = Price.Adjust(lastOriginPrice, (int)adjust);
+                originPrice = lastOriginPrice + (int)adjust;
             }
             else
             {
@@ -102,7 +99,7 @@ namespace ManagerConsole.Helper
 
         public static bool IsNeedDQMaxMove(OrderTask orderTask)
         {
-            return (orderTask.Transaction.OrderType == iExchange.Common.OrderType.SpotTrade && orderTask.DQMaxMove > 0);
+            return (orderTask.Transaction.OrderType == OrderType.SpotTrade && orderTask.DQMaxMove > 0);
         }
 
         public static bool AllowAccept(OrderTask orderTask,QuotePolicyDetail quotePolicyDetail,string origin,int acceptDQVariation)

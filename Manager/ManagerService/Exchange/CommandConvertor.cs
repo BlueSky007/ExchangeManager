@@ -5,9 +5,10 @@ using Manager.Common;
 using System.Xml;
 using System.Collections;
 using ManagerCommon = Manager.Common;
-using ManagerTran = Manager.Common.Transactions;
-using PriceType = Manager.Common.PriceType;
+using CommonTran = iExchange.Common.Manager.Transaction;
+using PriceType = iExchange.Common.PriceType;
 using Manager.Common.Settings;
+using iExchange.Common.Manager;
 
 namespace ManagerService.Exchange
 {
@@ -45,7 +46,7 @@ namespace ManagerService.Exchange
             SettingSet modifySettings = modifyElement == null ? null : ToSettingSet(modifyElement, UpdateAction.Modify);
             SettingSet deletedSettings = deleteElement == null ? null : ToSettingSet(deleteElement, UpdateAction.Delete);
 
-            UpdateMessage updateMessage = new UpdateMessage(exchagenCode,addedSettings, modifySettings, deletedSettings);
+            UpdateMessage updateMessage = new UpdateMessage { ExchangeCode = exchagenCode, AddSettingSets = addedSettings, ModifySettings = modifySettings, DeletedSettings = deletedSettings };
 
             return updateMessage;
         }
@@ -100,7 +101,7 @@ namespace ManagerService.Exchange
             OrderRelation[] orderRelations;
 
             CommandConvertor.Parse(transactionNode, out transactions, out orders, out orderRelations);
-            CutMessage cutMessage = new CutMessage(exchangeCode, transactions, orders, orderRelations);
+            CutMessage cutMessage = new CutMessage { ExchangeCode = exchangeCode, Transactions = transactions, Orders = orders, OrderRelations = orderRelations };
             return cutMessage;
         }
 
@@ -158,6 +159,7 @@ namespace ManagerService.Exchange
                 transactionList.ToArray(), orderList.ToArray(), orderRelationList.ToArray());
             return  deleteMessage;
         }
+       
         #endregion
 
 
@@ -186,34 +188,13 @@ namespace ManagerService.Exchange
                 CommandConvertor.Parse(orderNode,transaction,out order);
                 orders.Add(order);
 
-                foreach (XmlNode relationNode in orderNode.ChildNodes)
+                foreach (XmlNode orderRelationNode in orderNode.ChildNodes)
                 {
-                    Guid openOrderId = new Guid(relationNode.Attributes["OpenOrderID"].Value);
-                    decimal closeLot = decimal.Parse(relationNode.Attributes["ClosedLot"].Value);
-                    decimal tradePL = relationNode.Attributes["TradePL"] != null ? decimal.Parse(relationNode.Attributes["TradePL"].Value) : 0;
-                    decimal interestPL = relationNode.Attributes["InterestPL"] != null ? decimal.Parse(relationNode.Attributes["InterestPL"].Value) : 0;
-                    decimal storagePL = relationNode.Attributes["StoragePL"] != null ? decimal.Parse(relationNode.Attributes["StoragePL"].Value) : 0;
+                    Guid openOrderId = new Guid(orderRelationNode.Attributes["OpenOrderID"].Value);
+                    decimal closeLot = decimal.Parse(orderRelationNode.Attributes["ClosedLot"].Value);
 
-                    ManagerTran.OpenCloseRelation relation = new ManagerTran.OpenCloseRelation(openOrderId, order.Id, closeLot, tradePL, interestPL, storagePL);
-                    orderRelations.Add(relation.ToCommonOrderRelation());
-                }
-
-                if (transaction.AssigningOrderId != null && (transaction.SubType == ManagerCommon.TransactionSubType.Assign || transaction.SubType == ManagerCommon.TransactionSubType.Match))
-                {
-                    ManagerTran.AssignmentRelation relation = new ManagerTran.AssignmentRelation(transaction.AssigningOrderId.Value, order.Id, order.Lot);
-                    orderRelations.Add(relation.ToCommonOrderRelation());
-                }
-
-                if (orderNode.Attributes["Extension"] != null)
-                {
-                    string extension = orderNode.Attributes["Extension"].Value;
-                    if (!string.IsNullOrEmpty(extension))
-                    {
-                        XmlDocument document = new XmlDocument();
-                        document.LoadXml(extension);
-                        XmlNode extensionNode = document.DocumentElement;
-                        CommandConvertor.Parse(extensionNode, transactions, orders, orderRelations);
-                    }
+                    OrderRelation relation = new OrderRelation(order.Id, openOrderId, closeLot);
+                    orderRelations.Add(relation);
                 }
             }
         }
@@ -477,11 +458,6 @@ namespace ManagerService.Exchange
                     instrument.TradePLFormula = byte.Parse(nodeValue);
                     continue;
                 }
-                //else if (nodeName == "CanPlacePendingOrderAtAnyTime")
-                //{
-                //    instrument.CanPlacePendingOrderAtAnyTime = bool.Parse(nodeValue);
-                //    continue;
-                //}
                 else if (nodeName == "OrderTypeMask")
                 {
                     instrument.OrderTypeMask = int.Parse(nodeValue);
@@ -502,11 +478,6 @@ namespace ManagerService.Exchange
                     instrument.MaxOtherLot = decimal.Parse(nodeValue); 
                     continue;
                 }
-                //else if (nodeName == "CurrencyID")
-                //{
-                //    instrument.CurrencyId = new Guid(nodeValue);
-                //    continue;
-                //}
                 else if (nodeName == "PriceValidTime")
                 {
                     instrument.PriceValidTime = int.Parse(nodeValue);
@@ -532,11 +503,6 @@ namespace ManagerService.Exchange
                     instrument.EndTime = DateTime.Parse(nodeValue);
                     continue;
                 }
-                //else if (nodeName == "LastTradeDay")
-                //{
-                //    instrument.LastTradeDay = DateTime.Parse(nodeValue);
-                //    continue;
-                //}
                 else if (nodeName == "AcceptLmtVariation")
                 {
                     instrument.AcceptLmtVariation = int.Parse(nodeValue);
@@ -559,29 +525,14 @@ namespace ManagerService.Exchange
                 }
                 else if (nodeName == "PriceType")
                 {
-                    instrument.PriceType = (ManagerCommon.PriceType)(short.Parse(nodeValue));
+                    instrument.PriceType = (PriceType)(short.Parse(nodeValue));
                     continue;
                 }
-                //else if (nodeName == "LastAcceptTimeSpan")
-                //{
-                //    instrument.LastAcceptTimeSpan = TimeSpan.FromMinutes(int.Parse(nodeValue));
-                //    continue;
-                //}
                 else if (nodeName == "DayOpenTime")
                 {
                     instrument.DayOpenTime = DateTime.Parse(nodeValue);
                     continue;
                 }
-                //else if (nodeName == "DayCloseTime")
-                //{
-                //    instrument.DayCloseTime = DateTime.Parse(nodeValue);
-                //    continue;
-                //}
-                //else if (nodeName == "LastDayCloseTime")
-                //{
-                //    instrument.LastDayCloseTime = DateTime.Parse(nodeValue);
-                //    continue;
-                //}
                 else if (nodeName == "NextDayOpenTime")
                 {
                     instrument.NextDayOpenTime = DateTime.Parse(nodeValue);
@@ -611,14 +562,9 @@ namespace ManagerService.Exchange
                 }
                 else if (nodeName == "Category")
                 {
-                    instrument.Category = (ManagerCommon.InstrumentCategory)(int.Parse(nodeValue));
+                    instrument.Category = (InstrumentCategory)(int.Parse(nodeValue));
                     continue;
                 }
-                //else if (nodeName == "MarginFormula")
-                //{
-                //    instrument.MarginFormula = byte.Parse(nodeValue);
-                //    continue;
-                //}
                 else if (nodeName == "AllowedNewTradeSides")
                 {
                     instrument.AllowedNewTradeSides = int.Parse(nodeValue);
@@ -651,7 +597,7 @@ namespace ManagerService.Exchange
                 }
                 else if (nodeName == "Type")
                 {
-                    account.Type = (ManagerCommon.AccountType)(int.Parse(nodeValue));
+                    account.AccountType = (AccountType)(int.Parse(nodeValue));
                     continue;
                 }
                 else if (nodeName == "CustomerID")
@@ -813,17 +759,17 @@ namespace ManagerService.Exchange
                 }
                 else if (nodeName == "Type")
                 {
-                    transaction.Type = (ManagerCommon.TransactionType)(int.Parse(nodeValue));
+                    transaction.Type = (TransactionType)(int.Parse(nodeValue));
                     continue;
                 }
                 else if (nodeName == "SubType")
                 {
-                    transaction.SubType = (ManagerCommon.TransactionSubType)(int.Parse(nodeValue));
+                    transaction.SubType = (TransactionSubType)(int.Parse(nodeValue));
                     continue;
                 }
                 else if (nodeName == "Phase")
                 {
-                    transaction.Phase = (ManagerCommon.Phase)(int.Parse(nodeValue));
+                    transaction.Phase = (OrderPhase)(int.Parse(nodeValue));
                     continue;
                 }
                 else if (nodeName == "BeginTime")
@@ -838,7 +784,7 @@ namespace ManagerService.Exchange
                 }
                 else if (nodeName == "ExpireType")
                 {
-                    transaction.ExpireType = (ManagerCommon.ExpireType)(int.Parse(nodeValue));
+                    transaction.ExpireType = (ExpireType)(int.Parse(nodeValue));
                     continue;
                 }
                 else if (nodeName == "SubmitTime")
@@ -887,7 +833,7 @@ namespace ManagerService.Exchange
                 }
                 else if (nodeName == "InstrumentCategory")
                 {
-                    transaction.InstrumentCategory = (ManagerCommon.InstrumentCategory)(int.Parse(nodeValue));
+                    transaction.InstrumentCategory = (InstrumentCategory)(int.Parse(nodeValue));
                     continue;
                 }
             }
@@ -953,7 +899,7 @@ namespace ManagerService.Exchange
                 }
                 else if (nodeName.Equals("TradeOption"))
                 {
-                    order.TradeOption = (ManagerCommon.TradeOption)(int.Parse(nodeValue));
+                    order.TradeOption = (TradeOption)(int.Parse(nodeValue));
                     continue;
                 }
                 else if (nodeName.Equals("DQMaxMove"))

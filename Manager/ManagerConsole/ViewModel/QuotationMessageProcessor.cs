@@ -29,7 +29,7 @@ namespace ManagerConsole.ViewModel
 
         public void Process(PrimitiveQuotationMessage message)
         {
-            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+            App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
                 VmQuotationManager.Instance.SetPrimitiveQuotation(message.Quotation);
             });
@@ -37,16 +37,16 @@ namespace ManagerConsole.ViewModel
 
         public void Process(AbnormalQuotationMessage message)
         {
-            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+            App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
                 VmQuotationManager.Instance.AddAbnormalQuotation(message);
-                App.MainWindow.ShowAbnormalQuotation();
+                App.MainFrameWindow.ShowAbnormalQuotation();
             });
         }
 
         public void Process(OverridedQuotationMessage message)
         {
-            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+            App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
                 ExchangeQuotationViewModel.Instance.Load(message.ExchangeCode, message.OverridedQs);
             });
@@ -54,7 +54,7 @@ namespace ManagerConsole.ViewModel
 
         public void Process(UpdateQuotePolicyDetailMessage message)
         {
-            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+            App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
                 ExchangeQuotationViewModel.Instance.UpdateExchangeQuotationPolicy(message.QuotePolicyChangeDetails.ToList());
             });
@@ -62,12 +62,13 @@ namespace ManagerConsole.ViewModel
 
         public void Process(SourceStatusMessage sourceStatusMessage)
         {
-
+            // TODO: handle SourceStatusMessage here
+            throw new NotImplementedException();
         }
 
         internal void Process(AddMetadataObjectMessage message)
         {
-            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+            App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
                 VmQuotationManager.Instance.Add((dynamic)message.MetadataObject);
             });
@@ -83,14 +84,14 @@ namespace ManagerConsole.ViewModel
 
         internal void Process(UpdateMetadataMessage message)
         {
-            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+            App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
                 VmQuotationManager.Instance.Update(message);
             });
         }
         internal void Process(DeleteMetadataObjectMessage message)
         {
-            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+            App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
                 VmQuotationManager.Instance.Delete(message);
             });
@@ -98,7 +99,7 @@ namespace ManagerConsole.ViewModel
 
         internal void Process(SwitchRelationBooleanPropertyMessage message)
         {
-            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+            App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
                 VmQuotationManager.Instance.SwitchActiveSource(message);
             });
@@ -106,7 +107,7 @@ namespace ManagerConsole.ViewModel
 
         internal void Process(QuotationsMessage message)
         {
-            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+            App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
                 VmQuotationManager.Instance.SetQuotation(message);
             });

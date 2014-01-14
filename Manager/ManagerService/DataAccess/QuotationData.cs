@@ -345,7 +345,7 @@ namespace ManagerService.DataAccess
             }
         }
 
-        internal static void SwitchActiveSource(int oldRelationId, int newRelationId)
+        internal static void SwitchActiveSource(int newRelationId, int oldRelationId)
         {
             string sql = "BEGIN TRAN; UPDATE InstrumentSourceRelation SET IsActive = 1 WHERE Id = @newRelationId; UPDATE InstrumentSourceRelation SET IsActive = 0 WHERE Id = @oldRelationId; COMMIT;";
             DataAccess.GetInstance().ExecuteNonQuery(sql, CommandType.Text, new SqlParameter("@oldRelationId", oldRelationId), new SqlParameter("@newRelationId", newRelationId));

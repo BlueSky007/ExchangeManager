@@ -18,18 +18,19 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
 using ManagerConsole.ViewModel;
+using System.Xml.Linq;
 
 namespace ManagerConsole
 {
     /// <summary>
     /// Interaction logic for UserManagerControl.xaml
     /// </summary>
-    public partial class UserManagerControl : UserControl
+    public partial class UserManagerControl : UserControl, IControlLayout
     {
         public UserManagerControl()
         {
             InitializeComponent();
-            this.IsAllowAdd = ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager,ModuleType.UserManager,"Add");
+            this.IsAllowAdd = ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.UserManager, "Add");
             this.IsAllowDelete = ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.UserManager, "Delete");
             this.IsAllowEdit = ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.UserManager, "Edit");
             //ResourceDictionary resource = new ResourceDictionary();
@@ -71,7 +72,7 @@ namespace ManagerConsole
             {
                 this.Dispatcher.BeginInvoke((Action<List<UserData>>)delegate(List<UserData> userData)
                  {
-                     
+
                      //foreach (UserData item in userData)
                      //{
                      //    XamTile tile = new XamTile();
@@ -96,8 +97,8 @@ namespace ManagerConsole
                          users.Add(user);
                      }
                      this._users = users;
-                     this.UserManager.ItemsSource = this._users; 
-                     
+                     this.UserManager.ItemsSource = this._users;
+
                  }, data);
             }
             catch (Exception ex)
@@ -116,7 +117,7 @@ namespace ManagerConsole
                 newUserDialog.IsModal = true;
                 newUserDialog.Show();
                 newUserDialog.BringToFront();
-                
+
             }
             catch (Exception ex)
             {
@@ -124,7 +125,7 @@ namespace ManagerConsole
             }
         }
 
-        public void AddUserSuccess(bool isNewUser,UserData user)
+        public void AddUserSuccess(bool isNewUser, UserData user)
         {
             try
             {
@@ -188,7 +189,7 @@ namespace ManagerConsole
                     else if (btn.Name == "Delete")
                     {
 
-                        if (MessageBox.Show(App.MainWindow, string.Format("确认删除{0}用户吗", userModel.UserName), "Warnning", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes)
+                        if (MessageBox.Show(App.MainFrameWindow, string.Format("确认删除{0}用户吗", userModel.UserName), "Warnning", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes)
                         {
                             ConsoleClient.Instance.DeleteUser(userId, this.DeleteUser);
                         }
@@ -197,11 +198,11 @@ namespace ManagerConsole
             }
             catch (Exception ex)
             {
-                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "UserManagerButton_Click.\r\n{0}{1}",btn.Name, ex.ToString());
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "UserManagerButton_Click.\r\n{0}{1}", btn.Name, ex.ToString());
             }
         }
 
-        public void DeleteUser(bool isSuccess,Guid userId)
+        public void DeleteUser(bool isSuccess, Guid userId)
         {
             try
             {
@@ -223,6 +224,17 @@ namespace ManagerConsole
             {
                 Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "UserManager/DeleteUser.\r\n{0}", ex.ToString());
             }
+        }
+
+        public string GetLayout()
+        {
+            string layout = string.Empty;
+            
+            return layout;
+        }
+
+        public void SetLayout(XElement layout)
+        {
         }
     }
 }

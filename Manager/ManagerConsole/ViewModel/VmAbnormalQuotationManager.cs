@@ -62,7 +62,7 @@ namespace ManagerConsole.ViewModel
 
         private void CheckAbnormalQuotations(object state)
         {
-            App.MainWindow.Dispatcher.BeginInvoke((Action)delegate()
+            App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
                 List<VmAbnormalQuotation> timeoutItems = new List<VmAbnormalQuotation>();
                 foreach (VmAbnormalQuotation quotation in this._AbnormalQuotations)

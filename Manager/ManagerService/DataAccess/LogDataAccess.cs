@@ -60,7 +60,7 @@ namespace ManagerService.DataAccess
             }
             catch (Exception ex)
             {
-                Logger.TraceEvent(TraceEventType.Error, "LogDataAccess.GetLogReader:{0}, Error:\r\n{1}", ex.ToString());
+                Logger.TraceEvent(TraceEventType.Error, "LogDataAccess.GetLogReader:\r\n{0}", ex.ToString());
             }
             return dr;
         }
@@ -75,7 +75,7 @@ namespace ManagerService.DataAccess
             }
             catch (Exception ex)
             {
-                Logger.TraceEvent(TraceEventType.Error, "LogDataAccess.GetQuoteLogData:{0}, Error:\r\n{1}", ex.ToString());
+                Logger.TraceEvent(TraceEventType.Error, "LogDataAccess.GetQuoteLogData:\r\n{0}", ex.ToString());
             }
             return logQuotes;
         }
@@ -90,7 +90,7 @@ namespace ManagerService.DataAccess
             }
             catch (Exception ex)
             {
-                Logger.TraceEvent(TraceEventType.Error, "LogDataAccess.GetLogOrderData:{0}, Error:\r\n{1}", ex.ToString());
+                Logger.TraceEvent(TraceEventType.Error, "LogDataAccess.GetLogOrderData:\r\n{0}", ex.ToString());
             }
             return logOrders;
         }
@@ -105,7 +105,7 @@ namespace ManagerService.DataAccess
             }
             catch (Exception ex)
             {
-                Logger.TraceEvent(TraceEventType.Error, "LogDataAccess.GetLogSettingData:{0}, Error:\r\n{1}", ex.ToString());
+                Logger.TraceEvent(TraceEventType.Error, "LogDataAccess.GetLogSettingData:\r\n{0}", ex.ToString());
             }
             return logSettings;
         }
@@ -121,7 +121,7 @@ namespace ManagerService.DataAccess
             }
             catch (Exception ex)
             {
-                Logger.TraceEvent(TraceEventType.Error, "LogDataAccess.GetLogPriceData:{0}, Error:\r\n{1}", ex.ToString());
+                Logger.TraceEvent(TraceEventType.Error, "LogDataAccess.GetLogPriceData:\r\n{0}", ex.ToString());
             }
             return logPircies;
         }
@@ -136,7 +136,7 @@ namespace ManagerService.DataAccess
             }
             catch (Exception ex)
             {
-                Logger.TraceEvent(TraceEventType.Error, "LogDataAccess.GetLogPriceData:{0}, Error:\r\n{1}", ex.ToString());
+                Logger.TraceEvent(TraceEventType.Error, "LogDataAccess.GetLogPriceData:\r\n{0}", ex.ToString());
             }
             return logSourceChanges;
         }
@@ -295,7 +295,7 @@ namespace ManagerService.DataAccess
             }
             catch (Exception ex)
             {
-                Logger.TraceEvent(TraceEventType.Error, "WriteLogManager.WriteQuotePriceLog:{0}, Error:\r\n{1}", ex.ToString());
+                Logger.TraceEvent(TraceEventType.Error, "WriteLogManager.WriteQuotePriceLog\r\n{0}", ex.ToString());
             }
         }
 
@@ -331,7 +331,7 @@ namespace ManagerService.DataAccess
             }
             catch (Exception ex)
             {
-                Logger.TraceEvent(TraceEventType.Error, "WriteLogManager.WriteQuoteOrderLog:{0}, Error:\r\n{1}", ex.ToString());
+                Logger.TraceEvent(TraceEventType.Error, "WriteLogManager.WriteQuoteOrderLog\r\n{0}", ex.ToString());
             }
         }
 
@@ -360,7 +360,7 @@ namespace ManagerService.DataAccess
             }
             catch (Exception ex)
             {
-                Logger.TraceEvent(TraceEventType.Error, "WriteLogManager.WriteSettingChangeLog:{0}, Error:\r\n{1}", ex.ToString());
+                Logger.TraceEvent(TraceEventType.Error, "WriteLogManager.WriteSettingChangeLog\r\n{0}", ex.ToString());
             }
         }
 
@@ -392,7 +392,7 @@ namespace ManagerService.DataAccess
             }
             catch (Exception ex)
             {
-                Logger.TraceEvent(TraceEventType.Error, "WriteLogManager.WritePriceLog:{0}, Error:\r\n{1}", ex.ToString());
+                Logger.TraceEvent(TraceEventType.Error, "WriteLogManager.WritePriceLog\r\n{0}", ex.ToString());
             }
         }
     
@@ -419,12 +419,8 @@ namespace ManagerService.DataAccess
             }
             catch (Exception ex)
             {
-                Logger.TraceEvent(TraceEventType.Error, "WriteLogManager.WriteSourceChangeLog:{0}, Error:\r\n{1}", ex.ToString());
+                Logger.TraceEvent(TraceEventType.Error, "WriteLogManager.WriteSourceChangeLog\r\n{0}", ex.ToString());
             }
         }
-
-
-
-
     }
 }

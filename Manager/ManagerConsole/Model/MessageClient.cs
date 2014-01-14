@@ -4,12 +4,16 @@ using System.Linq;
 using System.Text;
 using Manager.Common;
 using ManagerConsole.ViewModel;
+using System.Diagnostics;
 
 namespace ManagerConsole.Model
 {
     public class MessageClient : IClientProxy
     {
         #region Message Event
+        public delegate void ExchangeQuotationUpdateHandler(OverridedQuotationMessage overidedQuotationMessage);
+        public event ExchangeQuotationUpdateHandler ExchangeQuotationUpdateEvent;
+
         public delegate void QuotePriceToDealerEventHandler(QuoteMessage quoteMessage);
         public event QuotePriceToDealerEventHandler QuotePriceToDealerEvent;
 
@@ -47,8 +51,20 @@ namespace ManagerConsole.Model
 
         private bool ProcessMessage(Message message)
         {
-            this.Process((dynamic)message);
+            try
+            {
+                this.Process((dynamic)message);
+            }
+            catch (Exception exception)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "MessageClient.ProcessMessage type:{0}\r\n{1}", message.GetType().Name, exception);
+            }
             return true;
+        }
+
+        private void Process(SourceStatusMessage message)
+        {
+            this._QuotationMessageProcessor.Process(message);
         }
 
         private void Process(QuotationsMessage message)
@@ -73,6 +89,7 @@ namespace ManagerConsole.Model
         private void Process(OverridedQuotationMessage overidedQuotationMessage)
         {
             this._QuotationMessageProcessor.Process(overidedQuotationMessage);
+            this.ExchangeQuotationUpdateEvent(overidedQuotationMessage);
         }
 
         private void Process(UpdateQuotePolicyDetailMessage quotePolicyDetailMessage)
@@ -178,7 +195,7 @@ namespace ManagerConsole.Model
 
         private void HandleException(Exception exception)
         {
-            Logger.AddEvent(System.Diagnostics.TraceEventType.Error, exception.ToString());
+            Logger.AddEvent(TraceEventType.Error, exception.ToString());
         }
     }
 }

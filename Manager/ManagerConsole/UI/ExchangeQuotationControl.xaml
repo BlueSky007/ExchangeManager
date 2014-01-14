@@ -4,6 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:v="clr-namespace:ManagerConsole.ViewModel"
+             xmlns:my="clr-namespace:ManagerConsole.UI"
+            xmlns:igDp="http://infragistics.com/DataPresenter"
              xmlns:igWPF="http://infragistics.com/DockManager" xmlns:ig="http://schemas.infragistics.com/xaml" xmlns:ManagerConsole="clr-namespace:ManagerConsole" x:Class="ManagerConsole.UI.ExchangeQuotationControl" 
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="800">
@@ -17,6 +20,7 @@
                 <Setter Property="Padding" Value="2,0,0,0"/>
                 <Setter Property="BorderThickness" Value="0,0,1,1"/>
             </Style>
+          
         </Grid.Resources>
         <!--<Grid.RowDefinitions>
                 <RowDefinition Height="30"/>
@@ -45,14 +49,27 @@
                 <igWPF:SplitPane igWPF:XamDockManager.InitialLocation="DockedLeft">
                     <igWPF:TabGroupPane>
                         <igWPF:ContentPane Header="ExhcangeQuotation" AllowClose="False" >-->
-        <Grid>
+        <Grid Background="Black">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="5"/>
                 <ColumnDefinition Width="200"/>
             </Grid.ColumnDefinitions>
             <GridSplitter Grid.Column ="1" Background="DarkGray" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-            <ig:XamGrid x:Name="QuotationGrid" Grid.Column="0" CellStyle="{StaticResource CellStylePadding}" ColumnWidth="*" ScrollViewer.CanContentScroll="False" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.PanningMode="None" AutoGenerateColumns="False"  Margin="0,0,0,0"  Height="Auto" BorderThickness="0" CellClicked="QuotationGrid_CellClicked" VerticalAlignment="Stretch" RowHeight="20">
+            <ig:XamGrid x:Name="QuotationGrid" Grid.Column="0" ColumnWidth="*" ScrollViewer.CanContentScroll="False" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.PanningMode="None" AutoGenerateColumns="False"  Margin="0,0,0,0"  Height="Auto" BorderThickness="0" CellClicked="QuotationGrid_CellClicked" VerticalAlignment="Stretch" RowHeight="20">
+                <ig:XamGrid.Resources>
+                    <Style TargetType="ig:CellControl" BasedOn="{StaticResource CellControlStyle}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Cell.Row.Data.SpreadPoints}" Value="5">
+                                <Setter Property="Background" Value="Red"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Cell.Row.Data.IsOriginHiLo}" Value="False">
+                                <Setter Property="Background" Value="#FF333333" />
+                            </DataTrigger>
+                            
+                        </Style.Triggers>
+                    </Style>
+                </ig:XamGrid.Resources>
                 <ig:XamGrid.SelectionSettings>
                     <ig:SelectionSettings CellClickAction="SelectCell" CellSelection="Single" ColumnSelection="Single" RowSelection="Single" />
                 </ig:XamGrid.SelectionSettings>
@@ -102,8 +119,12 @@
                     <ig:TextColumn Key="MaxSpreadPoints" HeaderText="MaxSpreadPoints" Width="100" IsFilterable="False"></ig:TextColumn>
                 </ig:XamGrid.Columns>
             </ig:XamGrid>
-            <tk:PropertyGrid Name="QuotationProperty" Grid.Column="2" SelectedObject="{Binding}" Margin="0,0,0,0" SelectedPropertyItemChanged="QuotationProperty_SelectedPropertyItemChanged" PropertyValueChanged="QuotationProperty_PropertyValueChanged" >
-            </tk:PropertyGrid>
+            <!--<tk:PropertyGrid Name="QuotationProperty" Grid.Column="2" SelectedObject="{Binding}" Margin="0,0,0,0" SelectedPropertyItemChanged="QuotationProperty_SelectedPropertyItemChanged" PropertyValueChanged="QuotationProperty_PropertyValueChanged">
+           
+            </tk:PropertyGrid>-->
+
+
+            <my:ExchangeQuotationPropertyControl Grid.Column="2" x:Name="QuotationProperty" Margin="0,0,0,0"/>
         </Grid>
         <!--</igWPF:ContentPane>
                     </igWPF:TabGroupPane>
