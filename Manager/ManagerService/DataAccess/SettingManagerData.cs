@@ -10,6 +10,7 @@ using System.Xml;
 using System.Collections.ObjectModel;
 using ExchangeIntrument = Manager.Common.Settings.ExchangInstrument;
 using iExchange.Common.Manager;
+using System.Diagnostics;
 
 namespace ManagerService.DataAccess
 {
@@ -415,6 +416,195 @@ namespace ManagerService.DataAccess
                 sqlCommand.ExecuteNonQuery();
 
                 return (bool)sqlCommand.Parameters["@result"].Value;
+            }
+        }
+
+        public static SettingsParameter LoadSettingsParameter(Guid userId)
+        {
+            SettingsParameter settingsParameter = new SettingsParameter();
+            ParameterSetting parameterSetting = new ParameterSetting();
+            SetValueSetting setValueSetting = new SetValueSetting();
+            List<SoundSetting> soundSettings = new List<SoundSetting>();
+            try
+            {
+                using (SqlConnection con = DataAccess.GetInstance().GetSqlConnection())
+                {
+                    using (SqlCommand command = con.CreateCommand())
+                    {
+                        command.CommandText = "[dbo].[P_GetSettingParameter]";
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@userID", userId));
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                Guid id = (Guid)reader["Id"];
+                                Guid settingId = (Guid)reader["SettingsId"];
+                                SettingParameterType SettingType = reader["SettingType"].ConvertToEnumValue<SettingParameterType>();
+                                string parameterKey = (string)reader["ParameterKey"];
+                                string parameterValue = (string)reader["ParameterValue"];
+
+                                if (SettingType == SettingParameterType.SystemParameter)
+                                {
+                                    parameterSetting.SettingDetailId = id;
+                                    parameterSetting.SettingId = settingId;
+
+                                    SettingParameterHelper.UpdateSettingValue(parameterSetting, parameterKey, parameterValue);
+                                }
+                                else if (SettingType == SettingParameterType.SoundParameter)
+                                {
+                                    SoundSetting setting = new SoundSetting();
+                                    setting.SettingDetailId = id;
+                                    setting.SettingId = settingId;
+                                    setting.SoundKey = parameterKey;
+                                    setting.FilePath = parameterValue;
+                                    soundSettings.Add(setting);
+                                }
+                                else if (SettingType == SettingParameterType.SetValueParameter)
+                                {
+                                    SettingParameterHelper.UpdateSettingValue(setValueSetting, parameterKey, parameterValue);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "ExchangeData.LoadSettingsParameter Error:\r\n" + ex.ToString());
+            }
+            settingsParameter.ParameterSetting = parameterSetting;
+            settingsParameter.SetValueSetting = setValueSetting;
+            settingsParameter.SoundSettings = soundSettings;
+            return settingsParameter;
+        }
+    }
+
+    public static class SettingParameterHelper
+    {
+        public static void UpdateSettingValue(this ParameterSetting setting, string key, string value)
+        {
+            try
+            {
+                switch (key)
+                {
+                    case FieldSetting.InactiveWaitTime:
+                        setting.InactiveWaitTime = int.Parse(value);
+                        return;
+                    case FieldSetting.EnquiryWaitTime:
+                        setting.EnquiryWaitTime = int.Parse(value);
+                        return;
+                    case FieldSetting.ApplyAutoAdjustPoints:
+                        setting.ApplyAutoAdjustPoints = bool.Parse(value);
+                        return;
+                    case FieldSetting.PriceOrderSetting:
+                        setting.PriceOrderSetting = int.Parse(value);
+                        return;
+                    case FieldSetting.DisablePopup:
+                        setting.DisablePopup = bool.Parse(value);
+                        return;
+                    case FieldSetting.AutoConfirm:
+                        setting.AutoConfirm = bool.Parse(value);
+                        return;
+                    case FieldSetting.ApplySetValueToDealingPolicy:
+                        setting.ApplySetValueToDealingPolicy = bool.Parse(value);
+                        return;
+                    case FieldSetting.LimitStopSummaryIsTimeRange:
+                        setting.LimitStopSummaryIsTimeRange = bool.Parse(value);
+                        return;
+                    case FieldSetting.LimitStopSummaryTimeRangeValue:
+                        setting.LimitStopSummaryTimeRangeValue = int.Parse(value);
+                        return;
+                    case FieldSetting.LimitStopSummaryPriceRangeValue:
+                        setting.LimitStopSummaryPriceRangeValue = int.Parse(value);
+                        return;
+                    default: break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "SettingManagerData.SettingParameterHelper:{0}, Error:\r\n{1}", ex.ToString());
+            }
+        }
+
+        public static void UpdateSettingValue(this SetValueSetting setting, string key, string value)
+        {
+            try
+            {
+                switch (key)
+                {
+                    case FieldSetting.OriginInactiveTime:
+                        setting.OriginInactiveTime = int.Parse(value);
+                        return;
+                    case FieldSetting.AlertVariation:
+                        setting.AlertVariation = int.Parse(value);
+                        return;
+                    case FieldSetting.NormalWaitTime:
+                        setting.NormalWaitTime = int.Parse(value);
+                        return;
+                    case FieldSetting.AlertWaitTime:
+                        setting.AlertWaitTime = int.Parse(value);
+                        return;
+                    case FieldSetting.MaxDQLot:
+                        setting.MaxDQLot = decimal.Parse(value);
+                        return;
+                    case FieldSetting.MaxOtherLot:
+                        setting.MaxOtherLot = decimal.Parse(value);
+                        return;
+                    case FieldSetting.DQQuoteMinLot:
+                        setting.DQQuoteMinLot = decimal.Parse(value);
+                        return;
+                    case FieldSetting.AutoDQMaxLot:
+                        setting.AutoDQMaxLot = decimal.Parse(value);
+                        return;
+                    case FieldSetting.AutoLmtMktMaxLot:
+                        setting.AutoLmtMktMaxLot = decimal.Parse(value);
+                        return;
+                    case FieldSetting.AcceptDQVariation:
+                        setting.AcceptDQVariation = int.Parse(value);
+                        return;
+                    case FieldSetting.AcceptLmtVariation:
+                        setting.AcceptLmtVariation = int.Parse(value);
+                        return;
+                    case FieldSetting.AcceptCloseLmtVariation:
+                        setting.AcceptCloseLmtVariation = int.Parse(value);
+                        return;
+                    case FieldSetting.MaxMinAdjust:
+                        setting.MaxMinAdjust = int.Parse(value);
+                        return;
+                    case FieldSetting.IsBetterPrice:
+                        setting.IsBetterPrice = bool.Parse(value);
+                        return;
+                    case FieldSetting.AutoAcceptMaxLot:
+                        setting.AutoAcceptMaxLot = decimal.Parse(value);
+                        return;
+                    case FieldSetting.AutoCancelMaxLot:
+                        setting.AutoCancelMaxLot = decimal.Parse(value);
+                        return;
+                    case FieldSetting.AllowedNewTradeSides:
+                        setting.AllowedNewTradeSides = int.Parse(value);
+                        return;
+                    case FieldSetting.HitTimes:
+                        setting.HitTimes = int.Parse(value);
+                        return;
+                    case FieldSetting.PenetrationPoint:
+                        setting.PenetrationPoint = int.Parse(value);
+                        return;
+                    case FieldSetting.PriceValidTime:
+                        setting.PriceValidTime = int.Parse(value);
+                        return;
+                    case FieldSetting.AutoDQDelay:
+                        setting.AutoDQDelay = int.Parse(value);
+                        return;
+                    case FieldSetting.HitPriceVariationForSTP:
+                        setting.HitPriceVariationForSTP = int.Parse(value);
+                        return;
+                    default: break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "SettingManagerData.SettingParameterHelper:{0}, Error:\r\n{1}", ex.ToString());
             }
         }
     }

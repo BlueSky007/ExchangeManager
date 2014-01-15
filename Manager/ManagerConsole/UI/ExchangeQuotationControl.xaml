@@ -60,11 +60,14 @@
                 <ig:XamGrid.Resources>
                     <Style TargetType="ig:CellControl" BasedOn="{StaticResource CellControlStyle}">
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Cell.Row.Data.SpreadPoints}" Value="5">
-                                <Setter Property="Background" Value="Red"/>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Cell.Row.Data.IsAutoFill}" Value="False">
+                                <Setter Property="Background" Value="Yellow"/>
                             </DataTrigger>
-                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Cell.Row.Data.IsOriginHiLo}" Value="False">
-                                <Setter Property="Background" Value="#FF333333" />
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Cell.Row.Data.AllowLimit}" Value="False">
+                                <Setter Property="Background" Value="Green"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Cell.Row.Data.IsEnablePrice}" Value="False">
+                                <Setter Property="Background" Value="Blue" />
                             </DataTrigger>
                             
                         </Style.Triggers>
@@ -114,9 +117,14 @@
                     <ig:TextColumn Key="SpreadPoints2" HeaderText="SpreadPoints2" Width="100" IsFilterable="False"></ig:TextColumn>
                     <ig:TextColumn Key="SpreadPoints3" HeaderText="SpreadPoints3" Width="100" IsFilterable="False"></ig:TextColumn>
                     <ig:TextColumn Key="SpreadPoints4" HeaderText="SpreadPoints4" Width="100" IsFilterable="False"></ig:TextColumn>
-                    <ig:TextColumn Key="IsOriginHiLo" HeaderText="IsOriginHiLo" Width="100" IsFilterable="False"></ig:TextColumn>
+                    <ig:CheckBoxColumn Key="IsOriginHiLo" HeaderText="IsOriginHiLo" Width="100" IsFilterable="False"></ig:CheckBoxColumn>
                     <ig:TextColumn Key="MaxAuotAdjustPoints" HeaderText="MaxAuotAdjustPoints" Width="100" IsFilterable="False"></ig:TextColumn>
                     <ig:TextColumn Key="MaxSpreadPoints" HeaderText="MaxSpreadPoints" Width="100" IsFilterable="False"></ig:TextColumn>
+                    <ig:CheckBoxColumn Key="IsAutoFill" HeaderText="IsAutoFill" Width="100" IsFilterable="False"></ig:CheckBoxColumn>
+                    <ig:CheckBoxColumn Key="AllowLimit" HeaderText="AllowLimit" Width="100" IsFilterable="False"></ig:CheckBoxColumn>
+                    <ig:CheckBoxColumn Key="IsEnablePrice" HeaderText="IsEnablePrice" Width="100" IsFilterable="False"></ig:CheckBoxColumn>
+                    <ig:CheckBoxColumn Key="IsAutoEnablePrice" HeaderText="IsAutoEnablePrice" Width="100" IsFilterable="False"></ig:CheckBoxColumn>
+                    
                 </ig:XamGrid.Columns>
             </ig:XamGrid>
             <!--<tk:PropertyGrid Name="QuotationProperty" Grid.Column="2" SelectedObject="{Binding}" Margin="0,0,0,0" SelectedPropertyItemChanged="QuotationProperty_SelectedPropertyItemChanged" PropertyValueChanged="QuotationProperty_PropertyValueChanged">

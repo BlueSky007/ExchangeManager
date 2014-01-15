@@ -423,7 +423,7 @@ namespace ManagerConsole.UI
                     DetailGNP detailGNP = new DetailGNP();
                     foreach (InstrumentGNP instrumentGNP in accountGNP.InstrumentGNPs)
                     {
-                        InstrumentClient instrument = this._App.InitDataManager.GetInstruments().SingleOrDefault(P => P.Id == instrumentGNP.Id);
+                        InstrumentClient instrument = this._App.InitDataManager.GetExchangeSetting("WF01").Instruments.Values.SingleOrDefault(P => P.Id == instrumentGNP.Id);
                         instrumentGNP.Instrument = instrument;
 
                         string summaryGroupCode = instrument.SummaryGroupId == null ? "Other":instrument.SummaryGroupCode;

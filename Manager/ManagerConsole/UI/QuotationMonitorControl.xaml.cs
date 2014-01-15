@@ -37,20 +37,17 @@ namespace ManagerConsole.UI
             InitializeComponent();
             this.MonitorGrid.ItemsSource = VmQuotationManager.Instance.Instruments;
             this._Timer = new Timer(this.ShowRelation);
-            //this.MonitorGrid.Filtering += MonitorGrid_Filtering;
-            //this.MonitorGrid.Filtered += MonitorGrid_Filtered;
+            this.Loaded += QuotationMonitorControl_Loaded;
         }
 
-        //void MonitorGrid_Filtering(object sender, CancellableFilteringEventArgs e)
-        //{
-        //    e.Cancel = false;
-        //}
-
-        //void MonitorGrid_Filtered(object sender, FilteredEventArgs e)
-        //{
-        //    RowFiltersCollection collection = e.RowFiltersCollection;
-        //}
-
+        private void QuotationMonitorControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            if(this.MonitorGrid.Rows.Count > 0 && !this.MonitorGrid.Rows.Any(r=>r.IsSelected))
+            {
+                this.MonitorGrid.Rows[0].IsSelected = true;
+                this.SelectRow(this.MonitorGrid.Rows[0].Data as VmInstrument);
+            }
+        }
         private void ShowRelation(object state)
         {
             this.Dispatcher.BeginInvoke((Action)delegate()
@@ -125,12 +122,17 @@ namespace ManagerConsole.UI
         {
             if (e.NewSelectedItems.Count > 0)
             {
-                this._CurrentVmInstrument = e.NewSelectedItems[0].Data as VmInstrument;
-                if (this._CurrentVmInstrument != null)
-                {
-                    this.DataContext = this._CurrentVmInstrument;
-                    this._Timer.Change(500, Timeout.Infinite);
-                }
+                this.SelectRow(e.NewSelectedItems[0].Data as VmInstrument);
+            }
+        }
+
+        private void SelectRow(VmInstrument vmInstrument)
+        {
+            this._CurrentVmInstrument = vmInstrument;
+            if (this._CurrentVmInstrument != null)
+            {
+                this.DataContext = this._CurrentVmInstrument;
+                this._Timer.Change(500, Timeout.Infinite);
             }
         }
 

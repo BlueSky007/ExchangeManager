@@ -68,11 +68,17 @@ namespace ManagerConsole.UI
         {
             InstrumentClient allInstrument = new InstrumentClient();
             allInstrument.Code = "All";
-            foreach (InstrumentClient instrument in this._App.InitDataManager.GetInstruments())
-            {
-                this._InstrumentList.Add(instrument);
-            }
 
+            foreach (string exchangeCode in this._App.InitDataManager.ExchangeCodes)
+            {
+                ExchangeSettingManager settingManager = this._App.InitDataManager.GetExchangeSetting(exchangeCode);
+
+                foreach (InstrumentClient instrument in settingManager.Instruments.Values)
+                {
+                    this._InstrumentList.Add(instrument);
+                }
+            }
+            
             this._InstrumentList.Insert(0, allInstrument);
             this._InstrumentCombo.ItemsSource = this._InstrumentList;
             this._InstrumentCombo.DisplayMemberPath = "Code";
@@ -83,9 +89,14 @@ namespace ManagerConsole.UI
 
             AccountGroup allGroup = new AccountGroup();
             allGroup.Code = "All";
-            foreach (AccountGroup group in this._App.InitDataManager.SettingsManager.GetAccountGroups())
+            foreach (string exchangeCode in this._App.InitDataManager.ExchangeCodes)
             {
-                this._AccountGroups.Add(group);
+                ExchangeSettingManager settingManager = this._App.InitDataManager.GetExchangeSetting(exchangeCode);
+
+                foreach (AccountGroup group in settingManager.GetAccountGroups())
+                {
+                    this._AccountGroups.Add(group);
+                }
             }
             this._AccountGroups.Insert(0, allGroup);
             this._AccountGroupCombo.ItemsSource = this._AccountGroups;

@@ -52,7 +52,7 @@ namespace ManagerConsole.ViewModel
             });
         }
 
-        public void Process(UpdateQuotePolicyDetailMessage message)
+        public void Process(UpdateInstrumentQuotationMessage message)
         {
             App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
             {

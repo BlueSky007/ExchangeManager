@@ -122,46 +122,46 @@ namespace ManagerConsole.ViewModel
             return true;
         }
 
-        public void UpdateExchangeQuotationPolicy(List<QuotePolicyDetailSet> setings)
+        public void UpdateExchangeQuotationPolicy(List<InstrumentQuotationSet> setings)
         {
-            foreach (QuotePolicyDetailSet set in setings)
+            foreach (InstrumentQuotationSet set in setings)
             {
                 switch (set.type)
                 {
-                    case QuotePolicyEditType.PriceType:
+                    case InstrumentQuotationEditType.PriceType:
                         this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).PriceType = (PriceType)set.Value;
                         break;
-                    case QuotePolicyEditType.AutoAdjustPoints:
+                    case InstrumentQuotationEditType.AutoAdjustPoints:
                         this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).AutoAdjustPoints = set.Value;
                         break;
-                    case QuotePolicyEditType.AutoAdjustPoints2:
+                    case InstrumentQuotationEditType.AutoAdjustPoints2:
                         this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).AutoAdjustPoints2 = set.Value;
                         break;
-                    case QuotePolicyEditType.AutoAdjustPoints3:
+                    case InstrumentQuotationEditType.AutoAdjustPoints3:
                         this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).AutoAdjustPoints3 = set.Value;
                         break;
-                    case QuotePolicyEditType.AutoAdjustPoints4:
+                    case InstrumentQuotationEditType.AutoAdjustPoints4:
                         this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).AutoAdjustPoints4 = set.Value;
                         break;
-                    case QuotePolicyEditType.SpreadPoints:
+                    case InstrumentQuotationEditType.SpreadPoints:
                         this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).SpreadPoints = set.Value;
                         break;
-                    case QuotePolicyEditType.SpreadPoints2:
+                    case InstrumentQuotationEditType.SpreadPoints2:
                         this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).SpreadPoints2 = set.Value;
                         break;
-                    case QuotePolicyEditType.SpreadPoints3:
+                    case InstrumentQuotationEditType.SpreadPoints3:
                         this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).SpreadPoints3 = set.Value;
                         break;
-                    case QuotePolicyEditType.SpreadPoints4:
+                    case InstrumentQuotationEditType.SpreadPoints4:
                         this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).SpreadPoints4 = set.Value;
                         break;
-                    case QuotePolicyEditType.MaxAuotAutoAdjustPointsPoints:
+                    case InstrumentQuotationEditType.MaxAuotAutoAdjustPointsPoints:
                         this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).MaxAuotAdjustPoints = set.Value;
                         break;
-                    case QuotePolicyEditType.MaxSpreadPointsPoints:
+                    case InstrumentQuotationEditType.MaxSpreadPointsPoints:
                         this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).MaxSpreadPoints = set.Value;
                         break;
-                    case QuotePolicyEditType.IsOriginHiLo:
+                    case InstrumentQuotationEditType.IsOriginHiLo:
                         this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).IsOriginHiLo = (set.Value ==1);
                         break;
                     default:
@@ -226,6 +226,11 @@ namespace ManagerConsole.ViewModel
         private PriceTrend _BidTrend;
         private string _BidSchedulerId;
         private string _AskSchedulerId;
+        private bool _IsAutoFill;
+        private bool _IsEnablePrice;
+        private bool _IsAutoEnablePrice;
+        private int _OrderTypeMask;
+        private bool _AllowLimit = false;
 
         private Scheduler _Scheduler = new Scheduler();
 
@@ -493,13 +498,74 @@ namespace ManagerConsole.ViewModel
             }
         }
 
+        public bool IsAutoFill
+        {
+            get { return _IsAutoFill; }
+            set
+            {
+                _IsAutoFill = value;
+                NotifyPropertyChanged("IsAutoFill");
+            }
+        }
+
+        public bool IsEnablePrice
+        {
+            get { return _IsEnablePrice; }
+            set
+            {
+                _IsEnablePrice = value;
+                NotifyPropertyChanged("IsEnablePrice");
+            }
+        }
+
+        public bool IsAutoEnablePrice
+        {
+            get { return _IsAutoEnablePrice; }
+            set
+            {
+                _IsAutoEnablePrice = value;
+                NotifyPropertyChanged("IsAutoEnablePrice");
+            }
+        }
+
+        public int OrderTypeMask
+        {
+            get { return _OrderTypeMask; }
+            set
+            {
+                this._OrderTypeMask = value;
+                if ((this._OrderTypeMask & 2) == 2)
+                {
+                    this._AllowLimit = true;
+                }
+                else
+                {
+                    this._AllowLimit = false;
+                }
+                NotifyPropertyChanged("AllowLimit");
+            }
+        }
+
+        public bool AllowLimit
+        {
+            get { return _AllowLimit; }
+            set
+            {
+                this._AllowLimit = value;
+                if ((this._OrderTypeMask & 2) != 2)
+                {
+                    this._OrderTypeMask += 2;
+                }
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void NotifyPropertyChanged(String info)
         {
             if (PropertyChanged != null)
             {
-                PropertyChanged(this, new PropertyChangedEventArgs(info));
+                PropertyChanged(this, new PropertyChangedEventArgs(info)); 
             }
         }
 
@@ -530,6 +596,10 @@ namespace ManagerConsole.ViewModel
             instrument.MaxAuotAdjustPoints = quote.MaxAuotAdjustPoints;
             instrument.MaxSpreadPoints = quote.MaxSpreadPoints;
             instrument.IsOriginHiLo = quote.IsOriginHiLo;
+            instrument.IsAutoFill = quote.IsAutoFill;
+            instrument.IsEnablePrice = quote.IsEnablePrice;
+            instrument.IsAutoEnablePrice = quote.IsAutoEnablePrice;
+            instrument.OrderTypeMask = quote.OrderTypeMask;
             return instrument;
         }
 

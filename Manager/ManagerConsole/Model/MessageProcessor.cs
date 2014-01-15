@@ -21,16 +21,16 @@ namespace ManagerConsole
         { 
         }
 
-        public MessageProcessor(MediaElement media,InitDataManager dataManager)
+        public MessageProcessor(MediaElement media,ExchangeDataManager dataManager)
         {
             this.AttachEvent();
             this._MediaElement = media;
-            this.InitDataManager = dataManager;
+            this.ExchangeDataManager = dataManager;
         }
 
         #region Property
 
-        private InitDataManager InitDataManager
+        private ExchangeDataManager ExchangeDataManager
         {
             get;
             set;
@@ -45,13 +45,14 @@ namespace ManagerConsole
             ConsoleClient.Instance.MessageClient.ExecutedOrderToDealerEvent += this.MessageClient_ExecutedOrderReceived;
             ConsoleClient.Instance.MessageClient.HitPriceEvent += this.MessageClient_HitPriceReceived;
             ConsoleClient.Instance.MessageClient.DeletedOrderEvent += this.MessageClient_DeletedOrderReceived;
+            ConsoleClient.Instance.MessageClient.UpdateExchangeSettingEvent += this.MessageClient_UpdateMessageNotifyReceived;
         }
 
         internal void MessageClient_OverridedQuotationReceived(OverridedQuotationMessage overridedQuotationMessage)
         {
             App.Current.Dispatcher.BeginInvoke((Action)delegate() 
             {
-                this.InitDataManager.ProcessOverridedQuotation(overridedQuotationMessage);
+                this.ExchangeDataManager.ProcessOverridedQuotation(overridedQuotationMessage);
             });
         }
 
@@ -60,7 +61,7 @@ namespace ManagerConsole
             App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
                 MediaManager.PlayMedia(this._MediaElement, MediaManager._EnquiryMediaSource);
-                this.InitDataManager.ProcessQuoteMessage(quoteMessage);
+                this.ExchangeDataManager.ProcessQuoteMessage(quoteMessage);
             });
         }
 
@@ -68,7 +69,7 @@ namespace ManagerConsole
         {
             App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
-                this.InitDataManager.ProcessPlaceMessage(placeMessage);
+                this.ExchangeDataManager.ProcessPlaceMessage(placeMessage);
             });
         }
 
@@ -76,7 +77,7 @@ namespace ManagerConsole
         {
             App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
-                this.InitDataManager.ProcessExecuteMessage(executedMessage);
+                this.ExchangeDataManager.ProcessExecuteMessage(executedMessage);
             });
         }
 
@@ -84,7 +85,7 @@ namespace ManagerConsole
         {
             App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate() 
             {
-                this.InitDataManager.ProcessHitMessage(hitMessage);
+                this.ExchangeDataManager.ProcessHitMessage(hitMessage);
             });
         }
 
@@ -92,7 +93,15 @@ namespace ManagerConsole
         {
             App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
-                this.InitDataManager.ProcessDeleteMessage(deleteMessage);
+                this.ExchangeDataManager.ProcessDeleteMessage(deleteMessage);
+            });
+        }
+
+        internal void MessageClient_UpdateMessageNotifyReceived(UpdateMessage message)
+        {
+            App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
+            {
+                this.ExchangeDataManager.ProcessUpdateMessage(message);
             });
         }
 
@@ -103,5 +112,7 @@ namespace ManagerConsole
                 TaskSchedulerModel.Instance.TaskSchedulerStatusChangeNotify(message);
             });
         }
+
+        
     }
 }

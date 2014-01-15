@@ -1,4 +1,5 @@
-﻿using ManagerConsole.Helper;
+﻿using Manager.Common.ExchangeEntities;
+using ManagerConsole.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace ManagerConsole.Model
 
         public Customer(CommonCustomer customer)
         {
-            this.Update(customer);
+            this.Initialize(customer);
         }
         public Guid Id
         {
@@ -63,7 +64,7 @@ namespace ManagerConsole.Model
         }
 
 
-        internal void Update(CommonCustomer customer)
+        internal void Initialize(CommonCustomer customer)
         {
             this.Id = customer.Id;
             this.Code = customer.Code;
@@ -72,6 +73,36 @@ namespace ManagerConsole.Model
             this.Name = customer.Name;
             if (customer.PrivateQuotePolicyId != null) this.PrivateQuotePolicyId = customer.PrivateQuotePolicyId.Value;
             if (customer.PublicQuotePolicyId != null) this.PublicQuotePolicyId = customer.PublicQuotePolicyId.Value;
+        }
+
+        public void Update(Dictionary<string, string> fieldAndValues)
+        {
+            foreach (string key in fieldAndValues.Keys)
+            {
+                this.Update(key, fieldAndValues[key]);
+            }
+        }
+
+        public void Update(string field, string value)
+        {
+            if (field == ExchangeFieldSR.Code)
+            {
+                this.Code = (string)value;
+            }
+            else if (field == ExchangeFieldSR.PrivateQuotePolicyId)
+            {
+                if (value != null)
+                {
+                    this.PrivateQuotePolicyId = Guid.Parse(value);
+                }
+            }
+            else if (field == ExchangeFieldSR.PublicQuotePolicyId)
+            {
+                if (value != null)
+                {
+                    this.PublicQuotePolicyId = Guid.Parse(value);
+                }
+            }
         }
     }
 }

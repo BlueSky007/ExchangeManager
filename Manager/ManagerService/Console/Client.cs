@@ -63,45 +63,49 @@ namespace ManagerService.Console
             bool hasPermission = UserDataAccess.CheckPermission(userId,groupId, type, exchangeCode);
             if (hasPermission)
             {
-                foreach (Guid memberId in memberIds)
+                if (type == "Account")
                 {
-                    if (type == "Account")
+                    if (!this._AccountPermission[exchangeCode].Contains(memberIds[0]))
                     {
-                        if (!this._AccountPermission[exchangeCode].Contains(memberId))
-                        {
-                            this._AccountPermission[exchangeCode].Add(memberId);
-                        }
+                        this._AccountPermission[exchangeCode].AddRange(memberIds);
+                        SettingSet set = ExchangeData.GetExchangeDataChange(exchangeCode, type, memberIds, this._AccountPermission[exchangeCode], this._InstrumentPermission[exchangeCode]);
+                        this.SendMessage(new UpdateMessage { AddSettingSets = set, ExchangeCode = exchangeCode });
                     }
-                    else
+                }
+                else
+                {
+                    if (!this._InstrumentPermission[exchangeCode].Contains(memberIds[0]))
                     {
-                        if (!this._InstrumentPermission[exchangeCode].Contains(memberId))
-                        {
-                            this._InstrumentPermission[exchangeCode].Add(memberId);
-                        }
+                        this._InstrumentPermission[exchangeCode].AddRange(memberIds);
+                        SettingSet set = ExchangeData.GetExchangeDataChange(exchangeCode, type, memberIds, this._AccountPermission[exchangeCode], this._InstrumentPermission[exchangeCode]);
+                        this.SendMessage(new UpdateMessage { AddSettingSets = set, ExchangeCode = exchangeCode });
                     }
                 }
             }
             else
             {
-                foreach (Guid memberId in memberIds)
+                if (type == "Account")
                 {
-                    if (type == "Account")
+                    if (this._AccountPermission[exchangeCode].Contains(memberIds[0]))
                     {
-                        if (this._AccountPermission[exchangeCode].Contains(memberId))
+                        foreach (Guid memberId in memberIds)
                         {
                             this._AccountPermission[exchangeCode].Remove(memberId);
                         }
                     }
-                    else
+                }
+                else
+                {
+                    if (this._InstrumentPermission[exchangeCode].Contains(memberIds[0]))
                     {
-                        if (this._InstrumentPermission[exchangeCode].Contains(memberId))
+                        foreach (Guid memberId in memberIds)
                         {
                             this._InstrumentPermission[exchangeCode].Remove(memberId);
                         }
                     }
                 }
             }
-        }
+        }       
 
         public void UpdatePermission(Dictionary<string, List<Guid>> accountPermissions, Dictionary<string, List<Guid>> instrumentPermission)
         {
@@ -646,24 +650,18 @@ namespace ManagerService.Console
             return accountInfor;
         }
 
-        internal List<string> LoadSettingsParameters(Guid userId)
+        internal SettingsParameter LoadSettingsParameters(Guid userId)
         {
-            List<string> parameters = new List<string>();
+            SettingsParameter settingsParameter = null;
             try
             {
-                foreach (ExchangeSystem exchangeSystem in MainService.ExchangeManager.GetExchangeSystems())
-                {
-                    string parameterStr = string.Empty;
-                    string exchangeCode = exchangeSystem.ExchangeCode;
-                    parameterStr = ExchangeData.LoadSettingsParameter(exchangeCode,userId);
-                    parameters.Add(parameterStr);
-                }
+                settingsParameter = SettingManagerData.LoadSettingsParameter(userId);
             }
             catch (Exception ex)
             {
                 Logger.AddEvent(TraceEventType.Error, "ClientService.LoadSettingsParameters error:\r\n{0}", ex.ToString());
             }
-            return parameters;
+            return settingsParameter;
         }
         #endregion
 
@@ -934,17 +932,17 @@ namespace ManagerService.Console
                 str.AppendFormat("<Instrument OriginCode=\"{0}\"/>", code);
             }
             str.Append("</Instruments>");
-            List<QuotePolicyDetailSet> quotePolicyChangeDetails = new List<QuotePolicyDetailSet>();
+            List<InstrumentQuotationSet> quotePolicyChangeDetails = new List<InstrumentQuotationSet>();
             foreach (ExchangeSystemSetting set in MainService.ManagerSettings.ExchangeSystems)
             {
-                List<QuotePolicyDetailSet> quotePolicyDetails = QuotationData.UpdateQuotePolicyDetails(set.Code, str.ToString(), action.ToString(), changeValue);
+                List<InstrumentQuotationSet> quotePolicyDetails = QuotationData.UpdateQuotePolicyDetails(set.Code, str.ToString(), action.ToString(), changeValue);
                 if (quotePolicyDetails.Count > 0)
                 {
                     quotePolicyChangeDetails.AddRange(quotePolicyDetails);
                 }
             }
             Logger.TraceEvent(TraceEventType.Information, "SetQuotationPolicyDetail.\r\n{0},{1},{2}", str.ToString(), action.ToString(), changeValue);
-            UpdateQuotePolicyDetailMessage message = new UpdateQuotePolicyDetailMessage(quotePolicyChangeDetails);
+            UpdateInstrumentQuotationMessage message = new UpdateInstrumentQuotationMessage(quotePolicyChangeDetails);
             MainService.ClientManager.Dispatch(message);
         }
 
@@ -953,16 +951,16 @@ namespace ManagerService.Console
             List<QuotePolicyRelation> relations = QuotationData.GetQuotePolicyRelation();
             return relations;
         }
-        public bool UpdateQuotationPolicy(QuotePolicyDetailSet set)
+        public bool UpdateQuotationPolicy(InstrumentQuotationSet set)
         {
             bool isSuccess = false;
-            string xmlUpdateStr = string.Format("<QuotePolicyDetail QuotePolicyID=\"{0}\" InstrumentID=\"{1}\" {2}=\"{3}\" xmlns=\"\" />", set.QoutePolicyId, set.InstrumentId, Enum.GetName(typeof(QuotePolicyEditType), set.type), set.Value);
+            string xmlUpdateStr = string.Format("<QuotePolicyDetail QuotePolicyID=\"{0}\" InstrumentID=\"{1}\" {2}=\"{3}\" xmlns=\"\" />", set.QoutePolicyId, set.InstrumentId, Enum.GetName(typeof(InstrumentQuotationEditType), set.type), set.Value);
             isSuccess = QuotationData.UpdateQuotationPolicy(set.ExchangeCode, xmlUpdateStr);            
             if (isSuccess)
             {
-                List<QuotePolicyDetailSet> quotePolicyDetails = new List<QuotePolicyDetailSet>();
+                List<InstrumentQuotationSet> quotePolicyDetails = new List<InstrumentQuotationSet>();
                 quotePolicyDetails.Add(set);
-                UpdateQuotePolicyDetailMessage message = new UpdateQuotePolicyDetailMessage(quotePolicyDetails);
+                UpdateInstrumentQuotationMessage message = new UpdateInstrumentQuotationMessage(quotePolicyDetails);
                 MainService.ClientManager.DispatchExcept(message,this);
             }
             return isSuccess;

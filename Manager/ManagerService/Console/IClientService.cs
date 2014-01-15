@@ -96,12 +96,13 @@ namespace ManagerService.Console
 
         [OperationContract(IsInitiating = false)]
         AccountInformation GetAcountInfo(Guid transactionId);
-
-        [OperationContract(IsInitiating = false)]
-        List<string> LoadSettingsParameters();
+       
         #endregion 
 
         #region Setting Manager
+        [OperationContract(IsInitiating = false)]
+        SettingsParameter LoadSettingsParameters();
+
         [OperationContract(IsInitiating = false)]
         List<ParameterDefine> LoadParameterDefine();
 
@@ -191,7 +192,7 @@ namespace ManagerService.Console
         void SwitchDefaultSource(SwitchRelationBooleanPropertyMessage message);
 
         [OperationContract(IsInitiating = false)]
-        void UpdateQuotationPolicy(QuotePolicyDetailSet set);
+        void UpdateQuotationPolicy(InstrumentQuotationSet set);
 
         [OperationContract(IsInitiating = false)]
         void SetQuotationPolicyDetail(Guid relationId, QuotePolicyDetailsSetAction action, int changeValue);

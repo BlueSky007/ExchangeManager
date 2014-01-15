@@ -1955,6 +1955,10 @@
         <Setter Property="Background" Value="Black"/>
         <Setter Property="Foreground" Value="White"/>
     </Style>   
+    <Style TargetType="local:NewRelationWindow">
+        <Setter Property="Background" Value="Black"/>
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
     <Style TargetType="{x:Type pg:PropertyGrid}">
         <Setter Property="Background" Value="Black" />
         <Setter Property="BorderBrush" Value="#43577B" />

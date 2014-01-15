@@ -28,12 +28,12 @@ namespace ManagerConsole.UI
     /// </summary>
     public partial class ExchangeQuotationControl : UserControl, IControlLayout
     {
-        private bool _IsChange = false;
-        private string _Value;
-        private string _DisplayName;
-        private InstrumentQuotation _ChangeQuotation;
+        //private bool _IsChange = false;
+        //private string _Value;
+        //private string _DisplayName;
+        //private InstrumentQuotation _ChangeQuotation;
 
-        private Dictionary<string, ExchangeQuotationViewModel> _ExchangeQuotationViews;
+        //private Dictionary<string, ExchangeQuotationViewModel> _ExchangeQuotationViews;
         
         public ExchangeQuotationControl()
         {

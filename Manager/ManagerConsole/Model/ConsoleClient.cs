@@ -80,14 +80,14 @@ namespace ManagerConsole.Model
             }, null);
         }
 
-        public void LoadSettingsParameters(Action<List<string>> EndLoadSettingsParameters)
+        public void LoadSettingsParameters(Action<SettingsParameter> EndLoadSettingsParameters)
         {
             try
             {
                 this._ServiceProxy.BeginLoadSettingsParameters(delegate(IAsyncResult result)
                 {
-                    List<string> parameters = this._ServiceProxy.EndLoadSettingsParameters(result);
-                    EndLoadSettingsParameters(parameters);
+                    SettingsParameter settingsParameter = this._ServiceProxy.EndLoadSettingsParameters(result);
+                    EndLoadSettingsParameters(settingsParameter);
                 }, null);
             }
             catch (Exception ex)
@@ -496,16 +496,9 @@ namespace ManagerConsole.Model
         #endregion
 
         #region Quotation
-        public void GetConfigMetadata(Action<ConfigMetadata> setMetadata)
+        public ConfigMetadata GetConfigMetadata()
         {
-            this._ServiceProxy.BeginGetConfigMetadata(delegate(IAsyncResult ar)
-            {
-                App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
-                {
-                    ConfigMetadata metaData = this._ServiceProxy.EndGetConfigMetadata(ar);
-                    setMetadata(metaData);
-                });
-            }, null);
+            return this._ServiceProxy.GetConfigMetadata();
         }
 
 
@@ -581,7 +574,7 @@ namespace ManagerConsole.Model
             }, null);
         }
 
-        public void UpdateExchangeQuotation(QuotePolicyDetailSet set)
+        public void UpdateExchangeQuotation(InstrumentQuotationSet set)
         {
             this._ServiceProxy.BeginUpdateQuotationPolicy(set, delegate(IAsyncResult ar)
             {

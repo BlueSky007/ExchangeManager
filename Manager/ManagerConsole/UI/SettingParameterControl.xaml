@@ -8,16 +8,7 @@
              d:DesignHeight="800" d:DesignWidth="1200">
     <Control.Resources>
         <Style TargetType="TextBlock">
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="FontFamily" Value="hei"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-        </Style>
-        <Style TargetType="TextBox">
-            <Setter Property="Height" Value="20" />
-            <Setter Property="TextAlignment" Value="Right"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="#FF282828"/>
+            <Setter Property="Foreground" Value="White"/>
         </Style>
         <Style x:Key="BorderStyle" TargetType="Border">
             <Setter Property="CornerRadius" Value="3"/>
@@ -26,7 +17,7 @@
             <Setter Property="Background" Value="#FF282828"/>
         </Style>
     </Control.Resources>
-    <Grid Background="Black">
+    <Grid x:Name="SettingLayOutGrid" Background="Black">
         <Grid.RowDefinitions>
             <RowDefinition Height="400"/>
             <RowDefinition Height="5"/>
@@ -38,10 +29,10 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <GroupBox Background="Black" BorderBrush="DarkGray" Grid.Row="0" Grid.Column="0"  Header="Parameter Setting" Margin="3,10,0,0" Foreground="Gold" FontWeight="Black">
+        <GroupBox Background="Black" Foreground="Gold" BorderBrush="DarkGray" Grid.Row="0" Grid.Column="0" Header="Parameter Setting" Margin="3,10,0,0" FontWeight="Black">
             <Canvas>
                 <TextBlock Text="Enquiry TimeOut:" Canvas.Left="41" Canvas.Top="20"/>
-                <TextBox x:Name="EnquiryTimeOutText" Width="119" Canvas.Left="188" Canvas.Top="20"/>
+                <TextBox x:Name="EnquiryTimeOutText" Text="{Binding EnquiryWaitTime,Mode=TwoWay}" Width="119" Canvas.Left="188" Canvas.Top="20"/>
                 <TextBlock Text="Print Executed Order:" Canvas.Left="41" Canvas.Top="60" />
                 <ComboBox x:Name="PrintOrderComboBox" SelectedIndex="0" Width="119" Canvas.Left="188" Canvas.Top="60">
                     <ComboBoxItem>NO Show Upon execution</ComboBoxItem>
@@ -62,7 +53,7 @@
             </Canvas>
         </GroupBox>
 
-        <GroupBox Background="Black" BorderBrush="DarkGray" Grid.Row="0" Grid.Column="2"  Header="SetValue Setting" Margin="3,10,3,0" Foreground="Gold" FontWeight="Black">
+        <GroupBox Background="Black" Foreground="Gold" BorderBrush="DarkGray" Grid.Row="0" Grid.Column="2"  Header="SetValue Setting" Margin="3,10,3,0"  FontWeight="Black">
             <Canvas>
                 <TextBlock Text="Inactive Time:" Canvas.Left="41" Canvas.Top="20"/>
                 <TextBox x:Name="InactiveTimeTextBlock" Width="60" Canvas.Left="204" Canvas.Top="20"/>

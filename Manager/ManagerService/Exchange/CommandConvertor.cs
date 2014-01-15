@@ -9,6 +9,7 @@ using CommonTran = iExchange.Common.Manager.Transaction;
 using PriceType = iExchange.Common.PriceType;
 using Manager.Common.Settings;
 using iExchange.Common.Manager;
+using Manager.Common.ExchangeEntities;
 
 namespace ManagerService.Exchange
 {
@@ -35,20 +36,103 @@ namespace ManagerService.Exchange
 
         private static Message Convert(string exchagenCode, UpdateCommand updateCommand)
         {
-            XmlNode content = updateCommand.Content;
-            XmlNode node = updateCommand.Content;
+            XmlElement addElement = updateCommand.Content["Add"];
+            XmlElement modifyElement = updateCommand.Content["Modify"];
+            XmlElement deleteElement = updateCommand.Content["Delete"];
 
-            XmlElement addElement = content["Add"];
-            XmlElement modifyElement = content["Modify"];
-            XmlElement deleteElement = content["Delete"];
-
-            SettingSet addedSettings = addElement == null ? null : ToSettingSet(addElement, UpdateAction.Add);
-            SettingSet modifySettings = modifyElement == null ? null : ToSettingSet(modifyElement, UpdateAction.Modify);
-            SettingSet deletedSettings = deleteElement == null ? null : ToSettingSet(deleteElement, UpdateAction.Delete);
-
-            UpdateMessage updateMessage = new UpdateMessage { ExchangeCode = exchagenCode, AddSettingSets = addedSettings, ModifySettings = modifySettings, DeletedSettings = deletedSettings };
-
+            UpdateMessage updateMessage = new UpdateMessage();
+            if (addElement != null) updateMessage.AddSettingSets = CommandConvertor.ToSettingSet(addElement);
+            if (deleteElement != null) updateMessage.DeletedSettings = CommandConvertor.ToSettingSet(deleteElement);
+            if (modifyElement != null)
+            {
+                List<ExchangeUpdateData> exchangeUpdateDatas = new List<ExchangeUpdateData>();
+                exchangeUpdateDatas = CommandConvertor.ToExchangeUpdateDatas(modifyElement);
+                updateMessage.ExchangeUpdateDatas = exchangeUpdateDatas.ToArray();
+            }
             return updateMessage;
+        }
+
+        private static List<ExchangeUpdateData> ToExchangeUpdateDatas(XmlNode content)
+        {
+            List<ExchangeUpdateData> exchangeUpdateDatas = new List<ExchangeUpdateData>();
+            SettingSet settingSet;
+            foreach (XmlNode xmlNode in content.ChildNodes)
+            {
+                string name = xmlNode.Name;
+                if (name == "Instrument")
+                {
+                    ExchangeUpdateData exchangeUpdateData = new ExchangeUpdateData { ExchangeMetadataType = ExchangeMetadataType.Instrument };
+                    foreach(XmlAttribute attribute in xmlNode.Attributes)
+                    {
+                        exchangeUpdateData.FieldsAndValues.Add(attribute.Name, attribute.Value);
+                    }
+                }
+                //else if (name == "Account")
+                //{
+                //    Account account = new Account();
+                //    account.Initialize(xmlNode);
+                //    settingSet.Accounts = new Account[] { account };
+                //}
+                //else if (name == "PrivateDailyQuotation")
+                //{
+                //    settingSet.PrivateDailyQuotation = new PrivateDailyQuotation();
+                //    settingSet.PrivateDailyQuotation.Initialize(xmlNode);
+                //}
+                //else if (name == "SystemParameter")
+                //{
+                //    settingSet.SystemParameter = new SystemParameter();
+                //    settingSet.SystemParameter.Initialize(xmlNode);
+                //}
+                //else if (name == "Instruments")
+                //{
+                //    foreach (XmlNode instrumentNode in xmlNode.ChildNodes)
+                //    {
+                //        Instrument instrument = new Instrument();
+                //        instrument.Initialize(instrumentNode);
+                //        if (instruments == null) instruments = new List<Instrument>();
+                //        instruments.Add(instrument);
+                //    }
+                //}
+                //else if (name == "Customers")
+                //{
+                //    foreach (XmlNode customerNode in xmlNode.ChildNodes)
+                //    {
+                //        Customer customer = new Customer();
+                //        customer.Initialize(customerNode);
+                //        if (customers == null) customers = new List<Customer>();
+                //        customers.Add(customer);
+                //    }
+                //}
+                //else if (name == "TradePolicyDetail")
+                //{
+                //    TradePolicyDetail tradePolicyDetail = new TradePolicyDetail();
+                //    tradePolicyDetail.Initialize(xmlNode);
+
+                //    if (tradePolicyDetails == null) tradePolicyDetails = new List<TradePolicyDetail>();
+                //    tradePolicyDetails.Add(tradePolicyDetail);
+                //}
+                //else if (name == "QuotePolicyDetail")
+                //{
+                //    QuotePolicyDetail quotePolicyDetail = new QuotePolicyDetail();
+                //    quotePolicyDetail.Initialize(xmlNode);
+
+                //    if (quotePolicyDetails == null) quotePolicyDetails = new List<QuotePolicyDetail>();
+                //    quotePolicyDetails.Add(quotePolicyDetail);
+                //}
+                //else if (name == "QuotePolicyDetails")
+                //{
+                //    foreach (XmlNode childNode in xmlNode.ChildNodes)
+                //    {
+                //        QuotePolicyDetail quotePolicyDetail = new QuotePolicyDetail();
+                //        quotePolicyDetail.Initialize(childNode);
+
+                //        if (quotePolicyDetails == null) quotePolicyDetails = new List<QuotePolicyDetail>();
+                //        quotePolicyDetails.Add(quotePolicyDetail);
+                //    }
+                //}
+            }
+
+            return exchangeUpdateDatas;
         }
 
         private static Message Convert(string exchangeCode, PlaceCommand placeCommand)
@@ -228,7 +312,7 @@ namespace ManagerService.Exchange
             orders = orderList.ToArray();
         }
 
-        private static SettingSet ToSettingSet(XmlNode content, UpdateAction updateAction)
+        private static SettingSet ToSettingSet(XmlNode content)
         {
             SettingSet settingSet = new SettingSet();
 
@@ -244,7 +328,6 @@ namespace ManagerService.Exchange
                 if (name == "PrivateDailyQuotation")
                 {
                     settingSet.PrivateDailyQuotation = new PrivateDailyQuotation();
-                    settingSet.PrivateDailyQuotation.UpdateAction = updateAction;
                     settingSet.PrivateDailyQuotation.Initialize(xmlNode);
                 }
                 else if (name == "SystemParameter")

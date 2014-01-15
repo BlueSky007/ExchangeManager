@@ -8,12 +8,13 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 
 namespace ManagerService.DataAccess
 {
     public class ExchangeData
     {
-        public static List<Guid> GetMemberIds(string exchangeCode, List<DataPermission> permissions,DataObjectType GroupType)
+        public static List<Guid> GetMemberIds(string exchangeCode, List<DataPermission> permissions, DataObjectType GroupType)
         {
             DataTable groupPermission = new DataTable();
             groupPermission.Columns.Add("GroupId", typeof(Guid));
@@ -28,9 +29,9 @@ namespace ManagerService.DataAccess
                     groupPermission.Rows.Add(row);
                 }
             }
-            
+
             bool deafultStatus = false;
-            DataPermission typePermission = permissions.SingleOrDefault(d => d.ExchangeSystemCode == exchangeCode && d.DataObjectType == GroupType && d.DataObjectId==null);
+            DataPermission typePermission = permissions.SingleOrDefault(d => d.ExchangeSystemCode == exchangeCode && d.DataObjectType == GroupType && d.DataObjectId == null);
             if (typePermission != null)
             {
                 deafultStatus = typePermission.IsAllow;
@@ -135,7 +136,7 @@ namespace ManagerService.DataAccess
             return settings;
         }
 
-        public static InitializeData GetInitData(string exchangeCode,Guid userId, List<DataPermission> permissions, bool accountDeafultStatus, bool instrumentDeafuleStatus)
+        public static InitializeData GetInitData(string exchangeCode, Guid userId, List<DataPermission> permissions, bool accountDeafultStatus, bool instrumentDeafuleStatus)
         {
             InitializeData initializeData = new InitializeData();
 
@@ -157,12 +158,12 @@ namespace ManagerService.DataAccess
 
             string sql = "dbo.GetInitialDataForManager";
             SqlParameter[] parameters = new SqlParameter[3];
-            SqlParameter accountParameter =  new SqlParameter("@accountDeafultStatus",accountDeafultStatus);
+            SqlParameter accountParameter = new SqlParameter("@accountDeafultStatus", accountDeafultStatus);
             SqlParameter instrumentParameter = new SqlParameter("@instrumentDeafuleStatus", instrumentDeafuleStatus);
             SqlParameter tableParameter = new SqlParameter("@dataPermissions", groupPermission);
             tableParameter.SqlDbType = SqlDbType.Structured;
             tableParameter.TypeName = "[dbo].[DataPermissions]";
-            
+
 
             parameters[0] = accountParameter;
             parameters[1] = instrumentParameter;
@@ -174,8 +175,8 @@ namespace ManagerService.DataAccess
                     List<Guid> accountMemberIds = new List<Guid>();
                     List<Guid> instrumentMemberIds = new List<Guid>();
                     while (reader.Read())
-                    { 
-                        accountMemberIds.Add((Guid)reader["ID"]); 
+                    {
+                        accountMemberIds.Add((Guid)reader["ID"]);
                     }
                     reader.NextResult();
                     while (reader.Read())
@@ -212,7 +213,7 @@ namespace ManagerService.DataAccess
             return result;
         }
 
-        public static List<OrderQueryEntity> GetOrderByInstrument(Guid userId,Guid instrumentId, Guid accountGroupId, OrderType orderType,
+        public static List<OrderQueryEntity> GetOrderByInstrument(Guid userId, Guid instrumentId, Guid accountGroupId, OrderType orderType,
            bool isExecute, DateTime fromDate, DateTime toDate)
         {
             List<OrderQueryEntity> queryOrders = new List<OrderQueryEntity>();
@@ -262,9 +263,9 @@ namespace ManagerService.DataAccess
             return queryOrders;
         }
 
-        public static Tuple<string,Guid, string> GetAccountGroup(string exchangeCode,Guid accountId)
+        public static Tuple<string, Guid, string> GetAccountGroup(string exchangeCode, Guid accountId)
         {
-            Tuple<string,Guid, string> group = null;
+            Tuple<string, Guid, string> group = null;
             try
             {
                 string sql = @"SELECT a.Code,gm.GroupID, g.Code As GroupCode FROM Account a
@@ -276,7 +277,7 @@ namespace ManagerService.DataAccess
                 {
                     while (reader.Read())
                     {
-                        group = new Tuple<string,Guid, string>( (string)reader["Code"],(Guid)reader["GroupID"], (string)reader["GroupCode"]);
+                        group = new Tuple<string, Guid, string>((string)reader["Code"], (Guid)reader["GroupID"], (string)reader["GroupCode"]);
                     }
                 }, new SqlParameter("@accountId", accountId));
             }
@@ -287,36 +288,49 @@ namespace ManagerService.DataAccess
             return group;
         }
 
-        public static string LoadSettingsParameter(string exchangeCode,Guid userId)
+
+        public static SettingSet GetExchangeDataChange(string exchangeCode, string type, List<Guid> memberIds, List<Guid> accounts, List<Guid> instruments)
         {
-            string systemParameter = string.Empty;
-            try
+            SettingSet set = new SettingSet();
+            string xmlMemberIds = ExchangeData.GetXmlIds(memberIds);
+            string xmlAccountIds = ExchangeData.GetXmlIds(accounts);
+            string xmlInstrumentIds = ExchangeData.GetXmlIds(instruments);
+            using (SqlConnection con = DataAccess.GetInstance(exchangeCode).GetSqlConnection())
             {
-                using (SqlConnection con = DataAccess.GetInstance(exchangeCode).GetSqlConnection())
+                using (SqlCommand command = con.CreateCommand())
                 {
-                    using (SqlCommand command = con.CreateCommand())
+                    command.CommandText = "[dbo].[GetInitDataChangeForManager]";
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@type", type));
+                    command.Parameters.Add(new SqlParameter("@xmlMemberIds", xmlMemberIds));
+                    command.Parameters.Add(new SqlParameter("@xmlAccountIds", xmlAccountIds));
+                    command.Parameters.Add(new SqlParameter("@xmlInstrumentIds", xmlInstrumentIds));
+                    using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        command.CommandText = "[dbo].[P_GetSystemParameter]";
-                        command.CommandType = CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@userID", userId));
-                        command.Parameters.Add(new SqlParameter("@appType", 6));
-                        using (SqlDataReader reader = command.ExecuteReader())
+                        if (type =="Account")
                         {
-                            while (reader.Read())
-                            {
-                                systemParameter = (string)reader["Parameters"];
-                            }
+                            set = SettingsSetHelper.GetExchangeDataChangeByAccountChange(reader);
+                        }
+                        else
+                        {
+                            set = SettingsSetHelper.GetExchangeDataChangeByInstrumentChange(reader);
                         }
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                Logger.TraceEvent(TraceEventType.Error, "ExchangeData.LoadSettingsParameter Error:\r\n" + ex.ToString());
-            }
-            return systemParameter;
+            return set;
         }
 
-
+        private static string GetXmlIds(List<Guid> memberIds)
+        {
+            StringBuilder xml = new StringBuilder();
+            xml.Append("<Members>");
+            foreach (Guid id in memberIds)
+            {
+                xml.AppendFormat("<Member Id='{0}'/>", id);
+            }
+            xml.Append("</Members>");
+            return xml.ToString();
+        }
     }
 }

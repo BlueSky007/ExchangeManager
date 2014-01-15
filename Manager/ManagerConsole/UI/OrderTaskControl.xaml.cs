@@ -62,7 +62,7 @@ namespace ManagerConsole.UI
         }
         private void AttachEvent()
         {
-            this._App.InitDataManager.OnHitPriceReceivedRefreshUIEvent += new InitDataManager.HitPriceReceivedRefreshUIEventHandler(this.ForwardHitOrder);
+            this._App.InitDataManager.OnHitPriceReceivedRefreshUIEvent += new ExchangeDataManager.HitPriceReceivedRefreshUIEventHandler(this.ForwardHitOrder);
         }
         #endregion
 
@@ -70,9 +70,14 @@ namespace ManagerConsole.UI
         {
             InstrumentClient allInstrument = new InstrumentClient();
             allInstrument.Code = "All";
-            foreach (InstrumentClient instrument in this._App.InitDataManager.GetInstruments())
+            foreach (string exchangeCode in this._App.InitDataManager.ExchangeCodes)
             {
-                this._InstrumentList.Add(instrument);
+                ExchangeSettingManager settingManager = this._App.InitDataManager.GetExchangeSetting(exchangeCode);
+
+                foreach (InstrumentClient instrument in settingManager.Instruments.Values)
+                {
+                    this._InstrumentList.Add(instrument);
+                }
             }
 
             this._InstrumentList.Insert(0, allInstrument);
@@ -234,7 +239,7 @@ namespace ManagerConsole.UI
         #region Quote Order
         private void OnOrderAccept(OrderTask order)
         {
-            SystemParameter systemParameter = this._App.InitDataManager.SettingsManager.SystemParameter;
+            SystemParameter systemParameter = this._App.InitDataManager.GetExchangeSetting(order.ExchangeCode).SystemParameter;
             ConfigParameters configParameter = this._App.InitDataManager.ConfigParameters[order.ExchangeCode];
             systemParameter.CanDealerViewAccountInfo = false;
             bool isOK = OrderTaskManager.CheckDQOrder(order, systemParameter, configParameter);
@@ -544,7 +549,7 @@ namespace ManagerConsole.UI
             {
                 OrderTask order = this._OrderTaskGrid.Rows[i].Data as OrderTask;
                 Customer customer = new Customer();
-                QuotePolicyDetail quotePolicyDetail = this._App.InitDataManager.SettingsManager.GetQuotePolicyDetail(order.InstrumentId.Value, customer);
+                QuotePolicyDetail quotePolicyDetail = this._App.InitDataManager.GetExchangeSetting(order.ExchangeCode).GetQuotePolicyDetail(order.InstrumentId.Value, customer);
                 if (OrderTaskManager.AllowAccept(order, quotePolicyDetail, origin, int.Parse(this._VariationText.Text)))
                 {
                     this._App.OrderHandle.OnOrderAccept(order);

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Manager.Common.ExchangeEntities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,7 @@ namespace ManagerConsole.Model
     {
         public SystemParameter(CommonSystemParameter systemParameter)
         {
-            this.Update(systemParameter);
+            this.Initialize(systemParameter);
         }
 
         public bool? IsCustomerVisibleToDealer { get; set; }
@@ -33,9 +34,48 @@ namespace ManagerConsole.Model
 
         public bool ConfirmRejectDQOrder { get; set; } //WebConfig
 
-        
+        #region Update
+        public void Update(Dictionary<string, string> fieldAndValues)
+        {
+            foreach (string key in fieldAndValues.Keys)
+            {
+                this.Update(key, fieldAndValues[key]);
+            }
+        }
 
-        internal void Update(CommonSystemParameter systemParameter)
+        public void Update(string field, string value)
+        {
+            if (field == ExchangeFieldSR.IsCustomerVisibleToDealer)
+            {
+                this.IsCustomerVisibleToDealer = bool.Parse(value);
+            }
+            else if (field == ExchangeFieldSR.CanDealerViewAccountInfo)
+            {
+                this.CanDealerViewAccountInfo = bool.Parse(value);
+            }
+            else if (field == ExchangeFieldSR.DealerUsingAccountPermission)
+            {
+                this.DealerUsingAccountPermission = bool.Parse(value);
+            }
+            else if (field == ExchangeFieldSR.MooMocAcceptDuration)
+            {
+                this.MooMocAcceptDuration = TimeSpan.Parse(value);
+            }
+            else if (field == ExchangeFieldSR.LotDecimal)
+            {
+                this.LotDecimal = int.Parse(value);
+            }
+            else if (field == ExchangeFieldSR.MooMocCancelDuration)
+            {
+                this.MooMocCancelDuration = TimeSpan.Parse(value);
+            }
+            else if (field == ExchangeFieldSR.QuotePolicyDetailID)
+            {
+                this.QuotePolicyDetailID = Guid.Parse(value);
+            }
+        }
+
+        internal void Initialize(CommonSystemParameter systemParameter)
         {
             this.IsCustomerVisibleToDealer = systemParameter.IsCustomerVisibleToDealer;
             this.CanDealerViewAccountInfo = systemParameter.CanDealerViewAccountInfo;
@@ -47,6 +87,7 @@ namespace ManagerConsole.Model
             this.AutoConfirmOrder = systemParameter.AutoConfirmOrder;
             this.ConfirmRejectDQOrder = systemParameter.ConfirmRejectDQOrder;
         }
+        #endregion
     }
 
 }

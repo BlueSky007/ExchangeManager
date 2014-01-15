@@ -96,26 +96,14 @@ namespace ManagerService.Exchange
             return true;
         }
 
-        public void SwitchPriceState(string instrumentCode, bool enable)
+        public void SwitchPriceState(List<string> originCodes, bool enable)
         {
             // Enable/Disable Instrument price state
-            if(this._ConnectionState == Manager.Common.ConnectionState.Connected)
+            if (this._ConnectionState == Manager.Common.ConnectionState.Connected)
             {
-                List<Tuple<Guid, bool?, bool?>> updatedStates = new List<Tuple<Guid, bool?, bool?>>();
-                List<Tuple<Guid, bool, bool>> states = DataAccess.ExchangeData.GetInstrumentPriceEnableStates(this.ExchangeCode, instrumentCode);
-                foreach (var state in states)
+                if (this._StateServer.SwitchPriceState(originCodes, enable))
                 {
-                    if (state.Item2 != enable || state.Item3 != enable)
-                    {
-                        updatedStates.Add(new Tuple<Guid, bool?, bool?>(state.Item1, state.Item2 == enable ? null : (bool?)enable, state.Item3 == enable ? null : (bool?)enable));
-                    }
-                }
-                if (updatedStates.Count > 0)
-                {
-                    if (this._StateServer.SwitchPriceState(updatedStates))
-                    {
-                        // TODO: Write Audit Log here.
-                    }
+                    // TODO: Write Audit Log here.
                 }
             }
         }
@@ -126,7 +114,8 @@ namespace ManagerService.Exchange
             {
                 if (command.GetType() == typeof(ChangeGroupCommand))
                 {
-                     
+                    ChangeGroupCommand changeGroupCommand = command as ChangeGroupCommand;
+                    MainService.ClientManager.UpdateGroup(this.ExchangeCode, changeGroupCommand.xmlNode);
                 }
                 Message message = CommandConvertor.Convert(this.ExchangeCode, command);
                 MainService.ClientManager.Dispatch(message);

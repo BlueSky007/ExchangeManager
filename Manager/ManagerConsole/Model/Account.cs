@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using CommonAccount = Manager.Common.Settings.Account;
 using AccountType = iExchange.Common.AccountType;
+using Manager.Common.ExchangeEntities;
 
 namespace ManagerConsole.Model
 {
@@ -22,10 +23,10 @@ namespace ManagerConsole.Model
 
         public Account(CommonAccount account)
         {
-            this.Update(account);
+            this.Initialize(account);
         }
 
-        internal void Update(CommonAccount account)
+        internal void Initialize(CommonAccount account)
         {
             this.Id = account.Id;
             this.Code = account.Code;
@@ -35,6 +36,30 @@ namespace ManagerConsole.Model
             this.GroupId = account.GroupId;
             this.GroupCode = account.GroupCode;
             this.IsBlack = account.IsBlack;
+        }
+
+        public void Update(Dictionary<string, string> fieldAndValues)
+        {
+            foreach (string key in fieldAndValues.Keys)
+            {
+                this.Update(key, fieldAndValues[key]);
+            }
+        }
+
+        public void Update(string field, string value)
+        {
+            if (field == ExchangeFieldSR.Code)
+            {
+                this.Code = (string)value;
+            }
+            else if (field == ExchangeFieldSR.GroupID)
+            {
+                this.GroupId = Guid.Parse(value);
+            }
+            else if (field == ExchangeFieldSR.GroupCode)
+            {
+                this.GroupCode = (string)value;
+            }
         }
     }
 }

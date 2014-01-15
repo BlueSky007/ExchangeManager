@@ -11,7 +11,7 @@ namespace ManagerConsole
 {
     public static class Toolkit
     {
-        public static SettingsManager SettingsManager;
+        public static ExchangeSettingManager SettingsManager;
 
         public static OrderTypeCategory GetCategory(this OrderType orderType)
         {

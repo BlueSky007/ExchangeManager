@@ -392,57 +392,57 @@ namespace ManagerService.QuotationExchange
             }
         }
 
-        private void TryChangePriceActive(object sender, object Args)
-        {
-            this.rwLock.AcquireWriterLock(Timeout.Infinite);
+        //private void TryChangePriceActive(object sender, object Args)
+        //{
+        //    this.rwLock.AcquireWriterLock(Timeout.Infinite);
 
-            bool hasChanges = false;
-            XmlDocument xmlDoc = new XmlDocument();   
-            XmlElement updateNode = xmlDoc.CreateElement("Update");
-            StringBuilder sqlBuilder = new StringBuilder();
+        //    bool hasChanges = false;
+        //    XmlDocument xmlDoc = new XmlDocument();   
+        //    XmlElement updateNode = xmlDoc.CreateElement("Update");
+        //    StringBuilder sqlBuilder = new StringBuilder();
 
-            try
-            {                
-                XmlElement modifyNode = xmlDoc.CreateElement("Modify");
-                updateNode.AppendChild(modifyNode);
+        //    try
+        //    {                
+        //        XmlElement modifyNode = xmlDoc.CreateElement("Modify");
+        //        updateNode.AppendChild(modifyNode);
                 
-                DateTime baseTime = DateTime.Now;
-                foreach (Instrument instrument in this.instruments.Values)
-                {
-                    if (instrument.TryChangePriceActive(baseTime))
-                    {
-                        hasChanges = true;
+        //        DateTime baseTime = DateTime.Now;
+        //        foreach (Instrument instrument in this.instruments.Values)
+        //        {
+        //            if (instrument.TryChangePriceActive(baseTime))
+        //            {
+        //                hasChanges = true;
 
-                        sqlBuilder.Append(instrument.GetUpdateSql());
-                        modifyNode.AppendChild(instrument.GetUpdateNode(xmlDoc));
-                    }
-                }
-            }
-            catch (Exception exception)
-            {
-                AppDebug.LogEvent("QuotationServer", exception.ToString(), EventLogEntryType.Error);
-            }
-            finally
-            {
-                this.rwLock.ReleaseWriterLock();
-            }
+        //                sqlBuilder.Append(instrument.GetUpdateSql());
+        //                modifyNode.AppendChild(instrument.GetUpdateNode(xmlDoc));
+        //            }
+        //        }
+        //    }
+        //    catch (Exception exception)
+        //    {
+        //        AppDebug.LogEvent("QuotationServer", exception.ToString(), EventLogEntryType.Error);
+        //    }
+        //    finally
+        //    {
+        //        this.rwLock.ReleaseWriterLock();
+        //    }
 
-            if (hasChanges)
-            {
-                try
-                {
-                    iExchange.Common.DataAccess.UpdateDB(sqlBuilder.ToString(), this.connectionString);
-                    this._StateServer.Update(QuotationServer.Token, updateNode);
-                }
-                catch (Exception exception)
-                {
-                    AppDebug.LogEvent("QuotationServer", exception.ToString(), EventLogEntryType.Error);
-                }
-            }
+        //    if (hasChanges)
+        //    {
+        //        try
+        //        {
+        //            iExchange.Common.DataAccess.UpdateDB(sqlBuilder.ToString(), this.connectionString);
+        //            this._StateServer.Update(QuotationServer.Token, updateNode);
+        //        }
+        //        catch (Exception exception)
+        //        {
+        //            AppDebug.LogEvent("QuotationServer", exception.ToString(), EventLogEntryType.Error);
+        //        }
+        //    }
 
-            Scheduler.Action action = new Scheduler.Action(this.TryChangePriceActive);
-            this.scheduler.Add(action, null, DateTime.Now.AddSeconds(2));
-        }
+        //    Scheduler.Action action = new Scheduler.Action(this.TryChangePriceActive);
+        //    this.scheduler.Add(action, null, DateTime.Now.AddSeconds(2));
+        //}
 
         //called by timer
         private void SetTradingState(object sender, object Args)
@@ -974,9 +974,9 @@ namespace ManagerService.QuotationExchange
                     }
                 }
 
-                //Check InactiveTime
-                Scheduler.Action action3 = new Scheduler.Action(this.TryChangePriceActive);
-                this.scheduler.Add(action3, null, DateTime.Now.AddSeconds(10));
+                ////Check InactiveTime
+                //Scheduler.Action action3 = new Scheduler.Action(this.TryChangePriceActive);
+                //this.scheduler.Add(action3, null, DateTime.Now.AddSeconds(10));
             }
             finally
             {
@@ -1511,29 +1511,29 @@ namespace ManagerService.QuotationExchange
             }
         }
 
-        private void ChangePriceEnable(Instrument instrument, bool priceEnable)
-        {
-            if (instrument.ChangePriceEnable(priceEnable))
-            {
-                XmlDocument xmlDoc = new XmlDocument();
-                XmlElement updateNode = xmlDoc.CreateElement("Update");
-                XmlElement modifyNode = xmlDoc.CreateElement("Modify");
-                updateNode.AppendChild(modifyNode);
+        //private void ChangePriceEnable(Instrument instrument, bool priceEnable)
+        //{
+        //    if (instrument.ChangePriceEnable(priceEnable))
+        //    {
+        //        XmlDocument xmlDoc = new XmlDocument();
+        //        XmlElement updateNode = xmlDoc.CreateElement("Update");
+        //        XmlElement modifyNode = xmlDoc.CreateElement("Modify");
+        //        updateNode.AppendChild(modifyNode);
 
-                string sql = instrument.GetUpdateSql();
-                modifyNode.AppendChild(instrument.GetUpdateNode(xmlDoc));
-                try
-                {
-                    iExchange.Common.DataAccess.UpdateDB(sql, this.connectionString);
+        //        string sql = instrument.GetUpdateSql();
+        //        modifyNode.AppendChild(instrument.GetUpdateNode(xmlDoc));
+        //        try
+        //        {
+        //            iExchange.Common.DataAccess.UpdateDB(sql, this.connectionString);
 
-                    this._StateServer.Update(QuotationServer.Token, updateNode);
-                }
-                catch (Exception exception)
-                {
-                    AppDebug.LogEvent("QuotationServer.ChangePriceEnable", exception.ToString(), EventLogEntryType.Error);
-                }
-            }
-        }
+        //            this._StateServer.Update(QuotationServer.Token, updateNode);
+        //        }
+        //        catch (Exception exception)
+        //        {
+        //            AppDebug.LogEvent("QuotationServer.ChangePriceEnable", exception.ToString(), EventLogEntryType.Error);
+        //        }
+        //    }
+        //}
 
         private void ProcessInstrument(OriginQuotation originQ, DateTime baseTime)
         {
@@ -1544,11 +1544,11 @@ namespace ManagerService.QuotationExchange
             {
                 //Process
                 originQ.IsProblematic = instrument.IsProblematic(originQ.Origin);
-                if (originQ.IsProblematic)
-                {
-                    AppDebug.LogEvent("QuotationServer", string.Format("ProcessInstrument, price is out range: {0}", originQ), EventLogEntryType.Information);
-                    this.ChangePriceEnable(instrument, false);
-                }
+                //if (originQ.IsProblematic)
+                //{
+                //    AppDebug.LogEvent("QuotationServer", string.Format("ProcessInstrument, price is out range: {0}", originQ), EventLogEntryType.Information);
+                //    this.ChangePriceEnable(instrument, false);
+                //}
 
                 int waitTime = instrument.GetWaitTime(originQ.Origin);
 

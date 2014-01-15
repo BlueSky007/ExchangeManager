@@ -224,7 +224,7 @@ namespace ManagerService.Console
             return this._Client.GetAcountInfo(transactionId);
         }
 
-        public List<string> LoadSettingsParameters()
+        public SettingsParameter LoadSettingsParameters()
         {
             return this._Client.LoadSettingsParameters(this._Client.userId);
         }
@@ -444,7 +444,7 @@ namespace ManagerService.Console
             }
         }
 
-        public void UpdateQuotationPolicy(QuotePolicyDetailSet set)
+        public void UpdateQuotationPolicy(InstrumentQuotationSet set)
         {
             try
             {

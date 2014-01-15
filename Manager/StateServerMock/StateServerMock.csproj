@@ -48,6 +48,7 @@
       <HintPath>D:\Teams\iExchangeCollection\iExchange3 Team\Manager\Manager.Common\bin\Debug\Manager.Common.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml" />
@@ -69,6 +70,9 @@
     </ApplicationDefinition>
     <Compile Include="..\..\iExchange3\StateServer\Manager\Callback.cs">
       <Link>Callback.cs</Link>
+    </Compile>
+    <Compile Include="..\..\iExchange3\StateServer\Manager\DataAccessHelper.cs">
+      <Link>DataAccessHelper.cs</Link>
     </Compile>
     <Compile Include="..\..\iExchange3\StateServer\Manager\ManagerClient.cs">
       <Link>ManagerClient.cs</Link>

@@ -32,6 +32,9 @@ namespace ManagerConsole.Model
         public delegate void SettingTaskRunEventHandler(UpdateSettingParameterMessage message);
         public event SettingTaskRunEventHandler OnSettingTaskRunEvent;
 
+        public delegate void UpdateExchangeSettingHandler(UpdateMessage updateMessage);
+        public event UpdateExchangeSettingHandler UpdateExchangeSettingEvent;
+
         #endregion
 
         private RelayEngine<Message> _MessageRelayEngine;
@@ -92,7 +95,7 @@ namespace ManagerConsole.Model
             this.ExchangeQuotationUpdateEvent(overidedQuotationMessage);
         }
 
-        private void Process(UpdateQuotePolicyDetailMessage quotePolicyDetailMessage)
+        private void Process(UpdateInstrumentQuotationMessage quotePolicyDetailMessage)
         {
             this._QuotationMessageProcessor.Process(quotePolicyDetailMessage);
         }
@@ -184,7 +187,7 @@ namespace ManagerConsole.Model
             {
                 try
                 {
-                    //this.QuotePriceToDealerEvent(updateMessage);
+                    this.UpdateExchangeSettingEvent(updateMessage);
                 }
                 catch (Exception ex)
                 {

@@ -400,9 +400,9 @@ namespace ManagerService.DataAccess
             return isSuccess;
         }
 
-        public static List<QuotePolicyDetailSet> UpdateQuotePolicyDetails(string exchangeCode, string originCodes, string action, int value)
+        public static List<InstrumentQuotationSet> UpdateQuotePolicyDetails(string exchangeCode, string originCodes, string action, int value)
         {
-            List<QuotePolicyDetailSet> QuotePolicyChangeDetails = new List<QuotePolicyDetailSet>();
+            List<InstrumentQuotationSet> QuotePolicyChangeDetails = new List<InstrumentQuotationSet>();
             string sql = "[dbo].[SetQuotePolicyDetail]";
             using (SqlConnection con = DataAccess.GetInstance(exchangeCode).GetSqlConnection())
             {
@@ -421,17 +421,17 @@ namespace ManagerService.DataAccess
                         {
                             while (reader.Read())
                             {
-                                QuotePolicyDetailSet quotePolicyChange = new QuotePolicyDetailSet();
+                                InstrumentQuotationSet quotePolicyChange = new InstrumentQuotationSet();
                                 quotePolicyChange.ExchangeCode = exchangeCode;
                                 quotePolicyChange.QoutePolicyId = (Guid)reader["QuotePolicyID"];
                                 quotePolicyChange.InstrumentId = (Guid)reader["instrumentId"];
                                 if (action == "AdjustUp" || action == "AdjustDn" || action == "AdjustReplace")
                                 {
-                                    quotePolicyChange.type = QuotePolicyEditType.AutoAdjustPoints;
+                                    quotePolicyChange.type = InstrumentQuotationEditType.AutoAdjustPoints;
                                 }
                                 else
                                 {
-                                    quotePolicyChange.type = QuotePolicyEditType.SpreadPoints;
+                                    quotePolicyChange.type = InstrumentQuotationEditType.SpreadPoints;
                                 }
                                 quotePolicyChange.Value = (int)reader["ChangeValue"];
                                 QuotePolicyChangeDetails.Add(quotePolicyChange);

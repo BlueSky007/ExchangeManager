@@ -450,32 +450,32 @@ namespace ManagerService.QuotationExchange
             this.dealers.Remove(dealerId);
         }
 
-        public bool TryChangePriceActive(DateTime baseTime)
-        {
-            bool isTimeout = baseTime.Subtract(this.lastPriceEnabledTime).TotalSeconds >= this.originInactiveTime;
-            //AppDebug.LogEvent("QuotationServer.TryChangePriceActive", string.Format("{0}, baseTime={1}, lastPriceEnabledTime={2}, originInactiveTime={3}", this.id, baseTime, this.lastPriceEnabledTime, this.originInactiveTime), EventLogEntryType.Information);
+        //public bool TryChangePriceActive(DateTime baseTime)
+        //{
+        //    bool isTimeout = baseTime.Subtract(this.lastPriceEnabledTime).TotalSeconds >= this.originInactiveTime;
+        //    //AppDebug.LogEvent("QuotationServer.TryChangePriceActive", string.Format("{0}, baseTime={1}, lastPriceEnabledTime={2}, originInactiveTime={3}", this.id, baseTime, this.lastPriceEnabledTime, this.originInactiveTime), EventLogEntryType.Information);
 
-            if (isTimeout)
-            {
-                if (this.isPriceEnabled)
-                {
-                    this.isPriceEnabled = false;
+        //    if (isTimeout)
+        //    {
+        //        if (this.isPriceEnabled)
+        //        {
+        //            this.isPriceEnabled = false;
 
-                    return true;
-                }
-            }
-            else
-            {
-                if (this.isAutoEnablePrice && !this.isPriceEnabled)
-                {
-                    this.isPriceEnabled = true;
-                    this.lastPriceEnabledTime = baseTime; //Why you delete this line?
-                    return true;
-                }
-            }
+        //            return true;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        if (this.isAutoEnablePrice && !this.isPriceEnabled)
+        //        {
+        //            this.isPriceEnabled = true;
+        //            this.lastPriceEnabledTime = baseTime; //Why you delete this line?
+        //            return true;
+        //        }
+        //    }
 
-            return false;
-        }
+        //    return false;
+        //}
 
         public string GetUpdateSql()
         {

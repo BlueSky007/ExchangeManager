@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Manager.Common.ExchangeEntities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,10 +16,26 @@ namespace ManagerConsole.Model
 
         public AccountGroup(CommonAccountGroup accountGroup)
         {
-            this.Update(accountGroup);
+            this.Initialize(accountGroup);
         }
 
-        internal void Update(CommonAccountGroup accountGroup)
+        public void Update(Dictionary<string, object> fieldAndValues)
+        {
+            foreach (string key in fieldAndValues.Keys)
+            {
+                this.Update(key, fieldAndValues[key]);
+            }
+        }
+
+        public void Update(string field, object value)
+        {
+            if (field == ExchangeFieldSR.Code)
+            {
+                this.Code = (string)value;
+            }
+        }
+
+        internal void Initialize(CommonAccountGroup accountGroup)
         {
             this.Id = accountGroup.Id;
             this.Code = accountGroup.Code;

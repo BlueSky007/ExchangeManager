@@ -410,6 +410,12 @@
     <Build Include="Schema Objects\Schemas\dbo\Programmability\Stored Procedures\P_TaskScheduler_Upd.proc.sql">
       <SubType>Code</SubType>
     </Build>
+    <Build Include="Schema Objects\Schemas\dbo\Tables\LogPrcieState.table.sql">
+      <SubType>Code</SubType>
+    </Build>
+    <Build Include="Schema Objects\Schemas\dbo\Programmability\Stored Procedures\P_GetSettingParameter.proc.sql">
+      <SubType>Code</SubType>
+    </Build>
   </ItemGroup>
   <ItemGroup>
     <NotInBuild Include="Schema Objects\Schemas\dbo\Tables\Keys\PK_Log.pkey.sql">

@@ -24,7 +24,10 @@ namespace ManagerService.Exchange
     public interface IStateServer
     {
         [OperationContract]
-        bool SwitchPriceState(List<Tuple<Guid, bool?, bool?>> tuples);  // Tuple: InstrumentId,IsPriceEnabled,IsAutoEnablePrice
+        bool SwitchPriceState(List<string> originCodes, bool enable);
+
+        [OperationContract]
+        bool SuspendResume(List<string> originCodes, bool resume);
 
         [OperationContract]
         void Update(Token token, XmlNode udpateNode);

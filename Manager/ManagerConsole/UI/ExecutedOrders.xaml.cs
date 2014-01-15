@@ -73,8 +73,8 @@ namespace ManagerConsole.UI
 
         private void AttachEvent()
         {
-            this._App.InitDataManager.OnDeleteOrderNotifyEvent += new InitDataManager.DeleteOrderNotifyHandler(this.DeleteOrderFromExecuteOrderGrid);
-            this._App.InitDataManager.OnExecutedOrderNotifyEvent += new InitDataManager.ExecutedOrderNotifyHandler(this.AddExecutedOrder);
+            this._App.InitDataManager.OnDeleteOrderNotifyEvent += new ExchangeDataManager.DeleteOrderNotifyHandler(this.DeleteOrderFromExecuteOrderGrid);
+            this._App.InitDataManager.OnExecutedOrderNotifyEvent += new ExchangeDataManager.ExecutedOrderNotifyHandler(this.AddExecutedOrder);
         }
 
         private void AddExecutedOrder(Order order)
@@ -96,10 +96,17 @@ namespace ManagerConsole.UI
         {
             AccountGroup allGroup = new AccountGroup();
             allGroup.Code = "All";
-            foreach (AccountGroup group in this._App.InitDataManager.SettingsManager.GetAccountGroups())
+
+            foreach (string exchangeCode in this._App.InitDataManager.ExchangeCodes)
             {
-                this._AccountGroups.Add(group);
+                ExchangeSettingManager settingManager = this._App.InitDataManager.GetExchangeSetting(exchangeCode);
+
+                foreach (AccountGroup group in settingManager.GetAccountGroups())
+                {
+                    this._AccountGroups.Add(group);
+                }
             }
+            
             this._AccountGroups.Insert(0, allGroup);
             this._AccountGroupCombo.ItemsSource = this._AccountGroups;
             this._AccountGroupCombo.DisplayMemberPath = "Code";

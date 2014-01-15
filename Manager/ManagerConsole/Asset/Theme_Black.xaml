@@ -8,5 +8,6 @@
         <ResourceDictionary Source="BlackTheme/Office2010Black.xamGrid.xaml"/>
         <ResourceDictionary Source="BlackTheme/XamComboEditor_Black.xaml"/>
         <ResourceDictionary Source="BlackTheme/XamInput_BlackTheme.xaml"/>
+        <ResourceDictionary Source="BlackTheme/XamMenu_BlackTheme.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

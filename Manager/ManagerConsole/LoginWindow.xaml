@@ -10,6 +10,9 @@
     <Grid>
         <Grid.Resources>
             <ResourceDictionary>
+                <Style TargetType="ComboBoxItem">
+                    <Setter Property="Foreground" Value="Black"/>
+                </Style>
                 <Style x:Key="OriginCombox" TargetType="ComboBox">
                     <Setter Property="Foreground" Value="Black"/>
                 </Style>

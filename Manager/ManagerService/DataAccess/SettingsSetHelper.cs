@@ -71,6 +71,31 @@ namespace ManagerService.DataAccess
             }
         }
 
+        public static SettingSet GetExchangeDataChangeByAccountChange(SqlDataReader dr)
+        {
+            SettingSet settingSet = new SettingSet();
+            settingSet.TradeDay = InitializationHelper.Create<TradeDay>(dr, Initialize);
+            settingSet.Customers = InitializationHelper.CreateArray<Customer>(dr, Initialize);
+            settingSet.AccountGroups = InitializationHelper.CreateArray<AccountGroup>(dr, Initialize);
+            settingSet.Accounts = InitializationHelper.CreateArray<Account>(dr, Initialize);
+            settingSet.QuotePolicyDetails = InitializationHelper.CreateArray<QuotePolicyDetail>(dr, Initialize);
+            return settingSet;
+        }
+
+        public static SettingSet GetExchangeDataChangeByInstrumentChange(SqlDataReader dr)
+        {
+            SettingSet settingSet = new SettingSet();
+            settingSet.TradeDay = InitializationHelper.Create<TradeDay>(dr, Initialize);
+            settingSet.QuotePolicies = InitializationHelper.CreateArray<QuotePolicy>(dr, Initialize);
+            settingSet.QuotePolicyDetails = InitializationHelper.CreateArray<QuotePolicyDetail>(dr, Initialize);
+            settingSet.TradePolicies = InitializationHelper.CreateArray<TradePolicy>(dr, Initialize);
+            settingSet.TradePolicyDetails = InitializationHelper.CreateArray<TradePolicyDetail>(dr, Initialize);
+            settingSet.Instruments = InitializationHelper.CreateArray<Instrument>(dr, Initialize);
+            settingSet.OverridedQuotations = InitializationHelper.CreateArray<Manager.Common.Settings.OverridedQuotation>(dr, Initialize);
+            return settingSet;
+        }
+
+
         private static void Initialize(TradeDay tradeDay, SqlDataReader dr)
         {
             tradeDay.CurrentDay = (DateTime)dr["TradeDay"];

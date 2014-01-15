@@ -96,9 +96,9 @@ namespace Manager.UnitTest
             gene.OriginCode = "XAUUSD";
             quotations.Add(gene);
             iExchange.Common.OriginQuotation[] originQs = null; // TODO: 初始化为适当的值
-            iExchange.Common.OriginQuotation[] originQsExpected = null; // TODO: 初始化为适当的值
+            //iExchange.Common.OriginQuotation[] originQsExpected = null; // TODO: 初始化为适当的值
             iExchange.Common.OverridedQuotation[] overridedQs = null; // TODO: 初始化为适当的值
-            iExchange.Common.OverridedQuotation[] overridedQsExpected = null; // TODO: 初始化为适当的值
+            //iExchange.Common.OverridedQuotation[] overridedQsExpected = null; // TODO: 初始化为适当的值
             bool expected = true; // TODO: 初始化为适当的值
             bool actual;
             actual = target.SetQuotation(token, quotations, out originQs, out overridedQs);
@@ -167,9 +167,9 @@ namespace Manager.UnitTest
             Token token = new Token(Guid.Empty, UserType.System, AppType.RiskMonitor); // TODO: 初始化为适当的值
             List<GeneralQuotation> quotations = null; // TODO: 初始化为适当的值
             iExchange.Common.OriginQuotation[] originQs = null; // TODO: 初始化为适当的值
-            iExchange.Common.OriginQuotation[] originQsExpected = null; // TODO: 初始化为适当的值
+           // iExchange.Common.OriginQuotation[] originQsExpected = null; // TODO: 初始化为适当的值
             iExchange.Common.OverridedQuotation[] overridedQs = null; // TODO: 初始化为适当的值
-            iExchange.Common.OverridedQuotation[] overridedQsExpected = null; // TODO: 初始化为适当的值
+           // iExchange.Common.OverridedQuotation[] overridedQsExpected = null; // TODO: 初始化为适当的值
             bool expected = false; // TODO: 初始化为适当的值
             bool actual;
             actual = target.ReplayQuotation(token, quotations, out originQs, out overridedQs);
@@ -238,11 +238,11 @@ namespace Manager.UnitTest
             string quotation = "<Local><Quotation InstrumentID='1DFB99D4-2B76-48B0-9109-0A67265F5B9F' Timestamp='2013-02-01 04:00:00.000' Origin='1.3559' Status='Modified'/></Local>"; // TODO: 初始化为适当的值
             bool needApplyAutoAdjustPoints = false; // TODO: 初始化为适当的值
             iExchange.Common.OriginQuotation[] originQs = null; // TODO: 初始化为适当的值
-            iExchange.Common.OriginQuotation[] originQsExpected = null; // TODO: 初始化为适当的值
+           // iExchange.Common.OriginQuotation[] originQsExpected = null; // TODO: 初始化为适当的值
             iExchange.Common.OverridedQuotation[] overridedQs = null; // TODO: 初始化为适当的值
-            iExchange.Common.OverridedQuotation[] overridedQsExpected = null; // TODO: 初始化为适当的值
+           // iExchange.Common.OverridedQuotation[] overridedQsExpected = null; // TODO: 初始化为适当的值
             bool needBroadcastQuotation = false; // TODO: 初始化为适当的值
-            bool needBroadcastQuotationExpected = true; // TODO: 初始化为适当的值
+           // bool needBroadcastQuotationExpected = true; // TODO: 初始化为适当的值
             bool expected = true; // TODO: 初始化为适当的值
             bool actual;
             actual = target.SetHistoryQuotation(token, tradeDay, quotation, needApplyAutoAdjustPoints, out originQs, out overridedQs, out needBroadcastQuotation);
@@ -398,13 +398,13 @@ namespace Manager.UnitTest
             string quotation = "<Local><Quotation InstrumentID='1DFB99D4-2B76-48B0-9109-0A67265F5B9F' Timestamp='2013-02-01 04:00:00.000' Origin='1.3559' Status='Modified'/></Local>"; // TODO: 初始化为适当的值
             bool needApplyAutoAdjustPoints = false; // TODO: 初始化为适当的值
             iExchange.Common.OriginQuotation[] originQs = null; // TODO: 初始化为适当的值
-            iExchange.Common.OriginQuotation[] originQsExpected = null; // TODO: 初始化为适当的值
+         //   iExchange.Common.OriginQuotation[] originQsExpected = null; // TODO: 初始化为适当的值
             iExchange.Common.OverridedQuotation[] overridedQs = null; // TODO: 初始化为适当的值
-            iExchange.Common.OverridedQuotation[] overridedQsExpected = null; // TODO: 初始化为适当的值
+           // iExchange.Common.OverridedQuotation[] overridedQsExpected = null; // TODO: 初始化为适当的值
             bool needBroadcastQuotation = false; // TODO: 初始化为适当的值
-            bool needBroadcastQuotationExpected = true; // TODO: 初始化为适当的值
+           // bool needBroadcastQuotationExpected = true; // TODO: 初始化为适当的值
             XmlNode fixChartDatas = null; // TODO: 初始化为适当的值
-            XmlNode fixChartDatasExpected = null; // TODO: 初始化为适当的值
+           // XmlNode fixChartDatasExpected = null; // TODO: 初始化为适当的值
             bool expected = true; // TODO: 初始化为适当的值
             bool actual;
             actual = target.FixOverridedQuotationHistory(token, quotation, needApplyAutoAdjustPoints, out originQs, out overridedQs, out needBroadcastQuotation, out fixChartDatas);

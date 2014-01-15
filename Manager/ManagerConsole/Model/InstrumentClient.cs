@@ -10,6 +10,7 @@ using CommonInstrument = Manager.Common.Settings.Instrument;
 using ExchangeInstrument = Manager.Common.Settings.ExchangInstrument;
 using InstrumentCategory = iExchange.Common.InstrumentCategory;
 using OriginType = iExchange.Common.OriginType;
+using Manager.Common.ExchangeEntities;
 
 namespace ManagerConsole.Model
 {
@@ -21,7 +22,7 @@ namespace ManagerConsole.Model
         public InstrumentClient() { }
         public InstrumentClient(CommonInstrument instrument)
         {
-            this.Update(instrument);
+            this.Initialize(instrument);
         }
 
         #region Private Property
@@ -325,9 +326,33 @@ namespace ManagerConsole.Model
         public decimal SellLot { get; set; }
         #endregion
 
-        internal void Update(CommonInstrument instrument)
+        public void Update(Dictionary<string, string> fieldAndValues)
         {
-            if (instrument.AcceptDQVariation != null) this.AcceptDQVariation = instrument.AcceptDQVariation;
+            foreach (string key in fieldAndValues.Keys)
+            {
+                this.Update(key, fieldAndValues[key]);
+            }
+        }
+
+        public void Update(string field, object value)
+        {
+            if (field == ExchangeFieldSR.Code)
+            {
+                this.Code = (string)value;
+            }
+            else if (field == ExchangeFieldSR.IsPriceEnabled)
+            {
+                this.IsPriceEnabled = (bool)value;
+            }
+            else if (field == ExchangeFieldSR.IsAutoEnablePrice)
+            {
+                this.IsAutoEnablePrice = (bool)value;
+            }
+        }
+
+
+        internal void Initialize(CommonInstrument instrument)
+        {
             this.Id = instrument.Id;
             this.ExchangeCode = instrument.ExchangeCode;
             this.OriginCode = instrument.OriginCode;

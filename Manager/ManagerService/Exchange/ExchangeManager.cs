@@ -73,16 +73,19 @@ namespace ManagerService.Exchange
 
         public void SwitchPriceEnableState(int instrumentId, bool enable)
         {
-            foreach (ExchangeSystem exchangeSystem in this._ExchangeSystems.Values)
-            {
-                exchangeSystem.SwitchPriceState(MainService.QuotationManager.ConfigMetadata.Instruments[instrumentId].Code, enable);
-            }
+            List<string> originCodes = new List<string>();
+            originCodes.Add(MainService.QuotationManager.ConfigMetadata.Instruments[instrumentId].Code);
 
             // SwitchPriceEnableState for derivative instruments
             IEnumerable<DerivativeRelation> derivativeRelations = MainService.QuotationManager.ConfigMetadata.DerivativeRelations.Values.Where(d => d.UnderlyingInstrument1Id == instrumentId || d.UnderlyingInstrument2Id == instrumentId);
-            foreach (DerivativeRelation relation in derivativeRelations)
+            foreach (DerivativeRelation derivativeRelation in derivativeRelations)
             {
-                this.SwitchPriceEnableState(relation.Id, enable);
+                originCodes.Add(MainService.QuotationManager.ConfigMetadata.Instruments[derivativeRelation.Id].Code);
+            }
+
+            foreach (ExchangeSystem exchangeSystem in this._ExchangeSystems.Values)
+            {
+                exchangeSystem.SwitchPriceState(originCodes, enable);
             }
         }
 

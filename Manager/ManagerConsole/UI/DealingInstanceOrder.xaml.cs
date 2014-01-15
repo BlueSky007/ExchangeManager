@@ -57,11 +57,17 @@ namespace ManagerConsole.UI
         {
             InstrumentClient allInstrument = new InstrumentClient();
             allInstrument.Code = "All";
-            foreach (InstrumentClient instrument in this._App.InitDataManager.GetInstruments())
-            {
-                this._InstrumentList.Add(instrument);
-            }
 
+            foreach (string exchangeCode in this._App.InitDataManager.ExchangeCodes)
+            {
+                ExchangeSettingManager settingManager = this._App.InitDataManager.GetExchangeSetting(exchangeCode);
+
+                foreach (InstrumentClient instrument in settingManager.Instruments.Values)
+                {
+                    this._InstrumentList.Add(instrument);
+                }
+            }
+            
             this._InstrumentList.Insert(0, allInstrument);
             this._InstrumentCombo.ItemsSource = this._InstrumentList;
             this._InstrumentCombo.DisplayMemberPath = "Code";
@@ -149,10 +155,10 @@ namespace ManagerConsole.UI
                     currentCellData = orderTask.DQCellDataDefine2;
                     break;
                 case "_ExecuteRejectSellButton":
-                    this.ExcuteAllDQOrder(false);
+                    this.ExcuteAllDQOrder("WF01",false);
                     return;
                 case "_ExecuteRejectBuyButton":
-                    this.ExcuteAllDQOrder(true);
+                    this.ExcuteAllDQOrder("WF01",true);
                     return;
                 default:
                     break;
@@ -168,8 +174,10 @@ namespace ManagerConsole.UI
             }
         }
 
-        private void ExcuteAllDQOrder(bool isBuy)
+        private void ExcuteAllDQOrder(string exchangeCode,bool isBuy)
         {
+            ExchangeSettingManager settingManager = this._App.InitDataManager.GetExchangeSetting(exchangeCode);
+            
             for (int i = 0; i < this._OrderTaskGrid.Rows.Count; i++)
             {
                 OrderTask order = this._OrderTaskGrid.Rows[i].Data as OrderTask;
@@ -182,8 +190,8 @@ namespace ManagerConsole.UI
                 int acceptDQVarition = this._ProcessInstantOrder.CheckDQVariation(instrument, currentDQVarition);
 
                 //just test
-                Customer customer = this._App.InitDataManager.SettingsManager.GetCustomer(new Guid("4556F2F0-3C1B-4C27-AA67-03DE2D0C1E0C"));
-                QuotePolicyDetail quotePolicyDetail = this._App.InitDataManager.SettingsManager.GetQuotePolicyDetail(order.InstrumentId.Value, customer);
+                Customer customer = settingManager.GetCustomer(new Guid("4556F2F0-3C1B-4C27-AA67-03DE2D0C1E0C"));
+                QuotePolicyDetail quotePolicyDetail = settingManager.GetQuotePolicyDetail(order.InstrumentId.Value, customer);
 
                 bool isAllowed = this._ProcessInstantOrder.AllowAccept(order, quotePolicyDetail, isBuy, marketPrice, currentDQVarition);
                 if (isAllowed)

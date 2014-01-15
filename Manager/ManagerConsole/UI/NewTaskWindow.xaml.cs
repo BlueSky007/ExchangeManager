@@ -103,9 +103,14 @@ namespace ManagerConsole.UI
 
             ExchangInstrument allInstrument = new ExchangInstrument();
             allInstrument.InstrumentCode = "All";
-            foreach (InstrumentClient instrument in this._App.InitDataManager.GetInstruments())
+
+            foreach (string exchangeCode in this._App.InitDataManager.ExchangeCodes)
             {
-                this._InstrumentList.Add(instrument.ToExchangeInstrument());
+                ExchangeSettingManager settingManager = this._App.InitDataManager.GetExchangeSetting(exchangeCode);
+                foreach (InstrumentClient instrument in settingManager.Instruments.Values)
+                {
+                    this._InstrumentList.Add(instrument.ToExchangeInstrument());
+                }
             }
 
             this._InstrumentList.Insert(0, allInstrument);

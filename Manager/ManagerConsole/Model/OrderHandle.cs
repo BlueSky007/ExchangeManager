@@ -59,7 +59,7 @@ namespace ManagerConsole.Model
 
         public void OnOrderAccept(OrderTask orderTask)
         {
-            SystemParameter systemParameter = this._App.InitDataManager.SettingsManager.SystemParameter;
+            SystemParameter systemParameter = this._App.InitDataManager.GetExchangeSetting(orderTask.ExchangeCode).SystemParameter;
             ConfigParameters configParameter = this._App.InitDataManager.ConfigParameters[orderTask.ExchangeCode];
             bool allowModifyOrderLot = configParameter.AllowModifyOrderLot;
             systemParameter.CanDealerViewAccountInfo = true;
@@ -158,7 +158,8 @@ namespace ManagerConsole.Model
         #region 撞线状态操作
         public void OnOrderExecute(OrderTask orderTask)
         {
-            SystemParameter systemParameter = this._App.InitDataManager.SettingsManager.SystemParameter;
+            ExchangeSettingManager settingManager = this._App.InitDataManager.GetExchangeSetting(orderTask.ExchangeCode);
+            SystemParameter systemParameter = settingManager.SystemParameter;
             systemParameter.CanDealerViewAccountInfo = true;
             bool isOK = OrderTaskManager.CheckExecuteOrder(orderTask);
 

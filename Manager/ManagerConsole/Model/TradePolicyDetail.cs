@@ -1,4 +1,5 @@
-﻿using ManagerConsole.Helper;
+﻿using Manager.Common.ExchangeEntities;
+using ManagerConsole.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,5 +38,22 @@ namespace ManagerConsole.Model
         {
             this.TradePolicyId = tradePolicyDetail.TradePolicyId;
         }
+
+        public void Update(Dictionary<string, string> fieldAndValues)
+        {
+            foreach (string key in fieldAndValues.Keys)
+            {
+                this.Update(key, fieldAndValues[key]);
+            }
+        }
+
+        public void Update(string field, string value)
+        {
+            if (field == ExchangeFieldSR.InstrumentId)
+            {
+                this.InstrumentId = Guid.Parse(value);
+            }
+        }
     }
+
 }

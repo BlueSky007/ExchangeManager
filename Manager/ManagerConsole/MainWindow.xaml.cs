@@ -24,6 +24,7 @@ using System.Threading;
 using ManagerConsole.ViewModel;
 using System.Diagnostics;
 using Infragistics.Controls.Interactions;
+using Manager.Common.Settings;
 
 namespace ManagerConsole
 {
@@ -49,7 +50,7 @@ namespace ManagerConsole
         public MainWindow()
         {
             InitializeComponent();
-            this.InitDataManager = new InitDataManager();
+            this.InitDataManager = new ExchangeDataManager();
             this._CommonDialogWin = new CommonDialogWin(this.MainFrame);
             this._ConfirmDialogWin = new ConfirmDialogWin(this.MainFrame);
             this._ConfirmOrderDialogWin = new ConfirmOrderDialogWin(this.MainFrame);
@@ -61,7 +62,7 @@ namespace ManagerConsole
 
         public SourceRelationControl SourceRelationControl { get { return this._SourceRelationControl; } }
 
-        public InitDataManager InitDataManager
+        public ExchangeDataManager InitDataManager
         {
             get;
             private set;
@@ -194,16 +195,9 @@ namespace ManagerConsole
             }
         }
 
-        private void LoadSettingsParametersCallback(List<string> parameters)
+        private void LoadSettingsParametersCallback(SettingsParameter settingsParameter)
         {
-            foreach (string xmlStr in parameters)
-            {
-                if (!string.IsNullOrEmpty(xmlStr))
-                {
-                    XElement parametersXml = XElement.Parse(xmlStr);
-                    this.InitDataManager.SettingsManager.InitializeSettingParameter(parametersXml);
-                }
-            }
+            this.InitDataManager.SettingsManager.InitializeSettingParameter(settingsParameter);
         }
 
         private void GetInitializeDataCallback(List<InitializeData> initalizeDatas)

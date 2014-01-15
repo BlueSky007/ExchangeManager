@@ -142,6 +142,7 @@
     </Compile>
     <Compile Include="Helper\PriceHelper.cs" />
     <Compile Include="LayoutManager.cs" />
+    <Compile Include="Model\SettingsManager.cs" />
     <Compile Include="UI\ExchangeQuotationPropertyControl.xaml.cs">
       <DependentUpon>ExchangeQuotationPropertyControl.xaml</DependentUpon>
     </Compile>
@@ -168,7 +169,7 @@
     <Compile Include="UI\TaskSchedulerNotify.xaml.cs">
       <DependentUpon>TaskSchedulerNotify.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModel\InitDataManager.cs" />
+    <Compile Include="ViewModel\ExchangeDataManager.cs" />
     <Compile Include="LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
     </Compile>
@@ -184,7 +185,6 @@
     <Compile Include="Model\InstrumentClient.cs" />
     <Compile Include="Model\MessageClient.cs" />
     <Compile Include="Model\Order.cs" />
-    <Compile Include="Model\TestData.cs" />
     <Compile Include="UI\AdjustAndSpreadSettingControl.xaml.cs">
       <DependentUpon>AdjustAndSpreadSettingControl.xaml</DependentUpon>
     </Compile>
@@ -275,13 +275,12 @@
     <Compile Include="ViewModel\QuotationMessageProcessor.cs" />
     <Compile Include="Model\QuotePolicyDetail.cs" />
     <Compile Include="Model\SystemParameter.cs" />
-    <Compile Include="Model\SystemParameterClient.cs" />
     <Compile Include="Model\TradePolicy.cs" />
     <Compile Include="Model\TradePolicyDetail.cs" />
     <Compile Include="Model\Transaction.cs" />
     <Compile Include="Model\OrderHandle.cs" />
     <Compile Include="Model\SettingsChangedEventArgs.cs" />
-    <Compile Include="Model\SettingsManager.cs" />
+    <Compile Include="Model\ExchangeSettingManager.cs" />
     <Compile Include="UI\DQOrderTaskControl.xaml.cs">
       <DependentUpon>DQOrderTaskControl.xaml</DependentUpon>
     </Compile>
@@ -355,6 +354,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Asset\BlackTheme\XamInput_BlackTheme.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Asset\BlackTheme\XamMenu_BlackTheme.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

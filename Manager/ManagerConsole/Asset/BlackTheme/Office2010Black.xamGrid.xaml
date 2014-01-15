@@ -5,9 +5,11 @@
 	xmlns:ig="http://schemas.infragistics.com/xaml"
     xmlns:igWPF="http://schemas.infragistics.com/xaml/wpf"
 	xmlns:igPrim="http://schemas.infragistics.com/xaml/primitives"
+    xmlns:igWindows="http://infragistics.com/Windows"
     xmlns:igDock="clr-namespace:Infragistics.Windows.DockManager;assembly=InfragisticsWPF4.dockmanager.v13.1"
-     xmlns:PresentationOptions="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
+    xmlns:PresentationOptions="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
     xmlns:igThemes="http://infragistics.com/Themes"
+    xmlns:interop="clr-namespace:System.Windows.Interop;assembly=PresentationFramework"
 	xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:System="clr-namespace:System;assembly=mscorlib"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6283,11 +6285,12 @@
             </Setter.Value>
         </Setter>
     </Style>
-    <Style TargetType="{x:Type ig:XamMenu}">
-        <Setter Property="Background" Value="#FF3F3E3E"/>
-        <Setter Property="Foreground" Value="White"/>
-    </Style>
     <Style TargetType="{x:Type igDock:DockedPaneSplitter}">
+        <Setter Property="Background" Value="#FF3F3E3E"/>
+        <Setter Property="MinWidth" Value="2"/>
+        <Setter Property="MinHeight" Value="2"/>
+    </Style>
+    <Style TargetType="{x:Type igDock:SplitPaneSplitter}">
         <Setter Property="Background" Value="#FF3F3E3E"/>
         <Setter Property="MinWidth" Value="2"/>
         <Setter Property="MinHeight" Value="2"/>
@@ -6302,6 +6305,9 @@
     <!--<Style TargetType="{x:Type igDock:TabGroupPane}" >
     </Style>-->
     
+    <Style TargetType="{x:Type igDock:TabGroupPane}">
+        <Setter Property="Background" Value="Black"/>
+    </Style>
     <SolidColorBrush PresentationOptions:Freeze="true" x:Key="{x:Static igDock:DockManagerBrushKeys.DarkBrushKey}" Color="#FF000000"/>
     <SolidColorBrush PresentationOptions:Freeze="true" x:Key="{x:Static igDock:DockManagerBrushKeys.LightBrushKey}" Color="#FFFFFFFF"/>
     <SolidColorBrush PresentationOptions:Freeze="true" x:Key="{x:Static igDock:DockManagerBrushKeys.ThemeColorTextFillKey}" Color="#FFFFFFFF" />
@@ -6699,9 +6705,6 @@
 
     <SolidColorBrush PresentationOptions:Freeze="true" x:Key="{x:Static igDock:DockManagerBrushKeys.GrayTextBrushKey}" Color="#FFA29F99" />
 
-    <Style TargetType="{x:Type ig:XamMenuItem}">
-        <Setter Property="Background" Value="Black"/>
-    </Style>
     <Style x:Key="XamMenuSeparatorStyle" TargetType="ig:XamMenuSeparator">
         <Setter Property="Background" Value="#FF007ACC"/>
         <Setter Property="Height" Value="1"/>
@@ -6749,18 +6752,18 @@
         <DockPanel UIElement.ClipToBounds="True" UIElement.SnapsToDevicePixels="True" KeyboardNavigation.TabNavigation="Local">
             <DockPanel DockPanel.Name="PART_HeaderArea" Panel.ZIndex="1" DockPanel.Dock="{TemplateBinding TabControl.TabStripPlacement}">
                 <DockPanel>
-                    <Button Button.Name="closeBtn" DockPanel.Dock="Right" ButtonBase.Command="{x:Static igDock:TabGroupPane.CloseSelectedItemCommand}"  />
-                    <Menu Menu.Name="filesMenu" DockPanel.Dock="Right" >
-                        <MenuItem MenuItem.Name="PART_FilesMenuItem"  />
+                    <Button Button.Name="closeBtn" DockPanel.Dock="Right" Foreground="#FF656565" ButtonBase.Command="{x:Static igDock:TabGroupPane.CloseSelectedItemCommand}" Style="{DynamicResource {x:Static igDock:TabGroupPane.DocumentCloseButtonStyleKey}}" />
+                    <Menu Menu.Name="filesMenu" DockPanel.Dock="Right" Background="Black" Foreground="#FF656565" >
+                        <MenuItem MenuItem.Name="PART_FilesMenuItem"  Style="{DynamicResource {x:Static igDock:TabGroupPane.DocumentFilesMenuItemStyleKey}}" />
                     </Menu>
-                    <Button Button.Name="showNavigatorButton" DockPanel.Dock="Right" UIElement.Visibility="Collapsed" ButtonBase.Command="{x:Static igDock:DockManagerCommands.ShowPaneNavigator}" ButtonBase.CommandParameter="{TemplateBinding igDock:XamDockManager.DockManager}"  />
+                    <Button Button.Name="showNavigatorButton" DockPanel.Dock="Right" UIElement.Visibility="Hidden" ButtonBase.Command="{x:Static igDock:DockManagerCommands.ShowPaneNavigator}" ButtonBase.CommandParameter="{TemplateBinding igDock:XamDockManager.DockManager}" Style="{DynamicResource {x:Static igDock:TabGroupPane.DocumentPaneNavigatorButtonStyleKey}}"  />
                     <ItemsPresenter ItemsPresenter.Name="PART_TabHeaderPanel" FrameworkElement.Margin="5,2,10,0" KeyboardNavigation.TabIndex="1" />
                 </DockPanel>
             </DockPanel>
-            <Border Border.Name="ContentPanel" KeyboardNavigation.TabIndex="2" KeyboardNavigation.TabNavigation="Local" KeyboardNavigation.DirectionalNavigation="Contained" Border.BorderThickness="{TemplateBinding Control.BorderThickness}" Border.CornerRadius="3"  Border.Background="#FF282828" UIElement.Visibility="Visible" UIElement.SnapsToDevicePixels="True">
-                <Border Border.Name="InnerBorder" Border.BorderThickness="1" Border.CornerRadius="1"  UIElement.SnapsToDevicePixels="True">
-                    <Border Border.Name="ThickInnerBorder" Border.BorderThickness="2"  UIElement.SnapsToDevicePixels="True">
-                        <Border Border.Name="InnerMostBorder" Border.BorderThickness="1"  Border.Background="{TemplateBinding Control.Background}" UIElement.SnapsToDevicePixels="True">
+            <Border Border.Name="ContentPanel" BorderBrush="#FF656565" KeyboardNavigation.TabIndex="2" KeyboardNavigation.TabNavigation="Local" KeyboardNavigation.DirectionalNavigation="Contained" Border.BorderThickness="{TemplateBinding Control.BorderThickness}" Border.CornerRadius="3"  Border.Background="#FF656565" UIElement.Visibility="Visible" UIElement.SnapsToDevicePixels="True">
+                <Border Border.Name="InnerBorder" Border.BorderThickness="1" Border.CornerRadius="1"  UIElement.SnapsToDevicePixels="True" BorderBrush="#FF656565" Border.Background="#FF656565">
+                    <Border Border.Name="ThickInnerBorder" Border.BorderThickness="2"  UIElement.SnapsToDevicePixels="True" BorderBrush="#FF656565"  Border.Background="#FF656565">
+                        <Border Border.Name="InnerMostBorder" Border.BorderThickness="1"  Border.Background="{TemplateBinding Control.Background}" UIElement.SnapsToDevicePixels="True" >
                             <!--<ContentPresenter ContentPresenter.Name="PART_SelectedContentHost" ContentPresenter.ContentSource="SelectedContent" FrameworkElement.Margin="{TemplateBinding Control.Padding}" UIElement.SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" ContentPresenter.ContentTemplateSelector="{TemplateBinding TabControl.SelectedContentTemplateSelector}" ContentPresenter.ContentTemplate="{TemplateBinding TabControl.SelectedContentTemplate}" ContentPresenter.Content="{TemplateBinding TabControl.SelectedContent}" />-->
                             <ContentPresenter ContentPresenter.Name="PART_SelectedContentHost" ContentPresenter.ContentSource="SelectedContent" UIElement.SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" ContentPresenter.ContentTemplateSelector="{TemplateBinding TabControl.SelectedContentTemplateSelector}" ContentPresenter.ContentTemplate="{TemplateBinding TabControl.SelectedContentTemplate}" ContentPresenter.Content="{TemplateBinding TabControl.SelectedContent}" />
                         </Border>
@@ -6804,5 +6807,298 @@
             </DataTrigger>
         </ControlTemplate.Triggers>
     </ControlTemplate>
+    
+    
+    <!--****************************************************************TabHeardPane***************************************************   -->
+    <BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
+    <!-- ========== DocumentTabItemTemplateKey ========== -->
+    <ControlTemplate x:Key="{x:Static igDock:PaneTabItem.DocumentTabItemTemplateKey}" TargetType="{x:Type igDock:PaneTabItem}">
+        <Border x:Name="Background" Margin="0,0,-10,0">
+            <Grid x:Name="TabbedDocumentTab"
+                  VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid x:Name="nonSelectedEnd">
+                    <Path
+                        Margin="0,2,0,0"
+		                VerticalAlignment="Stretch"
+		                Height="Auto"
+		                Stretch="Fill"
+		                Opacity="1"
+		                Data="M 619,51 C619,51 616,51 616,51 608,51 606,54 606,54 606,54 594,66 594,66 594,66 619,66 619,66 619,66 619,51 619,51 z"
+		                Fill="#FF454545" x:Name="nonSelectedOuterBorderSlice" />
+                    <Path
+		                Margin="1,3,0,0"
+		                VerticalAlignment="Stretch"
+		                Height="Auto"
+		                Stretch="Fill"
+		                Opacity="1"
+		                Data="M 619,52 C619,52 617,52 617,52 609,52 607,55 607,55 607,55 596,66 596,66 596,66 619,66 619,66 619,66 619,52 619,52 z"
+		                Fill="#FF454545" x:Name="nonSelectedInnerBorderSlice" />
+                    <!-- AS 1/6/10 TFS25270 - TemplateBind to the background -->
+                    <Path
+		                Margin="2,3,0,0"
+		                VerticalAlignment="Stretch"
+		                Height="Auto"
+		                Stretch="Fill"
+		                Opacity="1"
+		                Data="M 619,52 C619,52 618,52 618,52 610,52 608,55 608,55 608,55 597,66 597,66 597,66 619,66 619,66 619,66 619,52 619,52 z"
+		                Fill="{TemplateBinding Background}" x:Name="nonSelectedCenterSlice" />
+                </Grid>
 
+                <!-- AS 3/5/09 TFS14746
+                    selectedEnd was 1 pixel taller than the nonSelectedEnd so I added a negative margin to shift down and offset that pixel
+                    I also adjusted the margins for the paths within since they were taller & wider than the non-selected end -->
+                <Grid x:Name="selectedEnd" Visibility="Collapsed" Margin="0,0,0,-1">
+                    <Path
+                        x:Name="selectedOuterBorderSlice"
+                        Stretch="Fill"
+                        Data="M 490,65 C490,65 518,65 518,65 518,65 518,47 518,47 518,47 515,47 515,47 507,47 505,50 505,50 505,50 490,65 490,65 z"
+                        Fill="#FF656565" SnapsToDevicePixels="True" 
+                        Margin="0,0,-3,0"/>
+                    <Path
+                        x:Name="selectedInnerBorderSlice"
+                        Stretch="Fill"
+                        Data="M 518,48 C518,48 516,48 516,48 508,48 506,51 506,51 506,51 492,65 492,65 492,65 518,65 518,65 518,65 518,48 518,48 z"
+                        Fill="#FF656565" SnapsToDevicePixels="True" 
+                        Margin="1,1,-3,0"/>
+                    <!-- AS 1/6/10 TFS25270 
+                        TemplateBind to the background & changed margin from 0,1,-2,-2 to 0,1,-2,-1 since it was going too low -->
+                    <Path
+                        x:Name="selectedCenterSlice"
+                        Stretch="Fill"
+                        Data="M 492,66 C492,66 518,66 518,66 518,66 518,48 518,48 518,48 517,48 517,48 509,48 507,51 507,51 507,51 492,66 492,66 z" 
+                        Fill="{TemplateBinding Background}" SnapsToDevicePixels="True"
+                        Margin="0,1,-2,-1"
+                        />
+                </Grid>
+
+                <Border x:Name="HighlightBorder" VerticalAlignment="Stretch" Grid.Column="1" Grid.ColumnSpan="1" 
+                        Background="#FF454545" 
+                        BorderBrush="#FF454545"
+                        BorderThickness="0,1,1,0" CornerRadius="0,3,0,0" Margin="0,2,0,0"/>
+                <!-- AS 1/6/10 TFS25270 - TemplateBind to the background -->
+                <Border  x:Name="Border"  
+                         Background="{TemplateBinding Background}" 
+                         CornerRadius="0,1,0,0" Margin="0,3,2,0" VerticalAlignment="Stretch" Grid.Column="1"/>
+                <Rectangle x:Name="activebrFiller" Grid.Column="1" Width="1" Height="1" 
+                           VerticalAlignment="Bottom" HorizontalAlignment="Right" 
+                           Fill="#FF656565" 
+                           Margin="0,0,1,-1" 
+                           Visibility="Collapsed"/>
+
+                <Border x:Name="Content" Grid.Column="1"
+							BorderThickness="{TemplateBinding BorderThickness}" >
+                    <DockPanel x:Name="ContentDock" Margin="-8,1,6,0" VerticalAlignment="Bottom">
+                        <igWindows:AutoDisabledImage Visibility="{Binding Path=Pane.HasImage, Converter={StaticResource BoolToVisConverter}, RelativeSource={x:Static RelativeSource.TemplatedParent}}"
+                                DockPanel.Dock="Left"
+                                Margin="0,0,5,0"
+                                Stretch="None"
+                                Source="{Binding Path=Pane.Image, RelativeSource={x:Static RelativeSource.TemplatedParent}}" />
+                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" x:Name="gdContent">
+                            <ContentPresenter x:Name="NormalContent"
+                        		ContentSource="Header" 
+                        		SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                        		RecognizesAccessKey="true"                                       
+                        		HorizontalAlignment="Center" 
+                        		VerticalAlignment="Center"
+                                igWindows:ClippedTextToolTipService.ShowToolTipWhenClipped="True"
+								igWindows:ClippedTextToolTipService.AncestorTypeForToolTip="{x:Type ContentControl}"
+                                igWindows:ClippedTextToolTipService.ToolTipStyleKey="{x:Static igDock:XamDockManager.ToolTipStyleKey}"
+								/>
+
+                            <ContentPresenter x:Name="NormalContentBold"
+                        		ContentSource="Header" 
+                        		SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                        		RecognizesAccessKey="true"                                       
+                        		HorizontalAlignment="Center" 
+                        		VerticalAlignment="Center"
+                                igWindows:ClippedTextToolTipService.ShowToolTipWhenClipped="True"
+								igWindows:ClippedTextToolTipService.AncestorTypeForToolTip="{x:Type ContentControl}"
+                                igWindows:ClippedTextToolTipService.ToolTipStyleKey="{x:Static igDock:XamDockManager.ToolTipStyleKey}"
+                                TextElement.FontWeight="Bold"
+                                Margin="-4,0,-3,0"
+                                Visibility="Hidden"/>
+                        </Grid>
+                    </DockPanel>
+                </Border>
+            </Grid>
+        </Border>
+        <ControlTemplate.Triggers>
+
+            <Trigger Property="IsEnabled" Value="false">
+                <Setter Property="Foreground" Value="{DynamicResource {x:Static igDock:DockManagerBrushKeys.GrayTextBrushKey}}" />
+            </Trigger>
+
+            <Trigger Property="IsMouseOverTab" Value="true">
+                <Setter Property="Fill" TargetName="nonSelectedOuterBorderSlice" Value="#FF282828" />
+                <Setter Property="Fill" TargetName="nonSelectedInnerBorderSlice" Value="#FF282828" />
+                <!-- AS 1/6/10 TFS25270
+                    The center elements bind to the background so we need to change that.
+                <Setter Property="Fill" TargetName="nonSelectedCenterSlice" Value="{DynamicResource {x:Static igDock:DockManagerBrushKeys.TabbedDocumentHottrackCenterFillKey}}" />-->
+                <Setter Property="BorderBrush" TargetName="HighlightBorder" Value="#FF282828"  />
+                <Setter Property="Background" TargetName="HighlightBorder" Value="#FF282828"  />
+                <!-- AS 1/6/10 TFS25270
+                <Setter Property="Background" TargetName="Border" Value="{DynamicResource {x:Static igDock:DockManagerBrushKeys.TabbedDocumentHottrackCenterFillKey}}"  />-->
+                <Setter Property="Background" Value="#FF282828" />
+                
+            </Trigger>
+
+            <Trigger Property="IsSelected" Value="true">
+                <Setter Property="TextBlock.Foreground" Value="#FF00AADE"/>
+                <Setter Property="Panel.ZIndex" Value="1" />
+                <Setter Property="Visibility" TargetName="activebrFiller" Value="Visible"/>
+                <Setter Property="Visibility" TargetName="selectedEnd" Value="Visible"/>
+                <Setter Property="Visibility" TargetName="nonSelectedEnd" Value="Collapsed"/>
+                <Setter Property="BorderBrush" TargetName="HighlightBorder" Value="{DynamicResource {x:Static igDock:DockManagerBrushKeys.TabbedDocumentActiveOuterBorderFillKey}}"  />
+                <Setter Property="Background" TargetName="HighlightBorder" Value="#FF656565"  />
+                <!-- AS 1/6/10 TFS25270
+                    The center elements bind to the background so we need to change that.
+                <Setter Property="Background" TargetName="Border" Value="{DynamicResource {x:Static igDock:DockManagerBrushKeys.TabbedDocumentActiveCenterFillKey}}"/>-->
+                <Setter Property="Background" Value="#FF656565"/>
+                <!-- AS 3/5/09 TFS14746
+                    Since this element only is visible when selected we don't need to change the margin
+                    so I moved this up into the margin property of the element and adjusted it with the other 
+                    elements.
+                <Setter Property="Margin" TargetName="selectedCenterSlice" Value="0,1,0,-2" />-->
+                <Setter Property="Margin" TargetName="HighlightBorder" Value="-4,0,0,0" />
+                <Setter Property="Margin" TargetName="Border" Value="-4,1,2,-2" />
+            </Trigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsSelected" Value="False"/>
+                    <Condition Property="IsMouseOverTab" Value="true"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Foreground" Value="#FF00AADE" />
+            </MultiTrigger>
+
+            <DataTrigger Binding="{Binding Path=Pane.IsActiveDocument, RelativeSource={x:Static RelativeSource.Self}}" Value="True">
+                <Setter Property="Visibility" TargetName="NormalContent" Value="Hidden" />
+                <Setter Property="Visibility" TargetName="NormalContentBold" Value="Visible" />
+            </DataTrigger>
+
+            <!-- ========== TAB PLACEMENT : BOTTOM ========== -->
+            <Trigger Property="TabStripPlacement" Value="Bottom">
+                <Setter Property="LayoutTransform">
+                    <Setter.Value>
+                        <ScaleTransform ScaleY="-1" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="LayoutTransform" TargetName="ContentDock">
+                    <Setter.Value>
+                        <ScaleTransform ScaleY="-1" />
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+
+            <!-- ========== TAB PLACEMENT : LEFT ========== -->
+            <Trigger Property="TabStripPlacement" Value="Left">
+                <Setter Property="LayoutTransform">
+                    <Setter.Value>
+                        <RotateTransform Angle="-90"/>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+
+            <!-- ========== TAB PLACEMENT : RIGHT ========== -->
+            <Trigger Property="TabStripPlacement" Value="Right">
+                <Setter Property="LayoutTransform">
+                    <Setter.Value>
+                        <RotateTransform Angle="90" />
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+    <Style TargetType="{x:Type igDock:PaneTabItem}">
+        <Setter Property="TextBlock.TextTrimming" Value="CharacterEllipsis" />
+        <Setter Property="TextBlock.Foreground" Value="White"/>
+        <!-- AS 1/6/10 TFS25270/TFS26279 
+            Changed the Background/BorderBrush to bind to attached properties. The attached properties could be 
+            set in the style setter or more specifically to address this issue in the style triggers. The style 
+            setter would then bind the Background/BorderBrush to the value of that attached property. In that way 
+            the style triggers would not (when used in a local style) take precedence over the template triggers.
+        -->
+        <!--<Setter Property="Background" Value="Transparent" />-->
+        <!-- AS 1/6/10 TFS25270 Set default border brush for dockable tabs -->
+        <!--<Setter Property="BorderBrush" Value="{DynamicResource {x:Static igDock:DockManagerBrushKeys.TabbedListNotActiveOuterBorderFillKey}}" />-->
+
+        <!-- AS 1/6/10 TFS25270/TFS26279 -->
+        <Setter Property="igDock:DockManagerBrushHelper.Background" Value="#FF454545" />
+        <Setter Property="igDock:DockManagerBrushHelper.BorderBrush" Value="{DynamicResource {x:Static igDock:DockManagerBrushKeys.TabbedListNotActiveOuterBorderFillKey}}" />
+        <Setter Property="Background" Value="#FF454545" />
+        <Setter Property="BorderBrush" Value="#FF454545" />
+
+        <Setter Property="Template" Value="{DynamicResource {x:Static igDock:PaneTabItem.DockableTabItemTemplateKey}}"/>
+        <Style.Triggers>
+            <!-- AS 1/6/10 TFS25270/TFS26279 
+                As mentioned above I am changing the setter of all of these style triggers such that they
+                set the attached properties on the brushhelper.
+            -->
+            <!-- AS 1/6/10 TFS25270 Set default border brush for unpinned tabs -->
+            <Trigger Property="igDock:XamDockManager.PaneLocation" Value="Unpinned">
+                <Setter Property="igDock:DockManagerBrushHelper.BorderBrush" Value="{DynamicResource {x:Static igDock:DockManagerBrushKeys.UnpinnedTabItemOuterBorderFillKey}}"  />
+            </Trigger>
+
+            <!-- AS 1/6/10 TFS25270 
+                Add Background setters instead of using template triggers so the background for dockable/unpinned can 
+                be controlled in style setters. You'd still have to use style triggers to override the background when 
+                isselected/ismouseover if desired. -->
+            <Trigger Property="TabStripPlacement" Value="Top">
+                <Setter Property="igDock:DockManagerBrushHelper.Background" Value="{DynamicResource {x:Static igDock:DockManagerBrushKeys.TabbedListNotActiveTopCenterFillKey}}"  />
+            </Trigger>
+            <Trigger Property="TabStripPlacement" Value="Bottom">
+                <Setter Property="igDock:DockManagerBrushHelper.Background" Value="{DynamicResource {x:Static igDock:DockManagerBrushKeys.TabbedListNotActiveBottomCenterFillKey}}"  />
+            </Trigger>
+            <Trigger Property="TabStripPlacement" Value="Left">
+                <Setter Property="igDock:DockManagerBrushHelper.Background" Value="{DynamicResource {x:Static igDock:DockManagerBrushKeys.TabbedListNotActiveLeftCenterFillKey}}"  />
+            </Trigger>
+            <Trigger Property="TabStripPlacement" Value="Right">
+                <Setter Property="igDock:DockManagerBrushHelper.Background" Value="{DynamicResource {x:Static igDock:DockManagerBrushKeys.TabbedListNotActiveRightCenterFillKey}}"  />
+            </Trigger>
+
+            <Trigger Property="igDock:XamDockManager.PaneLocation" Value="Document">
+                <Setter Property="igDock:DockManagerBrushHelper.Background" Value="{DynamicResource {x:Static igDock:DockManagerBrushKeys.TabbedDocumentNotActiveCenterFillKey}}"  />
+            </Trigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="igDock:XamDockManager.PaneLocation" Value="Unpinned" />
+                    <Condition Property="TabStripPlacement" Value="Top" />
+                </MultiTrigger.Conditions>
+                <Setter Property="igDock:DockManagerBrushHelper.Background" Value="{DynamicResource {x:Static igDock:DockManagerBrushKeys.UnpinnedTabItemTopCenterFillKey}}"  />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="igDock:XamDockManager.PaneLocation" Value="Unpinned" />
+                    <Condition Property="TabStripPlacement" Value="Bottom" />
+                </MultiTrigger.Conditions>
+                <Setter Property="igDock:DockManagerBrushHelper.Background" Value="{DynamicResource {x:Static igDock:DockManagerBrushKeys.UnpinnedTabItemBottomCenterFillKey}}"  />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="igDock:XamDockManager.PaneLocation" Value="Unpinned" />
+                    <Condition Property="TabStripPlacement" Value="Left" />
+                </MultiTrigger.Conditions>
+                <Setter Property="igDock:DockManagerBrushHelper.Background" Value="{DynamicResource {x:Static igDock:DockManagerBrushKeys.UnpinnedTabItemRightCenterFillKey}}"  />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="igDock:XamDockManager.PaneLocation" Value="Unpinned" />
+                    <Condition Property="TabStripPlacement" Value="Right" />
+                </MultiTrigger.Conditions>
+                <Setter Property="igDock:DockManagerBrushHelper.Background" Value="{DynamicResource {x:Static igDock:DockManagerBrushKeys.UnpinnedTabItemLeftCenterFillKey}}"  />
+            </MultiTrigger>
+
+            <Trigger Property="igDock:XamDockManager.PaneLocation" Value="Document">
+                <Setter Property="Template" Value="{DynamicResource {x:Static igDock:PaneTabItem.DocumentTabItemTemplateKey}}" />
+            </Trigger>
+            <Trigger Property="igDock:XamDockManager.PaneLocation" Value="Unpinned">
+                <Setter Property="Template" Value="{DynamicResource {x:Static igDock:PaneTabItem.UnpinnedTabItemTemplateKey}}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
 </ResourceDictionary>

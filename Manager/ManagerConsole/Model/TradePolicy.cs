@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Manager.Common.ExchangeEntities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,7 @@ namespace ManagerConsole.Model
     {
         public TradePolicy(CommonTradePolicy tradePolicy)
         {
-            this.Update(tradePolicy);
+            this.Initialize(tradePolicy);
         }
 
         public Guid Id
@@ -18,6 +19,10 @@ namespace ManagerConsole.Model
             get;
             private set;
         }
+
+        public string Code { get; set; }
+
+        public string Description { get; set; }
 
         public decimal AlertLevel1
         {
@@ -37,12 +42,35 @@ namespace ManagerConsole.Model
             private set;
         }
 
-        internal void Update(CommonTradePolicy tradePolicy)
+        internal void Initialize(CommonTradePolicy tradePolicy)
         {
             this.Id = tradePolicy.Id;
             this.AlertLevel1 = tradePolicy.AlertLevel1;
             this.AlertLevel2 = tradePolicy.AlertLevel2;
             this.AlertLevel3 = tradePolicy.AlertLevel3;
+        }
+
+        public void Update(Dictionary<string, string> fieldAndValues)
+        {
+            foreach (string key in fieldAndValues.Keys)
+            {
+                this.Update(key, fieldAndValues[key]);
+            }
+        }
+
+        public void Update(string field, string value)
+        {
+            if (field == ExchangeFieldSR.Code)
+            {
+                this.Code = (string)value;
+            }
+            else if (field == ExchangeFieldSR.Description)
+            {
+                if (value != null)
+                {
+                    this.Description = value;
+                }
+            }
         }
     }
 }

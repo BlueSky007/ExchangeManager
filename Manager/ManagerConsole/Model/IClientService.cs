@@ -117,13 +117,13 @@ namespace ManagerConsole.Model
         [OperationContract(IsInitiating = false)]
         AccountInformation GetAcountInfo(Guid transactionId);
 
-        [OperationContract(AsyncPattern = true)]
-        IAsyncResult BeginLoadSettingsParameters(AsyncCallback callback, object asyncState);
-        List<string> EndLoadSettingsParameters(IAsyncResult result);
-        
         #endregion
 
         #region Setting Manager
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginLoadSettingsParameters(AsyncCallback callback, object asyncState);
+        SettingsParameter EndLoadSettingsParameters(IAsyncResult result);
+
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginLoadParameterDefine(AsyncCallback callback, object asyncState);
         List<ParameterDefine> EndLoadParameterDefine(IAsyncResult result);
@@ -201,9 +201,8 @@ namespace ManagerConsole.Model
 
 
         #region Quotation
-        [OperationContract(AsyncPattern = true)]
-        IAsyncResult BeginGetConfigMetadata(AsyncCallback callback, object asyncState);
-        ConfigMetadata EndGetConfigMetadata(IAsyncResult result);
+        [OperationContract(IsInitiating = false)]
+        ConfigMetadata GetConfigMetadata();
 
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginAddMetadataObject(IMetadataObject metadataObject, AsyncCallback callback, object asyncState);
@@ -253,7 +252,7 @@ namespace ManagerConsole.Model
         void Updatetest();  
 
         [OperationContract(AsyncPattern = true)]
-        IAsyncResult BeginUpdateQuotationPolicy(QuotePolicyDetailSet set, AsyncCallback callback, object asyncState);
+        IAsyncResult BeginUpdateQuotationPolicy(InstrumentQuotationSet set, AsyncCallback callback, object asyncState);
         void EndUpdateQuotationPolicy(IAsyncResult result);
 
         [OperationContract(AsyncPattern = true)]

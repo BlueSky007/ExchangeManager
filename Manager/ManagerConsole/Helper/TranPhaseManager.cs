@@ -12,13 +12,13 @@ namespace ManagerConsole.Helper
 {
     public class TranPhaseManager
     {
-        private InitDataManager _InitDataManager;
-        public TranPhaseManager(InitDataManager initDataManager)
+        private ExchangeDataManager _InitDataManager;
+        public TranPhaseManager(ExchangeDataManager initDataManager)
         {
             this._InitDataManager = initDataManager;
         }
 
-        public InitDataManager InitDataManager
+        public ExchangeDataManager InitDataManager
         {
             get { return this._InitDataManager; }
             set { this._InitDataManager = value; }
@@ -98,12 +98,12 @@ namespace ManagerConsole.Helper
         #region Lot Changed
         public void DeleteOrderNotifyUpdateLot(Guid instrumentId, Order deletedOrder)
         {
-            InstrumentClient instrument = this._InitDataManager.Instruments.SingleOrDefault(P => P.Id == instrumentId);
-            Customer customer = new Customer();
-            QuotePolicyDetail quotePolicyDetail = this._InitDataManager.SettingsManager.GetQuotePolicyDetail(instrumentId, customer);
-            decimal lotBalance = deletedOrder.LotBalance;
-            bool isBuy = (deletedOrder.BuySell == BuySell.Buy);
-            this.SubtractBuySellLot(instrument, quotePolicyDetail, isBuy, lotBalance);
+            //InstrumentClient instrument = this._InitDataManager.Instruments.SingleOrDefault(P => P.Id == instrumentId);
+            //Customer customer = new Customer();
+            //QuotePolicyDetail quotePolicyDetail = this._InitDataManager.ExchangeSettingManagers.GetQuotePolicyDetail(instrumentId, customer);
+            //decimal lotBalance = deletedOrder.LotBalance;
+            //bool isBuy = (deletedOrder.BuySell == BuySell.Buy);
+            //this.SubtractBuySellLot(instrument, quotePolicyDetail, isBuy, lotBalance);
         }
         private void SubtractBuySellLot(InstrumentClient instrument, QuotePolicyDetail quotePolicyDetail, bool isBuy, decimal lotBalance)
         {
@@ -142,9 +142,9 @@ namespace ManagerConsole.Helper
             decimal lotBalance = deletedOrder.LotBalance;
             bool isOpen = deletedOrder.OpenClose == OpenClose.Open;
             bool isBuy = deletedOrder.BuySell == BuySell.Buy;
-            InstrumentClient instrument = this._InitDataManager.Instruments.SingleOrDefault(P => P.Id == instrumentId);
+            InstrumentClient instrument = this._InitDataManager.GetExchangeSetting(deletedOrder.ExchangeCode).Instruments.Values.SingleOrDefault(P => P.Id == instrumentId);
             Customer customer = new Customer();
-            QuotePolicyDetail quotePolicyDetail = this._InitDataManager.SettingsManager.GetQuotePolicyDetail(instrumentId, customer);
+            QuotePolicyDetail quotePolicyDetail = this._InitDataManager.ExchangeSettingManagers["WF01"].GetQuotePolicyDetail(instrumentId, customer);
             ObservableCollection<CloseOrder> closeOrders = deletedOrder.CloseOrders;
 
             if (phase == Phase.Executed || phase == Phase.Completed)

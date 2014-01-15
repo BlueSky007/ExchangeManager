@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xamDockManager version="13.1.20131.1009">
   <contentPanes>
-    <contentPane name="DQOrderProcess_1" location="Document" lastActivatedTime="2014-01-14T03:12:54.0571839Z" />
-    <contentPane name="QuotationMonitor_1" location="Document" lastActivatedTime="2014-01-14T03:10:42.5386614Z" />
-    <contentPane name="SourceRelation" location="Document" lastDockableState="Floating" lastFloatingSize="1704,962" lastFloatingWindowRect="1039,573,1712,986" lastFloatingLocation="1039,573" lastActivatedTime="2014-01-13T12:32:15.9073898Z" />
-    <contentPane name="FunctionTreePane" location="DockedLeft" lastActivatedTime="2014-01-13T08:15:34.3254697Z" />
-    <contentPane name="QuotePolicy" location="Document" lastActivatedTime="2014-01-13T08:15:26.0339955Z" />
-    <contentPane name="SettingScheduler" location="Document" lastActivatedTime="2014-01-10T10:37:30.6334251Z" />
-    <contentPane name="SettingParameter" location="Document" lastActivatedTime="2014-01-06T09:32:51.600551Z" />
-    <contentPane name="InstrumentManager" location="Document" lastActivatedTime="2014-01-06T09:32:46.7392729Z" />
+    <contentPane name="SettingScheduler" location="Document" lastActivatedTime="2014-01-15T10:43:54.7347322Z" />
+    <contentPane name="DQOrderProcess_1" location="Document" lastActivatedTime="2014-01-15T10:42:37.8483345Z" />
+    <contentPane name="OrderProcess" location="Document" lastActivatedTime="2014-01-15T10:40:49.8111551Z" />
+    <contentPane name="FunctionTreePane" location="DockedLeft" lastActivatedTime="2014-01-15T10:40:44.9088748Z" />
+    <contentPane name="SettingParameter" location="Document" lastActivatedTime="2014-01-15T10:39:26.5463927Z" />
+    <contentPane name="QuotationMonitor_2" location="Document" lastActivatedTime="2014-01-15T10:37:15.3798904Z" />
+    <contentPane name="DQOrderProcess_2" location="Document" lastActivatedTime="2014-01-15T10:37:08.7495111Z" />
+    <contentPane name="SourceRelation" location="Document" lastDockableState="Floating" lastFloatingSize="1704,962" lastFloatingWindowRect="1039,573,1712,986" lastFloatingLocation="1039,573" lastActivatedTime="2014-01-15T10:35:56.4363751Z" visibility="Collapsed" />
+    <contentPane name="QuotationMonitor_1" location="Document" lastActivatedTime="2014-01-15T10:35:45.5827543Z" />
+    <contentPane name="InstrumentManager" location="Document" lastActivatedTime="2014-01-15T10:35:44.2636788Z" />
+    <contentPane name="QuotePolicy" location="Document" lastActivatedTime="2014-01-15T10:35:43.1286139Z" />
     <contentPane name="FloatPane" location="FloatingOnly" visibility="Collapsed" />
   </contentPanes>
   <panes>
-    <splitPane name="Z46846d2656764de7b3582ef22941a44d" splitterOrientation="Vertical" location="DockedLeft">
+    <splitPane name="Z46846d2656764de7b3582ef22941a44d" splitterOrientation="Vertical" location="DockedLeft" extent="351">
       <contentPane name="FunctionTreePane" />
     </splitPane>
     <splitPane name="Z1966a37725ee48e4b7a09702fdf789c8" splitterOrientation="Vertical" location="FloatingOnly" floatingLocation="300,300">
@@ -25,7 +28,10 @@
   <documents splitterOrientation="Vertical">
     <splitPane name="Zfb8ae975e6d046ccb4c32eea1f6e1e82" splitterOrientation="Vertical">
       <splitPane name="Z24f01b1e20f8452983e704f47b19969c" splitterOrientation="Horizontal">
-        <tabGroup name="Z301c33d35d8d482cb6e99e2f759a88fd" selectedIndex="5" relativeSize="100,80.4238143289606">
+        <tabGroup name="Z301c33d35d8d482cb6e99e2f759a88fd" selectedIndex="7" relativeSize="100,80.4238143289606">
+          <contentPane name="OrderProcess" />
+          <contentPane name="QuotationMonitor_2" />
+          <contentPane name="DQOrderProcess_2" />
           <contentPane name="QuotationMonitor_1" />
           <contentPane name="QuotePolicy" />
           <contentPane name="InstrumentManager" />

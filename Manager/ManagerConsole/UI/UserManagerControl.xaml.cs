@@ -40,9 +40,9 @@ namespace ManagerConsole
         private ObservableCollection<UserData> _AllUserData = new ObservableCollection<UserData>();
         private ObservableCollection<UserModel> _users;
         private ObservableCollection<RoleData> _roles;
-        private ObservableCollection<RoleData> _NewRole;
+        //private ObservableCollection<RoleData> _NewRole;
         private UserModel _NewUser = new UserModel();
-        private string _Password;
+        //private string _Password;
 
         public static readonly DependencyProperty IsTeamLeaderProperty = DependencyProperty.Register("IsAllowAdd", typeof(bool), typeof(UserManagerControl));
 
