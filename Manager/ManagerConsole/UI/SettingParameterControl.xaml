@@ -20,110 +20,109 @@
     <Grid x:Name="SettingLayOutGrid" Background="Black">
         <Grid.RowDefinitions>
             <RowDefinition Height="400"/>
-            <RowDefinition Height="5"/>
+            <RowDefinition Height="10"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="360"/>
-            <ColumnDefinition Width="5"/>
+            <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <GroupBox Background="Black" Foreground="Gold" BorderBrush="DarkGray" Grid.Row="0" Grid.Column="0" Header="Parameter Setting" Margin="3,10,0,0" FontWeight="Black">
+        <GroupBox x:Name="DealingOrderParameterGroup" Background="Black" Foreground="Gold" BorderBrush="DarkGray" Grid.Row="0" Grid.Column="0" Header="Dealing Order Setting" Margin="3,10,0,0" FontWeight="Black">
             <Canvas>
                 <TextBlock Text="Enquiry TimeOut:" Canvas.Left="41" Canvas.Top="20"/>
                 <TextBox x:Name="EnquiryTimeOutText" Text="{Binding EnquiryWaitTime,Mode=TwoWay}" Width="119" Canvas.Left="188" Canvas.Top="20"/>
                 <TextBlock Text="Print Executed Order:" Canvas.Left="41" Canvas.Top="60" />
-                <ComboBox x:Name="PrintOrderComboBox" SelectedIndex="0" Width="119" Canvas.Left="188" Canvas.Top="60">
+                <ComboBox x:Name="PrintOrderComboBox" SelectedIndex="{Binding PriceOrderSetting,Mode=TwoWay}" Width="119" Canvas.Left="188" Canvas.Top="60">
                     <ComboBoxItem>NO Show Upon execution</ComboBoxItem>
                     <ComboBoxItem>Show Upon execution</ComboBoxItem>
                     <ComboBoxItem>Send order to printer</ComboBoxItem>
                 </ComboBox>
                 <TextBlock Text="Disable Popup:" Canvas.Left="41" Canvas.Top="100" />
-                <ComboBox x:Name="DisablePopupComboBox" SelectedIndex="0" Width="119" Canvas.Left="188" Canvas.Top="100">
+                <ComboBox x:Name="DisablePopupComboBox" SelectedIndex="{Binding DisablePopup,Mode=TwoWay}" Width="119" Canvas.Left="188" Canvas.Top="100">
                     <ComboBoxItem>False</ComboBoxItem>
                     <ComboBoxItem>True</ComboBoxItem>
                 </ComboBox>
                 <TextBlock Text="Auto Confirm:" Canvas.Left="41" Canvas.Top="140" />
-                <ComboBox x:Name="AutoConfirmComboBox" SelectedIndex="0" Width="119" Canvas.Left="188" Canvas.Top="140">
+                <ComboBox x:Name="AutoConfirmComboBox" SelectedIndex="{Binding AutoConfirm,Mode=TwoWay}" Width="119" Canvas.Left="188" Canvas.Top="140">
                     <ComboBoxItem>False</ComboBoxItem>
                     <ComboBoxItem>True</ComboBoxItem>
                 </ComboBox>
-                <Button x:Name="ApplyParameterSettingBtn" Content="Apply" Canvas.Left="222" Canvas.Top="342" Width="75"/>
+                <Button x:Name="ApplyParameterSettingBtn" Content="Apply" Canvas.Left="222" Canvas.Top="342" Width="75" Click="ApplyParameterSettingBtn_Click"/>
             </Canvas>
         </GroupBox>
 
-        <GroupBox Background="Black" Foreground="Gold" BorderBrush="DarkGray" Grid.Row="0" Grid.Column="2"  Header="SetValue Setting" Margin="3,10,3,0"  FontWeight="Black">
+        <GroupBox x:Name="SetValueParameterGroup" Background="Black" Foreground="Gold" BorderBrush="DarkGray" Grid.Row="0" Grid.Column="2"  Header="SetValue Setting" Margin="3,10,3,0"  FontWeight="Black">
             <Canvas>
                 <TextBlock Text="Inactive Time:" Canvas.Left="41" Canvas.Top="20"/>
-                <TextBox x:Name="InactiveTimeTextBlock" Width="60" Canvas.Left="204" Canvas.Top="20"/>
+                <TextBox Text="{Binding OriginInactiveTime,Mode=TwoWay}" x:Name="InactiveTimeTextBlock"  Width="60" Canvas.Left="204" Canvas.Top="20"/>
                 <TextBlock Text="Alert Point:" Canvas.Left="41" Canvas.Top="60"/>
-                <TextBox  Width="60" Canvas.Left="204" Canvas.Top="60"/>
+                <TextBox Text="{Binding AlertVariation,Mode=TwoWay}"  Width="60" Canvas.Left="204" Canvas.Top="60"/>
                 <TextBlock Text="Normal wait Time:" Canvas.Left="41" Canvas.Top="100"/>
-                <TextBox  Width="60" Canvas.Left="204" Canvas.Top="100"/>
+                <TextBox Text="{Binding NormalWaitTime,Mode=TwoWay}"  Width="60" Canvas.Left="204" Canvas.Top="100"/>
                 <TextBlock Text="Alert wait ime:" Canvas.Left="41" Canvas.Top="140"/>
-                <TextBox  Width="60" Canvas.Left="204" Canvas.Top="140"/>
+                <TextBox Text="{Binding AlertWaitTime,Mode=TwoWay}"  Width="60" Canvas.Left="204" Canvas.Top="140"/>
                 <TextBlock Text="Max DQ Lot:" Canvas.Left="41" Canvas.Top="180"/>
-                <TextBox  Width="60" Canvas.Left="204" Canvas.Top="180"/>
+                <TextBox Text="{Binding MaxDQLot,Mode=TwoWay}"  Width="60" Canvas.Left="204" Canvas.Top="180"/>
                 <TextBlock Text="Auto Accept Lmt Max Lot:" Canvas.Left="41" Canvas.Top="220"/>
-                <TextBox  Width="60" Canvas.Left="204" Canvas.Top="220"/>
+                
+                <TextBox Text="{Binding MaxOtherLot,Mode=TwoWay}"  Width="60" Canvas.Left="204" Canvas.Top="220"/>
                 <TextBlock Text="Max Other Lot:" Canvas.Left="41" Canvas.Top="260"/>
-                <TextBox  Width="60" Canvas.Left="204" Canvas.Top="260"/>
+                <TextBox Text="{Binding MaxOtherLot,Mode=TwoWay}"  Width="60" Canvas.Left="204" Canvas.Top="260"/>
                 <TextBlock Text="DQ Quote Min Lot:" Canvas.Left="41" Canvas.Top="300"/>
-                <TextBox  Width="60" Canvas.Left="204" Canvas.Top="300"/>
-
+                <TextBox Text="{Binding DQQuoteMinLot,Mode=TwoWay}"  Width="60" Canvas.Left="204" Canvas.Top="300"/>
                 <TextBlock Text="Auto DQ Max Lot:" Canvas.Left="310" Canvas.Top="20"/>
-                <TextBox  Width="60" Canvas.Left="470" Canvas.Top="20"/>
+                <TextBox Text="{Binding AutoDQMaxLot,Mode=TwoWay}"  Width="60" Canvas.Left="470" Canvas.Top="20"/>
                 <TextBlock Text="Auto Lmt/Mkt Max Lot:" Canvas.Left="310" Canvas.Top="60"/>
-                <TextBox  Width="60" Canvas.Left="470" Canvas.Top="60"/>
+                <TextBox Text="{Binding AutoLmtMktMaxLot,Mode=TwoWay}"  Width="60" Canvas.Left="470" Canvas.Top="60"/>
                 <TextBlock Text="Auto DQ Delay:" Canvas.Left="310" Canvas.Top="100"/>
-                <TextBox  Width="60" Canvas.Left="470" Canvas.Top="100"/>
+                <TextBox Text="{Binding AutoDQDelay,Mode=TwoWay}"  Width="60" Canvas.Left="470" Canvas.Top="100"/>
                 <TextBlock Canvas.Left="310" Canvas.Top="125">
                     <LineBreak/>
                     <Run Text="Add Net Position "></Run>
                     <LineBreak/>
                     <Run Text="Accept Lmt Variation:"></Run>
                 </TextBlock>
-                <TextBox  Width="60" Canvas.Left="470" Canvas.Top="140"/>
+
+
+                <TextBox Text="{Binding AcceptLmtVariation,Mode=TwoWay}"  Width="60" Canvas.Left="470" Canvas.Top="140"/>
                 <TextBlock Canvas.Left="310" Canvas.Top="165">
                     <LineBreak/>
                     <Run Text="Reduce Net Position"></Run>
                     <LineBreak/>
                     <Run Text="Accept Lmt Variation:"></Run>
                 </TextBlock>
-                <TextBox  Width="60" Canvas.Left="470" Canvas.Top="180"/>
+                <TextBox Text="{Binding AcceptCloseLmtVariation,Mode=TwoWay}"  Width="60" Canvas.Left="470" Canvas.Top="180"/>
                 <TextBlock Text="Accept DQ Variation:" Canvas.Left="310" Canvas.Top="220"/>
-                <TextBox  Width="60" Canvas.Left="470" Canvas.Top="220"/>
+                <TextBox Text="{Binding AcceptDQVariation,Mode=TwoWay}"  Width="60" Canvas.Left="470" Canvas.Top="220"/>
                 <TextBlock Text="Cancel Lmt Variation:" Canvas.Left="310" Canvas.Top="260"/>
-                <TextBox  Width="60" Canvas.Left="470" Canvas.Top="260"/>
+                <TextBox Text="{Binding CancelLmtVariation,Mode=TwoWay}"  Width="60" Canvas.Left="470" Canvas.Top="260"/>
                 <TextBlock Text="Max/Min adjust:" Canvas.Left="310" Canvas.Top="300"/>
-                <TextBox  Width="60" Canvas.Left="470" Canvas.Top="300"/>
+                <TextBox Text="{Binding MaxMinAdjust,Mode=TwoWay}"  Width="60" Canvas.Left="470" Canvas.Top="300"/>
 
                 <TextBlock Text="Is Better Price:" Canvas.Left="570" Canvas.Top="20"/>
-                <ComboBox x:Name="DisablePopupsComboBox" SelectedIndex="0" Width="60" Canvas.Left="690" Canvas.Top="20">
-                    <ComboBoxItem>True</ComboBoxItem>
-                    <ComboBoxItem>False</ComboBoxItem>
-                </ComboBox>
+                <CheckBox x:Name="DisablePopupsCheckBox" IsChecked="{Binding IsBetterPrice,Mode=TwoWay}"  Canvas.Left="700" Canvas.Top="20"/>
+ 
                 <TextBlock Text="Auto Cancel Lmt Max Lot:" Canvas.Left="570" Canvas.Top="60"/>
-                <TextBox Width="60" Canvas.Left="690" Canvas.Top="60"/>
+                <TextBox Text="{Binding AutoCancelMaxLot,Mode=TwoWay}" Width="60" Canvas.Left="690" Canvas.Top="60"/>
                 <TextBlock Text="Hit Times:" Canvas.Left="570" Canvas.Top="100"/>
-                <TextBox Width="60" Canvas.Left="690" Canvas.Top="100"/>
+                <TextBox Text="{Binding HitTimes,Mode=TwoWay}" Width="60" Canvas.Left="690" Canvas.Top="100"/>
                 <TextBlock Text="Penetration point:" Canvas.Left="570" Canvas.Top="140"/>
-                <TextBox Width="60" Canvas.Left="690" Canvas.Top="140"/>
+                <TextBox Text="{Binding PenetrationPoint,Mode=TwoWay}" Width="60" Canvas.Left="690" Canvas.Top="140"/>
                 <TextBlock Text="Price Valid Time:" Canvas.Left="570" Canvas.Top="180"/>
-                <TextBox Width="60" Canvas.Left="690" Canvas.Top="180"/>
-                <TextBlock Text="Last Accept Time:" Canvas.Left="570" Canvas.Top="220"/>
-                <TextBox Width="60" Canvas.Left="690" Canvas.Top="220"/>
-                <TextBlock Text="New Trade Side:" Canvas.Left="570" Canvas.Top="260"/>
-                <ComboBox SelectedIndex="0" Width="60" Canvas.Left="690" Canvas.Top="260">
+                <TextBox Text="{Binding PriceValidTime,Mode=TwoWay}" Width="60" Canvas.Left="690" Canvas.Top="180"/>
+                <TextBlock Text="New Trade Side:" Canvas.Left="570" Canvas.Top="220"/>
+                <ComboBox SelectedIndex="{Binding AllowedNewTradeSides,Mode=TwoWay}" Width="60" Canvas.Left="690" Canvas.Top="220">
                     <ComboBoxItem>Disable add New</ComboBoxItem>
                     <ComboBoxItem>Allowe add new Buy Only</ComboBoxItem>
                     <ComboBoxItem>Allowe add new Sell Only</ComboBoxItem>
                     <ComboBoxItem>Allowe add new</ComboBoxItem>
                 </ComboBox>
-                <TextBlock Text="HitPrice Variation ForSTP:" Canvas.Left="570" Canvas.Top="300"/>
-                <TextBox Width="60" Canvas.Left="690" Canvas.Top="300"/>
-                <Button Content="Save" Canvas.Left="44" Canvas.Top="342" Width="75"/>
+                <TextBlock Text="HitPrice Variation ForSTP:" Canvas.Left="570" Canvas.Top="260"/>
+                <TextBox Text="{Binding HitPriceVariationForSTP,Mode=TwoWay}" Width="60" Canvas.Left="690" Canvas.Top="260"/>
+                
+                <Button x:Name="SetValueApplyButton" Content="Save" Canvas.Left="44" Canvas.Top="342" Width="75" Click="SetValueApplyButton_Click"/>
                 <Button Content="Clear" Canvas.Left="136" Canvas.Top="342" Width="75"/>
             </Canvas>
         </GroupBox>
@@ -135,10 +134,15 @@
             </Grid.RowDefinitions>
             <Border Grid.Row="0" Margin="3 5 3 0" Style="{StaticResource BorderStyle}" >
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Copy From:" Margin="5,0,0,0"/>
+                    <TextBlock Text="Copy From:" Margin="5,0,0,0" VerticalAlignment="Center"/>
                     <ComboBox x:Name="UserListComboBox" Height="23" Width="120" Margin="10,0,0,0"/>
-                    <Button x:Name="CopySoundSettingBtn" Content="Go" Height="25" Width="25" Margin="5,0,0,0"/>
-                    <Button x:Name="OpenFileDialogBtn" Content="Open" Height="25" Width="60" Margin="5,0,0,0" Click="OpenFileDialogBtn_Click"/>
+                    <Button x:Name="CopySoundSettingBtn" Content="Go" Height="25" Width="35" Margin="5,0,0,0"/>
+                    <TextBlock Text="File:" Margin="15,0,10,0" VerticalAlignment="Center"/>
+                    <TextBox x:Name="TestSoundPathTextBox" Width="200" Height="25"/>
+                    <Button x:Name="OpenFileDialogBtn" Content="Browse..." Height="25" Width="65" Margin="5,0,0,0" Click="OpenFileDialogBtn_Click"/>
+                    <Button x:Name="TestSoundButton" Content="Test" Height="25" Width="50" Margin="5,0,0,0" Click="TestSoundButton_Click"/>
+                    <Button x:Name="ApplySoundButton" Content="Apply" Height="25" Width="75" Margin="45,0,0,0" Click="ApplySoundButton_Click"/>
+                    <Button x:Name="RefreshButton" Content="Refresh" Height="25" Width="75" Margin="5,0,0,0" Click="RefreshButton_Click"/>
                 </StackPanel>
             </Border>
             <Border Grid.Row="1" Margin="3 5 3 0" Style="{StaticResource BorderStyle}" >
@@ -157,11 +161,17 @@
                     <ig:XamGrid.Columns>
                         <ig:TextColumn Key="SoundType" Width="150" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Sound Type" />
                         <ig:TextColumn Key="SoundKey" Width="200" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Sound Name" />
-                        <ig:TextColumn Key="SoundPath" Width="350" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Sound Path" />
-                        <ig:UnboundColumn Key="SetSoundPath" Width="65" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Set Path">
+                        <ig:TemplateColumn Key="SoundPath" Width="350" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Sound Path">
+                            <ig:TemplateColumn.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding SoundPath}" Foreground="#FF9090FF" HorizontalAlignment="Left"/>
+                                </DataTemplate>
+                            </ig:TemplateColumn.ItemTemplate>
+                        </ig:TemplateColumn>
+                        <ig:UnboundColumn Key="SetSoundPath" Width="50" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Set Path">
                             <ig:UnboundColumn.ItemTemplate>
                                 <DataTemplate>
-                                    <Button x:Name="SetSoundPathButton" Content="Set"/>
+                                    <Button Width="50" x:Name="SetSoundPathButton" Content="Set" Click="SetSoundPathButton_Click"/>
                                 </DataTemplate>
                             </ig:UnboundColumn.ItemTemplate>
                         </ig:UnboundColumn>
@@ -170,7 +180,7 @@
             </Border>
         </Grid>
         
-        <GridSplitter x:Name="VGridSplitter" Grid.Row="0" Grid.Column="1" Margin="3,3,0,0"  Background="DarkGray" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ></GridSplitter>
-        <GridSplitter x:Name="HGridSplitter" Grid.Row="1" Grid.Column="0" Margin="3,3,0,0" Grid.ColumnSpan="3" Background="DarkGray" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ></GridSplitter>
+        <GridSplitter x:Name="VGridSplitter" Grid.Row="0" Grid.Column="1" Margin="3,16,0,0"  Background="#FF282828" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ></GridSplitter>
+        <GridSplitter x:Name="HGridSplitter" Grid.Row="1" Grid.Column="0" Margin="3,3,0,0" Grid.ColumnSpan="3" Background="#FF282828" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ></GridSplitter>
     </Grid>
 </UserControl>

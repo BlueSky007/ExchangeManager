@@ -116,19 +116,6 @@ namespace ManagerConsole.UI
 
         void CheckBox_Click(object sender, RoutedEventArgs e)
         {
-            this.DQOrderTaskGrid.ExitEditMode(true);
-            CheckBox chk = sender as CheckBox;
-            //DQOrderTaskForInstrument dQOrderTaskForInstrument;
-            try
-            {
-                switch (chk.Name)
-                {
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.TraceEvent(TraceEventType.Error, "DQOrderTaskControl.CheckBox_Click error:\r\n{0}", ex.ToString());
-            }
         }
 
         private void IsOPenCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)

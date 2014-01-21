@@ -9,18 +9,12 @@
         <StackPanel Orientation="Vertical">
             <ToolBar>
                 <ToolBarPanel>
-                    <Button x:Name="Add" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="Add_Click"  >
+                    <Button x:Name="AddButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="Add_Click"  >
                         <Image Source="../Asset/Images/add.png" ToolTipService.ToolTip="Add New" Width="20" Height="20"/>
                     </Button>
                 </ToolBarPanel>
             </ToolBar>
             <ig:XamGrid Name="DataGrid" AutoGenerateColumns="False" IsAlternateRowsEnabled="True" >
-                <!--<ig:XamGrid.CellStyle>
-                    <Style TargetType="ig:CellControl">
-                        <Setter Property="Padding" Value="0,0,0,0"/>
-                        <Setter Property="BorderThickness" Value="0,0,1,1"/>
-                    </Style>
-                </ig:XamGrid.CellStyle>-->
                 <ig:XamGrid.Columns>
                     <ig:TemplateColumn Key="Id" HeaderText="Action">
                         <ig:TemplateColumn.ItemTemplate>
@@ -53,7 +47,7 @@
                             Background="{Binding Background, RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}"
                             Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}"
                             IsModal="True"
-                            Visibility="Collapsed" >
+                            Visibility="Collapsed" d:IsHidden="True" >
             <Grid Margin="15">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="100" />

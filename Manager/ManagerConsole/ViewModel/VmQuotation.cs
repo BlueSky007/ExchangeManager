@@ -112,7 +112,7 @@ namespace ManagerConsole.ViewModel
                             this._Scheduler.Remove(this._AskScheduleId);
                             //Logger.AddEvent(TraceEventType.Information, "_AskScheduleId:[{0}] removed.", this._AskScheduleId);
                         }
-                        this._AskScheduleId = this._Scheduler.Add(this.ResetTrendState, "Ask", DateTime.Now.AddSeconds(5));
+                        this._AskScheduleId = this._Scheduler.Add(this.ResetTrendState, "Ask", DateTime.Now.AddSeconds(3));
                         //Logger.AddEvent(TraceEventType.Information, "new _AskScheduleId:[{0}] added.", this._AskScheduleId);
                     }
                 }
@@ -134,7 +134,7 @@ namespace ManagerConsole.ViewModel
                             this._Scheduler.Remove(this._BidScheduleId);
                             //Logger.AddEvent(TraceEventType.Information, "_BidScheduleId:[{0}] removed.", this._BidScheduleId);
                         }
-                        this._BidScheduleId = this._Scheduler.Add(this.ResetTrendState, "Bid", DateTime.Now.AddSeconds(5));
+                        this._BidScheduleId = this._Scheduler.Add(this.ResetTrendState, "Bid", DateTime.Now.AddSeconds(3));
                         //Logger.AddEvent(TraceEventType.Information, "new _BidScheduleId:[{0}] added.", this._BidScheduleId);
                     }
                 }

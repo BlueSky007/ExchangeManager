@@ -31,9 +31,10 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationRevision>1</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
+    <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -58,6 +59,18 @@
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>manager.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestCertificateThumbprint>E3932E616638EF3394F7E94711ECBB9B54D2633F</ManifestCertificateThumbprint>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestKeyFile>ManagerConsole_TemporaryKey.pfx</ManifestKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifests>true</GenerateManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignManifests>true</SignManifests>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Accessibility" />
@@ -142,7 +155,13 @@
     </Compile>
     <Compile Include="Helper\PriceHelper.cs" />
     <Compile Include="LayoutManager.cs" />
+    <Compile Include="Model\ExchangeQuotation.cs" />
+    <Compile Include="Model\OrderRelation.cs" />
     <Compile Include="Model\SettingsManager.cs" />
+    <Compile Include="Model\ExchangeTradingManager.cs" />
+    <Compile Include="UI\DealingLmtOrder.xaml.cs">
+      <DependentUpon>DealingLmtOrder.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\ExchangeQuotationPropertyControl.xaml.cs">
       <DependentUpon>ExchangeQuotationPropertyControl.xaml</DependentUpon>
     </Compile>
@@ -259,9 +278,12 @@
       <DependentUpon>WeightedRuleControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\InstantOrderForInstrument.cs" />
+    <Compile Include="ViewModel\LmtOrderForInstrument.cs" />
     <Compile Include="ViewModel\OpenInterestSummary.cs" />
     <Compile Include="ViewModel\ProcessInstantOrder.cs" />
+    <Compile Include="ViewModel\ProcessLmtOrder.cs" />
     <Compile Include="ViewModel\QuotePriceClient.cs" />
+    <Compile Include="ViewModel\SettingsParameterManager.cs" />
     <Compile Include="ViewModel\TaskSchedulerManager.cs" />
     <Compile Include="ViewModel\VmAbnormalQuotation.cs" />
     <Compile Include="ViewModel\VmAbnormalQuotationManager.cs" />
@@ -353,6 +375,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Asset\BlackTheme\XamDialogWindow_Black.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Asset\BlackTheme\XamInput_BlackTheme.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -389,6 +415,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Asset\WhiteTheme\XamInput_WhiteTheme.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\AbnormalQuotationProcessControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -398,6 +428,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\DealingInstanceOrder.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\DealingLmtOrder.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -592,6 +626,7 @@
     <None Include="Asset\Media\LMTOrderPlacing.wma" />
     <None Include="Asset\Media\SPTOrderConfirmed.wma" />
     <None Include="Asset\Media\SPTOrderPlacing.wma" />
+    <None Include="ManagerConsole_TemporaryKey.pfx" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -663,6 +698,12 @@
   <ItemGroup>
     <Resource Include="Asset\Images\pause.png" />
     <Resource Include="Asset\Images\play.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Asset\Images\Down.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Asset\Images\Up.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

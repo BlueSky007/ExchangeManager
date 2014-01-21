@@ -71,24 +71,6 @@ namespace ManagerService.Exchange
             }
         }
 
-        public void SwitchPriceEnableState(int instrumentId, bool enable)
-        {
-            List<string> originCodes = new List<string>();
-            originCodes.Add(MainService.QuotationManager.ConfigMetadata.Instruments[instrumentId].Code);
-
-            // SwitchPriceEnableState for derivative instruments
-            IEnumerable<DerivativeRelation> derivativeRelations = MainService.QuotationManager.ConfigMetadata.DerivativeRelations.Values.Where(d => d.UnderlyingInstrument1Id == instrumentId || d.UnderlyingInstrument2Id == instrumentId);
-            foreach (DerivativeRelation derivativeRelation in derivativeRelations)
-            {
-                originCodes.Add(MainService.QuotationManager.ConfigMetadata.Instruments[derivativeRelation.Id].Code);
-            }
-
-            foreach (ExchangeSystem exchangeSystem in this._ExchangeSystems.Values)
-            {
-                exchangeSystem.SwitchPriceState(originCodes, enable);
-            }
-        }
-
         public bool AddQuotations(List<GeneralQuotation> quotations)
         {
             foreach (ExchangeSystem exchangeSystem in this._ExchangeSystems.Values)
@@ -96,6 +78,73 @@ namespace ManagerService.Exchange
                 exchangeSystem.AddQuotation(quotations);
             }
             return true;
+        }
+
+        public void SwitchPriceEnableState(int instrumentId, bool enable)
+        {
+            HashSet<string> originCodeSet = new HashSet<string>();
+            originCodeSet.Add(MainService.QuotationManager.ConfigMetadata.Instruments[instrumentId].Code);
+            MainService.QuotationManager.ConfigMetadata.GetDerivativeInstrumentCodes(instrumentId, originCodeSet);
+            foreach (ExchangeSystem exchangeSystem in this._ExchangeSystems.Values)
+            {
+                exchangeSystem.SwitchPriceState(originCodeSet.ToArray(), enable);
+            }
+        }
+
+        public void SuspendResume(int[] instrumentIds, bool resume)
+        {
+            HashSet<string> originCodeSet = new HashSet<string>();
+            for (int i = 0; i < instrumentIds.Length; i++)
+            {
+                originCodeSet.Add(MainService.QuotationManager.ConfigMetadata.Instruments[instrumentIds[i]].Code);
+                MainService.QuotationManager.ConfigMetadata.GetDerivativeInstrumentCodes(instrumentIds[i], originCodeSet);
+            }
+            
+            foreach (ExchangeSystem exchangeSystem in this._ExchangeSystems.Values)
+            {
+                exchangeSystem.SuspendResume(originCodeSet.ToArray(), resume);
+            }
+        }
+
+        public bool UpdateInstrument(InstrumentQuotationSet set)
+        {
+            Guid[] instruments = new Guid[1];
+            instruments[0] = set.InstrumentId;
+            iExchange.Common.Manager.ParameterUpdateTask task = new iExchange.Common.Manager.ParameterUpdateTask();
+            task.Instruments = instruments;
+            task.ExchangeSettings.Add(new iExchange.Common.Manager.ExchangeSetting { Id = set.InstrumentId, ParameterKey = Enum.GetName(typeof(InstrumentQuotationEditType), set.type), ParameterValue = set.Value.ToString() });
+            return this._ExchangeSystems[set.ExchangeCode].UpdateInstrument(task);
+        }
+
+        public bool ExchangeSuspendResume(Dictionary<string, List<Guid>> instruments, bool resume)
+        {
+            bool isSuccess = true;
+            foreach (string system in instruments.Keys)
+            {
+                iExchange.Common.Manager.ParameterUpdateTask task = new iExchange.Common.Manager.ParameterUpdateTask();
+                task.Instruments = instruments[system].ToArray();
+                foreach (Guid id in instruments[system])
+                {
+                    iExchange.Common.Manager.ExchangeSetting set = new iExchange.Common.Manager.ExchangeSetting();
+                    set.Id = id;
+                    set.ParameterKey = "IsPriceEnabled";
+                    set.ParameterValue = resume.ToString();
+                    task.ExchangeSettings.Add(set);
+                }
+                foreach (Guid id in instruments[system])
+                {
+                    iExchange.Common.Manager.ExchangeSetting set = new iExchange.Common.Manager.ExchangeSetting();
+                    set.Id = id;
+                    set.ParameterKey = "IsAutoEnablePrice";
+                    set.ParameterValue = resume.ToString();
+                    task.ExchangeSettings.Add(set);
+                }
+                if (!this._ExchangeSystems[system].UpdateInstrument(task))
+                {
+                    isSuccess = false;
+                }
+            }
+            return isSuccess;
         }
     }
 }

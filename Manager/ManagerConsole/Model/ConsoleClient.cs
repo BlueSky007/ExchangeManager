@@ -60,7 +60,14 @@ namespace ManagerConsole.Model
                     if (result.Succeeded)
                     {
                         this._SessionId = result.SessionId;
-                        this.GetAccessPermissions(this.EndGetPermissions);
+                        if (this.user.IsAdmin)
+                        {
+                            this._AccessPermissions = new Function();
+                        }
+                        else
+                        {
+                            this.GetAccessPermissions(this.EndGetPermissions);
+                        }
                     }
                     endLogin(result, null);
                 }
@@ -96,14 +103,14 @@ namespace ManagerConsole.Model
             }
         }
 
-        public void GetInitializeData(Action<List<InitializeData>> EndGetInitializeData)
+        public void GetInitializeData(Action<InitializeData> EndGetInitializeData)
         {
             try
             {
                 this._ServiceProxy.BeginGetInitializeData(delegate(IAsyncResult result)
-                { 
-                    List<InitializeData> initializeDatas = this._ServiceProxy.EndGetInitializeData(result);
-                    EndGetInitializeData(initializeDatas);
+                {
+                    InitializeData initializeData = this._ServiceProxy.EndGetInitializeData(result);
+                    EndGetInitializeData(initializeData);
                 }, null);
             }
             catch(Exception ex)
@@ -114,7 +121,14 @@ namespace ManagerConsole.Model
 
         public bool HasPermission(ModuleCategoryType category, ModuleType module, string operationCode)
         {
-            return this._AccessPermissions.HasPermission(category,module,operationCode);
+            if (this.user.IsAdmin)
+            {
+                return true;
+            }
+            else
+            {
+                return this._AccessPermissions.HasPermission(category, module, operationCode);
+            }
         }
 
         public FunctionTree GetFunctionTree()
@@ -186,14 +200,14 @@ namespace ManagerConsole.Model
             }, null);
         }
 
-        private void GetAccessPermissions(Action<Dictionary<string, Tuple<string, bool>>> endGetPermissions)
+        private void GetAccessPermissions(Action<Dictionary<string,List<FuncPermissionStatus>>> endGetPermissions)
         {
             try
             {
 
                 this._ServiceProxy.BeginGetAccessPermissions(delegate(IAsyncResult ar)
                 {
-                    Dictionary<string, Tuple<string, bool>> permissions = this._ServiceProxy.EndGetAccessPermissions(ar);
+                    Dictionary<string, List<FuncPermissionStatus>> permissions = this._ServiceProxy.EndGetAccessPermissions(ar);
                     endGetPermissions(permissions);
                 }, null);
             }
@@ -203,7 +217,7 @@ namespace ManagerConsole.Model
             }
         }
 
-        private void EndGetPermissions(Dictionary<string, Tuple<string, bool>> permissions)
+        private void EndGetPermissions(Dictionary<string, List<FuncPermissionStatus>> permissions)
         {
             try
             {
@@ -315,14 +329,14 @@ namespace ManagerConsole.Model
             }, null);
         }
 
-        public void ResetHit(Guid[] orderIds)
+        public void ResetHit(string exchangeCode,Guid[] orderIds)
         {
-            this._ServiceProxy.ResetHit(orderIds);
+            this._ServiceProxy.ResetHit(exchangeCode,orderIds);
         }
 
-        public AccountInformation GetAcountInfo(Guid transactionId)
+        public AccountInformation GetAcountInfo(string exchangeCode,Guid transactionId)
         {
-            return this._ServiceProxy.GetAcountInfo(transactionId);
+            return this._ServiceProxy.GetAcountInfo(exchangeCode,transactionId);
         }
 
         #endregion
@@ -393,6 +407,18 @@ namespace ManagerConsole.Model
                     List<TaskScheduler> taskSchedulers = this._ServiceProxy.EndGetTaskSchedulersData(result);
                     EndGetTaskSchedulersData(taskSchedulers);
                 });
+            }, null);
+        }
+
+        public void UpdateManagerSettings(Guid settingId,SettingParameterType type,Dictionary<string, object> fieldAndValues, Action<bool> NotifyResult)
+        {
+            this._ServiceProxy.BeginUpdateManagerSettings(settingId,type, fieldAndValues, delegate(IAsyncResult ar)
+            {
+                bool result = this._ServiceProxy.EndUpdateManagerSettings(ar);
+                App.MainFrameWindow.Dispatcher.BeginInvoke((Action<bool>)delegate(bool success)
+                {
+                    NotifyResult(success);
+                }, result);
             }, null);
         }
         #endregion
@@ -582,6 +608,14 @@ namespace ManagerConsole.Model
             }, null);
         }
 
+        public void UpdateInstrument(InstrumentQuotationSet set)
+        {
+            this._ServiceProxy.BeginUpdateInstrument(set, delegate(IAsyncResult ar)
+            {
+                this._ServiceProxy.EndUpdateInstrument(ar);
+            }, null);
+        }
+
         public void SetQuotePolicyDetail(Guid relationId, QuotePolicyDetailsSetAction action, int changeValue)
         {
             this._ServiceProxy.BeginSetQuotationPolicyDetail(relationId, action, changeValue, delegate(IAsyncResult ar)
@@ -599,7 +633,7 @@ namespace ManagerConsole.Model
             }, null);
         }
 
-        public void AddNewRelation(Guid id, string code, List<int> instruments,Action<bool> callBack)
+        public void AddNewRelation(Guid id, string code, List<int> instruments, Action<bool> callBack)
         {
             this._ServiceProxy.BeginAddNewRelation(id, code, instruments, delegate(IAsyncResult ar)
             {
@@ -623,8 +657,22 @@ namespace ManagerConsole.Model
                 this._ServiceProxy.EndConfirmAbnormalQuotation(ar);
             }, null);
         }
+
+        public void SuspendResume(int[] instrumentIds, bool resume)
+        {
+            this._ServiceProxy.BeginSuspendResume(instrumentIds, resume, delegate(IAsyncResult ar)
+            {
+                this._ServiceProxy.EndSuspendResume(ar);
+            }, null);
+        }
+
+        public void ExchangeSuspendResume(Dictionary<string, List<Guid>> instruments, bool resume)
+        {
+            this._ServiceProxy.BeginExchangeSuspendResume(instruments, resume, delegate(IAsyncResult ar)
+            {
+                this._ServiceProxy.EndExchangeSuspendResume(ar);
+            }, null);
+        }
         #endregion
-
-
     }
 }

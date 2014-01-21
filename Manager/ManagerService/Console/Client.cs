@@ -33,6 +33,7 @@ namespace ManagerService.Console
         private Language _Language;
         private Dictionary<string, List<Guid>> _AccountPermission;
         private Dictionary<string, List<Guid>> _InstrumentPermission;
+        private bool _IsInitialized = false;
 
         public Client(string sessionId, User user, IClientProxy clientProxy, Language language)
         {
@@ -111,6 +112,7 @@ namespace ManagerService.Console
         {
             this._AccountPermission = accountPermissions;
             this._InstrumentPermission = instrumentPermission;
+            this._IsInitialized = true;
         }
 
         public void InitPermissionData(List<DataPermission> dataPermission)
@@ -120,11 +122,13 @@ namespace ManagerService.Console
 
         public void AddMessage(Message message)
         {
-            Message msg = this.Filter(message);
-
-            if (msg != null)
+            if (this._IsInitialized)
             {
-                this._MessageRelayEngine.AddItem(msg);
+                Message msg = this.Filter(message);
+                if (msg != null)
+                {
+                    this._MessageRelayEngine.AddItem(msg);
+                }
             }
         }
 
@@ -171,6 +175,10 @@ namespace ManagerService.Console
             {
                 List<Guid> accountPermissions = new List<Guid>();
                 List<Guid> instrumentPermissions = new List<Guid>();
+                if(string.IsNullOrEmpty(exchangeMessage.ExchangeCode))
+                {
+                    Logger.TraceEvent(TraceEventType.Error, "Client.Filter exchangeMessage.ExchangeCode is empty, type:{0}", exchangeMessage.GetType().Name);
+                }
                 this._AccountPermission.TryGetValue(exchangeMessage.ExchangeCode, out accountPermissions);
                 this._InstrumentPermission.TryGetValue(exchangeMessage.ExchangeCode, out instrumentPermissions);
 
@@ -216,9 +224,9 @@ namespace ManagerService.Console
         {
             if ( this.userId != null && this.userId != Guid.Empty)
             {
-                string path = string.Format("../../Layout/{0}", this.user.UserName);
-                string layoutPath = string.Format("../../Layout/{0}/{1}_layout.xml", this.user.UserName, layoutName);
-                string contentPath = string.Format("../../Layout/{0}/{1}_content.xml", this.user.UserName, layoutName);
+                string path = string.Format("./Layout/{0}", this.user.UserName);
+                string layoutPath = string.Format("./Layout/{0}/{1}_layout.xml", this.user.UserName, layoutName);
+                string contentPath = string.Format("./Layout/{0}/{1}_content.xml", this.user.UserName, layoutName);
                 if (!Directory.Exists(path))
                 {
                     Directory.CreateDirectory(path);
@@ -269,16 +277,11 @@ namespace ManagerService.Console
             }
         }
 
-        public Dictionary<string, Tuple<string,bool>> GetAccessPermissions()
+        public Dictionary<string, List<FuncPermissionStatus>> GetAccessPermissions()
         {
             try
             {
-                Dictionary<string, Tuple<string, bool>> permissions = UserDataAccess.GetAccessPermissions(this.userId, this.language);
-                if (this.user.IsInRole("admin"))
-                {
-                    permissions.Clear();
-                    permissions.Add("admin", Tuple.Create("admin",true));
-                }
+                Dictionary<string, List<FuncPermissionStatus>> permissions = UserDataAccess.GetAccessPermissions(this.userId, this.language);
                 return permissions;
             }
             catch (Exception ex)
@@ -423,7 +426,7 @@ namespace ManagerService.Console
                         List<Guid> instrumentMemberIds = new List<Guid>();
                         List<RoleDataPermission> systemPermissions = role.DataPermissions.FindAll(delegate(RoleDataPermission data)
                         {
-                            return data.IExchangeCode == item.Code;
+                            return data.ExchangeCode == item.Code;
                         });
                         RoleDataPermission account = systemPermissions.SingleOrDefault(r => r.Type == DataObjectType.Account && r.Level == 2);
                         if (account != null)
@@ -620,9 +623,8 @@ namespace ManagerService.Console
             return transactionError;
         }
 
-        internal void ResetHit(Guid[] orderIds)
+        internal void ResetHit(string exchangeCode,Guid[] orderIds)
         {
-            string exchangeCode = "WF01";
             try
             {
                 ExchangeSystem exchangeSystem = MainService.ExchangeManager.GetExchangeSystem(exchangeCode);
@@ -634,10 +636,9 @@ namespace ManagerService.Console
             }
         }
 
-        internal AccountInformation GetAcountInfo(Guid transactionId)
+        internal AccountInformation GetAcountInfo(string exchangeCode,Guid transactionId)
         {
             AccountInformation accountInfor = new AccountInformation();
-            string exchangeCode = "WF01";
             try
             {
                 ExchangeSystem exchangeSystem = MainService.ExchangeManager.GetExchangeSystem(exchangeCode);
@@ -771,6 +772,19 @@ namespace ManagerService.Console
             {
                 Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerService.Console.Client/GetTaskSchedulersData.\r\n{0}", ex.ToString());
                 return null;
+            }
+        }
+
+        public bool UpdateManagerSettings(Guid settingId,SettingParameterType type, Dictionary<string, object> fieldAndValues)
+        {
+            try
+            {
+                return SettingManagerData.UpdateManagerSettings(settingId,type, fieldAndValues);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerService.Console.Client/UpdateManagerSettings.\r\n{0}", ex.ToString());
+                return false;
             }
         }
         #endregion
@@ -965,6 +979,24 @@ namespace ManagerService.Console
             }
             return isSuccess;
         }
+
+        public void UpdateInstrument(InstrumentQuotationSet set)
+        {
+            bool isSuccess = MainService.ExchangeManager.UpdateInstrument(set);
+            if (isSuccess)
+            {
+                List<InstrumentQuotationSet> quotePolicyDetails = new List<InstrumentQuotationSet>();
+                quotePolicyDetails.Add(set);
+                UpdateInstrumentQuotationMessage message = new UpdateInstrumentQuotationMessage(quotePolicyDetails);
+                MainService.ClientManager.DispatchExcept(message, this);
+            }
+        }
+
+        public bool ExchangeSuspendResume(Dictionary<string, List<Guid>> instruments, bool resume)
+        {
+            return MainService.ExchangeManager.ExchangeSuspendResume(instruments, resume);   
+        }
+
         public bool AddNewRelation(Guid id, string code, List<int> instruments)
         {
             bool isSuccess = false;
@@ -1087,6 +1119,13 @@ namespace ManagerService.Console
                 logPrice.Diff = confirmResult.SourceQuotation.DiffPoints.ToString();
                 WriteLogManager.WritePriceLog(logPrice);
             }
+        }
+
+        internal void SuspendResume(int[] instrumentIds, bool resume)
+        {
+            MainService.ExchangeManager.SuspendResume(instrumentIds, resume);
+            // TODO: Write audit log here
+
         }
     }
 }

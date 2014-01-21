@@ -44,7 +44,7 @@ namespace ManagerConsole.ViewModel
                 return true;
             }
             bool isSuccess = false;
-            isSuccess = this.Convert(App.MainFrameWindow.InitDataManager.ExchangeQuotations);
+            isSuccess = this.Convert(App.MainFrameWindow.InitDataManager.ExchangeSettingManagers);
             
             IsInitData = isSuccess;
             return isSuccess;
@@ -78,19 +78,26 @@ namespace ManagerConsole.ViewModel
             return true;
         }
 
-        public bool Convert(Dictionary<string,List<ExchangeQuotation>> quotations)
+        public bool Convert(Dictionary<string, ExchangeSettingManager> exchangeSettingManagers)
         {
-            if (quotations.Keys.Count==0)
+            if (exchangeSettingManagers.Keys.Count == 0)
             {
                 return false;
             }
-            foreach (string key in quotations.Keys)
+            if (this._Exchanges.Count > 0)
             {
-                foreach (ExchangeQuotation quote in quotations[key])
+                return false;
+            }
+            foreach (string key in exchangeSettingManagers.Keys)
+            {
+                foreach (Guid quotepolicyId in exchangeSettingManagers[key].ExchangeQuotations.Keys)
                 {
-                    InstrumentQuotation instrument = new InstrumentQuotation();
-                    instrument = InstrumentQuotation.Convert(quote, key);
-                    this._Exchanges.Add(instrument);
+                    foreach (Guid instrumentId in exchangeSettingManagers[key].ExchangeQuotations[quotepolicyId].Keys)
+                    {
+                        InstrumentQuotation instrument = new InstrumentQuotation();
+                        instrument = InstrumentQuotation.Convert(exchangeSettingManagers[key].ExchangeQuotations[quotepolicyId][instrumentId], key);
+                        this._Exchanges.Add(instrument);
+                    }
                 }
             }
             return true;
@@ -163,6 +170,22 @@ namespace ManagerConsole.ViewModel
                         break;
                     case InstrumentQuotationEditType.IsOriginHiLo:
                         this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).IsOriginHiLo = (set.Value ==1);
+                        break;
+                    case InstrumentQuotationEditType.IsAutoFill:
+                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).IsAutoFill = (set.Value ==1);
+                        break;
+                    case InstrumentQuotationEditType.IsPriceEnabled:
+                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).IsEnablePrice = (set.Value == 1);
+                        break;
+                    case InstrumentQuotationEditType.IsAutoEnablePrice:
+                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).IsAutoEnablePrice = (set.Value == 1);
+                        break;
+                    case InstrumentQuotationEditType.OrderTypeMask:
+                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).OrderTypeMask = set.Value;
+                        break;
+                    case InstrumentQuotationEditType.Resume:
+                        break;
+                    case InstrumentQuotationEditType.Suspend:
                         break;
                     default:
                         break;
@@ -552,9 +575,31 @@ namespace ManagerConsole.ViewModel
             set
             {
                 this._AllowLimit = value;
-                if ((this._OrderTypeMask & 2) != 2)
+                if (this._AllowLimit)
                 {
+                    if ((this._OrderTypeMask & 2) != 2)
                     this._OrderTypeMask += 2;
+                }
+                else
+                {
+                    if ((this._OrderTypeMask & 2) == 2)
+                    this._OrderTypeMask -= 2;
+                }
+                NotifyPropertyChanged("AllowLimit");
+            }
+        }
+
+        public string SuspendResume
+        {
+            get 
+            {
+                if (this.IsEnablePrice&&this.IsAutoEnablePrice)
+                {
+                    return "Suspend";
+                }
+                else
+                {
+                    return "Resume";
                 }
             }
         }

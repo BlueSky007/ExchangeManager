@@ -29,7 +29,7 @@ namespace ManagerService.Console
         void Logout();
 
         [OperationContract(IsInitiating = false)]
-        List<InitializeData> GetInitializeData();
+        InitializeData GetInitializeData();
 
         [OperationContract(IsInitiating = false)]
         FunctionTree GetFunctionTree();
@@ -45,7 +45,7 @@ namespace ManagerService.Console
         bool ChangePassword(string currentPassword, string newPassword);
 
         [OperationContract(IsInitiating = false)]
-        Dictionary<string, Tuple<string, bool>> GetAccessPermissions();
+        Dictionary<string, List<FuncPermissionStatus>> GetAccessPermissions();
 
         [OperationContract(IsInitiating = false)]
         List<UserData> GetUserData();
@@ -92,10 +92,10 @@ namespace ManagerService.Console
         TransactionError Cancel(Guid transactionId,CancelReason cancelReason,LogOrder logEntity);
 
         [OperationContract(IsInitiating = false)]
-        void ResetHit(Guid[] orderIds);
+        void ResetHit(string exchangeCode,Guid[] orderIds);
 
         [OperationContract(IsInitiating = false)]
-        AccountInformation GetAcountInfo(Guid transactionId);
+        AccountInformation GetAcountInfo(string exchangeCode,Guid transactionId);
        
         #endregion 
 
@@ -123,6 +123,9 @@ namespace ManagerService.Console
         
         [OperationContract(IsInitiating = false)]
         List<TaskScheduler> GetTaskSchedulersData();
+
+        [OperationContract(IsInitiating = false)]
+        bool UpdateManagerSettings(Guid settingId,SettingParameterType type, Dictionary<string, object> fieldAndValues);
         #endregion
 
         #region LogAudit
@@ -164,10 +167,7 @@ namespace ManagerService.Console
         [OperationContract(IsInitiating = false)]
         ConfigMetadata GetConfigMetadata();
 
-        //[OperationContract(IsInitiating = false)]
-        //int AddMetadataObject(MetadataType type, Dictionary<string, string> fields);
         [OperationContract(IsInitiating = false)]
-        //[ServiceKnownType(typeof(QuotationSource))]
         int AddMetadataObject(IMetadataObject metadataObject);
 
         [OperationContract(IsInitiating = false)]
@@ -205,6 +205,15 @@ namespace ManagerService.Console
 
         [OperationContract(IsInitiating = false)]
         void ConfirmAbnormalQuotation(int instrumentId, int confirmId, bool accepted);
+
+        [OperationContract(IsInitiating = false)]
+        void SuspendResume(int[] instrumentIds, bool resume);
+
+        [OperationContract(IsInitiating = false)]
+        void UpdateInstrument(InstrumentQuotationSet set);
+
+        [OperationContract(IsInitiating = false)]
+        bool ExchangeSuspendResume(Dictionary<string, List<Guid>> instruments, bool resume);
         #endregion
     }
 

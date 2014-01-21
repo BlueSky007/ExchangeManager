@@ -30,12 +30,13 @@ namespace ManagerConsole
         public UserManagerControl()
         {
             InitializeComponent();
-            this.IsAllowAdd = ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.UserManager, "Add");
-            this.IsAllowDelete = ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.UserManager, "Delete");
-            this.IsAllowEdit = ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.UserManager, "Edit");
+            this.IsAllowAdd = ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.UserManager, "AddUser");
+            this.IsAllowDelete = ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.UserManager, "DeleteUser");
+            this.IsAllowEdit = ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.UserManager, "EditUser");
             //ResourceDictionary resource = new ResourceDictionary();
             //resource.Source = new Uri(@"D:\Program Files (x86)\Infragistics\NetAdvantage 2013.1\WPF\Themes\Office2010Blue\Office2010Blue.xamGrid.xaml", UriKind.Absolute);
             //this.UserManager.Resources.MergedDictionaries.Add(resource);
+            
         }
         private ObservableCollection<UserData> _AllUserData = new ObservableCollection<UserData>();
         private ObservableCollection<UserModel> _users;
@@ -43,8 +44,6 @@ namespace ManagerConsole
         //private ObservableCollection<RoleData> _NewRole;
         private UserModel _NewUser = new UserModel();
         //private string _Password;
-
-        public static readonly DependencyProperty IsTeamLeaderProperty = DependencyProperty.Register("IsAllowAdd", typeof(bool), typeof(UserManagerControl));
 
         public bool IsAllowEdit { get; set; }
         public bool IsAllowDelete { get; set; }
@@ -54,11 +53,12 @@ namespace ManagerConsole
         {
             try
             {
-                if (this._roles == null)
-                {
+                //if (this._roles == null)
+                //{
                     this._roles = new ObservableCollection<RoleData>(ConsoleClient.Instance.GetRoles());
                     ConsoleClient.Instance.GetUserData(this.InitUserTile);
-                }
+                    this.DataContext = this;
+                //}
             }
             catch (Exception ex)
             {

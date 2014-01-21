@@ -101,6 +101,12 @@ namespace ManagerConsole.Model
         }
 
         #region Property
+        public Guid TransactionId
+        {
+            get;
+            set;
+        }
+
         public Transaction Transaction
         {
             get;
@@ -138,6 +144,18 @@ namespace ManagerConsole.Model
         }
 
         public string ExchangeCode
+        {
+            get;
+            set;
+        }
+
+        public Guid AccountId
+        {
+            get;
+            set;
+        }
+
+        public Guid InstrumentId
         {
             get;
             set;
@@ -452,6 +470,26 @@ namespace ManagerConsole.Model
         internal iExchange.Common.Manager.Order ToCommonOrder()
         {
             return null;
+        }
+
+        internal void Initialize(CommonOrder commonOrder)
+        {
+            this.Id = commonOrder.Id;
+
+            this.ExchangeCode = commonOrder.ExchangeCode;
+            this.AccountId = commonOrder.AccountId;
+            this.InstrumentId = commonOrder.InstrumentId;
+            this.Code = commonOrder.Code;
+            this.DQMaxMove = commonOrder.DQMaxMove;
+            this.BuySell = commonOrder.IsBuy ? BuySell.Buy : BuySell.Sell;
+            this.OpenClose = commonOrder.IsOpen ? OpenClose.Open : OpenClose.Close;
+            this.Lot = commonOrder.Lot;
+            this.SetPrice = string.IsNullOrEmpty(commonOrder.SetPrice) ? commonOrder.SetPrice : commonOrder.SetPrice.Replace(".", NumberFormatInfo.CurrentInfo.NumberDecimalSeparator);
+            this.ExecutePrice = string.IsNullOrEmpty(commonOrder.ExecutePrice) ? commonOrder.ExecutePrice : commonOrder.ExecutePrice.Replace(".", NumberFormatInfo.CurrentInfo.NumberDecimalSeparator);
+            this.TradeOption = commonOrder.TradeOption;
+            this._HitCount = commonOrder.HitCount;
+            this._BestPrice = commonOrder.BestPrice;
+            this._BestTime = commonOrder.BestTime;
         }
 
         internal void Update(CommonOrder commonOrder)

@@ -33,6 +33,7 @@
             <RowDefinition Height="25"/>
             <RowDefinition Height="25"/>
             <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
         </Grid.RowDefinitions>
         <Border Grid.Column="0" Grid.Row="0" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,0">
             <TextBlock Grid.Column="0" Text="AutoAdjustPoints:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
@@ -95,6 +96,10 @@
             <TextBlock Grid.Column="0" Text="IsAutoEnablePrice:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
         </Border>
         <CheckBox  Grid.Column="1" Grid.Row="14" Margin="15,2,0,0" x:Name="IsAutoEnablePrice" Click="IsAutoEnablePrice_Click"/>
+        <Border Grid.Column="0" Grid.Row="15" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,1">
+            <TextBlock Grid.Column="0" Text="AllowLimit:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
+        </Border>
+        <CheckBox  Grid.Column="1" Grid.Row="15" Margin="15,2,0,0" x:Name="AllowLomit"  Click="AllowLomit_Click"/>
     </Grid>
 </UserControl>
 

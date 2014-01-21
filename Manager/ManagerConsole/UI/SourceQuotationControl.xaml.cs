@@ -65,7 +65,10 @@ namespace ManagerConsole.UI
                 XamGrid grid = obj as XamGrid;
                 if (grid != null)
                 {
-                    grid.Rows[selectedIndex].IsSelected = true;
+                    if (grid.Rows.Count > selectedIndex)
+                    {
+                        grid.Rows[selectedIndex].IsSelected = true;
+                    }
                 }
                 else
                 {

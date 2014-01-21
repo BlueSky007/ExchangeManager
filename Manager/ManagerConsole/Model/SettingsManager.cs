@@ -8,11 +8,5 @@ namespace ManagerConsole.Model
 {
     public class SettingsManager
     {
-        public SettingsParameter SettingsParameter = new SettingsParameter();
-
-        public void InitializeSettingParameter(SettingsParameter settingsParameter)
-        {
-            this.SettingsParameter = settingsParameter;
-        }
     }
 }

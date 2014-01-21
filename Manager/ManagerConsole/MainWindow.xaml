@@ -47,7 +47,7 @@
                 <igWPF:DocumentContentHost BorderThickness="0" >
                 </igWPF:DocumentContentHost>
             </igWPF:XamDockManager>
-            <MediaElement x:Name="_Media" Volume="1" Grid.Row="2"/>
+            <MediaElement x:Name="_Media" Volume="1" Grid.Row="2" LoadedBehavior="Manual" UnloadedBehavior="Stop" Stretch="Fill"/>
         </Grid>
     </Grid>
 </Window>

@@ -39,6 +39,7 @@ namespace ManagerConsole.ViewModel
             for (int i = 0; i < this.SourceRelations.Count; i++)
             {
                 this.SourceRelations[i].ZIndex = firstZIndex - i * step;
+                this.SourceRelations[i].Left = i * 100;
             }
         }
 
@@ -221,6 +222,8 @@ namespace ManagerConsole.ViewModel
         {
             get { return this.IsDerivative ? Visibility.Visible : Visibility.Hidden; }
         }
+
+        public int TempProperty { get; set; }
 
         //private string FloatFormat
         //{

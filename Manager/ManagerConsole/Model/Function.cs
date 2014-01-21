@@ -8,11 +8,11 @@ namespace ManagerConsole.Model
 {
     public class Function
     {
-        public Dictionary<string, Tuple<string, bool>> FunctionPermissions { get; set; }
+        public Dictionary<string, List<FuncPermissionStatus>> FunctionPermissions { get; set; }
 
         public Function()
         {
-            FunctionPermissions = new Dictionary<string, Tuple<string, bool>>();
+            FunctionPermissions = new Dictionary<string, List<FuncPermissionStatus>>();
         }
 
         public bool HasPermission(ModuleCategoryType categoryType, ModuleType moduleType, string operationCode)
@@ -22,29 +22,37 @@ namespace ManagerConsole.Model
             {
                 return true;
             }
-            Tuple<string, bool> category;
-            
+            List<FuncPermissionStatus> category;
             if (FunctionPermissions.TryGetValue("root", out category))
             {
-                if (category.Item1 == Enum.GetName(typeof(ModuleCategoryType), categoryType))
+                foreach (FuncPermissionStatus item in category)
                 {
-                    isOwn = category.Item2;
+                    if (item.Code == Enum.GetName(typeof(ModuleCategoryType), categoryType))
+                    {
+                        isOwn = item.HasPermission;
+                    }
                 }
             }
-            Tuple<string, bool> module;
+            List<FuncPermissionStatus> module;
             if (FunctionPermissions.TryGetValue(Enum.GetName(typeof(ModuleCategoryType), categoryType), out module))
             {
-                if (module.Item1 == Enum.GetName(typeof(ModuleType), moduleType))
+                foreach (FuncPermissionStatus item in module)
                 {
-                    isOwn = module.Item2;
+                    if (item.Code == Enum.GetName(typeof(ModuleType), moduleType))
+                    {
+                        isOwn = item.HasPermission;
+                    }
                 }
             }
-            Tuple<string, bool> operation;
+            List<FuncPermissionStatus> operation;
             if (FunctionPermissions.TryGetValue(Enum.GetName(typeof(ModuleType), moduleType), out operation))
             {
-                if (operation.Item1 ==  operationCode)
+                foreach (FuncPermissionStatus item in operation)
                 {
-                    isOwn = operation.Item2;
+                    if (item.Code == operationCode)
+                    {
+                        isOwn = item.HasPermission;
+                    }
                 }
             }
             return isOwn;

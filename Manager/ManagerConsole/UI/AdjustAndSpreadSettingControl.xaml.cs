@@ -28,12 +28,23 @@ namespace ManagerConsole.UI
         private ObservableCollection<AdjustRelationViewModel> _ItemSource = new ObservableCollection<AdjustRelationViewModel>();
         private bool IsEditing = false;
 
+        public static readonly DependencyProperty addRelation = DependencyProperty.Register("AddRelation", typeof(bool), typeof(AdjustAndSpreadSettingControl));
+        public static readonly DependencyProperty setAdjust = DependencyProperty.Register("SetAdjust", typeof(bool), typeof(AdjustAndSpreadSettingControl));
+        public static readonly DependencyProperty setSpread = DependencyProperty.Register("SetSpread", typeof(bool), typeof(AdjustAndSpreadSettingControl));
+
+        public bool AddRelation { get; set; }
+        public bool SetAdjust { get; set; }
+        public bool SetSpread { get; set; }
+
         public AdjustAndSpreadSettingControl()
         {
             try
             {
                 InitializeComponent();
                 this.BeginInitData();
+                this.AddRelation = ConsoleClient.Instance.HasPermission(ModuleCategoryType.Quotation, ModuleType.AdjustSpreadSetting, "AddRelation");
+                this.SetAdjust = ConsoleClient.Instance.HasPermission(ModuleCategoryType.Quotation, ModuleType.AdjustSpreadSetting, "SetAdjust");
+                this.SetSpread = ConsoleClient.Instance.HasPermission(ModuleCategoryType.Quotation, ModuleType.AdjustSpreadSetting, "SetSpread");
             }
             catch (Exception ex)
             {

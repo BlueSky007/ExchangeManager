@@ -25,7 +25,6 @@ namespace ManagerConsole.ViewModel
         private string _Origin;
         private int _Variation;
         public bool _SelectedAll = true;
-        private bool _IsBuy = true;
         private CellDataDefine _ExecuteAllCellDataDefine;
         public TopToolBarImages _TopToolBarImages { get; set; }
         #endregion

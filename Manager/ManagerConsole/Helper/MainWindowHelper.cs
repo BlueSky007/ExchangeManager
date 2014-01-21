@@ -32,7 +32,25 @@ namespace ManagerConsole
             }
             catch (Exception ex)
             {
- 
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerConsole.Helper.MediaManager:.\r\n{0}", ex.ToString());
+            }
+        }
+
+        public static void PlayMedia(MediaElement mediaElement, string soundPath)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(soundPath))
+                {
+                    Uri path = new Uri(soundPath, UriKind.Absolute);
+                    mediaElement.Stop();
+                    mediaElement.Source = path;
+                    mediaElement.Play();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerConsole.Helper.MediaManager:.\r\n{0}", ex.ToString());
             }
         }
 
@@ -69,7 +87,7 @@ namespace ManagerConsole
                     }
                     catch (Exception ex)
                     {
-                        //Trace...
+                        Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerConsole.Helper.MediaSource:.\r\n{0}", ex.ToString());
                     }
                 }
             }

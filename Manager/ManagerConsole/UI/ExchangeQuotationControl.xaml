@@ -49,27 +49,83 @@
                 <igWPF:SplitPane igWPF:XamDockManager.InitialLocation="DockedLeft">
                     <igWPF:TabGroupPane>
                         <igWPF:ContentPane Header="ExhcangeQuotation" AllowClose="False" >-->
-        <Grid Background="Black">
+        <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="5"/>
                 <ColumnDefinition Width="200"/>
             </Grid.ColumnDefinitions>
-            <GridSplitter Grid.Column ="1" Background="DarkGray" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <GridSplitter Grid.Column ="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
             <ig:XamGrid x:Name="QuotationGrid" Grid.Column="0" ColumnWidth="*" ScrollViewer.CanContentScroll="False" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.PanningMode="None" AutoGenerateColumns="False"  Margin="0,0,0,0"  Height="Auto" BorderThickness="0" CellClicked="QuotationGrid_CellClicked" VerticalAlignment="Stretch" RowHeight="20">
                 <ig:XamGrid.Resources>
-                    <Style TargetType="ig:CellControl" BasedOn="{StaticResource CellControlStyle}">
+                    <Style TargetType="ig:CellControl">
+                        <Setter Property="FontSize" Value="11"/>
+                        <Setter Property="VerticalContentAlignment" Value="Center"/>
+                        <Setter Property="Foreground" Value="{DynamicResource CellItemForegroundBrush}"/>
+                        <Setter Property="Background" Value="{DynamicResource CellItemBackgroundBrush}"/>
+                        <Setter Property="BorderBrush" Value="{DynamicResource CellItemBorderBrush}"/>
+                        <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                        <Setter Property="Padding" Value="1"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ig:CellControl">
+                                    <Grid>
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroup x:Name="CommonStates">
+                                                <VisualState x:Name="Normal"/>
+                                                <VisualState x:Name="MouseOver"/>
+                                                <VisualState x:Name="Alternate"/>
+                                            </VisualStateGroup>
+                                            <VisualStateGroup x:Name="SelectedStates">
+                                                <VisualState x:Name="NotSelected"/>
+                                                <VisualState x:Name="Selected">
+                                                    <Storyboard>
+                                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="rowSelected" Storyboard.TargetProperty="Visibility">
+                                                            <DiscreteObjectKeyFrame KeyTime="00:00:00">
+                                                                <DiscreteObjectKeyFrame.Value>
+                                                                    <Visibility>Visible
+                                                                    </Visibility>
+                                                                </DiscreteObjectKeyFrame.Value>
+                                                            </DiscreteObjectKeyFrame>
+                                                        </ObjectAnimationUsingKeyFrames>
+                                                    </Storyboard>
+                                                </VisualState>
+                                            </VisualStateGroup>
+                                            <VisualStateGroup x:Name="ActiveStates">
+                                                <VisualState x:Name="InActive"/>
+                                                <VisualState x:Name="Active">
+                                                    <Storyboard>
+                                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ActiveSelected" Storyboard.TargetProperty="Visibility">
+                                                            <DiscreteObjectKeyFrame KeyTime="00:00:00">
+                                                                <DiscreteObjectKeyFrame.Value>
+                                                                    <Visibility>Visible
+                                                                    </Visibility>
+                                                                </DiscreteObjectKeyFrame.Value>
+                                                            </DiscreteObjectKeyFrame>
+                                                        </ObjectAnimationUsingKeyFrames>
+                                                    </Storyboard>
+                                                </VisualState>
+                                            </VisualStateGroup>
+                                        </VisualStateManager.VisualStateGroups>
+                                        <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" x:Name="Root"/>
+                                        <Border x:Name="rowSelected" Background="{DynamicResource CellItemSelectedBackgroundBrush}" Visibility="Collapsed" Margin="{TemplateBinding BorderThickness}"/>
+                                        <Border x:Name="ActiveSelected" Background="{DynamicResource CellItemActiveBackgroundBrush}" BorderBrush="{DynamicResource CellItemActiveBorderBrush}" BorderThickness="2" Visibility="Collapsed"/>
+                                        <ContentPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}"/>
+                                    </Grid>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Cell.Row.Data.IsAutoFill}" Value="False">
-                                <Setter Property="Background" Value="Yellow"/>
+                                <Setter Property="Background" Value="{DynamicResource AutoFillBackgroudBrush}"/>
                             </DataTrigger>
                             <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Cell.Row.Data.AllowLimit}" Value="False">
-                                <Setter Property="Background" Value="Green"/>
+                                <Setter Property="Background" Value="{DynamicResource AllowLimitBackgroudBrush}"/>
                             </DataTrigger>
                             <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Cell.Row.Data.IsEnablePrice}" Value="False">
-                                <Setter Property="Background" Value="Blue" />
+                                <Setter Property="Background" Value="{DynamicResource EnablePriceBackgroudBrush}" />
                             </DataTrigger>
-                            
                         </Style.Triggers>
                     </Style>
                 </ig:XamGrid.Resources>
@@ -79,6 +135,9 @@
                 <ig:XamGrid.FilteringSettings>
                     <ig:FilteringSettings AllowFiltering="FilterMenu" />
                 </ig:XamGrid.FilteringSettings>
+                <ig:XamGrid.EditingSettings>
+                    <ig:EditingSettings AllowEditing="Cell"/>
+                </ig:XamGrid.EditingSettings>
                 <ig:XamGrid.Columns>
                     <ig:TextColumn Key="InstruemtnId" Visibility="Hidden" AllowCaseSensitiveSort="False" ></ig:TextColumn>
                     <ig:TextColumn Key="QuotationPolicyId" Visibility="Hidden"/>
@@ -124,7 +183,13 @@
                     <ig:CheckBoxColumn Key="AllowLimit" HeaderText="AllowLimit" Width="100" IsFilterable="False"></ig:CheckBoxColumn>
                     <ig:CheckBoxColumn Key="IsEnablePrice" HeaderText="IsEnablePrice" Width="100" IsFilterable="False"></ig:CheckBoxColumn>
                     <ig:CheckBoxColumn Key="IsAutoEnablePrice" HeaderText="IsAutoEnablePrice" Width="100" IsFilterable="False"></ig:CheckBoxColumn>
-                    
+                    <ig:TemplateColumn Key="SuspendResume" Width="80" IsFilterable="False">
+                        <ig:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <Button x:Name="SRButton" Content="{Binding SuspendResume}" Tag="{Binding}" Click="SRButton_Click"/>
+                            </DataTemplate>
+                        </ig:TemplateColumn.ItemTemplate>
+                    </ig:TemplateColumn>
                 </ig:XamGrid.Columns>
             </ig:XamGrid>
             <!--<tk:PropertyGrid Name="QuotationProperty" Grid.Column="2" SelectedObject="{Binding}" Margin="0,0,0,0" SelectedPropertyItemChanged="QuotationProperty_SelectedPropertyItemChanged" PropertyValueChanged="QuotationProperty_PropertyValueChanged">

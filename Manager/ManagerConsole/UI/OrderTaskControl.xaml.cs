@@ -17,7 +17,7 @@ using System.Windows.Shapes;
 using ManagerConsole.ViewModel;
 using System.Collections.ObjectModel;
 using CommonParameter = Manager.Common.Settings.SystemParameter;
-using ConfigParameters = Manager.Common.Settings.ConfigParameters;
+using ConfigParameter = Manager.Common.Settings.ConfigParameter;
 using OrderType = iExchange.Common.OrderType;
 using Logger = Manager.Common.Logger;
 using Infragistics.Controls.Interactions;
@@ -240,7 +240,7 @@ namespace ManagerConsole.UI
         private void OnOrderAccept(OrderTask order)
         {
             SystemParameter systemParameter = this._App.InitDataManager.GetExchangeSetting(order.ExchangeCode).SystemParameter;
-            ConfigParameters configParameter = this._App.InitDataManager.ConfigParameters[order.ExchangeCode];
+            ConfigParameter configParameter = this._App.InitDataManager.ConfigParameter;
             systemParameter.CanDealerViewAccountInfo = false;
             bool isOK = OrderTaskManager.CheckDQOrder(order, systemParameter, configParameter);
             isOK = false;

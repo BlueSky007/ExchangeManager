@@ -76,7 +76,7 @@
                                         <Setter.Value>
                                             <ControlTemplate TargetType="igPrim:PagerControl">
                                                 <Grid Height="20" Background="{TemplateBinding Background}" Width="AUTO">
-                                                    <Button x:Name="AddNew" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="AddRole_Click" HorizontalAlignment="Left" Margin="5,0,0,0">
+                                                    <Button x:Name="AddNew" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="AddRole_Click" HorizontalAlignment="Left" Margin="5,0,0,0" Visibility="{Binding IsAllowAdd, RelativeSource={RelativeSource AncestorType=UserControl},Converter={StaticResource BooleanToVisibility}}">
                                                         <Button.Content>
                                                             <Image Source="../Asset/Images/add.png" ToolTipService.ToolTip="Add New Role"/>
                                                         </Button.Content>
@@ -84,7 +84,17 @@
                                                     <StackPanel Orientation="Horizontal" Background="{TemplateBinding Background}" HorizontalAlignment="Right">
                                                         <Button x:Name="PreviouspageButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" >
                                                             <Button.Content>
-                                                                <Image Source="../Asset/Images/back.png" ToolTipService.ToolTip="Prev"/>
+                                                                <Path Data="M0,0.5 L10,10 10,0Z" Fill="DarkGray" RenderTransformOrigin="0.5,0.5">
+                                                                    <Path.RenderTransform>
+                                                                        <TransformGroup>
+                                                                            <ScaleTransform/>
+                                                                            <SkewTransform/>
+                                                                            <RotateTransform Angle="-134"/>
+                                                                            <TranslateTransform/>
+                                                                        </TransformGroup>
+                                                                    </Path.RenderTransform>
+                                                                </Path>
+                                                                <!--<Image Source="../Asset/Images/back.png" ToolTipService.ToolTip="Prev"/>-->
                                                             </Button.Content>
                                                             <ig:Commanding.Command>
                                                                 <ig:XamGridPagingControlsCommandSource EventName="Click" CommandType="PreviousPage"  ></ig:XamGridPagingControlsCommandSource>
@@ -102,7 +112,17 @@
                                                         </ComboBox>
                                                         <Button x:Name="NextPageButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" >
                                                             <Button.Content>
-                                                                <Image Source="../Asset/Images/forward.png" ToolTipService.ToolTip="Next"/>
+                                                                <Path Data="M0,0.5 L10,10 10,0Z" Fill="DarkGray" RenderTransformOrigin="0.5,0.5">
+                                                                    <Path.RenderTransform>
+                                                                        <TransformGroup>
+                                                                            <ScaleTransform/>
+                                                                            <SkewTransform/>
+                                                                            <RotateTransform Angle="45"/>
+                                                                            <TranslateTransform/>
+                                                                        </TransformGroup>
+                                                                    </Path.RenderTransform>
+                                                                </Path>
+                                                                <!--<Image Source="../Asset/Images/forward.png" ToolTipService.ToolTip="Next"/>-->
                                                             </Button.Content>
                                                             <ig:Commanding.Command>
                                                                 <ig:XamGridPagingControlsCommandSource EventName="Click" CommandType="NextPage"  ></ig:XamGridPagingControlsCommandSource>
@@ -128,13 +148,13 @@
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
-                <RowDefinition Height="5*"/>
+                <RowDefinition Height="23"/>
                 <RowDefinition Height="5*"/>
                 <RowDefinition Height="90*"/>
             </Grid.RowDefinitions>
             <StackPanel Orientation="Horizontal" Grid.Row="0">
-                <Button x:Name="Submit" Content="Submit" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Visibility="Visible" Click="Submit_Click" Margin="15,0,0,0"/>
-                <Button x:Name="Cancel" Content="Cancel" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="Cancel_Click" Margin="20,0,0,0"/>
+                <Button x:Name="Submit" Content="Submit" Height="20" Style="{DynamicResource ButtonStyle}" Visibility="Visible" Click="Submit_Click" Margin="15,0,0,0"/>
+                <Button x:Name="Cancel" Content="Cancel" Height="20" Style="{DynamicResource ButtonStyle}" Click="Cancel_Click" Margin="20,0,0,0"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Grid.Row="1">
                 <TextBlock Text="RoleName:" Width="AUTO" FontSize="13" VerticalAlignment="Center" />
@@ -246,30 +266,30 @@
                                         <ig:ColumnResizingSettings AllowCellAreaResizing="False" AllowColumnResizing="Disabled" AllowDoubleClickToSize="False" AllowMultipleColumnResize="False" />
                                     </ig:XamGrid.ColumnResizingSettings>
                                     <ig:XamGrid.Columns>
-                                        <ig:TemplateColumn Key="IExchangeId" Visibility="Hidden"/>
-                                        <ig:TemplateColumn Key="IExchangeCode" HeaderText="Name" Width="400">
+                                        <ig:TemplateColumn Key="ExchangeId" Visibility="Hidden"/>
+                                        <ig:TemplateColumn Key="ExchangeCode" HeaderText="Name" Width="400">
                                         </ig:TemplateColumn>
-                                        <ig:TemplateColumn Key="IsIExchangeAllow" HeaderText="Allow" Width="80">
+                                        <ig:TemplateColumn Key="IsExchangeAllow" HeaderText="Allow" Width="80">
                                             <ig:TemplateColumn.ItemTemplate>
                                                 <DataTemplate>
-                                                    <CheckBox IsThreeState="True" IsHitTestVisible="False" IsChecked="{Binding IsIExchangeAllow}"/>
+                                                    <CheckBox IsThreeState="True" IsHitTestVisible="False" IsChecked="{Binding IsExchangeAllow}"/>
                                                 </DataTemplate>
                                             </ig:TemplateColumn.ItemTemplate>
                                             <ig:TemplateColumn.EditorTemplate>
                                                 <DataTemplate>
-                                                    <CheckBox IsThreeState="False" IsChecked="{Binding IsIExchangeAllow, Mode=TwoWay}"/>
+                                                    <CheckBox IsThreeState="False" IsChecked="{Binding IsExchangeAllow, Mode=TwoWay}"/>
                                                 </DataTemplate>
                                             </ig:TemplateColumn.EditorTemplate>
                                         </ig:TemplateColumn>
-                                        <ig:TemplateColumn Key="IsIExchangeDeny" HeaderText="Deny" Width="80">
+                                        <ig:TemplateColumn Key="IsExchangeDeny" HeaderText="Deny" Width="80">
                                             <ig:TemplateColumn.ItemTemplate>
                                                 <DataTemplate>
-                                                    <CheckBox IsThreeState="True" IsHitTestVisible="False" IsChecked="{Binding IsIExchangeDeny}"/>
+                                                    <CheckBox IsThreeState="True" IsHitTestVisible="False" IsChecked="{Binding IsExchangeDeny}"/>
                                                 </DataTemplate>
                                             </ig:TemplateColumn.ItemTemplate>
                                             <ig:TemplateColumn.EditorTemplate>
                                                 <DataTemplate>
-                                                    <CheckBox IsThreeState="False" IsChecked="{Binding IsIExchangeDeny, Mode=TwoWay}"/>
+                                                    <CheckBox IsThreeState="False" IsChecked="{Binding IsExchangeDeny, Mode=TwoWay}"/>
                                                 </DataTemplate>
                                             </ig:TemplateColumn.EditorTemplate>
                                         </ig:TemplateColumn>
@@ -575,12 +595,12 @@
                     <ig:TemplateColumn.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <Button Tag="{Binding RoleId}" Visibility="{Binding IsAllowEdit, Converter={StaticResource BooleanToVisibility}}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="EditButton_Click">
+                                <Button Tag="{Binding RoleId}" Visibility="{Binding IsAllowEdit, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BooleanToVisibility}}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="EditButton_Click">
                                     <Button.Content>
                                         <Image Source="../Asset/Images/edit.png" Width="20" Height="20" ToolTipService.ToolTip="Edit"/>
                                     </Button.Content>
                                 </Button>
-                                <Button Tag="{Binding RoleId}" Visibility="{Binding IsAllowDelete, Converter={StaticResource BooleanToVisibility}}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="DeleteButton_Click">
+                                <Button Tag="{Binding RoleId}" Visibility="{Binding IsAllowDelete,RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BooleanToVisibility}}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="DeleteButton_Click">
                                     <Button.Content>
                                         <Image Source="../Asset/Images/delete.png" Width="20" Height="20" ToolTipService.ToolTip="Delete"/>
                                     </Button.Content>

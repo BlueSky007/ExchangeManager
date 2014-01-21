@@ -24,10 +24,10 @@ namespace ManagerService.Exchange
     public interface IStateServer
     {
         [OperationContract]
-        bool SwitchPriceState(List<string> originCodes, bool enable);
+        bool SwitchPriceState(string[] originCodes, bool enable, out Guid[] affectInstrumentIds);
 
         [OperationContract]
-        bool SuspendResume(List<string> originCodes, bool resume);
+        bool SuspendResume(string[] originCodes, bool resume, out Guid[] affectInstrumentIds);
 
         [OperationContract]
         void Update(Token token, XmlNode udpateNode);

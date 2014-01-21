@@ -21,6 +21,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using CommonAccountGroupGNP = iExchange.Common.Manager.AccountGroupGNP;
 using CommonOpenInterestSummary = iExchange.Common.Manager.OpenInterestSummary;
+using Logger = Manager.Common.Logger;
 
 namespace ManagerConsole.UI
 {
@@ -336,8 +337,8 @@ namespace ManagerConsole.UI
                 this._GroupNetPositionGrid.ItemsSource = this._RootGNP;
             }
             catch(Exception ex)
-            { 
-                
+            {
+                Logger.AddEvent(TraceEventType.Error, "CalculateOIPercentQuantity:{0}", ex.ToString());
             }
         }
 

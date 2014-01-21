@@ -1732,7 +1732,7 @@
     </Style>
 
     <!-- *********************************  CellControl Style  ********************************* -->
-    <Style TargetType="ig:CellControl">
+    <Style x:Key="CellControlStyle" TargetType="{x:Type ig:CellControl}">
         <Setter Property="FontSize" Value="11"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Foreground" Value="{StaticResource CellItemForegroundBrush}"/>
@@ -1791,7 +1791,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-
+    <Style TargetType="{x:Type ig:CellControl}" BasedOn="{StaticResource CellControlStyle}"/>
     <!-- *********************************  AddNewRowCellControl Style  ********************************* -->
     <Style TargetType="igPrim:AddNewRowCellControl">
         <Setter Property="FontSize" Value="11"/>

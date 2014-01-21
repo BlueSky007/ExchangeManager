@@ -32,9 +32,9 @@
             <RowDefinition Height="25" />
             <RowDefinition Height="25" />
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="1" Text="Ask"/>
-        <TextBlock Grid.Row="2" Text="Bid"/>
-        <TextBlock Grid.Row="3" Text="Last"/>
+        <TextBlock Grid.Row="1" Text="Ask" VerticalAlignment="Center"/>
+        <TextBlock Grid.Row="2" Text="Bid" VerticalAlignment="Center"/>
+        <TextBlock Grid.Row="3" Text="Last" VerticalAlignment="Center"/>
         <TextBlock Grid.Column="1" Text="AskWeight"/>
         <TextBlock Grid.Column="2" Text="BidWeight"/>
         <TextBlock Grid.Column="3" Text="LastWeight"/>
@@ -45,21 +45,21 @@
         <TextBox x:Name="AskBidWeightBox" Text="{Binding AskBidWeight}" Grid.Column="2" Grid.Row="1"/>
         <TextBox x:Name="AskLastWeightBox" Text="{Binding AskLastWeight}" Grid.Column="3" Grid.Row="1"/>
         <TextBox x:Name="AskAverageWeightBox" Text="{Binding AskAverageWeight}" Grid.Column="4" Grid.Row="1"/>
-        <TextBox x:Name="AskAdjustBox" Text="{Binding AskAdjust}" Grid.Column="5" Grid.Row="1"/>
+        <TextBox x:Name="AskAdjustBox" Text="{Binding AskAdjust,StringFormat={}{0:0.#############################}}" Grid.Column="5" Grid.Row="1"/>
 
         <TextBox x:Name="BidAskWeightBox" Text="{Binding BidAskWeight}" Grid.Column="1" Grid.Row="2"/>
         <TextBox x:Name="BidBidWeightBox" Text="{Binding BidBidWeight}" Grid.Column="2" Grid.Row="2"/>
         <TextBox x:Name="BidLastWeightBox" Text="{Binding BidLastWeight}" Grid.Column="3" Grid.Row="2"/>
         <TextBox x:Name="BidAverageWeightBox" Text="{Binding BidAverageWeight}" Grid.Column="4" Grid.Row="2"/>
-        <TextBox x:Name="BidAdjustBox" Text="{Binding BidAdjust}" Grid.Column="5" Grid.Row="2"/>
+        <TextBox x:Name="BidAdjustBox" Text="{Binding BidAdjust,StringFormat={}{0:0.#############################}}" Grid.Column="5" Grid.Row="2"/>
 
         <TextBox x:Name="LastAskWeightBox" Text="{Binding LastAskWeight}" Grid.Column="1" Grid.Row="3"/>
         <TextBox x:Name="LastBidWeightBox" Text="{Binding LastBidWeight}" Grid.Column="2" Grid.Row="3"/>
         <TextBox x:Name="LastLastWeightBox" Text="{Binding LastLastWeight}" Grid.Column="3" Grid.Row="3"/>
         <TextBox x:Name="LastAverageWeightBox" Text="{Binding LastAverageWeight}" Grid.Column="4" Grid.Row="3"/>
-        <TextBox x:Name="LastAdjustBox" Text="{Binding LastAdjust}" Grid.Column="5" Grid.Row="3"/>
+        <TextBox x:Name="LastAdjustBox" Text="{Binding LastAdjust,StringFormat={}{0:0.#############################}}" Grid.Column="5" Grid.Row="3"/>
 
-        <TextBlock Grid.Column="1" Grid.Row="4" Text="Multiplier"/>
-        <TextBox x:Name="MultiplierBox" Text="{Binding Multiplier}" Grid.Row="4" Grid.Column="2"/>
+        <TextBlock Grid.Column="1" Grid.Row="4" Text="Multiplier" VerticalAlignment="Center" />
+        <TextBox x:Name="MultiplierBox" Text="{Binding Multiplier,StringFormat={}{0:0.#############################}}" Grid.Row="4" Grid.Column="2"/>
     </Grid>
 </UserControl>

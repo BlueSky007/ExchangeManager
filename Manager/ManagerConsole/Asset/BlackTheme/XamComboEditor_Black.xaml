@@ -9,8 +9,7 @@
 
     <!-- *********************************  COLORS  ********************************* -->
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="Theme.Colors.xaml" />
-        <ResourceDictionary Source="Styles.WPF.xaml" />
+        <ResourceDictionary Source="BaseControl_Black.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 
     <!--<Color x:Key="Color_001">#FFF8F8F8</Color>
@@ -47,9 +46,57 @@
     <SolidColorBrush x:Key="ToggleButtonArrowHoverFillBrush" Color="{StaticResource Color_002}"/>
     <SolidColorBrush x:Key="ToggleButtonArrowPressedFillBrush" Color="#FF00AADE"/>
     <SolidColorBrush x:Key="ToggleButtonArrowDisabledFillBrush" Color="{StaticResource Color_005}"/>
+    <!-- Scrollbar Brushes -->
+    
+    <SolidColorBrush x:Key="VScrollbarThumbBackgroundBrush" Color="{StaticResource Color_003}" />
+    <SolidColorBrush x:Key="VScrollbarThumbHoverBackgroundBrush" Color="{StaticResource Color_005}" />
+    <SolidColorBrush x:Key="VScrollbarThumbPressedBackgroundBrush" Color="{StaticResource Color_024}" />    
+    <SolidColorBrush x:Key="VScrollbarThumbDisabledBackgroundBrush" Color="{StaticResource Color_006}" />
 
     <!-- ******************************************************** SL-WPF SHARED RESOURCES ***********************************************************
       ********************************************************************************************************************************************************************    -->
+    <Style x:Key="VScrollBarThumbStyle" TargetType="{x:Type Thumb}">
+        <Setter Property="OverridesDefaultStyle" Value="true" />
+        <Setter Property="MinWidth" Value="15" />
+        <Setter Property="MinHeight" Value="18" />
+        <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Thumb}">
+                    <Grid x:Name="grid" Height="Auto" Width="Auto">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="MouseOver">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetProperty="Fill" Storyboard.TargetName="Thumb">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource VScrollbarThumbHoverBackgroundBrush}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetProperty="Fill" Storyboard.TargetName="Thumb">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource VScrollbarThumbPressedBackgroundBrush}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetProperty="Fill" Storyboard.TargetName="Thumb">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource VScrollbarThumbDisabledBackgroundBrush}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Rectangle Fill="{StaticResource TransparentBrush}" Margin="-5" />
+                        <Rectangle x:Name="Thumb" Fill="{StaticResource VScrollbarThumbBackgroundBrush}" Width="8" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
     <!-- *********************************  ComboEditorItemControl Style  ********************************* -->
     <Style x:Key="ComboEditorItemControlStyle" TargetType="ig:ComboEditorItemControl">
@@ -57,7 +104,7 @@
         <Setter Property="FontSize" Value="12" />
         <Setter Property="Padding" Value="2 1" />
         <Setter Property="MinHeight" Value="20" />
-        <Setter Property="Background" Value="{StaticResource TransparentBrush}"/>
+        <Setter Property="Background" Value="{StaticResource ComboBoxBackgroundBrush}"/>
         <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>

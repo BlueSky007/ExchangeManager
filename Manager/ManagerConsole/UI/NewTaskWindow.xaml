@@ -72,9 +72,9 @@
                                      InvalidValueBehavior="DisplayErrorMessage"
                                      Value="{Binding RunTime,Mode=TwoWay}"/>
                 <TextBlock Text="Action Type:" Margin="8,0,0,0"/>
-                <ComboBox x:Name="ActionTypeComboBox" Width="80" Height="22" Margin="8,0,0,0" Style="{StaticResource ComboBoxStyle}" SelectedItem="{Binding ActionType,Mode=TwoWay}" SelectionChanged="ActionTypeComboBox_SelectionChanged"/>
+                <ComboBox x:Name="ActionTypeComboBox" Width="80" Height="22" Margin="8,0,0,0"  SelectedItem="{Binding ActionType,Mode=TwoWay}" SelectionChanged="ActionTypeComboBox_SelectionChanged"/>
                 <TextBlock Text="Parameter Type:" Margin="8,0,0,0"/>
-                <ComboBox x:Name="SettingsTypeComboBox" Width="80" Height="22" Margin="8,0,0,0" Style="{StaticResource ComboBoxStyle}" SelectionChanged="SettingsTypeComboBox_SelectionChanged"/>
+                <ComboBox x:Name="SettingsTypeComboBox" Width="80" Height="22" Margin="8,0,0,0" SelectionChanged="SettingsTypeComboBox_SelectionChanged"/>
 
                 <TextBlock x:Name="InstrumentCaption" Text="Instrument:" Margin="8,0,0,0"/>
                 <ComboBox x:Name="InstrumentComboBox" Visibility="Collapsed" Width="80" Height="22" Margin="8,0,0,0" Style="{StaticResource ComboBoxStyle}"/>
@@ -83,6 +83,7 @@
                                    AllowMultipleSelection="True"
                                    Width="120" Margin="5,0,10,0"
                                    VerticalAlignment="Center" HorizontalAlignment="Left" Height="25" SelectionChanged="InstrumentComboBox_SelectionChanged"/>
+
 
                 <TextBlock x:Name="ExchangeCodeCaption" Text="ExchangeCode:" Margin="2,0,0,0"/>
                 <ComboBox x:Name="ExchangeComboBox" Width="80" Height="22" Margin="8,0,0,0" Style="{StaticResource ComboBoxStyle}" SelectedItem="{Binding ExchangeCode,Mode=TwoWay}"/>

@@ -247,6 +247,7 @@ namespace ManagerConsole.ViewModel
             this._SumSellLot = quotePriceClient.SellLot;
             this._Lot = quotePriceClient.Lot;
             this._AnswerLot = this._Lot;
+            this._AdjustLot = this._Lot;
             this._BSStatus = quotePriceClient.BSStatus;
             this._AdjustPoint = (decimal)this.Instrument.NumeratorUnit.Value / (decimal)this.Instrument.Denominator.Value;
 
@@ -420,6 +421,7 @@ namespace ManagerConsole.ViewModel
 
         public bool? IsValidPrice(decimal adjust)
         {
+            if (this.Origin == null) return false;
             Price lastOriginPrice = Price.CreateInstance(this.Origin, this.Instrument.NumeratorUnit.Value, this.Instrument.Denominator.Value);
 			string validInt = "^-?\\d+$";
             Price originPrice;

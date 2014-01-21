@@ -46,7 +46,7 @@ namespace ManagerService.Console
                     loginResult.LayoutNames = UserDataAccess.GetAllLayoutName(userName);
                     string docklayout = string.Empty;
                     string content = string.Empty;
-                    UserDataAccess.LoadLayout(userName, "LastClosed", out docklayout, out content);
+                    UserDataAccess.LoadLayout(userName, SR.LastClosed, out docklayout, out content);
                     loginResult.DockLayout = docklayout;
                     loginResult.ContentLayout = content;
                 }
@@ -62,13 +62,19 @@ namespace ManagerService.Console
             return loginResult;
         }
 
-        public List<InitializeData> GetInitializeData()
+        public InitializeData GetInitializeData()
         {
-            List<InitializeData> initializeDatas = new List<InitializeData>();
+            InitializeData initializeData = new InitializeData();
+            initializeData.ConfigParameter = new ConfigParameter()
+            {
+                AllowModifyOrderLot = MainService.ManagerSettings.AllowModifyOrderLot,
+                ConfirmRejectDQOrder = MainService.ManagerSettings.ConfirmRejectDQOrder
+            };
             try
             {
                 Dictionary<string, List<Guid>> accountPermissions = new Dictionary<string, List<Guid>>();
                 Dictionary<string, List<Guid>> instrumentPermissions = new Dictionary<string, List<Guid>>();
+                List<ExchangeInitializeData> exchangeInitializeDatas = new List<ExchangeInitializeData>();
                 foreach (ExchangeSystemSetting item in MainService.ManagerSettings.ExchangeSystems)
                 {
                     List<Guid> accountMemberIds = new List<Guid>();
@@ -81,31 +87,30 @@ namespace ManagerService.Console
                             return data.ExchangeSystemCode == item.Code;
                         });
                     UserDataAccess.GetGroupDeafultStatus(item.Code, systemPermissions, out accountDeafultStatus, out instrumentDeafultStatus);
-                    if (this._Client.user.IsInRole(1))
+                    if (this._Client.user.IsAdmin)
                     {
                         accountDeafultStatus = true;
                         instrumentDeafultStatus = true;
                         systemPermissions.Clear();
                     }
-                    InitializeData initializeData = ExchangeData.GetInitData(item.Code, this._Client.user.UserId, systemPermissions, accountDeafultStatus, instrumentDeafultStatus);
-                    initializeData.SettingParameters.Add(item.Code, ExchangeData.GetSettingParameters(item));
+                    ExchangeInitializeData exchangeInitializeData = ExchangeData.GetInitData(item.Code, this._Client.user.UserId, systemPermissions,
+                        accountDeafultStatus, instrumentDeafultStatus, out accountMemberIds, out instrumentMemberIds);
 
-                    initializeData.ValidAccounts.TryGetValue(item.Code, out accountMemberIds);
-                    initializeData.ValidInstruments.TryGetValue(item.Code, out instrumentMemberIds);
-                    initializeData.ExchangeCode = item.Code;
+                    exchangeInitializeData.ExchangeCode = item.Code;
                     accountPermissions.Add(item.Code, accountMemberIds);
                     instrumentPermissions.Add(item.Code, instrumentMemberIds);
 
-                    initializeDatas.Add(initializeData);
+                    exchangeInitializeDatas.Add(exchangeInitializeData);
 
                 }
                 this._Client.UpdatePermission(accountPermissions, instrumentPermissions);
+                initializeData.ExchangeInitializeDatas = exchangeInitializeDatas.ToArray();
             }
             catch (Exception ex)
             {
                 Logger.TraceEvent(TraceEventType.Error, "GetInitializeData Error:\r\n{0}", ex.ToString());
             }
-            return initializeDatas;
+            return initializeData;
         }
 
         public void Logout()
@@ -135,7 +140,7 @@ namespace ManagerService.Console
             return this._Client.ChangePassword(currentPassword, newPassword);
         }
 
-        public Dictionary<string, Tuple<string, bool>> GetAccessPermissions()
+        public Dictionary<string, List<FuncPermissionStatus>> GetAccessPermissions()
         {
             return this._Client.GetAccessPermissions();
         }
@@ -214,14 +219,14 @@ namespace ManagerService.Console
             return this._Client.Cancel(transactionId, cancelReason, logEntity);
         }
 
-        public void ResetHit(Guid[] orderIds)
+        public void ResetHit(string exchangeCode,Guid[] orderIds)
         {
-            this._Client.ResetHit(orderIds);
+            this._Client.ResetHit(exchangeCode,orderIds);
         }
 
-        public AccountInformation GetAcountInfo(Guid transactionId)
+        public AccountInformation GetAcountInfo(string exchangeCode,Guid transactionId)
         {
-            return this._Client.GetAcountInfo(transactionId);
+            return this._Client.GetAcountInfo(exchangeCode,transactionId);
         }
 
         public SettingsParameter LoadSettingsParameters()
@@ -268,6 +273,11 @@ namespace ManagerService.Console
         public List<TaskScheduler> GetTaskSchedulersData()
         {
             return this._Client.GetTaskSchedulersData();
+        }
+
+        public bool UpdateManagerSettings(Guid settingId,SettingParameterType type, Dictionary<string, object> fieldAndValues)
+        {
+            return this._Client.UpdateManagerSettings(settingId,type, fieldAndValues);
         }
         #endregion
 
@@ -326,9 +336,6 @@ namespace ManagerService.Console
             return this._Client.GetLogSourceChangeData(fromDate, toDate, logType);
         }
         #endregion
-
-
-
 
         public ConfigMetadata GetConfigMetadata()
         {
@@ -456,6 +463,23 @@ namespace ManagerService.Console
             }
         }
 
+        public void UpdateInstrument(InstrumentQuotationSet set)
+        {
+            try
+            {
+                this._Client.UpdateInstrument(set);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "UpdateInstrument\r\n{0}", ex.ToString());
+            }
+        }
+
+        public bool ExchangeSuspendResume(Dictionary<string, List<Guid>> instruments, bool resume)
+        {
+            return this._Client.ExchangeSuspendResume(instruments, resume);
+        }
+
         public void SetQuotationPolicyDetail(Guid relationId, QuotePolicyDetailsSetAction action, int changeValue)
         {
             try
@@ -519,6 +543,20 @@ namespace ManagerService.Console
                 Logger.AddEvent(TraceEventType.Error,
                     "[ManagerService.ConfirmAbnormalQuotation] instrumentId:{0}, confirmId:{1}, accepted:{2}\r\n{3}",
                     instrumentId, confirmId, accepted, ex.ToString());
+            }
+        }
+
+        public void SuspendResume(int[] instrumentIds, bool resume)
+        {
+            try
+            {
+                this._Client.SuspendResume(instrumentIds, resume);
+            }
+            catch (Exception exception)
+            {
+                Logger.AddEvent(TraceEventType.Error,
+                    "[ManagerService.SuspendResume] instrumentIds:{0}, resume:{1}\r\n{2}",
+                    string.Join(",", instrumentIds), resume, exception);
             }
         }
     }

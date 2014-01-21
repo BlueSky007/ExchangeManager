@@ -92,7 +92,7 @@ namespace ManagerConsole.Model
         private void Process(OverridedQuotationMessage overidedQuotationMessage)
         {
             this._QuotationMessageProcessor.Process(overidedQuotationMessage);
-            this.ExchangeQuotationUpdateEvent(overidedQuotationMessage);
+            if (this.ExchangeQuotationUpdateEvent != null) this.ExchangeQuotationUpdateEvent(overidedQuotationMessage);
         }
 
         private void Process(UpdateInstrumentQuotationMessage quotePolicyDetailMessage)

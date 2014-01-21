@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:igPrim="http://schemas.infragistics.com/xaml/primitives"
              xmlns:Custom="http://infragistics.com/DataPresenter" xmlns:ig="http://schemas.infragistics.com/xaml" 
-             mc:Ignorable="d" 
+             mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300" Loaded="UserControl_Loaded">
     <UserControl.Resources>
         <Style x:Key="CellStylePadding" TargetType="ig:CellControl">
@@ -81,7 +81,7 @@
                                         <Setter.Value>
                                             <ControlTemplate TargetType="igPrim:PagerControl">
                                                 <Grid Height="20" Background="{TemplateBinding Background}" Width="AUTO">
-                                                    <Button x:Name="AddNew" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="AddUser_Click" HorizontalAlignment="Left" Margin="5,0,0,0">
+                                                    <Button x:Name="AddNew" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="AddUser_Click" Visibility="{Binding IsAllowAdd, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BooleanToVisibility}}" HorizontalAlignment="Left" Margin="5,0,0,0">
                                                         <Button.Content>
                                                             <Image Source="..\Asset\Images\add.png" ToolTipService.ToolTip="Add New User"/>
                                                         </Button.Content>
@@ -89,7 +89,17 @@
                                                     <StackPanel Orientation="Horizontal" Background="{TemplateBinding Background}" HorizontalAlignment="Right">
                                                         <Button x:Name="PreviouspageButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" >
                                                             <Button.Content>
-                                                                <Image Source="../Asset/Images/back.png" ToolTipService.ToolTip="Prev"/>
+                                                                <Path Data="M0,0.5 L10,10 10,0Z" Fill="DarkGray" RenderTransformOrigin="0.5,0.5">
+                                                                    <Path.RenderTransform>
+                                                                        <TransformGroup>
+                                                                            <ScaleTransform/>
+                                                                            <SkewTransform/>
+                                                                            <RotateTransform Angle="-134"/>
+                                                                            <TranslateTransform/>
+                                                                        </TransformGroup>
+                                                                    </Path.RenderTransform>
+                                                                </Path>
+                                                                <!--<Image Source="../Asset/Images/back.png" ToolTipService.ToolTip="Prev"/>-->
                                                             </Button.Content>
                                                             <ig:Commanding.Command>
                                                                 <ig:XamGridPagingControlsCommandSource EventName="Click" CommandType="PreviousPage"  ></ig:XamGridPagingControlsCommandSource>
@@ -107,7 +117,17 @@
                                                         </ComboBox>
                                                         <Button x:Name="NextPageButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
                                                             <Button.Content>
-                                                                <Image Source="../Asset/Images/forward.png" ToolTipService.ToolTip="Next"/>
+                                                                <Path Data="M0,0.5 L10,10 10,0Z" Fill="DarkGray" RenderTransformOrigin="0.5,0.5">
+                                                                    <Path.RenderTransform>
+                                                                        <TransformGroup>
+                                                                            <ScaleTransform/>
+                                                                            <SkewTransform/>
+                                                                            <RotateTransform Angle="45"/>
+                                                                            <TranslateTransform/>
+                                                                        </TransformGroup>
+                                                                    </Path.RenderTransform>
+                                                                </Path>
+                                                                <!--<Image Source="../Asset/Images/forward.png" ToolTipService.ToolTip="Next"/>-->
                                                             </Button.Content>
                                                             <ig:Commanding.Command>
                                                                 <ig:XamGridPagingControlsCommandSource EventName="Click" CommandType="NextPage"  ></ig:XamGridPagingControlsCommandSource>
@@ -127,7 +147,7 @@
         </Style>
     </UserControl.Resources>
     <Grid x:Name="UseManagerFrame">
-        <Border Margin="0 0 5 0" BorderBrush="Black" Grid.Row="0">
+        <Border Margin="0 0 0 0" BorderBrush="Black" Grid.Row="0">
             <ig:XamGrid x:Name="UserManager" Loaded="UserControl_Loaded" RowHeight="19" IsAlternateRowsEnabled="False" AutoGenerateColumns="False">      
                     <ig:XamGrid.PagerSettings>
                     <ig:PagerSettings AllowPaging="Top" PageSize="30" DisplayPagerWhenOnlyOnePage="True">
@@ -143,12 +163,12 @@
                         <ig:TemplateColumn.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal">
-                                    <Button x:Name="Edit" Tag="{Binding UserId}" Visibility="{Binding IsAllowEdit, Converter={StaticResource BooleanToVisibility}}"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"  Click="Button_Click">
+                                    <Button x:Name="Edit" Tag="{Binding UserId}" Visibility="{Binding IsAllowEdit, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BooleanToVisibility}}"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"  Click="Button_Click">
                                         <Button.Content>
                                             <Image Source="../Asset/Images/edit.png" Width="14" Height="14" ToolTipService.ToolTip="Edit"/>
                                         </Button.Content>
                                     </Button>
-                                    <Button x:Name="Delete" Tag="{Binding UserId}" Visibility="{Binding IsAllowDelete, Converter={StaticResource BooleanToVisibility}}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"  Click="Button_Click">
+                                    <Button x:Name="Delete" Tag="{Binding UserId}" Visibility="{Binding IsAllowDelete, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BooleanToVisibility}}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"  Click="Button_Click">
                                         <Button.Content>
                                             <Image Source="../Asset/Images/delete.png" Width="14" Height="14" ToolTipService.ToolTip="Delete"/>
                                         </Button.Content>

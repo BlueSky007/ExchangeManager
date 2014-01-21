@@ -37,11 +37,9 @@ namespace ManagerConsole.UI
         private RoleData _SelectRole;
         private bool _isNew;
 
-        public static readonly DependencyProperty IsTeamLeaderProperty = DependencyProperty.Register("IsAllowAdd", typeof(bool), typeof(RoleManagerControl));
-
-        public bool IsAllowEdit{ get;set;}
-        public bool IsAllowDelete { get; set; }
-        public bool IsAllowAdd { get; set; }
+        public bool IsAllowEdit { get { return ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.RoleManager, "EditRole"); } }
+        public bool IsAllowDelete { get { return ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.RoleManager, "DeleteRole"); } }
+        public bool IsAllowAdd { get { return ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.RoleManager, "AddRole"); } }
         public RoleManagerControl()
         {
             InitializeComponent();
@@ -86,10 +84,7 @@ namespace ManagerConsole.UI
         {
             try
             {
-                this.DataContext = this;
-                this.IsAllowAdd = ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager,ModuleType.RoleManager,"Add");
-                this.IsAllowEdit = ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.RoleManager, "Edit");
-                this.IsAllowDelete = ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.RoleManager, "Delete");
+                //this.DataContext = this;
                 List<RoleFunctonPermission> allFunction = ConsoleClient.Instance.GetAllFunctionPermission();
                 List<RoleDataPermission> allData = ConsoleClient.Instance.GetAllDataPermissions();
                 this._AllData = allData;

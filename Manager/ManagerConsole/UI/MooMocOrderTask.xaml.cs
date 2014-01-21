@@ -59,7 +59,6 @@ namespace ManagerConsole.UI
             {
                 Button btn = sender as Button;
                 MooMocOrderForInstrument mooMocOrderForInstrument;
-                OrderTask orderTask;
                 switch (btn.Name)
                 {
                     case "AcceptBtn":

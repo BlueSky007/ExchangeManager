@@ -40,6 +40,14 @@ namespace ManagerConsole.UI
             this.Loaded += QuotationMonitorControl_Loaded;
         }
 
+        private bool CanModify
+        {
+            get
+            {
+                return ConsoleClient.Instance.HasPermission(ModuleCategoryType.Quotation, ModuleType.QuotationMonitor, OperationCode.Modify);
+            }
+        }
+
         private void QuotationMonitorControl_Loaded(object sender, RoutedEventArgs e)
         {
             if(this.MonitorGrid.Rows.Count > 0 && !this.MonitorGrid.Rows.Any(r=>r.IsSelected))
@@ -296,17 +304,35 @@ namespace ManagerConsole.UI
 
         private void SuspendResumeButton_Click(object sender, RoutedEventArgs e)
         {
-
+            try
+            {
+                Button button = (Button)sender;
+                VmInstrument vmInstrument = (VmInstrument)button.Tag;
+                ConsoleClient.Instance.SuspendResume(new int[] { vmInstrument.Id }, button.Name == "ResumeButton");
+            }
+            catch (Exception exception)
+            {
+                Logger.AddEvent(System.Diagnostics.TraceEventType.Error, "QuotationMonitorControl.SuspendResumeButton_Click\r\n{0}", exception);
+            }
         }
 
-        private void ResumeAll_Click(object sender, RoutedEventArgs e)
+        private void SuspendResumeAll_Click(object sender, RoutedEventArgs e)
         {
-
-        }
-
-        private void SuspendAll_Click(object sender, RoutedEventArgs e)
-        {
-
+            try
+            {
+                Button Button = (Button)sender;
+                List<int> instrumentIds = new List<int>();
+                foreach (var row in this.MonitorGrid.Rows)
+                {
+                    VmInstrument vmInstrument = (VmInstrument)row.Data;
+                    instrumentIds.Add(vmInstrument.Id);
+                }
+                ConsoleClient.Instance.SuspendResume(instrumentIds.ToArray(), Button.Name == "ResumeAll");
+            }
+            catch (Exception exception)
+            {
+                Logger.AddEvent(System.Diagnostics.TraceEventType.Error, "QuotationMonitorControl.SuspendResumeAll_Click\r\n{0}", exception);
+            }
         }
     }
 }

@@ -6,6 +6,7 @@
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="WhiteTheme/Office2010Blue.xamGrid.xaml"/>
+        <ResourceDictionary Source="WhiteTheme/XamInput_whiteTheme.xaml"/>
     </ResourceDictionary.MergedDictionaries>
     <Style TargetType="{x:Type pg:PropertyGrid}">
         <Setter Property="Background" Value="White" />
@@ -23,4 +24,7 @@
         <Setter Property="Foreground" Value="Black"/>
     </Style>
     <Style BasedOn="{StaticResource TextBoxStyle}" TargetType="TextBox"/>
+    <SolidColorBrush x:Key="AutoFillBackgroudBrush" Color="{StaticResource Color_2001}"/>
+    <SolidColorBrush x:Key="AllowLimitBackgroudBrush" Color="{StaticResource Color_2002}"/>
+    <SolidColorBrush x:Key="EnablePriceBackgroudBrush" Color="{StaticResource Color_2003}"/>
 </ResourceDictionary>

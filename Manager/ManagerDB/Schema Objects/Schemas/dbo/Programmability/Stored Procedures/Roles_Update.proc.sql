@@ -80,7 +80,7 @@ BEGIN
 	INSERT INTO @dataPermission(Id,[Status])
 	SELECT pt.Id,p.[Status]
 	FROM @permissionTarget p
-		INNER JOIN dbo.PermissionTarget pt ON pt.Code = p.Code AND pt.ParentId=p.ParentId AND pt.[Level] = p.[Level]
+		INNER JOIN dbo.PermissionTarget pt ON pt.Code = p.Code AND pt.[Level] = p.[Level]
 	WHERE pt.TargetType=2
 	
 	INSERT INTO dbo.RolePermission(RoleId, TargetId, [Status])

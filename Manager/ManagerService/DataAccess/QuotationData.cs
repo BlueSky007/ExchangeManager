@@ -400,6 +400,29 @@ namespace ManagerService.DataAccess
             return isSuccess;
         }
 
+        public static bool UpdateInstrument(string exchangeCode, string xmlNode)
+        {
+            bool isSuccess = false;
+            using (SqlConnection con = DataAccess.GetInstance(exchangeCode).GetSqlConnection())
+            {
+                using (SqlTransaction tran = con.BeginTransaction())
+                {
+                    using (SqlCommand command = con.CreateCommand())
+                    {
+                        command.Transaction = tran;
+                        command.CommandText = "[dbo].[P_UpdateInstrument]";
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@dealerID", Guid.Empty));
+                        command.Parameters.Add(new SqlParameter("@xmlInstrument", xmlNode));
+                        command.ExecuteNonQuery();
+                        tran.Commit();
+                        isSuccess = true;
+                    }
+                }
+            }
+            return isSuccess;
+        }
+
         public static List<InstrumentQuotationSet> UpdateQuotePolicyDetails(string exchangeCode, string originCodes, string action, int value)
         {
             List<InstrumentQuotationSet> QuotePolicyChangeDetails = new List<InstrumentQuotationSet>();

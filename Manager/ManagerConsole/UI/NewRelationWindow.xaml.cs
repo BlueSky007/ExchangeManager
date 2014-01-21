@@ -75,12 +75,12 @@ namespace ManagerConsole.UI
                     AdjustRelationViewModel relation = new AdjustRelationViewModel(this._NewId, this._NewCode,this._instrumentIds);
                     this._AddNewSuccess(relation);
                     this.Message.Foreground = Brushes.Green;
-                    this.Message.Content = "Success";
+                    this.Message.Text = "Success";
                 }
                 else
                 {
                     this.Message.Foreground = Brushes.Red;
-                    this.Message.Content = "Add New Failed";
+                    this.Message.Text = "Add New Failed";
                 }
 
             }, null);

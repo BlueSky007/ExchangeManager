@@ -33,10 +33,18 @@ namespace ManagerConsole.Model
             private set;
         }
 
+        public int QuotationMask
+        {
+            get;
+            set;
+        }
 
         internal void Update(CommonTradePolicyDetail tradePolicyDetail)
         {
+            this.InstrumentId = tradePolicyDetail.InstrumentId;
             this.TradePolicyId = tradePolicyDetail.TradePolicyId;
+            this.ContractSize = tradePolicyDetail.ContractSize;
+            this.QuotationMask = tradePolicyDetail.QuotationMask;
         }
 
         public void Update(Dictionary<string, string> fieldAndValues)
@@ -52,6 +60,10 @@ namespace ManagerConsole.Model
             if (field == ExchangeFieldSR.InstrumentId)
             {
                 this.InstrumentId = Guid.Parse(value);
+            }
+            else if (field == ExchangeFieldSR.QuotationMask)
+            {
+                this.QuotationMask = int.Parse(value);
             }
         }
     }

@@ -71,7 +71,7 @@ namespace ManagerService.Console
                         List<Guid> instrumentMemberIds = new List<Guid>();
                         List<RoleDataPermission> systemPermissions = role.DataPermissions.FindAll(delegate(RoleDataPermission data)
                         {
-                            return data.IExchangeCode == item.Code;
+                            return data.ExchangeCode == item.Code;
                         });
                         RoleDataPermission account = systemPermissions.SingleOrDefault(r => r.Type == DataObjectType.Account && r.Level == 2);
                         if (account != null)

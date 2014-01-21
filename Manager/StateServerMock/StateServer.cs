@@ -53,6 +53,11 @@ namespace iExchange.StateServer.Manager
             throw new NotImplementedException();
         }
 
+
+        internal void Update(Token token, XmlNode udpateNode)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class ManagerHelper

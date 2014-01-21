@@ -7,13 +7,13 @@ using ManagerConsole.ViewModel;
 using OrderType = iExchange.Common.OrderType;
 using Price = iExchange.Common.Price;
 using PriceType = iExchange.Common.PriceType;
-using ConfigParameters = Manager.Common.Settings.ConfigParameters;
+using ConfigParameter = Manager.Common.Settings.ConfigParameter;
 using System.Text.RegularExpressions;
 namespace ManagerConsole.Helper
 {
     public class OrderTaskManager
     {
-        public static bool CheckDQOrder(OrderTask order, SystemParameter parameter, ConfigParameters configParameter)
+        public static bool CheckDQOrder(OrderTask order, SystemParameter parameter, ConfigParameter configParameter)
         {
             bool isOK = false;
             if((order.OrderType == OrderType.SpotTrade) && (order.OrderStatus == OrderStatus.WaitOutPriceDQ || order.OrderStatus == OrderStatus.WaitOutLotDQ))

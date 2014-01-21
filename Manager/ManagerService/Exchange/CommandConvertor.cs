@@ -10,6 +10,7 @@ using PriceType = iExchange.Common.PriceType;
 using Manager.Common.Settings;
 using iExchange.Common.Manager;
 using Manager.Common.ExchangeEntities;
+using System.Diagnostics;
 
 namespace ManagerService.Exchange
 {
@@ -40,7 +41,7 @@ namespace ManagerService.Exchange
             XmlElement modifyElement = updateCommand.Content["Modify"];
             XmlElement deleteElement = updateCommand.Content["Delete"];
 
-            UpdateMessage updateMessage = new UpdateMessage();
+            UpdateMessage updateMessage = new UpdateMessage() { ExchangeCode = exchagenCode };
             if (addElement != null) updateMessage.AddSettingSets = CommandConvertor.ToSettingSet(addElement);
             if (deleteElement != null) updateMessage.DeletedSettings = CommandConvertor.ToSettingSet(deleteElement);
             if (modifyElement != null)
@@ -55,84 +56,57 @@ namespace ManagerService.Exchange
         private static List<ExchangeUpdateData> ToExchangeUpdateDatas(XmlNode content)
         {
             List<ExchangeUpdateData> exchangeUpdateDatas = new List<ExchangeUpdateData>();
-            SettingSet settingSet;
             foreach (XmlNode xmlNode in content.ChildNodes)
             {
-                string name = xmlNode.Name;
-                if (name == "Instrument")
+                ExchangeMetadataType metadataType;
+                if (Enum.TryParse<ExchangeMetadataType>(xmlNode.Name, out metadataType))
                 {
-                    ExchangeUpdateData exchangeUpdateData = new ExchangeUpdateData { ExchangeMetadataType = ExchangeMetadataType.Instrument };
-                    foreach(XmlAttribute attribute in xmlNode.Attributes)
+                    ExchangeUpdateData exchangeUpdateData = new ExchangeUpdateData()
+                    {
+                        ExchangeMetadataType = metadataType,
+                        FieldsAndValues = new Dictionary<string, string>()
+                    };
+                    foreach (XmlAttribute attribute in xmlNode.Attributes)
                     {
                         exchangeUpdateData.FieldsAndValues.Add(attribute.Name, attribute.Value);
                     }
+                    exchangeUpdateDatas.Add(exchangeUpdateData);
                 }
-                //else if (name == "Account")
-                //{
-                //    Account account = new Account();
-                //    account.Initialize(xmlNode);
-                //    settingSet.Accounts = new Account[] { account };
-                //}
-                //else if (name == "PrivateDailyQuotation")
-                //{
-                //    settingSet.PrivateDailyQuotation = new PrivateDailyQuotation();
-                //    settingSet.PrivateDailyQuotation.Initialize(xmlNode);
-                //}
-                //else if (name == "SystemParameter")
-                //{
-                //    settingSet.SystemParameter = new SystemParameter();
-                //    settingSet.SystemParameter.Initialize(xmlNode);
-                //}
-                //else if (name == "Instruments")
-                //{
-                //    foreach (XmlNode instrumentNode in xmlNode.ChildNodes)
-                //    {
-                //        Instrument instrument = new Instrument();
-                //        instrument.Initialize(instrumentNode);
-                //        if (instruments == null) instruments = new List<Instrument>();
-                //        instruments.Add(instrument);
-                //    }
-                //}
-                //else if (name == "Customers")
-                //{
-                //    foreach (XmlNode customerNode in xmlNode.ChildNodes)
-                //    {
-                //        Customer customer = new Customer();
-                //        customer.Initialize(customerNode);
-                //        if (customers == null) customers = new List<Customer>();
-                //        customers.Add(customer);
-                //    }
-                //}
-                //else if (name == "TradePolicyDetail")
-                //{
-                //    TradePolicyDetail tradePolicyDetail = new TradePolicyDetail();
-                //    tradePolicyDetail.Initialize(xmlNode);
-
-                //    if (tradePolicyDetails == null) tradePolicyDetails = new List<TradePolicyDetail>();
-                //    tradePolicyDetails.Add(tradePolicyDetail);
-                //}
-                //else if (name == "QuotePolicyDetail")
-                //{
-                //    QuotePolicyDetail quotePolicyDetail = new QuotePolicyDetail();
-                //    quotePolicyDetail.Initialize(xmlNode);
-
-                //    if (quotePolicyDetails == null) quotePolicyDetails = new List<QuotePolicyDetail>();
-                //    quotePolicyDetails.Add(quotePolicyDetail);
-                //}
-                //else if (name == "QuotePolicyDetails")
-                //{
-                //    foreach (XmlNode childNode in xmlNode.ChildNodes)
-                //    {
-                //        QuotePolicyDetail quotePolicyDetail = new QuotePolicyDetail();
-                //        quotePolicyDetail.Initialize(childNode);
-
-                //        if (quotePolicyDetails == null) quotePolicyDetails = new List<QuotePolicyDetail>();
-                //        quotePolicyDetails.Add(quotePolicyDetail);
-                //    }
-                //}
+                else if (xmlNode.Name == "Instruments")
+                {
+                    CommandConvertor.ExtractDatas(exchangeUpdateDatas, xmlNode, ExchangeMetadataType.Instrument);
+                }
+                else if (xmlNode.Name == "Customers")
+                {
+                    CommandConvertor.ExtractDatas(exchangeUpdateDatas, xmlNode, ExchangeMetadataType.Customer);
+                }
+                else if (xmlNode.Name == "QuotePolicyDetails")
+                {
+                    CommandConvertor.ExtractDatas(exchangeUpdateDatas, xmlNode, ExchangeMetadataType.QuotePolicyDetail);
+                }
+                else
+                {
+                    Logger.AddEvent(TraceEventType.Warning, "CommandConvertor.ToExchangeUpdateDatas Unknown metadata type:\r\n{0}", xmlNode.OuterXml);
+                }
             }
-
             return exchangeUpdateDatas;
+        }
+
+        private static void ExtractDatas(List<ExchangeUpdateData> exchangeUpdateDatas, XmlNode xmlNode, ExchangeMetadataType metadataType)
+        {
+            foreach (XmlNode instrumentNode in xmlNode.ChildNodes)
+            {
+                ExchangeUpdateData exchangeUpdateData = new ExchangeUpdateData()
+                {
+                    ExchangeMetadataType = metadataType,
+                    FieldsAndValues = new Dictionary<string, string>()
+                };
+                foreach (XmlAttribute attribute in xmlNode.Attributes)
+                {
+                    exchangeUpdateData.FieldsAndValues.Add(attribute.Name, attribute.Value);
+                }
+                exchangeUpdateDatas.Add(exchangeUpdateData);
+            }
         }
 
         private static Message Convert(string exchangeCode, PlaceCommand placeCommand)
@@ -288,16 +262,6 @@ namespace ManagerService.Exchange
             order = new Order();
             order.TransactionId = transaction.Id;
             order.Initialize(orderNode);
-
-            //if (transaction.Phase == Phase.Executed)
-            //{
-            //    contract = new Contract();
-            //    contract.Initialize(orderNode);
-            //}
-            //else
-            //{
-            //    contract = null;
-            //}
         }
 
         private static void Parse(XmlNode ordersXml, out Order[] orders)
@@ -992,7 +956,7 @@ namespace ManagerService.Exchange
                 }
                 else if (nodeName.Equals("HitCount"))
                 {
-                    order.HitCount = int.Parse(nodeValue);
+                    order.HitCount =short.Parse(nodeValue);
                     continue;
                 }
             }

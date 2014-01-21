@@ -22,7 +22,6 @@ namespace ManagerConsole.ViewModel
     public class OpenInterestSummary : PropertyChangedNotifier
     {
         #region private property
-        private Guid _SummaryItemId;
         private Guid _InstrumentId;
         private Guid _Id;
         private string _Code;

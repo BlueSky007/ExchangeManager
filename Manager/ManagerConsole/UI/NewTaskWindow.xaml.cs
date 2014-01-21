@@ -114,17 +114,12 @@ namespace ManagerConsole.UI
             }
 
             this._InstrumentList.Insert(0, allInstrument);
-            this.InstrumentComboBox.ItemsSource = this._InstrumentList;
-            this.InstrumentComboBox.DisplayMemberPath = "Code";
-            this.InstrumentComboBox.SelectedIndex = 0;
-            this.InstrumentComboBox.SelectedValuePath = "Id";
-            this.InstrumentComboBox.SelectedItem = allInstrument;
 
             this._InstrumentComboBox.ItemsSource = this._InstrumentList;
             this._InstrumentComboBox.DisplayMemberPath = "InstrumentCode";
 
             this.ExchangeComboBox.ItemsSource = this._App.InitDataManager.ExchangeCodes;
-            this.ExchangeComboBox.SelectedIndex = 0;
+            this.ExchangeComboBox.SelectedItem = this._App.InitDataManager.ExchangeCodes[0];
         }
 
         private void OKButton_Click(object sender, RoutedEventArgs e)

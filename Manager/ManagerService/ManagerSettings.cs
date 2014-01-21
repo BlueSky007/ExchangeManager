@@ -15,8 +15,6 @@ namespace ManagerService
         public string DbConnectionString;
         public string QuotationConnectionString;
         public string StateServerUrl;
-        public bool ConfirmRejectDQOrder;
-        public bool AllowModifyOrderLot;
         public string TraceOriginCode;
         public bool AcceptZeroPricep;
         public string OriginPriceValidTime;
@@ -34,6 +32,8 @@ namespace ManagerService
         public string ServiceAddressForConsole;
         public string ServiceAddressForExchange;
         public int QuotationListenPort;
+        public bool ConfirmRejectDQOrder;
+        public bool AllowModifyOrderLot;
         public ExchangeSystemSetting[] ExchangeSystems;
 
         public static ManagerSettings Load()

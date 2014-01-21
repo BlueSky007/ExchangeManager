@@ -68,19 +68,19 @@
                 <ComboBox Grid.Column="2" x:Name="AskOperator1TypeComboBox" ItemsSource="{Binding Source={StaticResource OperatorTypes}}" SelectedValue="{Binding AskOperator1Type}" Height="23" Margin="3,0" />
                 <ComboBox Grid.Column="3" x:Name="AskOperand2TypeComboBox" ItemsSource="{Binding Source={StaticResource OperandTypes}}" SelectedValue="{Binding AskOperand2Type}"  Height="23" Margin="3,0"/>
                 <ComboBox Grid.Column="4" x:Name="AskOperator2TypeComboBox" ItemsSource="{Binding Source={StaticResource OperatorTypes}}" SelectedValue="{Binding AskOperator2Type}"  Height="23" Margin="3,0"/>
-                <TextBox Grid.Column="5" x:Name="AskOperand3ComboBox" Text="{Binding AskOperand3}" />
+                <TextBox Grid.Column="5" x:Name="AskOperand3ComboBox" Text="{Binding AskOperand3,StringFormat={}{0:0.#############################}}" />
                 <TextBlock Text="Bid" Grid.Row="1"/>
                 <ComboBox Grid.Column="1" Grid.Row="1" x:Name="BidOperand1TypeComboBox" ItemsSource="{Binding Source={StaticResource OperandTypes}}" SelectedValue="{Binding BidOperand1Type}"  Height="23" Margin="3,0" />
                 <ComboBox Grid.Column="2" Grid.Row="1" x:Name="BidOperator1TypeComboBox" ItemsSource="{Binding Source={StaticResource OperatorTypes}}" SelectedValue="{Binding BidOperator1Type}" Height="23" Margin="3,0" />
                 <ComboBox Grid.Column="3" Grid.Row="1" x:Name="BidOperand2TypeComboBox" ItemsSource="{Binding Source={StaticResource OperandTypes}}" SelectedValue="{Binding BidOperand2Type}" Height="23" Margin="3,0" />
                 <ComboBox Grid.Column="4" Grid.Row="1" x:Name="BidOperator2TypeComboBox" ItemsSource="{Binding Source={StaticResource OperatorTypes}}" SelectedValue="{Binding BidOperator2Type}" Height="23" Margin="3,0" />
-                <TextBox Grid.Column="5" Grid.Row="1"  x:Name="BidOperand3ComboBox" Text="{Binding BidOperand3}" />
+                <TextBox Grid.Column="5" Grid.Row="1"  x:Name="BidOperand3ComboBox" Text="{Binding BidOperand3,StringFormat={}{0:0.#############################}}" />
                 <TextBlock Text="Last" Grid.Row="2"/>
                 <ComboBox Grid.Column="1" Grid.Row="2" x:Name="LastOperand1TypeComboBox" ItemsSource="{Binding Source={StaticResource OperandTypes}}" SelectedValue="{Binding LastOperand1Type}" Height="23" Margin="3,0" />
                 <ComboBox Grid.Column="2" Grid.Row="2" x:Name="LastOperator1TypeComboBox" ItemsSource="{Binding Source={StaticResource OperatorTypes}}" SelectedValue="{Binding LastOperator1Type}" Height="23" Margin="3,0" />
                 <ComboBox Grid.Column="3" Grid.Row="2" x:Name="LastOperand2TypeComboBox" ItemsSource="{Binding Source={StaticResource OperandTypes}}" SelectedValue="{Binding LastOperand2Type}" Height="23" Margin="3,0" />
                 <ComboBox Grid.Column="4" Grid.Row="2" x:Name="LastOperator2TypeComboBox" ItemsSource="{Binding Source={StaticResource OperatorTypes}}" SelectedValue="{Binding LastOperator2Type}" Height="23" Margin="3,0" />
-                <TextBox Grid.Column="5" Grid.Row="2"  x:Name="LastOperand3ComboBox" Text="{Binding LastOperand3}" />
+                <TextBox Grid.Column="5" Grid.Row="2"  x:Name="LastOperand3ComboBox" Text="{Binding LastOperand3,StringFormat={}{0:0.#############################}}" />
             </Grid>
         </GroupBox>
     </Grid>

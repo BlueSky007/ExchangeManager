@@ -152,5 +152,34 @@ namespace ManagerConsole.UI
         {
             
         }
+
+        private void SRButton_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            bool resume = false;
+            if (button.Content.ToString() == "Resume")
+            {
+                button.Content = "Suspend";
+                resume = true;
+            }
+            else
+            {
+                button.Content = "Resume";
+                resume = false;
+            }
+
+            InstrumentQuotation instrumentQuotations = button.Tag as InstrumentQuotation;
+            InstrumentQuotation iq = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == instrumentQuotations.ExchangeCode && i.QuotationPolicyId == instrumentQuotations.QuotationPolicyId && i.InstruemtnId == instrumentQuotations.InstruemtnId);
+            Dictionary<string ,List<Guid>> instruments = new Dictionary<string,List<Guid>>();
+            List<Guid> ids = new List<Guid>();
+            ids.Add(instrumentQuotations.InstruemtnId);
+            instruments.Add(instrumentQuotations.ExchangeCode,ids);
+            ConsoleClient.Instance.ExchangeSuspendResume(instruments, resume);
+        }
+
+        //private void SRHeader_Click(object sender, RoutedEventArgs e)
+        //{
+
+        //}
     }
 }

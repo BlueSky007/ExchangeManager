@@ -1,0 +1,474 @@
+﻿<UserControl x:Class="ManagerConsole.UI.DealingLmtOrder"
+              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:igGrid="http://schemas.infragistics.com/xaml"
+             xmlns:localui="clr-namespace:ManagerConsole.Helper"
+             mc:Ignorable="d" 
+              d:DesignHeight="500" d:DesignWidth="1000">
+    <UserControl.Resources>
+        <Style x:Key="InActiveCellStyle" TargetType="igGrid:CellControl">
+            <Setter Property="BorderBrush" Value="#FFDEDEDE" />
+            <Setter Property="BorderThickness" Value="1,1,1,1" />
+            <Setter Property="Background" Value="LightGray" />
+        </Style>
+        <Style x:Key="TimesCellStyle" TargetType="igGrid:CellControl">
+            <Setter Property="Foreground" Value="Red" />
+            <Setter Property="FontSize" Value="15"></Setter>
+        </Style>
+        <Style x:Key="ButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#FF86CEF3"/>
+        </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Black"/>
+            <Setter Property="FontFamily" Value="hei"/>
+            <Setter Property="Margin" Value="5,0,0,0"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style TargetType="Border">
+            <Setter Property="CornerRadius" Value="3"/>
+            <Setter Property="BorderBrush" Value="Gray"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="#FF282828"/>
+        </Style>
+        <localui:PriceTrendConverter  x:Key="PriceTrendConverter" />
+    </UserControl.Resources>
+    <Grid x:Name="LayRootGrid" Background="Black">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="125"/>
+            <RowDefinition Height="36"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="330"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <!--Order Information-->
+        <Border  BorderBrush="DarkGray" BorderThickness="1" Grid.Row="0" Grid.Column="0" Margin="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="25"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="110"/>
+                    <ColumnDefinition Width="110"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="InstrumentCaption" Grid.Row="0" Grid.Column="0" Text="Item" FontStyle="Italic" VerticalAlignment="Bottom"></TextBlock>
+                <TextBlock x:Name="InstrumentTextBlock" Grid.Row="0" Grid.Column="1" Text="{Binding InstrumentCode}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Foreground="#FF9090FF"></TextBlock>
+                <TextBlock x:Name="AccountCaption" Grid.Row="1" Grid.Column="0" Text="Account No" FontStyle="Italic" VerticalAlignment="Bottom"></TextBlock>
+                <TextBlock x:Name="AccountTextBlock" Grid.Row="1" Grid.Column="1" Text="{Binding AccountCode}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Foreground="#FF9090FF"></TextBlock>
+                <TextBlock x:Name="LotCaption" Grid.Row="2" Grid.Column="0" Text="Lot" FontStyle="Italic" VerticalAlignment="Bottom"></TextBlock>
+                <TextBlock x:Name="LotTextBlock" Grid.Row="2" Grid.Column="1" Text="{Binding Lot,StringFormat={}{0:N2}}" HorizontalAlignment="Right" Foreground="#FF9090FF" VerticalAlignment="Bottom"></TextBlock>
+                <TextBlock x:Name="OpenAveragePriceCaption" Grid.Row="3" Grid.Column="0" Text="Open Avg Price" FontStyle="Italic" VerticalAlignment="Bottom"></TextBlock>
+                <TextBlock x:Name="OpenAveragePriceTextBlock" Grid.Row="3" Grid.Column="1" Text="{Binding OpenAvgPrice}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Foreground="#FF9090FF"></TextBlock>
+            </Grid>
+        </Border>
+
+        <!--Dealing Multiple Sell Order-->
+        <Grid Grid.Row="0" Grid.Column="1" Margin="30,5,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="100"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock x:Name="_SumSellLotTexCaption" Width="60" FontWeight="Black" HorizontalAlignment="Left" Text="Total Lot"></TextBlock>
+                    <TextBlock x:Name="_SumSellLotTexTextBlock" Width="60" TextAlignment="Right" Text="{Binding SumSellLot,StringFormat={}{0:N2}}" Foreground="Red"></TextBlock>
+                    <TextBlock x:Name="_SellOrderCountCaption" Width="40" FontWeight="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Text="Count"></TextBlock>
+                    <TextBlock x:Name="_SellOrderCountTextBlock" Width="40" TextAlignment="Right" VerticalAlignment="Center" Foreground="#FF9090FF" Text="{Binding SellOrderCount}" ></TextBlock>
+                    <TextBlock x:Name="_SellDifferCaption" Width="40" FontWeight="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Text="Differ"></TextBlock>
+                    <TextBlock x:Name="_SellDifferTextBlock" Width="40" TextAlignment="Center" Text="{Binding SellVariation}" Foreground="#FF9090FF" Margin="0,0,8,0"></TextBlock>
+                </StackPanel>
+            </Border>
+            
+            <Border Grid.Row="1" Grid.Column="0" Margin="1,2,1,1">
+                <StackPanel Orientation="Horizontal">
+                    <Image x:Name="PriceTrendImage" Source="{Binding AskTrend, Converter={StaticResource PriceTrendConverter}}" VerticalAlignment="Top"  Height="15" Width="11" Margin="7,0,0,0" HorizontalAlignment="Left" />
+                    <TextBlock x:Name="_MarketBuyPrice"  Foreground="Red" FontSize="17" Text="{Binding Ask}" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                </StackPanel>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Margin="1,2,1,1">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Foreground="White" FontSize="14" Text="Price:" Margin="13,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                    <igGrid:XamNumericInput x:Name="CustomerAskPriceInput" SpinIncrement="0.1" Value="{Binding CustomerAskPrice,Mode=TwoWay}" Width="120" Height="30" Margin="25,0,0,0" SpinButtonDisplayMode="Always" Mask="-nnnnnn"/>
+                </StackPanel>
+                
+            </Border>
+
+            <Button x:Name="_ExecuteAllSellOrderButton" Style="{StaticResource DealingOrderBuyButtonStyle}" FontSize="14" Grid.Row="2" Grid.Column="0" Margin="1" Click="BathOrderHandlerBtn_Click">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Border" BorderThickness="1" CornerRadius="0" BorderBrush="Black">
+                            <Grid x:Name="Grid1" Background="{TemplateBinding Background}">
+                                <Rectangle x:Name="BackgroundGradient" RadiusX ="0" RadiusY ="0">
+                                    <Rectangle.Fill>
+                                        <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5, 1">
+                                            <GradientStop Color="#FFFFFFFF" Offset="0" />
+                                            <GradientStop Color="#E8FFFFFF" Offset="0.4" />
+                                            <GradientStop Color="#FFBEBEFF" Offset="0.7" />
+                                            <GradientStop Color="#88FFFFFF" Offset="1" />
+                                        </LinearGradientBrush>
+                                    </Rectangle.Fill>
+                                </Rectangle>
+
+                                <ContentPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="60"/>
+                                        <ColumnDefinition Width="40"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:Name="_ExecuteSellButtonCaption" Foreground="{Binding ElementName=_ExecuteAllSellOrderButton,Path=Foreground}" FontWeight="Bold" FontFamily="hei" FontSize="12" Margin="5 0 0 0" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Text="Execute" ></TextBlock>
+                                    <Image Source="../Asset/Images/Accept.png" Grid.Column="1" Width="15" Height="15" HorizontalAlignment="Center"/>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+            <Button x:Name="_WailtNextSellPriceButton" Style="{StaticResource DealingOrderBuyButtonStyle}" FontSize="14" Grid.Row="2" Grid.Column="1"  Margin="1" Click="BathOrderHandlerBtn_Click">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Border" BorderThickness="1" CornerRadius="0" BorderBrush="Black">
+                            <Grid x:Name="Grid1" Background="{TemplateBinding Background}">
+                                <Rectangle x:Name="BackgroundGradient" RadiusX ="0" RadiusY ="0">
+                                    <Rectangle.Fill>
+                                        <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5, 1">
+                                            <GradientStop Color="#FFFFFFFF" Offset="0" />
+                                            <GradientStop Color="#E8FFFFFF" Offset="0.4" />
+                                            <GradientStop Color="#FFBEBEFF" Offset="0.7" />
+                                            <GradientStop Color="#88FFFFFF" Offset="1" />
+                                        </LinearGradientBrush>
+                                    </Rectangle.Fill>
+                                </Rectangle>
+
+                                <ContentPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="60"/>
+                                        <ColumnDefinition Width="40"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:Name="_WaitNextSellPriceCaption" Foreground="{Binding ElementName=_WailtNextSellPriceButton,Path=Foreground}" FontWeight="Bold" FontFamily="hei" FontSize="12" Margin="5 0 0 0" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Text="Waite" ></TextBlock>
+                                    <Image Source="../Asset/Images/Reject.png" Grid.Column="1" Width="15" Height="15" HorizontalAlignment="Center"/>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+            <Button x:Name="_ApplyAskPriceButton" Style="{StaticResource DealingOrderBuyButtonStyle}" FontSize="14" Grid.Row="2" Grid.Column="2" Margin="1" Click="BathOrderHandlerBtn_Click">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Border" BorderThickness="1" CornerRadius="0" BorderBrush="Black">
+                            <Grid x:Name="Grid1" Background="{TemplateBinding Background}">
+                                <Rectangle x:Name="BackgroundGradient" RadiusX ="0" RadiusY ="0">
+                                    <Rectangle.Fill>
+                                        <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5, 1">
+                                            <GradientStop Color="#FFFFFFFF" Offset="0" />
+                                            <GradientStop Color="#E8FFFFFF" Offset="0.4" />
+                                            <GradientStop Color="#FFBEBEFF" Offset="0.7" />
+                                            <GradientStop Color="#88FFFFFF" Offset="1" />
+                                        </LinearGradientBrush>
+                                    </Rectangle.Fill>
+                                </Rectangle>
+
+                                <ContentPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="60"/>
+                                        <ColumnDefinition Width="40"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:Name="_ApplyAskPriceTextBlock" Foreground="{Binding ElementName=_ApplyAskPriceButton,Path=Foreground}" FontWeight="Bold" FontFamily="hei" FontSize="12" Margin="5 0 0 0" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Text="Apply" ></TextBlock>
+                                    <Image Source="../Asset/Images/Accept.png" Grid.Column="1" Width="15" Height="15" HorizontalAlignment="Center"/>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </Grid>
+
+        <!--Dealing Multiple Buy Order-->
+        <Grid Grid.Row="0" Grid.Column="2" Margin="30,5,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="40"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="100"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock x:Name="_SumBuyLotTexCaption" Width="60" FontWeight="Black" HorizontalAlignment="Left" Text="Total Lot"></TextBlock>
+                    <TextBlock x:Name="_SumBuyLotTexTextBlock" Width="60" TextAlignment="Right" Text="{Binding SumBuyLot,StringFormat={}{0:N2}}" Foreground="Red"></TextBlock>
+                    <TextBlock x:Name="_BuyOrderCountCaption" Width="40" FontWeight="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Text="Count"></TextBlock>
+                    <TextBlock x:Name="_BuyOrderCountTextBlock" Width="40" TextAlignment="Right" VerticalAlignment="Center" Foreground="#FF9090FF" Text="{Binding BuyOrderCount}" ></TextBlock>
+                    <TextBlock x:Name="_BuyDifferCaption" Width="40" FontWeight="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Text="Differ"></TextBlock>
+                    <TextBlock x:Name="_BuyDifferTextBlock" Width="40" TextAlignment="Center" Text="{Binding BuyVariation}" Foreground="#FF9090FF" Margin="0,0,8,0"></TextBlock>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="1" Grid.Column="0"  Margin="1,2,1,1">
+                <StackPanel Orientation="Horizontal">
+                    <Image x:Name="BidPriceTrendImage" Source="{Binding BidTrend, Converter={StaticResource PriceTrendConverter}}" VerticalAlignment="Top"  Height="15" Width="11" Margin="7,0,0,0" HorizontalAlignment="Left" />
+                    <TextBlock x:Name="_MarketSellPrice"  Foreground="Blue" FontSize="17" Text="{Binding Bid}" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                </StackPanel>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"  Margin="1,2,1,1">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Foreground="White" FontSize="14" Text="Price:" Margin="13,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                    <igGrid:XamNumericInput x:Name="CustomerBidPriceInput" SpinIncrement="0.05" Value="{Binding CustomerBidPrice,Mode=TwoWay}" Width="120" Height="30" Margin="25,0,0,0" SpinButtonDisplayMode="Always" Mask="-nnnnnn"/>
+                </StackPanel>
+
+            </Border>
+
+            <Button x:Name="_ExecuteAllBuyOrderButton" Style="{StaticResource DealingOrderBuyButtonStyle}" FontSize="14" Grid.Row="2" Grid.Column="0" Margin="1" Click="BathOrderHandlerBtn_Click">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Border" BorderThickness="1" CornerRadius="0" BorderBrush="Black">
+                            <Grid x:Name="Grid1" Background="{TemplateBinding Background}">
+                                <Rectangle x:Name="BackgroundGradient" RadiusX ="0" RadiusY ="0">
+                                    <Rectangle.Fill>
+                                        <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5, 1">
+                                            <GradientStop Color="#FFFFFFFF" Offset="0" />
+                                            <GradientStop Color="#E8FFFFFF" Offset="0.4" />
+                                            <GradientStop Color="#FFBEBEFF" Offset="0.7" />
+                                            <GradientStop Color="#88FFFFFF" Offset="1" />
+                                        </LinearGradientBrush>
+                                    </Rectangle.Fill>
+                                </Rectangle>
+
+                                <ContentPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="60"/>
+                                        <ColumnDefinition Width="40"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:Name="_ExecuteAllBuyOrderTextBlock" Foreground="{Binding ElementName=_ExecuteAllBuyOrderButton,Path=Foreground}" FontWeight="Bold" FontFamily="hei" FontSize="12" Margin="5 0 0 0" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Text="Execute" ></TextBlock>
+                                    <Image Source="../Asset/Images/Accept.png" Grid.Column="1" Width="15" Height="15" HorizontalAlignment="Center"/>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+            <Button x:Name="_WailtNextAskPriceButton" Style="{StaticResource DealingOrderBuyButtonStyle}" FontSize="14" Grid.Row="2" Grid.Column="1"  Margin="1" Click="BathOrderHandlerBtn_Click">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Border" BorderThickness="1" CornerRadius="0" BorderBrush="Black">
+                            <Grid x:Name="Grid1" Background="{TemplateBinding Background}">
+                                <Rectangle x:Name="BackgroundGradient" RadiusX ="0" RadiusY ="0">
+                                    <Rectangle.Fill>
+                                        <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5, 1">
+                                            <GradientStop Color="#FFFFFFFF" Offset="0" />
+                                            <GradientStop Color="#E8FFFFFF" Offset="0.4" />
+                                            <GradientStop Color="#FFBEBEFF" Offset="0.7" />
+                                            <GradientStop Color="#88FFFFFF" Offset="1" />
+                                        </LinearGradientBrush>
+                                    </Rectangle.Fill>
+                                </Rectangle>
+
+                                <ContentPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="60"/>
+                                        <ColumnDefinition Width="40"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:Name="_WaitNextBuyPriceCaption" Foreground="{Binding ElementName=_WailtNextAskPriceButton,Path=Foreground}" FontWeight="Bold" FontFamily="hei" FontSize="12" Margin="5 0 0 0" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Text="Waite" ></TextBlock>
+                                    <Image Source="../Asset/Images/Reject.png" Grid.Column="1" Width="15" Height="15" HorizontalAlignment="Center"/>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+            <Button x:Name="_ApplyBidPriceButton" Style="{StaticResource DealingOrderBuyButtonStyle}" FontSize="14" Grid.Row="2" Grid.Column="2" Margin="1" Click="BathOrderHandlerBtn_Click">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Border" BorderThickness="1" CornerRadius="0" BorderBrush="Black">
+                            <Grid x:Name="Grid1" Background="{TemplateBinding Background}">
+                                <Rectangle x:Name="BackgroundGradient" RadiusX ="0" RadiusY ="0">
+                                    <Rectangle.Fill>
+                                        <LinearGradientBrush StartPoint="0.5, 0" EndPoint="0.5, 1">
+                                            <GradientStop Color="#FFFFFFFF" Offset="0" />
+                                            <GradientStop Color="#E8FFFFFF" Offset="0.4" />
+                                            <GradientStop Color="#FFBEBEFF" Offset="0.7" />
+                                            <GradientStop Color="#88FFFFFF" Offset="1" />
+                                        </LinearGradientBrush>
+                                    </Rectangle.Fill>
+                                </Rectangle>
+
+                                <ContentPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="60"/>
+                                        <ColumnDefinition Width="40"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:Name="_ApplyBidPriceCaption" Foreground="{Binding ElementName=_ApplyBidPriceButton,Path=Foreground}" FontWeight="Bold" FontFamily="hei" FontSize="12" Margin="5 0 0 0" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Text="Apply" ></TextBlock>
+                                    <Image Source="../Asset/Images/Accept.png" Grid.Column="1" Width="15" Height="15" HorizontalAlignment="Center"/>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </Grid>
+
+        <!--ToolBar-->
+        <Border Margin="1" Grid.Row="1"  Grid.ColumnSpan="3" Background="#FF282828" CornerRadius="5">
+            <StackPanel Orientation="Horizontal" Margin="0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Top" x:Name="_TopToolBar" HorizontalAlignment="Left" FlowDirection="LeftToRight">
+                    <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Width="25" Height="25" x:Name="_UpdateBtn" Margin="5,1,1,1" Click="ToolBar_Click">
+                        <Button.Content>
+                            <Image Source="{Binding UpdateImg}" x:Name="_UpdateImge" ToolTipService.ToolTip="Update Price"  Margin="1"/>
+                        </Button.Content>
+                    </Button>
+                    <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Width="25" Height="25" x:Name="_ModifyBtn" Margin="1" Click="ToolBar_Click">
+                        <Button.Content>
+                            <Image Source="{Binding ModifyImg}" x:Name="_ModifyImg" ToolTipService.ToolTip="Modify Price"  Margin="1"/>
+                        </Button.Content>
+                    </Button>
+                    <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Width="25" Height="25"  x:Name="_CancelBtn" Margin="1" Click="ToolBar_Click">
+                        <Button.Content>
+                            <Image Source="{Binding CancelImg}" x:Name="_CancelImg" ToolTipService.ToolTip="Cancel Order"  Margin="1"/>
+                        </Button.Content>
+                    </Button>
+                    <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Width="25" Height="25" x:Name="_ExecuteBtn" Margin="1" Click="ToolBar_Click">
+                        <Button.Content>
+                            <Image Source="{Binding ExecuteImg}" x:Name="_ExecuteImg" ToolTipService.ToolTip="Execute Order"  Margin="1"/>
+                        </Button.Content>
+                    </Button>
+                    <Rectangle x:Name="Divid2" Style="{StaticResource DividerStyle}"/>
+
+                    <ComboBox Style="{StaticResource ComboBoxStyle}" x:Name="_InstrumentCombo" Margin="10,1,1,1" Height="23"  Width="110" SelectionChanged="InstrumentCombo_SelectionChanged" />
+                   
+
+                    <Button Width="25" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Height="25" x:Name="_ShowGroupPanelBtn" Margin="50,1,1,1" Click="ToolBar_Click" HorizontalAlignment="Right">
+                        <Button.Content>
+                            <Image Source="{Binding ExecuteImg}" x:Name="_ShowGroupPanelImg" ToolTipService.ToolTip="Show Group Panel"  Margin="1"/>
+                        </Button.Content>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+        
+        <!--Order Task Grid-->
+        <Border BorderBrush="Black" Grid.Row="2" Grid.ColumnSpan="3">
+            <igGrid:XamGrid Margin="0" x:Name="_OrderTaskGrid" RowHeight="25" AutoGenerateColumns="False" IsAlternateRowsEnabled="True">
+                <igGrid:XamGrid.EditingSettings>
+                    <igGrid:EditingSettings IsEnterKeyEditingEnabled="True" IsF2EditingEnabled="True"/>
+                </igGrid:XamGrid.EditingSettings>
+                <igGrid:XamGrid.FixedColumnSettings>
+                    <igGrid:FixedColumnSettings AllowFixedColumns="DropArea"/>
+                </igGrid:XamGrid.FixedColumnSettings>
+                <igGrid:XamGrid.FilteringSettings>
+                    <igGrid:FilteringSettings AllowFiltering="FilterMenu" FilteringScope="ColumnLayout" />
+                </igGrid:XamGrid.FilteringSettings>
+                <igGrid:XamGrid.ColumnMovingSettings>
+                    <igGrid:ColumnMovingSettings AllowColumnMoving="Indicator"/>
+                </igGrid:XamGrid.ColumnMovingSettings>
+                <igGrid:XamGrid.ColumnChooserSettings>
+                    <igGrid:ColumnChooserSettings AllowHideColumnIcon="True" AllowHiddenColumnIndicator="True" HiddenColumnIndicatorToolTipText="Click to display hidden columns" 
+                                              ColumnChooserDisplayText="Hide Column"/>
+                </igGrid:XamGrid.ColumnChooserSettings>
+
+                <!--Column Setting-->
+                <igGrid:XamGrid.Columns>
+                    <igGrid:TemplateColumn Key="LMTHandle" IsFixed="Left" HeaderText="Action" IsFilterable="False" IsMovable="False" IsHideable="True">
+                        <igGrid:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Width="240">
+                                    <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" BorderBrush="Black" x:Name="UpdateBtn" Margin="0"  Width="{Binding CellDataDefine1.ColumnWidth}" Background="#FF92D3F4"  Content="{Binding CellDataDefine1.Caption}"  Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine1.IsVisibility}" IsEnabled="{Binding CellDataDefine1.IsEnable}"/>
+                                    <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" BorderBrush="Black" x:Name="ModiFyBtn" Margin="0"  Width="{Binding CellDataDefine2.ColumnWidth}" Background="#FF92D3F4"  Content="{Binding CellDataDefine2.Caption}" Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine2.IsVisibility}" IsEnabled="{Binding CellDataDefine1.IsEnable}" />
+                                    <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" BorderBrush="Black" x:Name="CancelBtn" Margin="0" Background="#FF92D3F4" Width="{Binding CellDataDefine3.ColumnWidth}"   Content="{Binding CellDataDefine3.Caption}"  Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine3.IsVisibility}"/>
+                                    <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" BorderBrush="Black" x:Name="ExcuteBtn" Margin="0"  Width="{Binding CellDataDefine4.ColumnWidth}" Background="#FF92D3F4"  Content="{Binding CellDataDefine4.Caption}"  Click="OrderHandlerBtn_Click"  DataContext="{Binding}" Visibility="{Binding CellDataDefine4.IsVisibility}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </igGrid:TemplateColumn.ItemTemplate>
+                    </igGrid:TemplateColumn>
+
+                    <igGrid:TemplateColumn Key="OrderStatusString" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Order Status" IsFilterable="False">
+                        <igGrid:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding OrderStatusString}" Foreground="{Binding RowBrush}" FontWeight="SemiBold"/>
+                            </DataTemplate>
+                        </igGrid:TemplateColumn.ItemTemplate>
+                    </igGrid:TemplateColumn>
+                    <igGrid:TemplateColumn  Key="ExchangeCode"  Width="70" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Exchange Code"  IsFilterable="True" IsHideable="False">
+                        <igGrid:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding ExchangeCode}" FontWeight="Bold"/>
+                            </DataTemplate>
+                        </igGrid:TemplateColumn.ItemTemplate>
+                    </igGrid:TemplateColumn>
+                    <igGrid:TemplateColumn Key="InstrumentCode" Width="70" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Item" IsFilterable="True" IsHideable="False">
+                        <igGrid:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding InstrumentCode}" Foreground="{Binding RowBrush}"/>
+                            </DataTemplate>
+                        </igGrid:TemplateColumn.ItemTemplate>
+                    </igGrid:TemplateColumn>
+                    <igGrid:TextColumn Key="Lot" Width="60" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Lot" IsFilterable="False"/>
+                    <igGrid:TemplateColumn Key="QuotePolicyCode" HorizontalContentAlignment="Center" HeaderText="Quote Policy" IsReadOnly="True" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="OrderTypeString" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True"  HeaderText="Type" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="SetPrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Set Price" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="BestPrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Best Price" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="ReferencePrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Ref. Price"  IsFilterable="False"/>
+                    <igGrid:TextColumn Key="DiffPrice" Width="70" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Price Dif"  IsFilterable="False"/>
+                    <igGrid:TextColumn Key="TimeStamp" FormatString="{}{0:HH:mm:ss}" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="App Time" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="SubmitDateTime" FormatString="{}{0:HH:mm:ss}" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Submit time"  IsSorted="Descending" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="AccountCode" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Account" />
+                    <igGrid:TemplateColumn Key="IsBuyString" Width="60" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="B/S" IsFilterable="False">
+                        <igGrid:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding IsBuyString}" Foreground="{Binding IsBuyBrush}"/>
+                            </DataTemplate>
+                        </igGrid:TemplateColumn.ItemTemplate>
+                    </igGrid:TemplateColumn>
+
+                    <igGrid:TemplateColumn Key="IsOpenString" HeaderText="N/C" Width="60" HorizontalContentAlignment="Center" IsReadOnly="True" IsFilterable="False">
+                        <igGrid:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding IsOpenString}" Foreground="{Binding IsOpenBrush}" />
+                            </DataTemplate>
+                        </igGrid:TemplateColumn.ItemTemplate>
+                    </igGrid:TemplateColumn>
+                    <igGrid:TemplateColumn Key="TradeOption" HorizontalContentAlignment="Center" HeaderText="Option" IsReadOnly="True" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="DQMaxMove" Width="80" HeaderText="DQ MaxMove" HorizontalContentAlignment="Center" IsReadOnly="True" IsFilterable="False"/>
+                    <igGrid:TemplateColumn Key="HitCount" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Hit count" IsFilterable="False">
+                        <igGrid:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding HitCount}" Foreground="Red" FontSize="13"/>
+                            </DataTemplate>
+                        </igGrid:TemplateColumn.ItemTemplate>
+                    </igGrid:TemplateColumn>
+                    <igGrid:TextColumn Key="BestTime" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Best Time" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="TransactionCode" Width="100" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Tran Code" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="ContractSize" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Size"  IsFilterable="False"/>
+                    <igGrid:TextColumn Key="ExpireTime" Width="150" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Expire time"  IsFilterable="False"/>
+                    <igGrid:TextColumn Key="OpenPrice" Width="80" HorizontalContentAlignment="Right" IsReadOnly="False" HeaderText="OpenPrice" IsFilterable="False"/>
+
+                </igGrid:XamGrid.Columns>
+            </igGrid:XamGrid>
+        </Border>
+
+    </Grid>
+</UserControl>

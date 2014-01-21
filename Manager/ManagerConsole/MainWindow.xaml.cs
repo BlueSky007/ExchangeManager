@@ -197,12 +197,12 @@ namespace ManagerConsole
 
         private void LoadSettingsParametersCallback(SettingsParameter settingsParameter)
         {
-            this.InitDataManager.SettingsManager.InitializeSettingParameter(settingsParameter);
+            this.InitDataManager.InitializeSettingParameter(settingsParameter);
         }
 
-        private void GetInitializeDataCallback(List<InitializeData> initalizeDatas)
+        private void GetInitializeDataCallback(InitializeData initalizeData)
         {
-            this.InitDataManager.Initialize(initalizeDatas);
+            this.InitDataManager.Initialize(initalizeData);
             this.MessageProcessor = new MessageProcessor(this._Media, this.InitDataManager);
         }
 
@@ -347,39 +347,8 @@ namespace ManagerConsole
                     }
                 }
             }
-            ConsoleClient.Instance.LoadLayout("SystemDeafult", this.EndLoadLayout);
+            ConsoleClient.Instance.LoadLayout(SR.SystemDeafult, this.EndLoadLayout);
         }
-
-        //private void LoadLayout(string dockLayout, string contentLayout)
-        //{
-        //    if (dockLayout != null)
-        //    {
-        //        this.Dispatcher.BeginInvoke((Action<string>)delegate(string layout)
-        //        {
-        //            XDocument xdocument = XDocument.Parse(dockLayout);
-        //            var panes = xdocument.Element("xamDockManager").Element("contentPanes").Elements("contentPane").Where(p => p.Attribute("name").Value != "FunctionTreePane");
-        //            foreach (XElement pane in panes)
-        //            {
-        //                int moduleType = MainWindowHelper.GetModuleType(pane.Attribute("name").Value);
-        //                if (this.AuthorizedModules.ContainsKey(moduleType))
-        //                {
-        //                    bool isAdd = false;
-        //                    string paneName = MainWindowHelper.GetPaneName(moduleType);
-        //                    ContentPane contentPane = this.DockManager.GetPanes(PaneNavigationOrder.ActivationOrder).Where(p => p.Name == paneName).SingleOrDefault();
-        //                    if (contentPane == null)
-        //                    {
-        //                        isAdd = true;
-        //                    }
-        //                    if (isAdd)
-        //                    {
-        //                        this.AddContentPane(moduleType);
-        //                    }
-        //                }
-        //            }
-        //            this.DockManager.LoadLayout(dockLayout);
-        //        }, dockLayout);
-        //    }
-        //}
 
         private void XamMenuItem_Click_1(object sender, EventArgs e)
         {

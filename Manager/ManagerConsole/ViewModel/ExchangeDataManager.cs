@@ -19,10 +19,12 @@ using UpdateMessage = Manager.Common.UpdateMessage;
 using ManagerConsole.Helper;
 using SettingSet = Manager.Common.SettingSet;
 using InitializeData = Manager.Common.InitializeData;
-using ConfigParameters = Manager.Common.Settings.ConfigParameters;
+using ConfigParameter = Manager.Common.Settings.ConfigParameter;
 using Phase = iExchange.Common.OrderPhase;
-using OrderRelationType = Manager.Common.OrderRelationType;
+using OrderRelationType = iExchange.Common.OrderRelationType;
 using OverridedQuotation = iExchange.Common.OverridedQuotation;
+using SettingsParameter = Manager.Common.Settings.SettingsParameter;
+using ExchangeInitializeData = Manager.Common.ExchangeInitializeData;
 using Manager.Common.QuotationEntities;
 
 namespace ManagerConsole.ViewModel
@@ -41,58 +43,49 @@ namespace ManagerConsole.ViewModel
         public delegate void ExecutedOrderNotifyHandler(Order order);
         public event ExecutedOrderNotifyHandler OnExecutedOrderNotifyEvent;
 
-        ObservableCollection<string> _ExchangeCodes = new ObservableCollection<string>();
-        //private Dictionary<Guid, Account> _Accounts = new Dictionary<Guid, Account>();
-        //private Dictionary<Guid, InstrumentClient> _Instruments = new Dictionary<Guid, InstrumentClient>();
+        private ObservableCollection<string> _ExchangeCodes = new ObservableCollection<string>();
         private Dictionary<Guid, Transaction> _Transactions = new Dictionary<Guid, Transaction>();
         private Dictionary<Guid, Order> _Orders = new Dictionary<Guid, Order>();
-        private Dictionary<string, ConfigParameters> _ConfigParameters = new Dictionary<string, ConfigParameters>();
-        private Dictionary<string, List<ExchangeQuotation>> _ExchangeQuotations = new Dictionary<string,List<ExchangeQuotation>>();
+        private ConfigParameter _ConfigParameter = new ConfigParameter();
         private ObservableCollection<OrderTask> _OrderTaskEntities = new ObservableCollection<OrderTask>();
         private DQOrderTaskForInstrumentModel _DQOrderTaskForInstrumentModel = new DQOrderTaskForInstrumentModel();
         private MooMocOrderForInstrumentModel _MooMocOrderForInstrumentModel = new MooMocOrderForInstrumentModel();
         private OrderTaskModel _OrderTaskModel = new OrderTaskModel();
+
         private ProcessInstantOrder _ProcessInstantOrder = new ProcessInstantOrder();
+        private ProcessLmtOrder _ProcessLmtOrder = new ProcessLmtOrder();
         private LMTProcessModel _LMTProcessModel = new LMTProcessModel();
         private ObservableCollection<Order> _ExecutedOrders = new ObservableCollection<Order>();
         private ExecuteOrderSummaryItemModel _ExecuteOrderSummaryItemModel = new ExecuteOrderSummaryItemModel();
+        private SettingsParameterManager _SettingsParameterManager;
         private bool _IsInitializeCompleted = false;
+
 
         //询价
         private QuotePriceClientModel _QuotePriceClientModel = new QuotePriceClientModel();
 
         private TranPhaseManager _TranPhaseManager;
 
-        private Dictionary<Guid, InstrumentClient> GetInstruments(string exchangeCode)
-        {
-            return this.ExchangeSettingManagers[exchangeCode].Instruments;
-        }
 
-        private Dictionary<Guid, Account> GetAccount(string exchangeCode)
-        {
-            return this.ExchangeSettingManagers[exchangeCode].Accounts;
-        }
-
-        internal ICollection<Order> GetOrders()
-        {
-            return new List<Order>(this._Orders.Values);
-        }
-
-        public ExchangeSettingManager GetExchangeSetting(string exchangeCode)
-        {
-            return this.ExchangeSettingManagers[exchangeCode];
-        }
         #region Public Property
+        public SettingsParameterManager SettingsParameterManager
+        {
+            get { return this._SettingsParameterManager; }
+            set { this._SettingsParameterManager = value; }
+        }
+
         public ObservableCollection<string> ExchangeCodes
         {
             get { return this._ExchangeCodes; }
             set { this._ExchangeCodes = value; }
         }
+
         public ExecuteOrderSummaryItemModel ExecuteOrderSummaryItemModel
         {
             get { return this._ExecuteOrderSummaryItemModel; }
             set { this._ExecuteOrderSummaryItemModel = value; }
         }
+
         public TranPhaseManager TranPhaseManager
         {
             get { return this._TranPhaseManager; }
@@ -115,14 +108,21 @@ namespace ManagerConsole.ViewModel
             get;
             set;
         }
+
+        public Dictionary<string, ExchangeTradingManager> ExchangeTradingManagers
+        {
+            get;
+            set;
+        }
+
         public bool IsInitializeCompleted
         {
             get { return this._IsInitializeCompleted; }
         }
 
-        public Dictionary<string, ConfigParameters> ConfigParameters
+        public ConfigParameter ConfigParameter
         {
-            get { return this._ConfigParameters; }
+            get { return this._ConfigParameter; }
         }
 
         public LMTProcessModel LMTProcessModel
@@ -143,6 +143,12 @@ namespace ManagerConsole.ViewModel
             set { this._ProcessInstantOrder = value; }
         }
 
+        public ProcessLmtOrder ProcessLmtOrder
+        {
+            get { return this._ProcessLmtOrder; }
+            set { this._ProcessLmtOrder = value; }
+        }
+
         public DQOrderTaskForInstrumentModel DQOrderTaskForInstrumentModel
         {
             get { return this._DQOrderTaskForInstrumentModel; }
@@ -161,68 +167,81 @@ namespace ManagerConsole.ViewModel
             set { this._ExecutedOrders = value; }
         }
 
-        public Dictionary<string, List<ExchangeQuotation>> ExchangeQuotations
-        {
-            get { return this._ExchangeQuotations; }
-            set { this._ExchangeQuotations = value; }
-        }
+        //public Dictionary<string, List<ExchangeQuotation>> ExchangeQuotations
+        //{
+        //    get { return this._ExchangeQuotations; }
+        //    set { this._ExchangeQuotations = value; }
+        //}
         #endregion
 
         public ExchangeDataManager()
         {
             this.SettingsManager = new SettingsManager();
             this.ExchangeSettingManagers = new Dictionary<string, ExchangeSettingManager>();
+            this.ExchangeTradingManagers = new Dictionary<string, ExchangeTradingManager>();
             this._TranPhaseManager = new TranPhaseManager(this);
         }
 
         #region Initialize Data
-        public void Initialize(List<InitializeData> initializeDatas)
+        public void Initialize(InitializeData initializeData)
         {
-            foreach (InitializeData initializeData in initializeDatas)
+            this._ConfigParameter = initializeData.ConfigParameter;
+            foreach (ExchangeInitializeData exchangeInitializeData in initializeData.ExchangeInitializeDatas)
             {
-                ExchangeSettingManager settingManager = new ExchangeSettingManager();
-                settingManager.Initialize(initializeData.SettingSet);
-                this._ConfigParameters = initializeData.SettingParameters;
-                this._ExchangeQuotations.Add(initializeData.ExchangeCode, this.InitExchangeQuotation(initializeData.SettingSet));
-                this._ExchangeCodes.Add(initializeData.ExchangeCode);
+                string exchangeCode = exchangeInitializeData.ExchangeCode;
+                ExchangeSettingManager settingManager = new ExchangeSettingManager(exchangeCode);
+                settingManager.Initialize(exchangeInitializeData.SettingSet);
+                
+                this._ExchangeCodes.Add(exchangeCode);
+                this.ExchangeSettingManagers.Add(exchangeCode, settingManager);
 
-                this.ExchangeSettingManagers.Add(initializeData.ExchangeCode, settingManager);
+                ExchangeTradingManager exchangeTradingManager = new ExchangeTradingManager(settingManager);
+                exchangeTradingManager.Initialize(exchangeInitializeData.SettingSet);
+                this.ExchangeTradingManagers.Add(exchangeCode,exchangeTradingManager);
             }
+            this.UpdateTradingSetting();
             this._IsInitializeCompleted = true;
         }
 
-        private List<ExchangeQuotation> InitExchangeQuotation(SettingSet set)
+        public void UpdateTradingSetting()
         {
-            try
+            foreach (ExchangeTradingManager tradingManager in this.ExchangeTradingManagers.Values)
             {
-                List<ExchangeQuotation> quotations = new List<ExchangeQuotation>();
-                foreach (Manager.Common.Settings.QuotePolicyDetail item in set.QuotePolicyDetails)
+                foreach (Transaction transaction in tradingManager.Transactions)
                 {
-                    Manager.Common.Settings.Instrument instrument = set.Instruments.SingleOrDefault(i => i.Id == item.InstrumentId);
-                    ExchangeQuotation quotation = new ExchangeQuotation(item,instrument);
-                    quotation.QuotationPolicyCode = set.QuotePolicies.SingleOrDefault(q => q.Id == item.QuotePolicyId).Code;
-                    Manager.Common.Settings.OverridedQuotation overridedQuotation = set.OverridedQuotations.SingleOrDefault(o => o.QuotePolicyId == item.QuotePolicyId && o.InstrumentId == item.InstrumentId);
-                    if (overridedQuotation != null)
-                    {
-                        quotation.Ask = overridedQuotation.Ask;
-                        quotation.Bid = overridedQuotation.Bid;
-                        quotation.High = overridedQuotation.High;
-                        quotation.Low = overridedQuotation.Low;
-                        quotation.Origin = overridedQuotation.Origin;
-                        quotation.Timestamp = overridedQuotation.Timestamp;
-                    }
-                    quotations.Add(quotation);
+                    this._Transactions.Add(transaction.Id, transaction);
                 }
+                foreach (Order order in tradingManager.Orders)
+                {
+                    this._Orders.Add(order.Id, order);
+                }
+            }
 
-                return quotations;
-            }
-            catch (Exception ex)
-            {
-               Manager.Common.Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "InitExchangeQuotation.\r\n{0}", ex.ToString());
-               return null;
-            }
+            this.AddOrderFromTransaction();
         }
 
+        public void AddOrderFromTransaction()
+        {
+            App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
+            {
+                foreach (Transaction transaction in this._Transactions.Values)
+                {
+                    Transaction tran = this._Transactions[transaction.Id];
+                    this.TranPhaseManager.UpdateTransaction(tran);
+
+                    foreach (Order order in tran.Orders)
+                    {
+                        this.AddOrderTaskEntity(order);
+                    }
+                }
+            });
+            
+        }
+
+        public void InitializeSettingParameter(SettingsParameter settingsParameter)
+        {
+            this._SettingsParameterManager = new SettingsParameterManager(settingsParameter);
+        }
         #endregion
 
         #region Received Notify Convert
@@ -230,12 +249,13 @@ namespace ManagerConsole.ViewModel
         public void ProcessOverridedQuotation(OverridedQuotationMessage overridedQuotationMessage)
         {
             string exchangeCode = overridedQuotationMessage.ExchangeCode;
-            if(!this._ExchangeQuotations.ContainsKey(exchangeCode))return;
+            if (!this.ExchangeSettingManagers.ContainsKey(exchangeCode)) return;
 
-            List<ExchangeQuotation> exchangeQuotations = this._ExchangeQuotations[exchangeCode];
+            Dictionary<Guid, Dictionary<Guid, ExchangeQuotation>> exchangeQuotations = this.ExchangeSettingManagers[exchangeCode].ExchangeQuotations;
+
             foreach (OverridedQuotation quotation in overridedQuotationMessage.OverridedQs)
             {
-                ExchangeQuotation exchangeQuotation = exchangeQuotations.SingleOrDefault(P => P.QuotationPolicyId == quotation.QuotePolicyID && P.InstruemtnId == quotation.InstrumentID);
+                ExchangeQuotation exchangeQuotation = exchangeQuotations[quotation.QuotePolicyID][quotation.InstrumentID];
 
                 if (exchangeQuotation == null) continue;
                 exchangeQuotation.Ask = quotation.Ask;
@@ -249,12 +269,15 @@ namespace ManagerConsole.ViewModel
                 {
                     this._ProcessInstantOrder.InstantOrderForInstrument.UpdateOverridedQuotation(exchangeQuotation);
                 }
+                if (this._ProcessLmtOrder.LmtOrderForInstrument != null)
+                {
+                    this._ProcessLmtOrder.LmtOrderForInstrument.UpdateOverridedQuotation(exchangeQuotation);
+                }
             }
         }
         
         public void ProcessQuoteMessage(QuoteMessage quoteMessage)
         {
-
             int waiteTime = 50; // this.SettingsManager.GetSettingsParameter(quoteMessage.ExchangeCode).ParameterSetting.EnquiryWaitTime;
             string exhcangeCode = quoteMessage.ExchangeCode;
             Guid customerId = quoteMessage.CustomerID;
@@ -288,7 +311,10 @@ namespace ManagerConsole.ViewModel
                 commonOrder.ExchangeCode = placeMessage.ExchangeCode;
                 this.Process(commonOrder,false);
             }
-
+            foreach (CommonOrderRelation orderRelation in placeMessage.OrderRelations)
+            {
+                this.Process(orderRelation);
+            }
             //Change Order status
             foreach (CommonTransaction commonTransaction in placeMessage.Transactions)
             {
@@ -320,7 +346,6 @@ namespace ManagerConsole.ViewModel
                 }
             }
             //Sound.PlayExecute()
-
             foreach (CommonOrder commonOrder in executeMessage.Orders)
             {
                 commonOrder.ExchangeCode = executeMessage.ExchangeCode;
@@ -533,7 +558,30 @@ namespace ManagerConsole.ViewModel
 
         private void Process(CommonOrderRelation commonOrderRelation)
         {
+            Order order = null;
+            if (this._Orders.ContainsKey(commonOrderRelation.OrderId))
+            {
+                order = this._Orders[commonOrderRelation.OrderId];
 
+                if (commonOrderRelation.RelationType == OrderRelationType.Close)
+                {
+                    OrderRelation relation = new OrderRelation(commonOrderRelation);
+
+                    Order openOrder = this._Orders.ContainsKey(relation.OpenOrderId) ? this._Orders[relation.OpenOrderId] : null;
+
+                    if (openOrder != null)
+                    {
+                        string openOrderInfo
+                            = string.Format("{0}x{1}x{2}", (string.Format("{0}-{1}-{2}", openOrder.Transaction.SubmitTime.Year, openOrder.Transaction.SubmitTime.Month.ToString().PadLeft(2, '0'), openOrder.Transaction.SubmitTime.Day.ToString().PadLeft(2, '0'))));
+                        relation.OpenOrderInfo = openOrderInfo;
+
+                        CloseOrder closerOrder = new CloseOrder(order, relation.ClosedLot);
+                        order.CloseOrders.Add(closerOrder);
+                    }
+
+                    order.Transaction.AddOrderRelation(relation);
+                }
+            }       
         }
 
         private void AddOrderTaskEntity(Order order)
@@ -577,8 +625,10 @@ namespace ManagerConsole.ViewModel
                 OrderTask orderTask = new OrderTask(order);
                 orderTask.BaseOrder = order;
 
-                this._OrderTaskModel.OrderTasks.Add(orderTask);
-                orderTask.SetCellDataDefine(orderTask.OrderStatus);
+                //this._OrderTaskModel.OrderTasks.Add(orderTask);
+                //orderTask.SetCellDataDefine(orderTask.OrderStatus);
+
+                this._ProcessLmtOrder.AddLmtOrder(orderTask);
             }
         }
         #endregion
@@ -591,29 +641,38 @@ namespace ManagerConsole.ViewModel
             }
         }
 
+        #region 辅助方法
+        private Dictionary<Guid, InstrumentClient> GetInstruments(string exchangeCode)
+        {
+            return this.ExchangeSettingManagers[exchangeCode].Instruments;
+        }
+
+        private Dictionary<Guid, Account> GetAccount(string exchangeCode)
+        {
+            return this.ExchangeSettingManagers[exchangeCode].Accounts;
+        }
+
+        internal ICollection<Order> GetOrders()
+        {
+            return new List<Order>(this._Orders.Values);
+        }
+
+        internal ExchangeSettingManager GetExchangeSetting(string exchangeCode)
+        {
+            return this.ExchangeSettingManagers[exchangeCode];
+        }
+
         internal ExchangeQuotation GetExchangeQuotation(string exchangeCode, QuotePolicyDetail quotePolicyDetail)
         {
-            List<ExchangeQuotation> exchangeQuotations = null;
-
-            if(this._ExchangeQuotations.TryGetValue(exchangeCode,out exchangeQuotations))
+            if (this.ExchangeSettingManagers.ContainsKey(exchangeCode))
             {
-                ExchangeQuotation exchangeQuotation = exchangeQuotations.SingleOrDefault(P => P.QuotationPolicyId == quotePolicyDetail.QuotePolicyId && P.InstruemtnId == quotePolicyDetail.InstrumentId);
+                ExchangeQuotation exchangeQuotation = this.ExchangeSettingManagers[exchangeCode].ExchangeQuotations[quotePolicyDetail.QuotePolicyId][quotePolicyDetail.InstrumentId];
                 return exchangeQuotation;
             }
             else
             {
                 return null;
             }
-        }
-
-        #region Empty OrderTask Event
-        void DQOrderTaskForInstrument_OnEmptyDQOrderTask(DQOrderTaskForInstrument orderTaskForInstrument)
-        {
-            this._DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments.Remove(orderTaskForInstrument);
-        }
-        void ClientQuotePriceForInstrument_OnEmptyClientQuotePriceClient(QuotePriceForInstrument clientQuotePriceForInstrument)
-        {
-            //this.ClientQuotePriceForInstrument.Remove(clientQuotePriceForInstrument);
         }
         #endregion
     }

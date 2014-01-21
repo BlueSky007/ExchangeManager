@@ -75,9 +75,22 @@ namespace ManagerService.DataAccess
         {
             dockLayout = string.Empty;
             contentLayout = string.Empty;
-            string path = string.Format("../../Layout/{0}", userName);
-            string layoutPath = string.Format("../../Layout/{0}/{1}_layout.xml", userName, layoutName);
-            string contentPath = string.Format("../../Layout/{0}/{1}_content.xml", userName, layoutName);
+
+            string path = string.Empty;
+            string layoutPath = string.Empty;
+            string contentPath = string.Empty;
+            if (layoutName == SR.SystemDeafult)
+            {
+                path = "./Layout";
+                layoutPath = string.Format("./Layout/{0}_layout.xml",  layoutName);
+                contentPath = string.Format("./Layout/{0}_content.xml", layoutName);
+            }
+            else
+            {
+                path = string.Format("./Layout/{0}", userName);
+                layoutPath = string.Format("./Layout/{0}/{1}_layout.xml", userName, layoutName);
+                contentPath = string.Format("./Layout/{0}/{1}_content.xml", userName, layoutName);
+            }
             if (Directory.Exists(path))
             {
                 if (File.Exists(layoutPath))
@@ -98,21 +111,31 @@ namespace ManagerService.DataAccess
 
         }
 
-        public static Dictionary<string,Tuple<string,bool>> GetAccessPermissions(Guid userId, Language language)
+        public static Dictionary<string, List<FuncPermissionStatus>> GetAccessPermissions(Guid userId, Language language)
         {
-            Dictionary<string, Tuple<string, bool>> permissions = new Dictionary<string, Tuple<string, bool>>();
+            Dictionary<string, List<FuncPermissionStatus>> permissions = new Dictionary<string, List<FuncPermissionStatus>>();
             string sql = "SELECT DISTINCT pt.Id,pt2.Code AS Parent,pt.Code,rp.[Status],pt.[Level] FROM dbo.RolePermission rp INNER JOIN dbo.UserInRole uir ON uir.RoleId = rp.RoleId INNER JOIN dbo.PermissionTarget pt ON pt.Id=rp.TargetId LEFT JOIN dbo.PermissionTarget pt2 ON pt2.Id = pt.ParentId WHERE pt.TargetType = 1 AND uir.UserId = @userId";
             DataAccess.GetInstance().ExecuteReader(sql, CommandType.Text, delegate(SqlDataReader reader)
             {
                 while (reader.Read())
                 {
+                    FuncPermissionStatus func = new FuncPermissionStatus { Code = reader["Code"].ToString(), HasPermission = (bool)reader["Status"] };
                     if (int.Parse(reader["Level"].ToString()) == 1)
                     {
-                        permissions.Add("root", Tuple.Create(reader["Code"].ToString(), (bool)reader["Status"]));
+                        if (!permissions.ContainsKey("root"))
+                        {
+                            permissions.Add("root",new List<FuncPermissionStatus>());
+                        }
+                        permissions["root"].Add(func);
                     }
                     else
                     {
-                        permissions.Add(reader["Parent"].ToString(),Tuple.Create(reader["Code"].ToString(),(bool)reader["Status"]));
+                        if(!permissions.ContainsKey(reader["Parent"].ToString()))
+                        {
+                            permissions.Add(reader["Parent"].ToString(),new List<FuncPermissionStatus>());
+                        }
+                        permissions[reader["Parent"].ToString()].Add(func);
+                        //permissions.Add(reader["Parent"].ToString(), );
                     }
                 }
             }, new SqlParameter("@userId", userId));
@@ -281,7 +304,7 @@ namespace ManagerService.DataAccess
                             dataPermission.DataObjectId = (Guid)reader["DataObjectId"];
                         }
                         dataPermission.IsAllow = (bool)reader["IsAllow"];
-                        dataPermission.IExchangeCode = reader["IExchangeCode"].ToString();
+                        dataPermission.ExchangeCode = reader["IExchangeCode"].ToString();
                         int id = (int)reader["RoleId"];
                         roles.SingleOrDefault(r => r.RoleId == id).DataPermissions.Add(dataPermission);
                     }
@@ -448,7 +471,7 @@ namespace ManagerService.DataAccess
                 row["ParentId"] = item.ParentId;
                 row["Level"] = item.Level;
                 row["Code"] = item.Code;
-                row["ExchangeCode"] = item.IExchangeCode;
+                row["ExchangeCode"] = item.ExchangeCode;
                 row["TargetType"] = 2;
                 row["DataObjectType"] = Enum.GetName(typeof(DataObjectType), item.Type);
                 row["DataObjectId"] = item.DataObjectId;
@@ -517,7 +540,7 @@ namespace ManagerService.DataAccess
                 row["Level"] = item.Level;
                 row["Code"] = item.Code;
                 row["DataObjectType"] = item.Type;
-                row["ExchangeCode"] = item.IExchangeCode;
+                row["ExchangeCode"] = item.ExchangeCode;
                 row["TargetType"] = 2;
                 row["DataObjectId"] = item.DataObjectId;
                 row["Status"] = item.IsAllow;
@@ -615,7 +638,7 @@ namespace ManagerService.DataAccess
         public static List<string> GetAllLayoutName(string userName)
         {
             List<string> layoutNames = new List<string>();
-            string path = string.Format("../../Layout/{0}", userName);
+            string path = string.Format("./Layout/{0}", userName);
             if (Directory.Exists(path))
             {
                 DirectoryInfo dir = new DirectoryInfo(path);
@@ -625,7 +648,7 @@ namespace ManagerService.DataAccess
                     string[] name = file.Name.Split('_');
                     if (!layoutNames.Contains(name[0]))
                     {
-                        if (name[0] != "LastClosed" && name[0] != "SystemDeafult")
+                        if (name[0] != SR.LastClosed && name[0] != SR.SystemDeafult)
                         {
                             layoutNames.Add(name[0]);
                         }

@@ -93,7 +93,10 @@ namespace ManagerConsole.ViewModel
                         entity.AnswerLot++;
                     }
                 }
-                this.QuotePriceForInstrument.AnswerLot++;
+                if (this.QuotePriceForInstrument.Lot >= this.QuotePriceForInstrument.AnswerLot + 1)
+                {
+                    this.QuotePriceForInstrument.AnswerLot++;
+                }
             }
             else
             {

@@ -11,6 +11,7 @@ using ExchangeInstrument = Manager.Common.Settings.ExchangInstrument;
 using InstrumentCategory = iExchange.Common.InstrumentCategory;
 using OriginType = iExchange.Common.OriginType;
 using Manager.Common.ExchangeEntities;
+using ManagerConsole.ViewModel;
 
 namespace ManagerConsole.Model
 {
@@ -30,7 +31,6 @@ namespace ManagerConsole.Model
         private string _Origin;
         private string _LastOrigin;
         private InstrumentCategory _Category;
-        private string _Code;
         private string _OriginCode = string.Empty;
         private bool _IsActive;
         private string _Bid;
@@ -40,53 +40,6 @@ namespace ManagerConsole.Model
         private int? _MaxAutoPoint;
         private int? _Spread;
         private int? _MaxSpread;
-        private int? _AcceptDQVariation;
-        private bool _IsNormal;
-        private bool _Mit;
-        private int _PenetrationPoint;
-        private int _DailyMaxMove;
-        private string _PreviousClosePrice;
-        private decimal _BuyLot;
-        private decimal _SellLot;
-        private Guid? _SummaryGroupId;
-        private string _SummaryGroupCode;
-
-        private OriginType _OriginType ;
-        private int _AllowedSpotTradeOrderSides ;
-        private int _OriginInactiveTime ;
-        private int _AlertVariation ;
-        private int _NormalWaitTime ;
-        private int _AlertWaitTime ;
-        private decimal _MaxDQLot ;
-        private decimal _MaxOtherLot ;
-        private decimal? _DqQuoteMinLot ;
-        private int _OrderTypeMask ;
-        private decimal _AutoCancelMaxLot ;
-        private decimal _AutoAcceptMaxLot ;
-        private decimal _AutoDQMaxLot ;
-        private decimal _AutoLmtMktMaxLot ;
-        private int? _AcceptLmtVariation ;
-        private int? _AcceptCloseLmtVariation ;
-        private int? _AcceptIfDoneVariation ;
-        private int? _CancelLmtVariation ;
-        private int _MaxMinAdjust ;
-        private bool _IsBetterPrice ;
-        private int _HitTimes ;
-        private int _PriceValidTime ;
-        private TimeSpan _LastAcceptTimeSpan ;
-        private DateTime? _NextDayOpenTime ;
-        private DateTime? _DayOpenTime ;
-        private DateTime? _DayCloseTime ;
-        private DateTime? _LastDayCloseTime ;
-        private DateTime? _LastTradeDay ;
-        private DateTime? _MOCTime ;
-        private bool _IsAutoEnablePrice ;
-        private bool _IsAutoFill ;
-        private bool _IsPriceEnabled ;
-        private int _AutoDQDelay ;
-        private int _HitPriceVariationForSTP ;
-        private decimal _LastLot;
-        private string _LastSales;
         #endregion
 
         #region Public Property
@@ -334,19 +287,19 @@ namespace ManagerConsole.Model
             }
         }
 
-        public void Update(string field, object value)
+        public void Update(string field, string  value)
         {
             if (field == ExchangeFieldSR.Code)
             {
-                this.Code = (string)value;
+                this.Code = value;
             }
             else if (field == ExchangeFieldSR.IsPriceEnabled)
             {
-                this.IsPriceEnabled = (bool)value;
+                this.IsPriceEnabled = bool.Parse(value);
             }
             else if (field == ExchangeFieldSR.IsAutoEnablePrice)
             {
-                this.IsAutoEnablePrice = (bool)value;
+                this.IsAutoEnablePrice = bool.Parse(value);
             }
         }
 

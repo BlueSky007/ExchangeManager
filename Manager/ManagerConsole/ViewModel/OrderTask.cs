@@ -32,7 +32,6 @@ namespace ManagerConsole.ViewModel
         private Account _Account;
         private Transaction _Transaction;
         private InstrumentClient _Instrument;
-        private QuotePolicyDetail _QuotePolicyDetail;
         private Guid _OrderId;
         private string _Code;
         private iExchange.Common.OrderPhase _Phase;

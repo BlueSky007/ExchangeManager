@@ -118,7 +118,7 @@ namespace ManagerService.DataAccess
                 while (reader.Read())
                 {
                     RoleDataPermission data = new RoleDataPermission();
-                    data.IExchangeCode = exchangeCode;
+                    data.ExchangeCode = exchangeCode;
                     data.Type = (DataObjectType)Enum.Parse(typeof(DataObjectType), reader["GroupType"].ToString());
                     data.DataObjectId = (Guid)reader["ID"];
                     data.Code = reader["Code"].ToString();
@@ -128,17 +128,20 @@ namespace ManagerService.DataAccess
             return dataPermissions;
         }
 
-        public static ConfigParameters GetSettingParameters(ExchangeSystemSetting exchangeSystemSetting)
-        {
-            ConfigParameters settings = new ConfigParameters();
-            settings.AllowModifyOrderLot = exchangeSystemSetting.AllowModifyOrderLot;
-            settings.ConfirmRejectDQOrder = exchangeSystemSetting.ConfirmRejectDQOrder;
-            return settings;
-        }
+        //public static ConfigParameters GetSettingParameters(ExchangeSystemSetting exchangeSystemSetting)
+        //{
+        //    ConfigParameters settings = new ConfigParameters();
+        //    settings.AllowModifyOrderLot = exchangeSystemSetting.AllowModifyOrderLot;
+        //    settings.ConfirmRejectDQOrder = exchangeSystemSetting.ConfirmRejectDQOrder;
+        //    return settings;
+        //}
 
-        public static InitializeData GetInitData(string exchangeCode, Guid userId, List<DataPermission> permissions, bool accountDeafultStatus, bool instrumentDeafuleStatus)
+        public static ExchangeInitializeData GetInitData(string exchangeCode, Guid userId, List<DataPermission> permissions,
+            bool accountDeafultStatus, bool instrumentDeafuleStatus, out List<Guid> validAccounts, out List<Guid> validInstruments)
         {
-            InitializeData initializeData = new InitializeData();
+            ExchangeInitializeData initializeData = new ExchangeInitializeData();
+            validAccounts = new List<Guid>();
+            validInstruments = new List<Guid>();
 
             DataTable groupPermission = new DataTable();
             groupPermission.Columns.Add("GroupId", typeof(Guid));
@@ -168,33 +171,42 @@ namespace ManagerService.DataAccess
             parameters[0] = accountParameter;
             parameters[1] = instrumentParameter;
             parameters[2] = tableParameter;
-            DataAccess.GetInstance(exchangeCode).ExecuteReader(sql, CommandType.StoredProcedure, delegate(SqlDataReader reader)
-            {
-                try
-                {
-                    List<Guid> accountMemberIds = new List<Guid>();
-                    List<Guid> instrumentMemberIds = new List<Guid>();
-                    while (reader.Read())
-                    {
-                        accountMemberIds.Add((Guid)reader["ID"]);
-                    }
-                    reader.NextResult();
-                    while (reader.Read())
-                    {
-                        instrumentMemberIds.Add((Guid)reader["ID"]);
-                    }
-                    reader.NextResult();
-                    initializeData.ValidAccounts.Add(exchangeCode, accountMemberIds);
-                    initializeData.ValidInstruments.Add(exchangeCode, instrumentMemberIds);
 
-                    initializeData.SettingSet = new SettingSet();
-                    initializeData.SettingSet.Initialize(reader);
-                }
-                catch (Exception ex)
+            using(SqlConnection connection = DataAccess.GetInstance(exchangeCode).GetSqlConnection())
+            {
+                using(SqlCommand command = connection.CreateCommand())
                 {
-                    Logger.TraceEvent(TraceEventType.Error, "GetInitData Error:\r\n{0}", ex.ToString());
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.CommandText = sql;
+                    foreach (SqlParameter parameter in parameters)
+                    {
+                        command.Parameters.Add(parameter);
+                    }
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        try
+                        {
+                            while (reader.Read())
+                            {
+                                validAccounts.Add((Guid)reader["ID"]);
+                            }
+                            reader.NextResult();
+                            while (reader.Read())
+                            {
+                                validInstruments.Add((Guid)reader["ID"]);
+                            }
+                            reader.NextResult();
+
+                            initializeData.SettingSet = new SettingSet();
+                            initializeData.SettingSet.Initialize(reader);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.TraceEvent(TraceEventType.Error, "GetInitData Error:\r\n{0}", ex.ToString());
+                        }
+                    }
                 }
-            }, parameters);
+            }
             return initializeData;
         }
 

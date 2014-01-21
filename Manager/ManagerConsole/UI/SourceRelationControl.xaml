@@ -42,11 +42,11 @@
                 <ig:TextColumn Key="SwitchTimeout" HeaderText="SwitchTimeout" HorizontalContentAlignment="Right" />
                 <ig:CheckBoxColumn Key="Inverted" HeaderText="Inverted" IsReadOnly="True" />
                 <ig:TextColumn Key="SourceSymbol" HeaderText="SourceSymbol" IsReadOnly="True" />
-                <ig:TemplateColumn Key="Id" HeaderText="Remove" IsReadOnly="True">
+                <ig:TemplateColumn Key="Id" HeaderText="Remove" IsReadOnly="True" HorizontalContentAlignment="Center">
                     <ig:TemplateColumn.ItemTemplate>
                         <DataTemplate>
                             <Button x:Name="DeleteRelation" Tag="{Binding}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="DeleteRelation_Click">
-                                <Image Source="../Asset/Images/delete.png" ToolTipService.ToolTip="Remove Relation" Width="20" Height="20"/>
+                                <Image Source="../Asset/Images/delete.png" ToolTipService.ToolTip="Remove Relation" Width="18" Height="18"/>
                             </Button>
                         </DataTemplate>
                     </ig:TemplateColumn.ItemTemplate>

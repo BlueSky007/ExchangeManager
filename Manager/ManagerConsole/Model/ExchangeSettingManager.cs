@@ -10,13 +10,14 @@ using CommonCustomer = Manager.Common.Settings.Customer;
 using CommonQuotePolicy = Manager.Common.Settings.QuotePolicy;
 using CommonQuotePolicyDetail = Manager.Common.Settings.QuotePolicyDetail;
 using CommonInstrument = Manager.Common.Settings.Instrument;
+using CommonOrder = iExchange.Common.Manager.Order;
 using CommonAccount = Manager.Common.Settings.Account;
 using CommonTradePolicy = Manager.Common.Settings.TradePolicy;
 using CommonTradePolicyDetail = Manager.Common.Settings.TradePolicyDetail;
 using CommonAccountGroup = Manager.Common.Settings.AccountGroup;
 using Manager.Common.QuotationEntities;
 using SettingsParameter = Manager.Common.Settings.SettingsParameter;
-using ParameterSetting = Manager.Common.Settings.ParameterSetting;
+using ParameterSetting = Manager.Common.Settings.DealingOrderParameter;
 using SoundSetting = Manager.Common.Settings.SoundSetting;
 using SetValueSetting = Manager.Common.Settings.SetValueSetting;
 using System.Xml.Linq;
@@ -28,12 +29,14 @@ namespace ManagerConsole.Model
     {
         public delegate void SettingsChangedEventHandler(object sender, SettingsChangedEventArgs eventArgs);
         public event SettingsChangedEventHandler SettingsChanged;
-
+        private string _ExchangeCode;
         private Dictionary<Guid, Customer> _Customers = new Dictionary<Guid, Customer>();
         private Dictionary<Guid, Account> _Accounts = new Dictionary<Guid, Account>();
         private Dictionary<Guid, AccountGroup> _AccountGroups = new Dictionary<Guid, AccountGroup>();
         private Dictionary<Guid, InstrumentClient> _Instruments = new Dictionary<Guid, InstrumentClient>();
         private Dictionary<Guid, QuotePolicy> _QuotePolicies = new Dictionary<Guid, QuotePolicy>();
+        private Dictionary<Guid, Dictionary<Guid, ExchangeQuotation>> _ExchangeQuotations = new Dictionary<Guid, Dictionary<Guid, ExchangeQuotation>>();
+
         // Map for QuotePolicyId - InstrumentId - QuotePolicyDetail
         private Dictionary<Guid, Dictionary<Guid, QuotePolicyDetail>> _QuotePolicyDetails = new Dictionary<Guid, Dictionary<Guid, QuotePolicyDetail>>();
         private Dictionary<Guid, TradePolicy> _TradePolicies = new Dictionary<Guid, TradePolicy>();
@@ -41,12 +44,18 @@ namespace ManagerConsole.Model
         private Dictionary<Guid, Dictionary<Guid, TradePolicyDetail>> _TradePolicyDetails = new Dictionary<Guid, Dictionary<Guid, TradePolicyDetail>>();
         private Dictionary<Guid, Dictionary<Guid, DealingPolicyDetail>> _DealingPolicyDetails = new Dictionary<Guid, Dictionary<Guid, DealingPolicyDetail>>();
 
-        public ExchangeSettingManager()
+        public ExchangeSettingManager(string exchangeCode)
         {
             Toolkit.SettingsManager = this;
+            this._ExchangeCode = exchangeCode;
         }
 
         #region Public Property
+        public string ExchangeCode
+        {
+            get { return this._ExchangeCode; }
+        }
+
         public string Language
         {
             get;
@@ -71,6 +80,11 @@ namespace ManagerConsole.Model
             set { this._Accounts = value; }
         }
 
+        public Dictionary<Guid, Dictionary<Guid, ExchangeQuotation>> ExchangeQuotations
+        {
+            get { return this._ExchangeQuotations; }
+            set { this._ExchangeQuotations = value; }
+        }
         #endregion
 
         public void Initialize(SettingSet settingSet)
@@ -78,10 +92,51 @@ namespace ManagerConsole.Model
             try
             {
                 this.Update(settingSet, UpdateAction.Initialize);
+                this._ExchangeQuotations = this.InitExchangeQuotation(settingSet);
             }
             catch (Exception ex)
             {
                 Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "SettingsManager.Initialize.\r\n{0}", ex.ToString());
+            }
+        }
+
+        private Dictionary<Guid, Dictionary<Guid, ExchangeQuotation>> InitExchangeQuotation(SettingSet set)
+        {
+            try
+            {
+                Dictionary<Guid, Dictionary<Guid, ExchangeQuotation>> quotations = new Dictionary<Guid, Dictionary<Guid, ExchangeQuotation>>();
+                foreach (Manager.Common.Settings.QuotePolicyDetail item in set.QuotePolicyDetails)
+                {
+                    Manager.Common.Settings.Instrument instrument = set.Instruments.SingleOrDefault(i => i.Id == item.InstrumentId);
+                    ExchangeQuotation quotation = new ExchangeQuotation(item, instrument);
+                    quotation.QuotationPolicyCode = set.QuotePolicies.SingleOrDefault(q => q.Id == item.QuotePolicyId).Code;
+                    Manager.Common.Settings.OverridedQuotation overridedQuotation = set.OverridedQuotations.SingleOrDefault(o => o.QuotePolicyId == item.QuotePolicyId && o.InstrumentId == item.InstrumentId);
+                    if (overridedQuotation != null)
+                    {
+                        quotation.Ask = overridedQuotation.Ask;
+                        quotation.Bid = overridedQuotation.Bid;
+                        quotation.High = overridedQuotation.High;
+                        quotation.Low = overridedQuotation.Low;
+                        quotation.Origin = overridedQuotation.Origin;
+                        quotation.Timestamp = overridedQuotation.Timestamp;
+                    }
+                    if (quotations.ContainsKey(item.QuotePolicyId))
+                    {
+                        quotations[item.QuotePolicyId].Add(item.InstrumentId, quotation);
+                    }
+                    else
+                    {
+                        quotations.Add(item.QuotePolicyId, new Dictionary<Guid, ExchangeQuotation>());
+                        quotations[item.QuotePolicyId].Add(item.InstrumentId, quotation);
+                    }
+                }
+
+                return quotations;
+            }
+            catch (Exception ex)
+            {
+                Manager.Common.Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "InitExchangeQuotation.\r\n{0}", ex.ToString());
+                return null;
             }
         }
 
@@ -117,6 +172,13 @@ namespace ManagerConsole.Model
                     case ExchangeMetadataType.Instrument:
                         Guid instrumentId = Guid.Parse(modifySet[i].FieldsAndValues[ExchangeFieldSR.ID]);
                         this._Instruments[instrumentId].Update(modifySet[i].FieldsAndValues);
+                        foreach (Dictionary<Guid, ExchangeQuotation> instrument in this._ExchangeQuotations.Values)
+                        {
+                            if (instrument.ContainsKey(instrumentId))
+                            {
+                                instrument[instrumentId].Update(modifySet[i].FieldsAndValues, this._ExchangeCode);
+                            }
+                        }
                         break;
                     case ExchangeMetadataType.Account:
                         Guid accountId = Guid.Parse(modifySet[i].FieldsAndValues[ExchangeFieldSR.ID]);
@@ -509,6 +571,7 @@ namespace ManagerConsole.Model
         {
             quotePolicy.Initialize(commonQuotePolicy);
         }
+
 
         #endregion
 

@@ -64,6 +64,8 @@ namespace ManagerService.DataAccess
                 settingSet.Instruments = InitializationHelper.CreateArray<Instrument>(dr, Initialize);
                 dr.NextResult();
                 settingSet.OverridedQuotations = InitializationHelper.CreateArray<Manager.Common.Settings.OverridedQuotation>(dr, Initialize);
+                dr.NextResult();
+                settingSet.Orders = InitializationHelper.CreateArray<Order>(dr, Initialize);
             }
             catch (Exception ex)
             {
@@ -285,25 +287,25 @@ namespace ManagerService.DataAccess
             order.InstrumentId = (Guid)dr["InstrumentID"];
             order.ContractSize = (decimal)dr["ContractSize"];
             order.SetPrice = (string)dr["SetPrice"];
-            order.ExecutePrice = (string)dr["ExecutePrice"];
+            order.ExecutePrice = dr.GetItemValue<string>("ExecutePrice", string.Empty);
             order.Lot = (decimal)dr["Lot"];
             order.LotBalance = (decimal)dr["LotBalance"];
-            order.MinLot = (decimal)dr["MinLot"];
-            order.MaxShow = (string)dr["MaxShow"];
+            order.MinLot = dr.GetItemValue<decimal>("MinLot", decimal.Zero);
+            order.MaxShow = dr.GetItemValue<string>("MaxShow", string.Empty);
             order.BeginTime = (DateTime)dr["BeginTime"];
             order.EndTime = (DateTime)dr["EndTime"];
             order.SubmitTime = (DateTime)dr["SubmitTime"];
-            order.ExecuteTime = (DateTime)dr["ExecuteTime"];
-            order.HitCount = (int)dr["HitCount"];
-            order.BestPrice = (string)dr["BestPrice"];
-            order.BestTime = (DateTime)dr["BestTime"];
-            order.ApproverID = (Guid)dr["ApproverID"];
+            order.ExecuteTime = dr.GetItemValue<DateTime>("ExecuteTime", DateTime.MaxValue);
+            order.HitCount = (short)dr["HitCount"];
+            order.BestPrice = dr.GetItemValue<string>("BestPrice", string.Empty);
+            order.BestTime = dr.GetItemValue<DateTime>("BestTime", DateTime.MaxValue);
+            order.ApproverID = dr.GetItemValue<Guid>("ApproverID", Guid.Empty); 
             order.SubmitorID = (Guid)dr["SubmitorID"];
             order.DQMaxMove = (int)dr["DQMaxMove"];
             order.ExpireType = dr["ExpireType"].ConvertToEnumValue<ExpireType>();
-            order.SetPrice2 = (string)dr["SetPrice2"];
-            order.AssigningOrderID = (Guid)dr["AssigningOrderID"];
-            order.BlotterCode = (string)dr["BlotterCode"];
+            order.SetPrice2 = dr.GetItemValue<string>("SetPrice2", string.Empty);
+            order.AssigningOrderID = dr.GetItemValue<Guid>("AssigningOrderID", Guid.Empty);
+            order.BlotterCode = dr.GetItemValue<string>("BlotterCode", string.Empty);
         }
 
         private static void Initialize(Manager.Common.Settings.OverridedQuotation overridedQuotations, SqlDataReader dr)
@@ -315,6 +317,7 @@ namespace ManagerService.DataAccess
             overridedQuotations.Bid = dr["Bid"].ToString();
             overridedQuotations.High = dr["High"].ToString();
             overridedQuotations.Low = dr["Low"].ToString();
+            overridedQuotations.Origin = dr["Origin"].ToString();
         }
     }
 }

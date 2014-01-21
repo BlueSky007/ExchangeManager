@@ -849,17 +849,17 @@ namespace ManagerConsole.ViewModel
     #region DataPermission
     public class DataPermissionGridData
     {
-        public ObservableCollection<IExchangeGridData> IExchangeCodes { get; set; }
+        public ObservableCollection<ExchangeGridData> IExchangeCodes { get; set; }
 
         public DataPermissionGridData()
         {
-            IExchangeCodes = new ObservableCollection<IExchangeGridData>();
+            IExchangeCodes = new ObservableCollection<ExchangeGridData>();
         }
 
         public bool CheckData()
         {
             bool isValid = true;
-            foreach (IExchangeGridData exchange in IExchangeCodes)
+            foreach (ExchangeGridData exchange in IExchangeCodes)
             {
                 isValid = exchange.CheckDataIsValid();
             }
@@ -868,19 +868,19 @@ namespace ManagerConsole.ViewModel
 
         public void CastDataPermissionToGridData(List<RoleDataPermission> dataPermissions, List<RoleDataPermission> allDatas)
         {
-            ObservableCollection<IExchangeGridData> data = new ObservableCollection<IExchangeGridData>();
+            ObservableCollection<ExchangeGridData> data = new ObservableCollection<ExchangeGridData>();
             List<string> ExchangeCodes = new List<string>();
             foreach (RoleDataPermission item in allDatas)
             {
-                if (!ExchangeCodes.Contains(item.IExchangeCode))
+                if (!ExchangeCodes.Contains(item.ExchangeCode))
                 {
-                    ExchangeCodes.Add(item.IExchangeCode);
+                    ExchangeCodes.Add(item.ExchangeCode);
                 }
             }
             foreach (string item in ExchangeCodes)
             {
-                IExchangeGridData exchange = new IExchangeGridData();
-                exchange.IExchangeCode = item;
+                ExchangeGridData exchange = new ExchangeGridData();
+                exchange.ExchangeCode = item;
                 RoleDataPermission exchangeNode = dataPermissions.SingleOrDefault(d => d.Code == item && d.ParentId == 2);
                 DataObjectTypeGridData account = new DataObjectTypeGridData();
                 account.DataObjectType = "Account";
@@ -888,16 +888,16 @@ namespace ManagerConsole.ViewModel
                 instrument.DataObjectType = "Instrument";
                 if (exchangeNode != null)
                 {
-                    exchange.IExchangeId = exchangeNode.PermissionId;
-                    exchange.IsIExchangeAllow = exchangeNode.IsAllow;
-                    exchange.IsIExchangeDeny = !exchangeNode.IsAllow;
+                    exchange.ExchangeId = exchangeNode.PermissionId;
+                    exchange.IsExchangeAllow = exchangeNode.IsAllow;
+                    exchange.IsExchangeDeny = !exchangeNode.IsAllow;
                 }
                 else
                 {
-                    exchange.IsIExchangeAllow = false;
-                    exchange.IsIExchangeDeny = false;
+                    exchange.IsExchangeAllow = false;
+                    exchange.IsExchangeDeny = false;
                 }
-                RoleDataPermission accountPermission = dataPermissions.SingleOrDefault(d => d.IExchangeCode == item && d.Code.ToLower() == "account");
+                RoleDataPermission accountPermission = dataPermissions.SingleOrDefault(d => d.ExchangeCode == item && d.Code.ToLower() == "account");
                 if (accountPermission != null)
                 {
                     account.DataObjectTypeId = accountPermission.PermissionId;
@@ -925,7 +925,7 @@ namespace ManagerConsole.ViewModel
                         account.IsDataObjectTypeDeny = false;
                     }
                 }
-                RoleDataPermission instrumentPermission = dataPermissions.SingleOrDefault(d => d.IExchangeCode == item && d.Code.ToLower() == "instrument");
+                RoleDataPermission instrumentPermission = dataPermissions.SingleOrDefault(d => d.ExchangeCode == item && d.Code.ToLower() == "instrument");
                 if (instrumentPermission != null)
                 {
                     instrument.DataObjectTypeId = instrumentPermission.PermissionId;
@@ -955,7 +955,7 @@ namespace ManagerConsole.ViewModel
                 }
                 List<RoleDataPermission> dataObjects = allDatas.FindAll(delegate(RoleDataPermission permission)
                 {
-                    return permission.IExchangeCode == item;
+                    return permission.ExchangeCode == item;
                 });
                 foreach (RoleDataPermission dataObject in dataObjects)
                 {
@@ -1065,22 +1065,22 @@ namespace ManagerConsole.ViewModel
         public List<RoleDataPermission> CastGridDataToDataPermission()
         {
             List<RoleDataPermission> roleDataPermissions = new List<RoleDataPermission>();
-            foreach (IExchangeGridData exchange in IExchangeCodes)
+            foreach (ExchangeGridData exchange in IExchangeCodes)
             {
-                if (exchange.IsIExchangeAllow == true || exchange.IsIExchangeDeny == true)
+                if (exchange.IsExchangeAllow == true || exchange.IsExchangeDeny == true)
                 {
                     RoleDataPermission data = new RoleDataPermission();
-                    data.PermissionId = exchange.IExchangeId;
-                    data.Code = exchange.IExchangeCode;
+                    data.PermissionId = exchange.ExchangeId;
+                    data.Code = exchange.ExchangeCode;
                     data.ParentId = 2;
                     data.Level = 1;
-                    data.IExchangeCode = exchange.IExchangeCode;
+                    data.ExchangeCode = exchange.ExchangeCode;
                     data.Type = DataObjectType.None;
-                    if (exchange.IsIExchangeAllow == true)
+                    if (exchange.IsExchangeAllow == true)
                     {
                         data.IsAllow = true;
                     }
-                    if (exchange.IsIExchangeDeny == true)
+                    if (exchange.IsExchangeDeny == true)
                     {
                         data.IsAllow = false;
                     }
@@ -1094,9 +1094,9 @@ namespace ManagerConsole.ViewModel
                         data.PermissionId = type.DataObjectTypeId;
                         data.Code = type.DataObjectType;
                         data.Type = (DataObjectType)Enum.Parse(typeof(DataObjectType), type.DataObjectType);
-                        data.ParentId = exchange.IExchangeId;
+                        data.ParentId = exchange.ExchangeId;
                         data.Level = 2;
-                        data.IExchangeCode = exchange.IExchangeCode;
+                        data.ExchangeCode = exchange.ExchangeCode;
                         if (type.IsDataObjectTypeAllow == true)
                         {
                             data.IsAllow = true;
@@ -1118,7 +1118,7 @@ namespace ManagerConsole.ViewModel
                             data.ParentId = type.DataObjectTypeId;
                             data.Type = (DataObjectType)Enum.Parse(typeof(DataObjectType), type.DataObjectType);
                             data.Level = 3;
-                            data.IExchangeCode = exchange.IExchangeCode;
+                            data.ExchangeCode = exchange.ExchangeCode;
                             if (dataObject.IsAllow == true)
                             {
                                 data.IsAllow = true;
@@ -1136,36 +1136,36 @@ namespace ManagerConsole.ViewModel
         }
     }
 
-    public class IExchangeGridData : INotifyPropertyChanged
+    public class ExchangeGridData : INotifyPropertyChanged
     {
         #region private
-        private bool _isIExchangeAllow = false;
-        private bool _isIExchangeDeny = false;
+        private bool _isExchangeAllow = false;
+        private bool _isExchangeDeny = false;
         #endregion
 
         #region public
-        public int IExchangeId { get; set; }
-        public string IExchangeCode { get; set; }
-        public bool IsIExchangeAllow
+        public int ExchangeId { get; set; }
+        public string ExchangeCode { get; set; }
+        public bool IsExchangeAllow
         {
             get
             {
-                return _isIExchangeAllow;
+                return _isExchangeAllow;
             }
             set
             {
                 if (value == true)
                 {
-                    _isIExchangeAllow = value;
-                    _isIExchangeDeny = !value;
+                    _isExchangeAllow = value;
+                    _isExchangeDeny = !value;
                     this.SetChildDeafult(null, false);
                 }
                 else
                 {
-                    _isIExchangeAllow = value;
+                    _isExchangeAllow = value;
                 }
                 
-                if (_isIExchangeDeny != true)
+                if (_isExchangeDeny != true)
                 {
                     this.SetChildIsAllow(value);
                 }
@@ -1173,25 +1173,25 @@ namespace ManagerConsole.ViewModel
                 this.NotifyPropertyChanged("IsIExchangeDeny");
             }
         }
-        public bool IsIExchangeDeny
+        public bool IsExchangeDeny
         {
             get
             {
-                return _isIExchangeDeny;
+                return _isExchangeDeny;
             }
             set
             {
                 if (value == true)
                 {
-                    _isIExchangeDeny = value;
-                    _isIExchangeAllow = !value;
+                    _isExchangeDeny = value;
+                    _isExchangeAllow = !value;
                     this.SetChildDeafult(false, null);
                 }
                 else
                 {
-                    _isIExchangeDeny = value;
+                    _isExchangeDeny = value;
                 }
-                if (_isIExchangeAllow != true)
+                if (_isExchangeAllow != true)
                 {
                     this.SetChildIsDeny(value);
                 }
@@ -1203,7 +1203,7 @@ namespace ManagerConsole.ViewModel
         #endregion
 
         #region Constructor
-        public IExchangeGridData()
+        public ExchangeGridData()
         {
             DataObjectTypes = new ObservableCollection<DataObjectTypeGridData>();
         }
@@ -1257,7 +1257,7 @@ namespace ManagerConsole.ViewModel
                     if (type.IsDataObjectTypeAllow == null || type.IsDataObjectTypeDeny == null || type.IsDataObjectTypeDeny == type.IsDataObjectTypeAllow)
                     {
                         type.SetDeafult(false, false);
-                        type.SetPermission(_isIExchangeAllow, false);
+                        type.SetPermission(_isExchangeAllow, false);
                     }
                 }
             }
@@ -1284,7 +1284,7 @@ namespace ManagerConsole.ViewModel
         public bool CheckDataIsValid()
         {
             bool isValid = true;
-            if (IsIExchangeAllow == false && IsIExchangeDeny == false)
+            if (IsExchangeAllow == false && IsExchangeDeny == false)
             {
                 foreach (DataObjectTypeGridData type in DataObjectTypes)
                 {

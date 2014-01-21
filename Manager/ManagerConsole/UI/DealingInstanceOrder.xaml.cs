@@ -139,11 +139,11 @@ namespace ManagerConsole.UI
             switch (btn.Name)
             {
                 case "_ExecutedButton":
-                    orderTask = this._ProcessInstantOrder.OrderTasks.First(P => P.OrderId == orderId);
+                    orderTask = this._ProcessInstantOrder.OrderTasks.SingleOrDefault(P => P.OrderId == orderId);
                     currentCellData = orderTask.DQCellDataDefine1;
                     break;
                 case "_RejectButton":
-                    orderTask = this._ProcessInstantOrder.OrderTasks.First(P => P.OrderId == orderId);
+                    orderTask = this._ProcessInstantOrder.OrderTasks.SingleOrDefault(P => P.OrderId == orderId);
                     currentCellData = orderTask.DQCellDataDefine2;
                     break;
                 case "DQAcceptBtn":
@@ -155,10 +155,10 @@ namespace ManagerConsole.UI
                     currentCellData = orderTask.DQCellDataDefine2;
                     break;
                 case "_ExecuteRejectSellButton":
-                    this.ExcuteAllDQOrder("WF01",false);
+                    this.ExcuteAllDQOrder(false);
                     return;
                 case "_ExecuteRejectBuyButton":
-                    this.ExcuteAllDQOrder("WF01",true);
+                    this.ExcuteAllDQOrder(true);
                     return;
                 default:
                     break;
@@ -174,23 +174,25 @@ namespace ManagerConsole.UI
             }
         }
 
-        private void ExcuteAllDQOrder(string exchangeCode,bool isBuy)
+        private void ExcuteAllDQOrder(bool isBuy)
         {
-            ExchangeSettingManager settingManager = this._App.InitDataManager.GetExchangeSetting(exchangeCode);
-            
             for (int i = 0; i < this._OrderTaskGrid.Rows.Count; i++)
             {
                 OrderTask order = this._OrderTaskGrid.Rows[i].Data as OrderTask;
+                string exchangeCode = order.ExchangeCode;
+                ExchangeSettingManager settingManager = this._App.InitDataManager.GetExchangeSetting(exchangeCode);
+
+                string ask = this._ProcessInstantOrder.InstantOrderForInstrument.Ask;
+                string bid = this._ProcessInstantOrder.InstantOrderForInstrument.Bid;
                 bool buySell = (order.IsBuy == BuySell.Buy);
                 if (buySell != isBuy) continue;
 
                 int currentDQVarition = isBuy ? this._ProcessInstantOrder.InstantOrderForInstrument.BuyVariation:this._ProcessInstantOrder.InstantOrderForInstrument.SellVariation;
-                string marketPrice = isBuy ? order.Instrument.Ask : order.Instrument.Bid;
+                string marketPrice = isBuy ? ask : bid;
                 InstrumentClient instrument = order.Transaction.Instrument;
                 int acceptDQVarition = this._ProcessInstantOrder.CheckDQVariation(instrument, currentDQVarition);
 
-                //just test
-                Customer customer = settingManager.GetCustomer(new Guid("4556F2F0-3C1B-4C27-AA67-03DE2D0C1E0C"));
+                Customer customer = settingManager.GetCustomer(order.Transaction.Account.CustomerId);
                 QuotePolicyDetail quotePolicyDetail = settingManager.GetQuotePolicyDetail(order.InstrumentId.Value, customer);
 
                 bool isAllowed = this._ProcessInstantOrder.AllowAccept(order, quotePolicyDetail, isBuy, marketPrice, currentDQVarition);

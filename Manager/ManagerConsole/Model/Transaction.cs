@@ -6,11 +6,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CommonTransaction = iExchange.Common.Manager.Transaction;
+using CommonOrder = iExchange.Common.Manager.Order;
 using OrderType = iExchange.Common.OrderType;
 using TransactionSubType = iExchange.Common.TransactionSubType;
 using TransactionType = iExchange.Common.TransactionType;
 using OrderPhase = iExchange.Common.OrderPhase;
 using InstrumentCategory = iExchange.Common.InstrumentCategory;
+using ExpireType = iExchange.Common.ExpireType;
 
 namespace ManagerConsole.Model
 {
@@ -19,15 +21,18 @@ namespace ManagerConsole.Model
         private List<Order> _Orders = new List<Order>();
         private List<OrderRelation> _OrderRelations = new List<OrderRelation>();
 
-        public Transaction()
-        { 
-        }
-
         public Transaction(CommonTransaction tran,Account account,InstrumentClient instrument)
         {
             this.Account = account;
             this.Instrument = instrument;
             this.Update(tran);
+        }
+
+        public Transaction(CommonOrder commonOrder, Account account, InstrumentClient instrument)
+        {
+            this.Account = account;
+            this.Instrument = instrument;
+            this.Initialize(commonOrder);
         }
 
         #region Public Property
@@ -161,6 +166,8 @@ namespace ManagerConsole.Model
             get { return this._Orders; }
         }
 
+        public ExpireType ExpireType { get; set; }
+
         #endregion
 
         #region Order Update
@@ -178,6 +185,23 @@ namespace ManagerConsole.Model
             if (!existed) this._Orders.Add(order);
         }
 
+        public void AddOrderRelation(OrderRelation orderRelation)
+        {
+            bool updated = false;
+            foreach (OrderRelation item in this._OrderRelations)
+            {
+                if (item.Equals(orderRelation))
+                {
+                    item.Update(orderRelation);
+                    updated = true;
+                }
+            }
+            if (!updated)
+            {
+                this._OrderRelations.Add(orderRelation);
+            }
+        }
+
         public bool Remove(Order order)
         {
             return this._Orders.Remove(order);
@@ -192,7 +216,7 @@ namespace ManagerConsole.Model
             this.ContractSize = transaction.ContractSize;
             this.EndTime = transaction.EndTime;
             this.ExecuteTime = transaction.ExecuteTime;
-            //this.ExpireType = transaction.ExpireType;
+            this.ExpireType = transaction.ExpireType;
             this.OrderType = transaction.OrderType;
             this.Phase = transaction.Phase;
             this.SubmitorId = transaction.SubmitorId;
@@ -202,5 +226,24 @@ namespace ManagerConsole.Model
             this.AssigningOrderId = transaction.AssigningOrderId;
             this.InstrumentCategory = transaction.InstrumentCategory == null ? InstrumentCategory.Forex : transaction.InstrumentCategory.Value;
         }
+
+         internal void Initialize(CommonOrder commonOrder)
+         {
+             this.Id = commonOrder.Id;
+             this.BeginTime = commonOrder.BeginTime;
+             this.Code = commonOrder.Code;
+             this.ContractSize = commonOrder.ContractSize;
+             this.EndTime = commonOrder.EndTime;
+             this.ExecuteTime = commonOrder.ExecuteTime;
+             this.ExpireType = commonOrder.ExpireType;
+             this.OrderType = commonOrder.OrderType;
+             this.Phase = commonOrder.Phase;
+             this.SubmitorId = commonOrder.SubmitorID;
+             this.SubmitTime = commonOrder.SubmitTime;
+             this.Type = commonOrder.TransactionType;
+             this.SubType = commonOrder.TransactionSubType;
+             this.AssigningOrderId = commonOrder.AssigningOrderID;
+             this.InstrumentCategory = this.Instrument.Category;
+         }
     }
 }

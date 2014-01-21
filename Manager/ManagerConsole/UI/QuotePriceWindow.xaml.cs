@@ -51,7 +51,7 @@ namespace ManagerConsole.UI
             this._ConfirmDialogWin = this._App._ConfirmDialogWin;
             this._QuotePriceClientModel = this._App.InitDataManager.QuotePriceClientModel;
             this._CurrentInstrumentStyle = Application.Current.Resources["QuoteInstrumentStyle"] as Style;
-            this._NormalStyle = Application.Current.Resources["XamGridCellStyle"] as Style;
+            this._NormalStyle = Application.Current.Resources["CellControlStyle"] as Style;
         }
 
         private void TimerHandle()
@@ -101,6 +101,10 @@ namespace ManagerConsole.UI
             {
                 e.Row.CellStyle = this._CurrentInstrumentStyle;
             }
+            else
+            {
+                e.Row.CellStyle = this._NormalStyle;
+            }
         }
         #endregion
 
@@ -110,6 +114,7 @@ namespace ManagerConsole.UI
         {
             e.Handled = true;
 
+            if (this._QuotePriceClientModel.QuotePriceClients.Count == 0) return;
             TextBox text = (TextBox)sender;
 
             string newLot = text.Text;

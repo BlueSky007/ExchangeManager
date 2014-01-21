@@ -10,6 +10,7 @@ using Manager.Common.QuotationEntities;
 using TransactionError = iExchange.Common.TransactionError;
 using ManagerService.QuotationExchange;
 using iExchange.Common.Manager;
+using Manager.Common.ExchangeEntities;
 
 namespace ManagerService.Exchange
 {
@@ -96,16 +97,74 @@ namespace ManagerService.Exchange
             return true;
         }
 
-        public void SwitchPriceState(List<string> originCodes, bool enable)
+        public void SwitchPriceState(string[] originCodes, bool enable)
         {
             // Enable/Disable Instrument price state
             if (this._ConnectionState == Manager.Common.ConnectionState.Connected)
             {
-                if (this._StateServer.SwitchPriceState(originCodes, enable))
+                Guid[] affectInstrumentIds;
+                if (this._StateServer.SwitchPriceState(originCodes, enable, out affectInstrumentIds))
                 {
                     // TODO: Write Audit Log here.
+                    if (affectInstrumentIds != null && affectInstrumentIds.Length > 0)
+                    {
+                        string state = enable.ToString();
+                        Dictionary<string, string> fieldsAndValues = new Dictionary<string, string>();
+                        fieldsAndValues.Add(ExchangeFieldSR.IsPriceEnabled, state);
+                        this.NotifyInstrumentUpdate(ExchangeMetadataType.Instrument, fieldsAndValues, affectInstrumentIds);
+                    }
                 }
             }
+            else
+            {
+                Logger.AddEvent(TraceEventType.Warning,
+                    "ExchangeSystem.SwitchPriceState StateServer not connected,SwitchPriceState failed.\r\noriginCodes:{0}. enable:{1}",
+                    string.Join(",", originCodes), enable);
+            }
+        }
+
+        public void SuspendResume(string[] originCodes, bool resume)
+        {
+            if (this._ConnectionState == Manager.Common.ConnectionState.Connected)
+            {
+                Guid[] affectInstrumentIds;
+                if (this._StateServer.SuspendResume(originCodes, resume, out affectInstrumentIds))
+                {
+                    // TODO: Write Audit Log here.
+
+                    if (affectInstrumentIds != null && affectInstrumentIds.Length > 0)
+                    {
+                        string state = resume.ToString();
+                        Dictionary<string, string> fieldsAndValues = new Dictionary<string, string>();
+                        fieldsAndValues.Add(ExchangeFieldSR.IsPriceEnabled, state);
+                        fieldsAndValues.Add(ExchangeFieldSR.IsAutoEnablePrice, state);
+                        this.NotifyInstrumentUpdate(ExchangeMetadataType.Instrument, fieldsAndValues, affectInstrumentIds);
+                    }
+                }
+            }
+            else
+            {
+                Logger.AddEvent(TraceEventType.Warning,
+                    "ExchangeSystem.SuspendResume StateServer not connected,SuspendResume failed.\r\noriginCodes:{0}. resume:{1}",
+                    string.Join(",", originCodes), resume);
+            }
+        }
+
+        private void NotifyInstrumentUpdate(ExchangeMetadataType metadataType, Dictionary<string, string> fieldsAndValues, Guid[] instrumentIds)
+        {
+            ExchangeUpdateData[] exchangeUpdateDatas = new ExchangeUpdateData[instrumentIds.Length];
+            for (int i = 0; i < instrumentIds.Length; i++)
+            {
+                Dictionary<string, string> fieldsAndValues2 = new Dictionary<string, string>(fieldsAndValues);
+                fieldsAndValues2.Add(ExchangeFieldSR.ID, instrumentIds[i].ToString());
+                exchangeUpdateDatas[i] = new ExchangeUpdateData()
+                {
+                    ExchangeMetadataType = metadataType,
+                    FieldsAndValues = fieldsAndValues2,
+                };
+            }
+            UpdateMessage updateMessage = new UpdateMessage() { ExchangeCode = this.ExchangeCode, ExchangeUpdateDatas = exchangeUpdateDatas };
+            MainService.ClientManager.Dispatch(updateMessage);
         }
 
         private bool Dispatch(Command command)
@@ -139,7 +198,7 @@ namespace ManagerService.Exchange
         {
             try
             {
-                Token token = new Token(userId, UserType.System, AppType.DealingConsole);
+                Token token = new Token(userId, UserType.System, AppType.Manager);
                 this._StateServer.Answer(token,answerQutos);
             }
             catch (Exception ex)
@@ -153,7 +212,7 @@ namespace ManagerService.Exchange
             TransactionError errorCode = TransactionError.OK;
             try
             {
-                Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
+                Token token = new Token(Guid.Empty, UserType.System, AppType.Manager);
                 errorCode = this._StateServer.AcceptPlace(token, transactionId);
             }
             catch (Exception ex)
@@ -169,7 +228,7 @@ namespace ManagerService.Exchange
             TransactionError errorCode = TransactionError.OK;
             try
             {
-                Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
+                Token token = new Token(Guid.Empty, UserType.System, AppType.Manager);
                 errorCode = this._StateServer.CancelPlace(token, transactionId);
             }
             catch (Exception ex)
@@ -185,8 +244,8 @@ namespace ManagerService.Exchange
             TransactionError errorCode = TransactionError.OK;
             try
             {
-            Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
-            TransactionError transactionError = this._StateServer.Cancel(token, transactionId, cancelReason);
+                Token token = new Token(Guid.Empty, UserType.System, AppType.Manager);
+                TransactionError transactionError = this._StateServer.Cancel(token, transactionId, cancelReason);
             }
             catch (Exception ex)
             {
@@ -201,7 +260,7 @@ namespace ManagerService.Exchange
             TransactionResult tranResult = null;
             try
             {
-                Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
+                Token token = new Token(Guid.Empty, UserType.System, AppType.Manager);
                 tranResult = this._StateServer.Execute(token, transactionId, buyPrice, sellPrice, lot.ToString(), executedOrderGuid);
             }
             catch (Exception ex)
@@ -215,7 +274,7 @@ namespace ManagerService.Exchange
         {
             try
             {
-                Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
+                Token token = new Token(Guid.Empty, UserType.System, AppType.Manager);
                 this._StateServer.ResetHit(token, orderIDs);
             }
             catch (Exception ex)
@@ -228,7 +287,7 @@ namespace ManagerService.Exchange
         {
             try
             {
-                Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
+                Token token = new Token(Guid.Empty, UserType.System, AppType.Manager);
                 bool isOk = this._StateServer.UpdateInstrument(token, parameterUpdateTask);
                 return true;
             }
@@ -243,7 +302,7 @@ namespace ManagerService.Exchange
         {
             try
             {
-                Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
+                Token token = new Token(Guid.Empty, UserType.System, AppType.Manager);
                 return this._StateServer.GetAcountInfo(token, tranID);
             }
             catch (Exception ex)

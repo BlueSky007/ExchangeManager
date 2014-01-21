@@ -7,7 +7,7 @@
              mc:Ignorable="d" MaximizeButtonVisibility="Collapsed" MinimizeButtonVisibility="Collapsed" CloseButtonVisibility="Collapsed"
              Header="Derivative Instrument" d:DesignWidth="500" Height="306" StartupPosition="Center">
     <Control.Resources>
-        <Style TargetType="TextBlock">
+        <Style TargetType="TextBlock" BasedOn="{StaticResource TextBlockStyle}">
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
         <!--<Style TargetType="TextBox">

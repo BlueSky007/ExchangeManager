@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xamDockManager version="13.1.20131.1009">
+  <contentPanes>
+    <contentPane name="IExchangeQuotation_1" location="DockedBottom" lastFloatingSize="1517,668" lastFloatingWindowRect="246,484,1525,692" lastFloatingLocation="246,484" lastActivatedTime="2014-01-15T06:33:21.1212218Z" />
+    <contentPane name="SourceRelation" location="DockedBottom" lastFloatingSize="1460,448" lastFloatingWindowRect="535,703,1468,472" lastFloatingLocation="535,703" lastActivatedTime="2014-01-15T06:33:17.7372218Z" />
+    <contentPane name="QuotationMonitor_2" location="Document" lastActivatedTime="2014-01-15T06:33:16.1712218Z" />
+    <contentPane name="SourceQuotation" location="DockedRight" lastFloatingSize="1046,341" lastFloatingWindowRect="842,193,1054,365" lastFloatingLocation="842,193" lastActivatedTime="2014-01-15T06:33:13.9372218Z" />
+    <contentPane name="FunctionTreePane" location="DockedLeft" lastActivatedTime="2014-01-15T06:30:02.7192218Z" />
+    <contentPane name="FloatPane" location="FloatingOnly" lastFloatingSize="400,600" lastFloatingWindowRect="300,300,NaN,NaN" lastFloatingLocation="300,300" lastActivatedTime="2014-01-10T07:42:40.8016728Z" visibility="Collapsed" />
+  </contentPanes>
+  <panes>
+    <splitPane name="Z6bca9b03a862433c94b008abc8c547bf" splitterOrientation="Vertical" location="DockedLeft" extent="151">
+      <contentPane name="FunctionTreePane" />
+    </splitPane>
+    <splitPane name="Ze14d189bd9784937a3a3e82f78742251" splitterOrientation="Vertical" location="FloatingOnly" floatingLocation="300,300">
+      <contentPane name="FloatPane" />
+    </splitPane>
+    <splitPane name="Z9aa11a3a6d11440bbaaf92ee415cd83a" splitterOrientation="Vertical" location="Floating" floatingLocation="246,484" floatingSize="1517,668">
+      <contentPane name="IExchangeQuotation_1" />
+    </splitPane>
+    <splitPane name="Z9a6ea4aba55242cb9fdce924fa67e70f" splitterOrientation="Vertical" location="DockedBottom" extent="620">
+      <splitPane name="Z323f8b7976c84146a8c7a12f651749e7" splitterOrientation="Horizontal">
+        <contentPane name="SourceRelation" relativeSize="100,44.1558441558442" />
+        <contentPane name="IExchangeQuotation_1" relativeSize="100,155.844155844156" />
+      </splitPane>
+    </splitPane>
+    <splitPane name="Z21a26fd57b544966ac83a28cce015a12" splitterOrientation="Vertical" location="Floating" floatingLocation="842,193" floatingSize="1046,341">
+      <contentPane name="SourceQuotation" relativeSize="64.4897959183673,100" />
+    </splitPane>
+    <splitPane name="Z17653887c0434cd7b9d2b2589bb05e98" splitterOrientation="Vertical" location="DockedRight" extent="291.5">
+      <contentPane name="SourceQuotation" relativeSize="64.4897959183673,100" />
+    </splitPane>
+    <splitPane name="Zbb2d71368f5d4106ba999748acc7a1ea" splitterOrientation="Vertical" location="Floating" floatingLocation="535,703" floatingSize="1460,448">
+      <contentPane name="SourceRelation" relativeSize="135.510204081633,100" />
+    </splitPane>
+  </panes>
+  <documents splitterOrientation="Vertical">
+    <splitPane name="Ze423d91ae9c7491ea942bd82edb3ddc1" splitterOrientation="Horizontal">
+      <splitPane name="Zfb9b7d8890654aa28bf6337b758fe3d2" splitterOrientation="Vertical" relativeSize="100,91.9060052219321">
+        <splitPane name="Z45ea735d87cb445d9c79a845b562d383" splitterOrientation="Vertical">
+          <splitPane name="Z127c7cb11c7843a88c9bd94b500bea37" splitterOrientation="Horizontal">
+            <tabGroup name="Zca270dc3023c44faa618ccc9cc53d551" selectedIndex="0">
+              <contentPane name="QuotationMonitor_2" />
+            </tabGroup>
+          </splitPane>
+        </splitPane>
+      </splitPane>
+    </splitPane>
+  </documents>
+</xamDockManager>

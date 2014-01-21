@@ -16,6 +16,7 @@ using Manager.Common;
 using Manager.Common.QuotationEntities;
 using ManagerConsole.Model;
 using PriceType = iExchange.Common.PriceType;
+using Infragistics.Controls.Editors;
 
 namespace ManagerConsole.UI
 {
@@ -27,7 +28,7 @@ namespace ManagerConsole.UI
         private InstrumentQuotation _Source = null;
         private bool _IsInit = false;
         private Action<InstrumentQuotation> _SetInstrumentQuotation;
-
+        
         public ExchangeQuotationPropertyControl()
         {
             InitializeComponent();
@@ -45,21 +46,56 @@ namespace ManagerConsole.UI
             this._IsInit = false;
             this._Source = source;
             var model = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
-            this.AutoAdjustPoints.Value = model.AutoAdjustPoints;
-            this.AutoAdjustPoints2.Value = model.AutoAdjustPoints2;
-            this.AutoAdjustPoints3.Value = model.AutoAdjustPoints3;
-            this.AutoAdjustPoints4.Value = model.AutoAdjustPoints4;
-            this.SpreadPoints.Value = model.SpreadPoints;
-            this.SpreadPoints2.Value = model.SpreadPoints2;
-            this.SpreadPoints3.Value = model.SpreadPoints3;
-            this.SpreadPoints4.Value = model.SpreadPoints4;
-            this.priceType.SelectedItem = model.PriceType.ToString();
-            this.IsOriginHiLo.IsChecked = model.IsOriginHiLo;
-            this.MaxAuotAdjustPoints.Value = model.MaxAuotAdjustPoints;
-            this.MaxSpreadPoints.Value = model.MaxSpreadPoints;
-            this.IsAutoFill.IsChecked = model.IsAutoFill;
-            this.IsEnablePrice.IsChecked = model.IsEnablePrice;
-            this.IsAutoEnablePrice.IsChecked = model.IsAutoEnablePrice;
+            Binding bind = new Binding("AutoAdjustPoints");
+            bind.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId); 
+            this.AutoAdjustPoints.SetBinding(XamNumericInput.ValueProperty, bind);
+            Binding autoAdjustPoints2 = new Binding("AutoAdjustPoints2");
+            autoAdjustPoints2.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.AutoAdjustPoints2.SetBinding(XamNumericInput.ValueProperty, autoAdjustPoints2);
+            Binding autoAdjustPoints3 = new Binding("AutoAdjustPoints3");
+            autoAdjustPoints3.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.AutoAdjustPoints3.SetBinding(XamNumericInput.ValueProperty, autoAdjustPoints3);
+            Binding autoAdjustPoints4 = new Binding("AutoAdjustPoints4");
+            autoAdjustPoints4.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.AutoAdjustPoints4.SetBinding(XamNumericInput.ValueProperty, autoAdjustPoints4);
+
+            Binding spreadPoints = new Binding("SpreadPoints");
+            spreadPoints.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.SpreadPoints.SetBinding(XamNumericInput.ValueProperty, spreadPoints);
+            Binding spreadPoints2 = new Binding("SpreadPoints2");
+            spreadPoints2.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.SpreadPoints2.SetBinding(XamNumericInput.ValueProperty, spreadPoints2);
+            Binding spreadPoints3 = new Binding("SpreadPoints3");
+            spreadPoints3.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.SpreadPoints3.SetBinding(XamNumericInput.ValueProperty, spreadPoints3);
+            Binding spreadPoints4 = new Binding("SpreadPoints4");
+            spreadPoints4.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.SpreadPoints4.SetBinding(XamNumericInput.ValueProperty, spreadPoints4);
+
+            Binding maxAuotAdjustPoints = new Binding("MaxAuotAdjustPoints");
+            maxAuotAdjustPoints.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.MaxAuotAdjustPoints.SetBinding(XamNumericInput.ValueProperty, maxAuotAdjustPoints);
+            Binding maxSpreadPoints = new Binding("MaxSpreadPoints");
+            maxSpreadPoints.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.MaxSpreadPoints.SetBinding(XamNumericInput.ValueProperty, maxSpreadPoints);
+
+            this.priceType.SelectedItem = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId).PriceType.ToString();
+
+            Binding allowLimit = new Binding("AllowLimit");
+            allowLimit.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.AllowLomit.SetBinding(CheckBox.IsCheckedProperty, allowLimit);
+            Binding isOriginHiLo = new Binding("IsOriginHiLo");
+            isOriginHiLo.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.IsOriginHiLo.SetBinding(CheckBox.IsCheckedProperty, isOriginHiLo);
+            Binding isAutoFill = new Binding("IsAutoFill");
+            isAutoFill.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.IsAutoFill.SetBinding(CheckBox.IsCheckedProperty, isAutoFill);
+            Binding isEnablePrice = new Binding("IsEnablePrice");
+            isEnablePrice.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.IsEnablePrice.SetBinding(CheckBox.IsCheckedProperty, isEnablePrice);
+            Binding isAutoEnablePrice = new Binding("IsAutoEnablePrice");
+            isAutoEnablePrice.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.IsAutoEnablePrice.SetBinding(CheckBox.IsCheckedProperty, isAutoEnablePrice);
             this._IsInit = true;
         }
 
@@ -67,7 +103,7 @@ namespace ManagerConsole.UI
         {
             if (this._IsInit)
             {
-                ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).AutoAdjustPoints = int.Parse(this.AutoAdjustPoints.Value.ToString());
+               // ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).AutoAdjustPoints = int.Parse(this.AutoAdjustPoints.Value.ToString());
                 this.SetQuotePolicyDetail(InstrumentQuotationEditType.AutoAdjustPoints, int.Parse(this.AutoAdjustPoints.Value.ToString()));
             }
         }
@@ -76,7 +112,7 @@ namespace ManagerConsole.UI
         {
             if (this._IsInit)
             {
-                ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).SpreadPoints = int.Parse(this.SpreadPoints.Value.ToString());
+                //ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).SpreadPoints = int.Parse(this.SpreadPoints.Value.ToString());
                 this.SetQuotePolicyDetail(InstrumentQuotationEditType.SpreadPoints, int.Parse(this.SpreadPoints.Value.ToString()));
             }
         }
@@ -85,7 +121,7 @@ namespace ManagerConsole.UI
         {
             if (this._IsInit)
             {
-                ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).AutoAdjustPoints2 = int.Parse(this.AutoAdjustPoints2.Value.ToString());
+                //ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).AutoAdjustPoints2 = int.Parse(this.AutoAdjustPoints2.Value.ToString());
                 this.SetQuotePolicyDetail(InstrumentQuotationEditType.AutoAdjustPoints2, int.Parse(this.AutoAdjustPoints2.Value.ToString()));
             }
         }
@@ -94,7 +130,7 @@ namespace ManagerConsole.UI
         {
             if (this._IsInit)
             {
-                ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).AutoAdjustPoints3 = int.Parse(this.AutoAdjustPoints3.Value.ToString());
+                //ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).AutoAdjustPoints3 = int.Parse(this.AutoAdjustPoints3.Value.ToString());
                 this.SetQuotePolicyDetail(InstrumentQuotationEditType.AutoAdjustPoints3, int.Parse(this.AutoAdjustPoints3.Value.ToString()));
             }
         }
@@ -103,7 +139,7 @@ namespace ManagerConsole.UI
         {
             if (this._IsInit)
             {
-                ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).AutoAdjustPoints4 = int.Parse(this.AutoAdjustPoints4.Value.ToString());
+                //ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).AutoAdjustPoints4 = int.Parse(this.AutoAdjustPoints4.Value.ToString());
                 this.SetQuotePolicyDetail(InstrumentQuotationEditType.AutoAdjustPoints4, int.Parse(this.AutoAdjustPoints4.Value.ToString()));
             }
         }
@@ -112,7 +148,7 @@ namespace ManagerConsole.UI
         {
             if (this._IsInit)
             {
-                ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).SpreadPoints2 = int.Parse(this.SpreadPoints2.Value.ToString());
+                //ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).SpreadPoints2 = int.Parse(this.SpreadPoints2.Value.ToString());
                 this.SetQuotePolicyDetail(InstrumentQuotationEditType.SpreadPoints2, int.Parse(this.SpreadPoints2.Value.ToString()));
             }
 
@@ -122,7 +158,7 @@ namespace ManagerConsole.UI
         {
             if (this._IsInit)
             {
-                ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).SpreadPoints3 = int.Parse(this.SpreadPoints3.Value.ToString());
+                //ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).SpreadPoints3 = int.Parse(this.SpreadPoints3.Value.ToString());
                 this.SetQuotePolicyDetail(InstrumentQuotationEditType.SpreadPoints3, int.Parse(this.SpreadPoints3.Value.ToString()));
             }
         }
@@ -131,7 +167,7 @@ namespace ManagerConsole.UI
         {
             if (this._IsInit)
             {
-                ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).SpreadPoints4 = int.Parse(this.SpreadPoints4.Value.ToString());
+                //ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).SpreadPoints4 = int.Parse(this.SpreadPoints4.Value.ToString());
                 this.SetQuotePolicyDetail(InstrumentQuotationEditType.SpreadPoints4, int.Parse(this.SpreadPoints4.Value.ToString()));
             }
         }
@@ -140,7 +176,7 @@ namespace ManagerConsole.UI
         {
             if (this._IsInit)
             {
-                ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).MaxAuotAdjustPoints = int.Parse(this.MaxAuotAdjustPoints.Value.ToString());
+                //ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).MaxAuotAdjustPoints = int.Parse(this.MaxAuotAdjustPoints.Value.ToString());
                 this.SetQuotePolicyDetail(InstrumentQuotationEditType.MaxAuotAutoAdjustPointsPoints, int.Parse(this.MaxAuotAdjustPoints.Value.ToString()));
             }
         }
@@ -149,7 +185,7 @@ namespace ManagerConsole.UI
         {
             if (this._IsInit)
             {
-                ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).MaxSpreadPoints = int.Parse(this.MaxSpreadPoints.Value.ToString());
+                //ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).MaxSpreadPoints = int.Parse(this.MaxSpreadPoints.Value.ToString());
                 this.SetQuotePolicyDetail(InstrumentQuotationEditType.MaxSpreadPointsPoints, int.Parse(this.MaxSpreadPoints.Value.ToString()));
             }
         }
@@ -167,7 +203,7 @@ namespace ManagerConsole.UI
                 {
                     value = 0;
                 }
-                ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).IsOriginHiLo = (this.IsOriginHiLo.IsChecked == true);
+                //ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).IsOriginHiLo = (this.IsOriginHiLo.IsChecked == true);
                 this.SetQuotePolicyDetail(InstrumentQuotationEditType.IsOriginHiLo, value);
             }
         }
@@ -206,8 +242,12 @@ namespace ManagerConsole.UI
                 {
                     value = 0;
                 }
-                ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).IsOriginHiLo = (this.IsOriginHiLo.IsChecked == true);
-                this.SetQuotePolicyDetail(InstrumentQuotationEditType.IsAutoFill, value);
+                IEnumerable<InstrumentQuotation> instruments = ExchangeQuotationViewModel.Instance.Exchanges.Where(i => i.ExchangeCode == this._Source.ExchangeCode && i.InstruemtnId == this._Source.InstruemtnId);
+                foreach (InstrumentQuotation item in instruments)
+                {
+                    ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == item.ExchangeCode && i.QuotationPolicyId == item.QuotationPolicyId && i.InstruemtnId == item.InstruemtnId).IsAutoFill = (this.IsAutoFill.IsChecked == true);
+                }
+                this.SetInstrument(InstrumentQuotationEditType.IsAutoFill, value);
             }
         }
 
@@ -224,8 +264,13 @@ namespace ManagerConsole.UI
                 {
                     value = 0;
                 }
-                ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).IsOriginHiLo = (this.IsOriginHiLo.IsChecked == true);
-                this.SetQuotePolicyDetail(InstrumentQuotationEditType.IsEnablePrice, value);
+                IEnumerable<InstrumentQuotation> instruments = ExchangeQuotationViewModel.Instance.Exchanges.Where(i => i.ExchangeCode == this._Source.ExchangeCode && i.InstruemtnId == this._Source.InstruemtnId);
+                foreach (InstrumentQuotation item in instruments)
+                {
+                    ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == item.ExchangeCode && i.QuotationPolicyId == item.QuotationPolicyId && i.InstruemtnId == item.InstruemtnId).IsEnablePrice = (this.IsEnablePrice.IsChecked == true);
+                }
+               // ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).IsEnablePrice = (this.IsEnablePrice.IsChecked == true);
+                this.SetInstrument(InstrumentQuotationEditType.IsPriceEnabled, value);
             }
         }
 
@@ -242,9 +287,41 @@ namespace ManagerConsole.UI
                 {
                     value = 0;
                 }
-                ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).IsOriginHiLo = (this.IsOriginHiLo.IsChecked == true);
-                this.SetQuotePolicyDetail(InstrumentQuotationEditType.IsAutoEnablePrice, value);
+                IEnumerable<InstrumentQuotation> instruments = ExchangeQuotationViewModel.Instance.Exchanges.Where(i => i.ExchangeCode == this._Source.ExchangeCode && i.InstruemtnId == this._Source.InstruemtnId);
+                foreach (InstrumentQuotation item in instruments)
+                {
+                    ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == item.ExchangeCode && i.QuotationPolicyId == item.QuotationPolicyId && i.InstruemtnId == item.InstruemtnId).IsAutoEnablePrice = (this.IsAutoEnablePrice.IsChecked == true);
+                }
+               // ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).IsAutoEnablePrice = (this.IsAutoEnablePrice.IsChecked == true);
+                this.SetInstrument(InstrumentQuotationEditType.IsAutoEnablePrice, value);
             }
         }
+
+        private void AllowLomit_Click(object sender, RoutedEventArgs e)
+        {
+            if (this._IsInit)
+            {
+                int value;
+                IEnumerable<InstrumentQuotation> instruments = ExchangeQuotationViewModel.Instance.Exchanges.Where(i => i.ExchangeCode == this._Source.ExchangeCode && i.InstruemtnId == this._Source.InstruemtnId);
+                foreach (InstrumentQuotation item in instruments)
+                {
+                    ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == item.ExchangeCode && i.QuotationPolicyId == item.QuotationPolicyId && i.InstruemtnId == item.InstruemtnId).AllowLimit = (this.AllowLomit.IsChecked == true);
+                }
+                value = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).OrderTypeMask;
+                this.SetInstrument(InstrumentQuotationEditType.OrderTypeMask, value);
+            }
+        }
+
+        private void SetInstrument(InstrumentQuotationEditType type, int value)
+        {
+            InstrumentQuotationSet set = new InstrumentQuotationSet();
+            set.ExchangeCode = this._Source.ExchangeCode;
+            set.InstrumentId = this._Source.InstruemtnId;
+            set.Value = value;
+            set.type = type;
+            ConsoleClient.Instance.UpdateInstrument(set);
+        }
+
+       
     }
 }

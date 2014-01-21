@@ -3,6 +3,7 @@
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
                     xmlns:local="clr-namespace:ManagerConsole.UI"
+                    xmlns:main="clr-namespace:ManagerConsole"
                      xmlns:pg="clr-namespace:Xceed.Wpf.Toolkit.PropertyGrid;assembly=Xceed.Wpf.Toolkit"
                     xmlns:System="clr-namespace:System;assembly=mscorlib" mc:Ignorable="d">
 
@@ -83,6 +84,13 @@
     <Color x:Key="Color_067">#8000AADE</Color>
     <Color x:Key="Color_068">#CC3F3F3F</Color>
     <Color x:Key="Color_069">#FF00AADE</Color>
+    <Color x:Key="Color_2001">#FF373723</Color>
+    <Color x:Key="Color_2002">#FF233923</Color>
+    <Color x:Key="Color_2003">#FF28353D</Color>
+    
+    <SolidColorBrush x:Key="AutoFillBackgroudBrush" Color="{StaticResource Color_2001}"/>
+    <SolidColorBrush x:Key="AllowLimitBackgroudBrush" Color="{StaticResource Color_2002}"/>
+    <SolidColorBrush x:Key="EnablePriceBackgroudBrush" Color="{StaticResource Color_2003}"/>
     
     <SolidColorBrush x:Key="ForegroundBrush" Color="{StaticResource Color_002}" />
     <SolidColorBrush x:Key="LightForegroundBrush" Color="{StaticResource Color_001}" />
@@ -178,7 +186,7 @@
     <!-- PassWordBox Brushes -->
     <SolidColorBrush x:Key="PasswordBoxForegroundBrush" Color="{StaticResource Color_069}" />
     <!-- *********************************  RepeatButton Style  ********************************* -->
-    <Style x:Key="RepeatButtonStyle" TargetType="{x:Type RepeatButton}">
+    <!--<Style x:Key="RepeatButtonStyle" TargetType="{x:Type RepeatButton}">
         <Setter Property="FontFamily" Value="Segoe UI" />
         <Setter Property="FontSize" Value="14.667" />
         <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}" />
@@ -255,7 +263,7 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-    </Style>
+    </Style>-->
 
     <!-- *********************************  ScrollBarPageButton Style  ********************************* -->
     <Style x:Key="ScrollBarButtonStyle" TargetType="{x:Type RepeatButton}">
@@ -297,7 +305,7 @@
                         </VisualStateManager.VisualStateGroups>
                         <Rectangle Fill="{StaticResource TransparentBrush}" Margin="-5" />
                         <Path x:Name="Arrow" Data="F1 M 541.537,173.589L 531.107,173.589L 536.322,167.49L 541.537,173.589 Z " Height="5" Stretch="Uniform" Width="8" Fill="{StaticResource ScrollbarPageButtonArrowBackgroundBrush}" Margin="{TemplateBinding Padding}" />
-                    </Grid>
+                    </Grid>                         
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -518,8 +526,8 @@
                                         <VisualState x:Name="Disabled" />
                                     </VisualStateGroup>
                                 </VisualStateManager.VisualStateGroups>
-                                <Rectangle x:Name="Bg" Grid.ColumnSpan="5" Fill="{StaticResource ScrollbarBackgroundBrush}" Margin="0" />
-                                <RepeatButton x:Name="repeatButton" Command="{x:Static ScrollBar.LineLeftCommand}" IsEnabled="True" Style="{DynamicResource ScrollBarButtonStyle}" Opacity="1" RenderTransformOrigin="0.5,0.5" VerticalAlignment="Center">
+                                <Rectangle x:Name="Bg" Grid.ColumnSpan="3" Fill="{StaticResource ScrollbarBackgroundBrush}" Margin="0" />
+                                <RepeatButton x:Name="repeatButton" Command="{x:Static ScrollBar.LineLeftCommand}" IsEnabled="True" Style="{StaticResource ScrollBarButtonStyle}" Opacity="1" RenderTransformOrigin="0.5,0.5" VerticalAlignment="Center">
                                     <RepeatButton.RenderTransform>
                                         <TransformGroup>
                                             <ScaleTransform />
@@ -540,7 +548,7 @@
                                         <Thumb Style="{StaticResource HScrollBarThumbStyle}" VerticalAlignment="Center" Height="18" />
                                     </Track.Thumb>
                                 </Track>
-                                <RepeatButton x:Name="repeatButton1" Grid.Column="2" Command="{x:Static ScrollBar.LineRightCommand}" IsEnabled="True" Style="{DynamicResource ScrollBarButtonStyle}" Opacity="1" RenderTransformOrigin="0.5,0.5" VerticalAlignment="Center">
+                                <RepeatButton x:Name="repeatButton1" Grid.Column="2" Command="{x:Static ScrollBar.LineRightCommand}" IsEnabled="True" Style="{StaticResource ScrollBarButtonStyle}" Opacity="1" RenderTransformOrigin="0.5,0.5" VerticalAlignment="Center">
                                     <RepeatButton.RenderTransform>
                                         <TransformGroup>
                                             <ScaleTransform />
@@ -1745,6 +1753,167 @@
             </Setter.Value>
         </Setter>
     </Style>
+    <SolidColorBrush x:Key="RedButtonHoverBackgroundBrush" Color="#FF990000" />
+    <SolidColorBrush x:Key="RedButtonPressBackgroundBrush" Color="#FF660000" />
+    
+    <Style x:Key="RedButtonStyle" TargetType="Button">
+        <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="Padding" Value="10,0,10,2" />
+        <Setter Property="MinHeight" Value="20" />
+        <Setter Property="MinWidth" Value="20" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="MouseOver">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Bd" Storyboard.TargetProperty="Fill">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource RedButtonHoverBackgroundBrush}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Bd" Storyboard.TargetProperty="Stroke">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource RedButtonHoverBackgroundBrush}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetProperty="Foreground" Storyboard.TargetName="ContentControl">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource LightForegroundBrush}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Bd" Storyboard.TargetProperty="Fill">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource RedButtonPressBackgroundBrush}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Bd" Storyboard.TargetProperty="Stroke">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource RedButtonPressBackgroundBrush}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetProperty="Foreground" Storyboard.TargetName="ContentControl">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource LightForegroundBrush}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="DisabledVisualElement">
+                                            <DiscreteObjectKeyFrame KeyTime="0">
+                                                <DiscreteObjectKeyFrame.Value>
+                                                    <Visibility>Visible</Visibility>
+                                                </DiscreteObjectKeyFrame.Value>
+                                            </DiscreteObjectKeyFrame>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="FocusStates">
+                                <VisualState x:Name="Focused">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="FocusedVisualElement">
+                                            <DiscreteObjectKeyFrame KeyTime="0">
+                                                <DiscreteObjectKeyFrame.Value>
+                                                    <Visibility>Visible</Visibility>
+                                                </DiscreteObjectKeyFrame.Value>
+                                            </DiscreteObjectKeyFrame>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Unfocused" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Rectangle x:Name="Bd" Fill="Red" Stroke="{StaticResource ButtonBorderBrush}" StrokeThickness="1" />
+                        <ContentControl x:Name="ContentControl" Foreground="{TemplateBinding Foreground}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                            <ContentPresenter x:Name="contentPresenter" />
+                        </ContentControl>
+                        <Rectangle x:Name="FocusedVisualElement" Stroke="{StaticResource ButtonPressedBorderBrush}" Visibility="Collapsed" StrokeThickness="2" />
+                        <Rectangle x:Name="DisabledVisualElement" Fill="{StaticResource DisabledVisualElement}" Visibility="Collapsed" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <SolidColorBrush x:Key="GreenButtonHoverBackgroundBrush" Color="#FF006600" />
+    <SolidColorBrush x:Key="GreenButtonPressBackgroundBrush" Color="#FF004400" />
+    <Style x:Key="GreenButtonStyle" TargetType="Button">
+        <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="Padding" Value="10,0,10,2" />
+        <Setter Property="MinHeight" Value="20" />
+        <Setter Property="MinWidth" Value="20" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="MouseOver">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Bd" Storyboard.TargetProperty="Fill">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource GreenButtonHoverBackgroundBrush}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Bd" Storyboard.TargetProperty="Stroke">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource GreenButtonHoverBackgroundBrush}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetProperty="Foreground" Storyboard.TargetName="ContentControl">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource LightForegroundBrush}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Bd" Storyboard.TargetProperty="Fill">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource GreenButtonPressBackgroundBrush}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Bd" Storyboard.TargetProperty="Stroke">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource GreenButtonPressBackgroundBrush}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetProperty="Foreground" Storyboard.TargetName="ContentControl">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource LightForegroundBrush}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="DisabledVisualElement">
+                                            <DiscreteObjectKeyFrame KeyTime="0">
+                                                <DiscreteObjectKeyFrame.Value>
+                                                    <Visibility>Visible</Visibility>
+                                                </DiscreteObjectKeyFrame.Value>
+                                            </DiscreteObjectKeyFrame>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="FocusStates">
+                                <VisualState x:Name="Focused">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="FocusedVisualElement">
+                                            <DiscreteObjectKeyFrame KeyTime="0">
+                                                <DiscreteObjectKeyFrame.Value>
+                                                    <Visibility>Visible</Visibility>
+                                                </DiscreteObjectKeyFrame.Value>
+                                            </DiscreteObjectKeyFrame>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Unfocused" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Rectangle x:Name="Bd" Fill="Green" Stroke="{StaticResource ButtonBorderBrush}" StrokeThickness="1" />
+                        <ContentControl x:Name="ContentControl" Foreground="{TemplateBinding Foreground}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                            <ContentPresenter x:Name="contentPresenter" />
+                        </ContentControl>
+                        <Rectangle x:Name="FocusedVisualElement" Stroke="{StaticResource ButtonPressedBorderBrush}" Visibility="Collapsed" StrokeThickness="2" />
+                        <Rectangle x:Name="DisabledVisualElement" Fill="{StaticResource DisabledVisualElement}" Visibility="Collapsed" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
     <!-- ********************************** PasswordBox Style **********************************-->
     <Style x:Key="PasswordBoxStyle" TargetType="{x:Type PasswordBox}">
         <Setter Property="FontFamily" Value="Segoe UI" />
@@ -1900,14 +2069,14 @@
     <Style BasedOn="{StaticResource ToolBarStyle}" TargetType="{x:Type ToolBar}"/>
     <Style BasedOn="{StaticResource CheckBoxStyle}" TargetType="{x:Type CheckBox}"/>
     <Style BasedOn="{StaticResource PasswordBoxStyle}" TargetType="{x:Type PasswordBox}"/>
-    <Style BasedOn="{StaticResource RepeatButtonStyle}" TargetType="{x:Type RepeatButton}" />
+    <!--<Style BasedOn="{StaticResource RepeatButtonStyle}" TargetType="{x:Type RepeatButton}" />-->
     
     <Style TargetType="local:RangeCheckRuleControl">
-        <Setter Property="Background" Value="Black"/>
+        <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="White"/>
     </Style>
     <Style TargetType="local:DerivedInstrumentControl">
-        <Setter Property="Background" Value="Black"/>
+        <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="White"/>
     </Style>
     
@@ -1916,7 +2085,7 @@
         <Setter Property="Foreground" Value="White"/>
     </Style>
     <Style TargetType="local:WeightedRuleControl">
-        <Setter Property="Background" Value="Black"/>
+        <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="White"/>
     </Style>
     <Style TargetType="local:AdjustAndSpreadSettingControl">
@@ -1924,15 +2093,15 @@
         <Setter Property="Foreground" Value="#FFC1D4EC"/>
     </Style>
     <Style TargetType="local:InstrumentWindow">
-        <Setter Property="Background" Value="Black"/>
+        <Setter Property="Background" Value="#FF1B1B1B"/>
         <Setter Property="Foreground" Value="White"/>
     </Style>
     <Style TargetType="local:DerivedInstrumentWindow">
-        <Setter Property="Background" Value="Black"/>
+        <Setter Property="Background" Value="#FF1B1B1B"/>
         <Setter Property="Foreground" Value="White"/>
     </Style>
     <Style TargetType="local:UserTileControl">
-        <Setter Property="Background" Value="Black"/>
+        <Setter Property="Background" Value="#FF1B1B1B"/>
         <Setter Property="Foreground" Value="White"/>
     </Style>
     <Style TargetType="local:RoleManagerControl">
@@ -1956,7 +2125,19 @@
         <Setter Property="Foreground" Value="White"/>
     </Style>   
     <Style TargetType="local:NewRelationWindow">
+        <Setter Property="Background" Value="#FF1B1B1B"/>
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+    <Style TargetType="main:ChangePassword">
         <Setter Property="Background" Value="Black"/>
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+    <Style TargetType="main:SaveLayoutWindow">
+        <Setter Property="Background" Value="#FF1B1B1B"/>
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+    <Style TargetType="local:QuotePriceWindow">
+        <Setter Property="Background" Value="#FF1B1B1B"/>
         <Setter Property="Foreground" Value="White"/>
     </Style>
     <Style TargetType="{x:Type pg:PropertyGrid}">

@@ -221,7 +221,7 @@ namespace ManagerConsole
                 case ModuleType.OrderProcess:
                     return new OrderTaskControl();
                 case ModuleType.LimitBatchProcess:
-                    return new LMTProcess();
+                    return new DealingLmtOrder();
                 case ModuleType.MooMocProcess:
                     return new MooMocOrderTask();
                 case ModuleType.DQOrderProcess:

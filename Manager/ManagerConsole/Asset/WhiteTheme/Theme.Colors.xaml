@@ -76,4 +76,7 @@
     <Color x:Key="Color_1018">#FFF99544</Color>
     <Color x:Key="Color_1020">#FFFDB881</Color>
     <Color x:Key="Color_1021">#FF616161</Color>
+    <Color x:Key="Color_2001">#FFFFFFE0</Color>
+    <Color x:Key="Color_2002">#FF90EE90</Color>
+    <Color x:Key="Color_2003">#FFADD8E6</Color>
 </ResourceDictionary>

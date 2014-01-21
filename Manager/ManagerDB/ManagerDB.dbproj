@@ -404,6 +404,9 @@
     <Build Include="Schema Objects\Schemas\dbo\Tables\Keys\PK_LogPrice.pkey.sql">
       <SubType>Code</SubType>
     </Build>
+    <Build Include="Schema Objects\Schemas\dbo\Programmability\Stored Procedures\GetDataTargetPermission.proc.sql">
+      <SubType>Code</SubType>
+    </Build>
     <Build Include="Schema Objects\Schemas\dbo\Programmability\Stored Procedures\P_TaskScheduler_Del.proc.sql">
       <SubType>Code</SubType>
     </Build>
@@ -414,6 +417,9 @@
       <SubType>Code</SubType>
     </Build>
     <Build Include="Schema Objects\Schemas\dbo\Programmability\Stored Procedures\P_GetSettingParameter.proc.sql">
+      <SubType>Code</SubType>
+    </Build>
+    <Build Include="Schema Objects\Schemas\dbo\Programmability\Stored Procedures\P_SettingsDetailParameter_Upd.proc.sql">
       <SubType>Code</SubType>
     </Build>
   </ItemGroup>

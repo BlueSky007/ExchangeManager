@@ -10,7 +10,7 @@ using System.Windows.Controls;
 using CommonParameter = Manager.Common.Settings.SystemParameter;
 using AccountInfor = iExchange.Common.Manager.AccountInformation;
 using OperationType = Manager.Common.OperationType;
-using ConfigParameters = Manager.Common.Settings.ConfigParameters;
+using ConfigParameter = Manager.Common.Settings.ConfigParameter;
 using TransactionError = iExchange.Common.TransactionError;
 using System.Xml;
 using System.Collections.ObjectModel;
@@ -60,7 +60,7 @@ namespace ManagerConsole.Model
         public void OnOrderAccept(OrderTask orderTask)
         {
             SystemParameter systemParameter = this._App.InitDataManager.GetExchangeSetting(orderTask.ExchangeCode).SystemParameter;
-            ConfigParameters configParameter = this._App.InitDataManager.ConfigParameters[orderTask.ExchangeCode];
+            ConfigParameter configParameter = this._App.InitDataManager.ConfigParameter;
             bool allowModifyOrderLot = configParameter.AllowModifyOrderLot;
             systemParameter.CanDealerViewAccountInfo = true;
             bool isOK = OrderTaskManager.CheckDQOrder(orderTask, systemParameter, configParameter);
@@ -89,8 +89,7 @@ namespace ManagerConsole.Model
 
         public void OnOrderReject(OrderTask order)
         {
-            ConfigParameters parameter = new ConfigParameters();
-            this._App.InitDataManager.ConfigParameters.TryGetValue(order.ExchangeCode, out parameter);
+            ConfigParameter parameter = this._App.InitDataManager.ConfigParameter;
             if (order.OrderStatus == OrderStatus.WaitOutPriceDQ || order.OrderStatus == OrderStatus.WaitOutLotDQ)
             {
                 if (parameter.ConfirmRejectDQOrder)
@@ -178,7 +177,7 @@ namespace ManagerConsole.Model
                 orderTask.ChangeStatus(OrderStatus.WaitNextPrice);
                 orderTask.ResetHit();
                 Guid[] orderIds = new Guid[] { orderTask.OrderId };
-                ConsoleClient.Instance.ResetHit(orderIds);
+                ConsoleClient.Instance.ResetHit(orderTask.ExchangeCode,orderIds);
 
                 if (this.OnOrderWaitNofityEvent != null)
                 {
@@ -310,7 +309,7 @@ namespace ManagerConsole.Model
             if (canDealerViewAccountInfo)
             {
                 //just test data
-                AccountInformation accountInfor = ConsoleClient.Instance.GetAcountInfo(Guid.Empty);
+                AccountInformation accountInfor = ConsoleClient.Instance.GetAcountInfo(orderTask.ExchangeCode,Guid.Empty);
                 this._App._ConfirmOrderDialogWin.ShowDialogWin(accountInfor, title, orderTask, action);
             }
             else
@@ -486,7 +485,6 @@ namespace ManagerConsole.Model
                         this.CancelTransaction(orderTask);
                         break;
                     case HandleAction.OnLMTExecute:
-                        var s = "";
                         this.Commit(orderTask, string.Empty, (decimal)orderTask.Lot);
                         break;
                 }
@@ -560,10 +558,16 @@ namespace ManagerConsole.Model
                         {
                             order.ChangeStatus(OrderStatus.Deleted);
                         }
+
+                        if (this.OnExecuteOrderNotifyEvent != null)
+                        {
+                        }
                     }
                     this.RemoveTransaction(tran);
 
                     this.TranPhaseManager.UpdateTransaction(tran);
+
+                    
                 }
             });
         }

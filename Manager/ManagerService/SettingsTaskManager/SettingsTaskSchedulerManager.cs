@@ -73,7 +73,14 @@ namespace ManagerService.SettingsTaskManager
                     taskScheduler.ScheduleID = this.Scheduler.Add(this._UpdateSettingAction, taskScheduler, taskScheduler.RunTime, DateTime.MaxValue, TimeSpan.FromSeconds(taskScheduler.Interval));
                     break;
                 case ActionType.Weekly:
-                    taskScheduler.ScheduleID = this.Scheduler.Add(this._UpdateSettingAction, taskScheduler, taskScheduler.RunTime);
+                    string weekSN = taskScheduler.WeekDaySN;
+                    TimeSpan[] weekIntervals = TaskCheckManager.GetWeekTaskRunInterval(weekSN);
+
+                    foreach (TimeSpan interval in weekIntervals)
+                    {
+                        string schedulerId = this.Scheduler.Add(this._UpdateSettingAction, taskScheduler, DateTime.Now + interval);
+                        taskScheduler.ScheduleIDs.Add(schedulerId);
+                    }
                     break;
                 default:
                     taskScheduler.ScheduleID = this.Scheduler.Add(this._UpdateSettingAction, taskScheduler, taskScheduler.RunTime);
@@ -157,7 +164,6 @@ namespace ManagerService.SettingsTaskManager
             if (taskScheduler.ExchangInstruments.Count > 0)
             {
                 ExchangeSystem exchangeSystem = MainService.ExchangeManager.GetExchangeSystem(taskScheduler.ExchangeCode);
-                //XmlNode instrumentsXml = SettingManagerData.GetInstrumentParametersXml(taskScheduler);
 
                 ParameterUpdateTask updateSettings = SettingManagerData.GetExchangeParametersTask(taskScheduler);
                 bool isOk = exchangeSystem.UpdateInstrument(updateSettings);

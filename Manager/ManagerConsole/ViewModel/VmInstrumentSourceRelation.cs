@@ -64,6 +64,7 @@ namespace ManagerConsole.ViewModel
         private VmInstrument _Instrument;
         private VmQuotationSource _QuotationSource;
         private int _ZIndex;
+        private double _Left;
 
         public VmInstrumentSourceRelation(InstrumentSourceRelation relation, VmInstrument instrument, VmQuotationSource quotationSource)
             : base(relation)
@@ -93,6 +94,20 @@ namespace ManagerConsole.ViewModel
                 }
             }
         }
+
+        public double Left
+        {
+            get { return this._Left; }
+            set
+            {
+                if(this._Left != value)
+                {
+                    this._Left = value;
+                    this.OnPropertyChanged("Left");
+                }
+            }
+        }
+
 
         public int Id { get { return this._Relation.Id; } set { this._Relation.Id = value; } }
         public int SourceId

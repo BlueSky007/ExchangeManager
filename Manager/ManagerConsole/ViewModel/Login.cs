@@ -15,5 +15,13 @@ namespace ManagerConsole.ViewModel
             get;
             set;
         }
+
+        private void NotifyPropertyChanged(String server)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(server));
+            }
+        }
     }
 }

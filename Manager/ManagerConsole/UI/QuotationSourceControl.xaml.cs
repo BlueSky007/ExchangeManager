@@ -14,6 +14,7 @@ using System.Windows.Shapes;
 using Manager.Common.QuotationEntities;
 using ManagerConsole.Model;
 using ManagerConsole.ViewModel;
+using Manager.Common;
 
 namespace ManagerConsole.UI
 {
@@ -32,12 +33,19 @@ namespace ManagerConsole.UI
             this.Loaded += QuotationSourceControl_Loaded;
         }
 
+        private bool CanModify
+        {
+            get
+            {
+                return ConsoleClient.Instance.HasPermission(ModuleCategoryType.Quotation, ModuleType.QuotationSource, OperationCode.Modify);
+            }
+        }
+
         private void QuotationSourceControl_Loaded(object sender, RoutedEventArgs e)
         {
             this.DataGrid.ItemsSource = VmQuotationManager.Instance.QuotationSources;
             this._QuotationConfigData = VmQuotationManager.Instance;
-            //Uri themeUri = new Uri("/Infragistics.Themes.Office2010BlueTheme;component/Office2010Blue.xamGrid.xaml", UriKind.Relative);
-            //this.Resources.MergedDictionaries.Add(new ResourceDictionary() { Source = themeUri });
+            this.AddButton.Visibility = this.DataGrid.Columns["Id"].Visibility = this.CanModify ? Visibility.Visible : Visibility.Hidden;
         }
 
         private void Add_Click(object sender, RoutedEventArgs e)

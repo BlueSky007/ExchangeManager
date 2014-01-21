@@ -31,7 +31,7 @@ namespace ManagerConsole.Model
       
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginGetInitializeData(AsyncCallback callback, object asyncState);
-        List<InitializeData> EndGetInitializeData(IAsyncResult result);
+        InitializeData EndGetInitializeData(IAsyncResult result);
       
 
         [OperationContract(IsInitiating = false)]
@@ -51,7 +51,7 @@ namespace ManagerConsole.Model
         #region UserManager
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginGetAccessPermissions(AsyncCallback callback, object asyncState);
-        Dictionary<string, Tuple<string, bool>> EndGetAccessPermissions(IAsyncResult result);
+        Dictionary<string, List<FuncPermissionStatus>> EndGetAccessPermissions(IAsyncResult result);
 
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginGetUserData(AsyncCallback callback, object asyncState);
@@ -112,10 +112,10 @@ namespace ManagerConsole.Model
         TransactionError EndCancel(IAsyncResult result);
         
         [OperationContract(IsInitiating = false)]
-        void ResetHit(Guid[] orderIds);
+        void ResetHit(string exchangeCode,Guid[] orderIds);
 
         [OperationContract(IsInitiating = false)]
-        AccountInformation GetAcountInfo(Guid transactionId);
+        AccountInformation GetAcountInfo(string exchangeCode,Guid transactionId);
 
         #endregion
 
@@ -150,6 +150,10 @@ namespace ManagerConsole.Model
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginGetTaskSchedulersData(AsyncCallback callback, object asyncState);
         List<TaskScheduler> EndGetTaskSchedulersData(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginUpdateManagerSettings(Guid settingId,SettingParameterType type, Dictionary<string, object> fieldAndValues, AsyncCallback callback, object asyncState);
+        bool EndUpdateManagerSettings(IAsyncResult result);
         #endregion
 
         #region Report
@@ -243,11 +247,15 @@ namespace ManagerConsole.Model
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginAddNewRelation(Guid id, string code, List<int> instruments, AsyncCallback callback, object asyncState);
         bool EndAddNewRelation(IAsyncResult result);
-        [OperationContract(AsyncPattern=true)]
+        [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginConfirmAbnormalQuotation(int instrumentId, int confirmId, bool accepted, AsyncCallback callback, object asyncState);
         void EndConfirmAbnormalQuotation(IAsyncResult result);
-      
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginSuspendResume(int[] instrumentIds, bool resume, AsyncCallback callback, object asyncState);
+        void EndSuspendResume(IAsyncResult result);
         #endregion
+
         [OperationContract(AsyncPattern = false)]
         void Updatetest();  
 
@@ -256,8 +264,16 @@ namespace ManagerConsole.Model
         void EndUpdateQuotationPolicy(IAsyncResult result);
 
         [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginUpdateInstrument(InstrumentQuotationSet set, AsyncCallback callback, object asyncState);
+        void EndUpdateInstrument(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginSetQuotationPolicyDetail(Guid relationId, QuotePolicyDetailsSetAction action, int changeValue, AsyncCallback callback, object asyncState);
         void EndSetQuotationPolicyDetail(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginExchangeSuspendResume(Dictionary<string, List<Guid>> instruments, bool resume, AsyncCallback callback, object asyncState);
+        bool EndExchangeSuspendResume(IAsyncResult result);
     }
 
     [ServiceContract]

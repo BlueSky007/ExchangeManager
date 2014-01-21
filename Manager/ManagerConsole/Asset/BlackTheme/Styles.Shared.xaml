@@ -152,7 +152,7 @@
         <GradientStop Color="{StaticResource Color_012}"/>
         <GradientStop Color="{StaticResource Color_016}" Offset="1"/>
     </LinearGradientBrush>
-    <SolidColorBrush x:Key="CheckBoxCheckIconBackgroundBrush" Color="{StaticResource Color_025}"/>
+    <SolidColorBrush x:Key="CheckBoxCheckIconBackgroundBrush" Color="#FF00AADE"/>
     <SolidColorBrush x:Key="CheckBoxIndeterminateIconBackgroundBrush" Color="{StaticResource Color_025}"/>
 
     <SolidColorBrush x:Key="CheckBoxFocusedBorderBrush" Color="{StaticResource Color_013}"/>
@@ -562,7 +562,7 @@
                             <Rectangle x:Name="pressed" Fill="{StaticResource CheckBoxPressedBackgroundBrush}" Height="14" Margin="1" StrokeThickness="{TemplateBinding BorderThickness}" Width="14" Stroke="{StaticResource CheckBoxPressedBorderBrush}" Opacity="0"/>
                             <Rectangle x:Name="pressedBoxMiddle" Height="10" StrokeThickness="1" Width="10" Opacity="0" Fill="{StaticResource CheckBoxPressedInnerBackgroundBrush}" Stroke="{StaticResource CheckBoxPressedInnerBorderBrush}"/>
                             <Path x:Name="CheckIcon" Data="M103.10625,598.38019 C103.10625,598.38019 104.35281,597.37262 104.35281,597.37262 C104.35281,597.37262 106.69083,599.42383 106.69083,599.42383 C106.69083,599.42383 110.9969,593.85394 110.9969,593.85394 C110.9969,593.85394 112.8087,593.86188 112.8087,593.86188 C112.8087,593.86188 107.73771,601.85333 107.73771,601.85333 C107.73771,601.85333 106.1218,601.8479 106.1218,601.8479 C106.1218,601.8479 103.10625,598.38019 103.10625,598.38019 z" Fill="{StaticResource CheckBoxCheckIconBackgroundBrush}" FlowDirection="LeftToRight" Opacity="0" Stretch="Fill" UseLayoutRounding="False" Width="8" Height="8"/>
-                            <Rectangle x:Name="IndeterminateIcon" Fill="{StaticResource CheckBoxIndeterminateIconBackgroundBrush}" Height="2" Opacity="0" Width="6"/>
+                            <Rectangle x:Name="IndeterminateIcon" Fill="#FF00AADE" Height="2" Opacity="0" Width="6"/>
                             <Rectangle x:Name="ContentFocusVisualElement" Height="14" IsHitTestVisible="false" Opacity="0" Stroke="{StaticResource CheckBoxFocusedBorderBrush}" StrokeThickness="1" Width="14"/>
                             <Border x:Name="ValidationErrorElement" Height="16" BorderBrush="{StaticResource ValidationErrorBrush}" BorderThickness="1" ToolTipService.PlacementTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}" Visibility="Collapsed">
                                 <ToolTipService.ToolTip>

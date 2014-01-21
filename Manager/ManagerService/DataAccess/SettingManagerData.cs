@@ -59,7 +59,7 @@ namespace ManagerService.DataAccess
                 while (reader.Read())
                 {
                     ExchangeIntrument instrument = new ExchangeIntrument();
-                    instrument.Id = (Guid)reader["Id"];
+                    //instrument.Id = (Guid)reader["Id"];
                     instrument.ExchangeCode = (string)reader["ExchangeCode"];
                     instrument.InstrumentId = (Guid)reader["InstrumentId"];
                     instrument.InstrumentCode = (string)reader["InstrumentCode"];
@@ -371,7 +371,7 @@ namespace ManagerService.DataAccess
             List<Guid> instruments = new List<Guid>();
             foreach (ExchangeIntrument instrument in taskScheduler.ExchangInstruments)
             {
-                instruments.Add(instrument.Id);
+                instruments.Add(instrument.InstrumentId);
             }
             foreach (ParameterSettingTask setting in taskScheduler.ParameterSettings)
             {
@@ -422,9 +422,10 @@ namespace ManagerService.DataAccess
         public static SettingsParameter LoadSettingsParameter(Guid userId)
         {
             SettingsParameter settingsParameter = new SettingsParameter();
-            ParameterSetting parameterSetting = new ParameterSetting();
+            DealingOrderParameter dealingOrderParameter = new DealingOrderParameter();
             SetValueSetting setValueSetting = new SetValueSetting();
             List<SoundSetting> soundSettings = new List<SoundSetting>();
+            List<string> soundKeys = new List<string>();
             try
             {
                 using (SqlConnection con = DataAccess.GetInstance().GetSqlConnection())
@@ -438,32 +439,48 @@ namespace ManagerService.DataAccess
                         {
                             while (reader.Read())
                             {
-                                Guid id = (Guid)reader["Id"];
-                                Guid settingId = (Guid)reader["SettingsId"];
+                                //Guid id = (Guid)reader["Id"];
+                                if (settingsParameter.SettingId == Guid.Empty)
+                                {
+                                    Guid settingId = (Guid)reader["SettingsId"];
+                                    settingsParameter.SettingId = settingId;
+                                }
                                 SettingParameterType SettingType = reader["SettingType"].ConvertToEnumValue<SettingParameterType>();
                                 string parameterKey = (string)reader["ParameterKey"];
                                 string parameterValue = (string)reader["ParameterValue"];
 
-                                if (SettingType == SettingParameterType.SystemParameter)
+                                if (SettingType == SettingParameterType.DealingOrderParameter)
                                 {
-                                    parameterSetting.SettingDetailId = id;
-                                    parameterSetting.SettingId = settingId;
-
-                                    SettingParameterHelper.UpdateSettingValue(parameterSetting, parameterKey, parameterValue);
+                                    SettingParameterHelper.UpdateSettingValue(dealingOrderParameter, parameterKey, parameterValue);
                                 }
                                 else if (SettingType == SettingParameterType.SoundParameter)
                                 {
                                     SoundSetting setting = new SoundSetting();
-                                    setting.SettingDetailId = id;
-                                    setting.SettingId = settingId;
+                                    SoundType soundType = reader["SoundType"].ConvertToEnumValue<SoundType>();
                                     setting.SoundKey = parameterKey;
-                                    setting.FilePath = parameterValue;
+                                    setting.SoundPath = parameterValue;
+                                    setting.SoundType = soundType;
                                     soundSettings.Add(setting);
+                                    soundKeys.Add(parameterKey);
                                 }
                                 else if (SettingType == SettingParameterType.SetValueParameter)
                                 {
                                     SettingParameterHelper.UpdateSettingValue(setValueSetting, parameterKey, parameterValue);
                                 }
+                            }
+                            reader.NextResult();
+                            while (reader.Read())
+                            {
+                                string soundKey = (string)reader["SoundKey"];
+                                if (soundKeys.Contains(soundKey)) continue;
+                                SoundType soundType = reader["SoundType"].ConvertToEnumValue<SoundType>();
+
+                                SoundSetting setting = new SoundSetting();
+
+                                setting.SoundKey = soundKey;
+                                setting.SoundPath = string.Empty;
+                                setting.SoundType = soundType;
+                                soundSettings.Add(setting);
                             }
                         }
                     }
@@ -473,16 +490,40 @@ namespace ManagerService.DataAccess
             {
                 Logger.TraceEvent(TraceEventType.Error, "ExchangeData.LoadSettingsParameter Error:\r\n" + ex.ToString());
             }
-            settingsParameter.ParameterSetting = parameterSetting;
+            settingsParameter.DealingOrderParameter = dealingOrderParameter;
             settingsParameter.SetValueSetting = setValueSetting;
             settingsParameter.SoundSettings = soundSettings;
             return settingsParameter;
+        }
+
+        public static bool UpdateManagerSettings(Guid settingId,SettingParameterType type, Dictionary<string, object> fieldAndValues)
+        {
+            string settingDetails = SettingParameterHelper.GetSettingDetailsUpdateXml(settingId, type, fieldAndValues);
+            using (SqlConnection sqlConnection = DataAccess.GetInstance().GetSqlConnection())
+            {
+                SqlCommand sqlCommand = sqlConnection.CreateCommand();
+                sqlCommand.CommandText = "dbo.P_SettingsDetailParameter_Upd";
+                sqlCommand.CommandType = CommandType.StoredProcedure;
+                sqlCommand.CommandTimeout = 60 * 30;
+
+                SqlParameter parameter = new SqlParameter("@settingDetailsXml", SqlDbType.NText);
+                parameter.Value = settingDetails;
+                sqlCommand.Parameters.Add(parameter);
+
+                SqlParameter resultParameter = new SqlParameter("@result", SqlDbType.Bit);
+                resultParameter.Direction = ParameterDirection.Output;
+                sqlCommand.Parameters.Add(resultParameter);
+
+                sqlCommand.ExecuteNonQuery();
+
+                return (bool)sqlCommand.Parameters["@result"].Value;
+            }
         }
     }
 
     public static class SettingParameterHelper
     {
-        public static void UpdateSettingValue(this ParameterSetting setting, string key, string value)
+        public static void UpdateSettingValue(this DealingOrderParameter setting, string key, string value)
         {
             try
             {
@@ -494,9 +535,6 @@ namespace ManagerService.DataAccess
                     case FieldSetting.EnquiryWaitTime:
                         setting.EnquiryWaitTime = int.Parse(value);
                         return;
-                    case FieldSetting.ApplyAutoAdjustPoints:
-                        setting.ApplyAutoAdjustPoints = bool.Parse(value);
-                        return;
                     case FieldSetting.PriceOrderSetting:
                         setting.PriceOrderSetting = int.Parse(value);
                         return;
@@ -505,9 +543,6 @@ namespace ManagerService.DataAccess
                         return;
                     case FieldSetting.AutoConfirm:
                         setting.AutoConfirm = bool.Parse(value);
-                        return;
-                    case FieldSetting.ApplySetValueToDealingPolicy:
-                        setting.ApplySetValueToDealingPolicy = bool.Parse(value);
                         return;
                     case FieldSetting.LimitStopSummaryIsTimeRange:
                         setting.LimitStopSummaryIsTimeRange = bool.Parse(value);
@@ -550,6 +585,9 @@ namespace ManagerService.DataAccess
                         return;
                     case FieldSetting.MaxOtherLot:
                         setting.MaxOtherLot = decimal.Parse(value);
+                        return;
+                    case FieldSetting.CancelLmtVariation:
+                        setting.CancelLmtVariation = int.Parse(value);
                         return;
                     case FieldSetting.DQQuoteMinLot:
                         setting.DQQuoteMinLot = decimal.Parse(value);
@@ -606,6 +644,25 @@ namespace ManagerService.DataAccess
             {
                 Logger.TraceEvent(TraceEventType.Error, "SettingManagerData.SettingParameterHelper:{0}, Error:\r\n{1}", ex.ToString());
             }
+        }
+
+        public static string GetSettingDetailsUpdateXml(Guid settingId, SettingParameterType type, Dictionary<string, object> fieldAndValues)
+        {
+            XmlDocument doc = new XmlDocument();
+            XmlElement settingDetailRoot = doc.CreateElement("SettingDetails");
+
+            foreach (string parameterKey in fieldAndValues.Keys)
+            {
+                object parameterValue = fieldAndValues[parameterKey];
+                XmlElement settingElement = doc.CreateElement("SettingDetail");
+                settingElement.SetAttribute("SettingId", settingId.ToString());
+                settingElement.SetAttribute("ParameterKey", parameterKey);
+                settingElement.SetAttribute("ParameterValue", parameterValue.ToString());
+                settingElement.SetAttribute("SettingParameterType", ((byte)type).ToString());
+                settingDetailRoot.AppendChild(settingElement);
+            }
+            doc.AppendChild(settingDetailRoot);
+            return doc.OuterXml;
         }
     }
 }
