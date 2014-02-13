@@ -15,6 +15,7 @@ namespace ManagerService.Exchange
         private ServiceHost _ServiceHost;
         private ConnectionManager _ConnectionManager;
         private Dictionary<string, ExchangeSystem> _ExchangeSystems = new Dictionary<string,ExchangeSystem>();
+        private Dictionary<string, ConnectionState> _ExchangeConnectionStates = new Dictionary<string, ConnectionState>();
 
         public ExchangeManager(ExchangeSystemSetting[] exchangeSystemSettings)
         {
@@ -22,13 +23,11 @@ namespace ManagerService.Exchange
             for (int i = 0; i < exchangeSystemSettings.Length; i++)
             {
                 this._ExchangeSystems.Add(exchangeSystemSettings[i].Code, new ExchangeSystem(exchangeSystemSettings[i], this._ConnectionManager));
+                this._ExchangeConnectionStates.Add(exchangeSystemSettings[i].Code, ConnectionState.Unknown);
             }
         }
 
-        public ICollection<ExchangeSystem> GetExchangeSystems()
-        {
-            return new List<ExchangeSystem>(this._ExchangeSystems.Values);
-        }
+        public Dictionary<string, ConnectionState> ExchangeConnectionStates { get { return this._ExchangeConnectionStates; } }
 
         public void Start(string serviceAddress)
         {
@@ -56,6 +55,12 @@ namespace ManagerService.Exchange
                 Logger.AddEvent(TraceEventType.Error, "ExchangeManager.Register Invalid exchangeCode:" + exchangeCode);
             }
             return exchangeSystem != null;
+        }
+
+        public void NotifyExchangeConnectionStatus(string exchangeCode, ConnectionState state)
+        {
+            this._ExchangeConnectionStates[exchangeCode] = state;
+            MainService.ClientManager.Dispatch(new ExchangeConnectionStatusMessage() { ExchangeCode = exchangeCode, ConnectionState = state });
         }
 
         public ExchangeSystem GetExchangeSystem(string exchangeCode)

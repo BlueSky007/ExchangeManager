@@ -30,17 +30,18 @@ namespace ManagerConsole
         public UserManagerControl()
         {
             InitializeComponent();
-            this.IsAllowAdd = ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.UserManager, "AddUser");
-            this.IsAllowDelete = ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.UserManager, "DeleteUser");
-            this.IsAllowEdit = ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.UserManager, "EditUser");
             //ResourceDictionary resource = new ResourceDictionary();
             //resource.Source = new Uri(@"D:\Program Files (x86)\Infragistics\NetAdvantage 2013.1\WPF\Themes\Office2010Blue\Office2010Blue.xamGrid.xaml", UriKind.Absolute);
             //this.UserManager.Resources.MergedDictionaries.Add(resource);
+            Principal.Instance.PermissionChanged += Instance_PermissionChanged;
+            this.Instance_PermissionChanged();
             
         }
+
+        
         private ObservableCollection<UserData> _AllUserData = new ObservableCollection<UserData>();
         private ObservableCollection<UserModel> _users;
-        private ObservableCollection<RoleData> _roles;
+        private ObservableCollection<RoleData> _roles = new ObservableCollection<RoleData>();
         //private ObservableCollection<RoleData> _NewRole;
         private UserModel _NewUser = new UserModel();
         //private string _Password;
@@ -48,16 +49,25 @@ namespace ManagerConsole
         public bool IsAllowEdit { get; set; }
         public bool IsAllowDelete { get; set; }
         public bool IsAllowAdd { get; set; }
-
+        public void Instance_PermissionChanged()
+        {
+            IsAllowAdd = Principal.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.UserManager, "AddUser");
+            IsAllowEdit = Principal.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.UserManager, "EditUser");
+            IsAllowDelete = Principal.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.UserManager, "DeleteUser");
+        }
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
             try
             {
                 //if (this._roles == null)
                 //{
-                    this._roles = new ObservableCollection<RoleData>(ConsoleClient.Instance.GetRoles());
-                    ConsoleClient.Instance.GetUserData(this.InitUserTile);
-                    this.DataContext = this;
+                ConsoleClient.Instance.GetRoles(delegate(List<RoleData> roles)
+                {
+                    foreach (RoleData roleData in roles) this._roles.Add(roleData);
+                });
+
+                ConsoleClient.Instance.GetUserData(this.InitUserTile);
+                this.DataContext = this;
                 //}
             }
             catch (Exception ex)

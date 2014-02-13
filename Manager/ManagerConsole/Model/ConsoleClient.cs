@@ -1,15 +1,16 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.ServiceModel;
+using System.Xml;
+using System.Threading;
 using Manager.Common;
 using Manager.Common.QuotationEntities;
 using Manager.Common.LogEntities;
 using Manager.Common.ReportEntities;
 using iExchange.Common.Manager;
-using System.Xml;
 using Manager.Common.Settings;
-using System.Collections.ObjectModel;
 using TransactionError = iExchange.Common.TransactionError;
 using CancelReason = iExchange.Common.CancelReason;
 using iExchange.Common;
@@ -31,14 +32,18 @@ namespace ManagerConsole.Model
         private IClientService _ServiceProxy;
         private MessageClient _MessageClient = null;
         private string _SessionId;
-        private Function _AccessPermissions;
+        private Timer _RecoverTimer;
+        private int _ReocoverTimes;
+        private bool _IsLoggedIn = false;
 
         public MessageClient MessageClient
         {
             get { return this._MessageClient; }
-        } 
+        }
 
-        public void Login(Action<LoginResult, string> endLogin, string server, int port, string userName, string password, Language language, string oldSessionId = null)
+        public bool IsLoggedIn { get { return this._IsLoggedIn; } }
+
+        public void Login(Action<LoginResult, string> endLogin, string server, int port, string userName, string password, Language language)
         {
             if (this._MessageClient == null)
             {
@@ -47,22 +52,28 @@ namespace ManagerConsole.Model
 
             EndpointAddress address = new EndpointAddress(string.Format("net.tcp://{0}:{1}/Service", server, port));
             NetTcpBinding binding = new NetTcpBinding(SecurityMode.None) { MaxReceivedMessageSize = Int32.MaxValue };
-            binding.OpenTimeout = TimeSpan.FromMinutes(1);
-            binding.SendTimeout = binding.ReceiveTimeout = TimeSpan.FromHours(1);
+            binding.OpenTimeout = TimeSpan.FromSeconds(20);
+            binding.SendTimeout = binding.ReceiveTimeout = TimeSpan.FromSeconds(20);
             DuplexChannelFactory<IClientService> factory = new DuplexChannelFactory<IClientService>(this._MessageClient, binding, address);
             this._ServiceProxy = factory.CreateChannel();
-            this._ServiceProxy.BeginLogin(userName, password, oldSessionId, language, delegate(IAsyncResult ar)
+            this._ServiceProxy.BeginLogin(userName, password, language, delegate(IAsyncResult ar)
             {
                 try
                 {
                     LoginResult result = this._ServiceProxy.EndLogin(ar);
                     this.user = result.User;
+                    Principal.Instance.User = result.User;
                     if (result.Succeeded)
                     {
+                        App.MainFrameWindow.StatusBar.ShowUserConnectionState(ConnectionState.Connected);
+                        App.MainFrameWindow.StatusBar.ShowLoginUser(this.user.UserName);
+                        this._IsLoggedIn = true;
+                        ICommunicationObject communicationObject = this._ServiceProxy as ICommunicationObject;
+                        communicationObject.Faulted += communicationObject_Faulted;
                         this._SessionId = result.SessionId;
                         if (this.user.IsAdmin)
                         {
-                            this._AccessPermissions = new Function();
+                            Principal.Instance.UserPermission = new UserPermission();
                         }
                         else
                         {
@@ -85,6 +96,62 @@ namespace ManagerConsole.Model
                     Logger.TraceEvent(TraceEventType.Error, "Login failed: \r\n{0}", ex.Message);
                 }
             }, null);
+        }
+
+        private void communicationObject_Faulted(object sender, EventArgs e)
+        {
+            if (this._IsLoggedIn)
+            {
+                this._ReocoverTimes = 1;
+                if (this._RecoverTimer == null)
+                {
+                    this._RecoverTimer = new Timer(this.RecoverConnection);
+                }
+                App.MainFrameWindow.StatusBar.ShowUserConnectionState(ConnectionState.Connecting);
+                this._RecoverTimer.Change(50, Timeout.Infinite);
+                Logger.AddEvent(TraceEventType.Warning, "ConsoleClient.communicationObject_Faulted try recover.");
+            }
+            else
+            {
+                App.MainFrameWindow.StatusBar.ShowUserConnectionState(ConnectionState.Disconnected);
+            }
+            this._IsLoggedIn = false;
+        }
+
+        private void RecoverConnection(object state)
+        {
+            try
+            {
+                this._ServiceProxy.BeginRecoverConnection(this._SessionId, delegate(IAsyncResult result)
+                {
+                    bool recovered = this._ServiceProxy.EndRecoverConnection(result);
+                    this._IsLoggedIn = recovered;
+                    App.MainFrameWindow.StatusBar.ShowUserConnectionState(recovered ? ConnectionState.Connected : ConnectionState.Disconnected);
+                }, null);
+            }
+            catch(Exception exception)
+            {
+                if (this._ReocoverTimes++ < 20)
+                {
+                    this._RecoverTimer.Change(1000, Timeout.Infinite);
+                    Logger.AddEvent(TraceEventType.Warning, "ConsoleClient.RecoverConnection failed, try again.\r\n{0}", exception);
+                }
+                else
+                {
+                    App.MainFrameWindow.StatusBar.ShowUserConnectionState(ConnectionState.Disconnected);
+                    Logger.AddEvent(TraceEventType.Warning, "ConsoleClient.RecoverConnection failed\r\n{0}", exception);
+                }
+            }
+        }
+
+        public void Logout()
+        {
+            if (this._IsLoggedIn)
+            {
+                this._IsLoggedIn = false;
+                this._ServiceProxy.Logout();
+                App.MainFrameWindow.StatusBar.ShowUserConnectionState(ConnectionState.Disconnected);
+            }
         }
 
         public void LoadSettingsParameters(Action<SettingsParameter> EndLoadSettingsParameters)
@@ -119,17 +186,17 @@ namespace ManagerConsole.Model
             }
         }
 
-        public bool HasPermission(ModuleCategoryType category, ModuleType module, string operationCode)
-        {
-            if (this.user.IsAdmin)
-            {
-                return true;
-            }
-            else
-            {
-                return this._AccessPermissions.HasPermission(category, module, operationCode);
-            }
-        }
+        //public bool HasPermission(ModuleCategoryType category, ModuleType module, string operationCode)
+        //{
+        //    if (this.user.IsAdmin)
+        //    {
+        //        return true;
+        //    }
+        //    else
+        //    {
+        //        return this._AccessPermissions.HasPermission(category, module, operationCode);
+        //    }
+        //}
 
         public FunctionTree GetFunctionTree()
         {
@@ -200,7 +267,7 @@ namespace ManagerConsole.Model
             }, null);
         }
 
-        private void GetAccessPermissions(Action<Dictionary<string,List<FuncPermissionStatus>>> endGetPermissions)
+        public void GetAccessPermissions(Action<Dictionary<string,List<FuncPermissionStatus>>> endGetPermissions)
         {
             try
             {
@@ -217,12 +284,12 @@ namespace ManagerConsole.Model
             }
         }
 
-        private void EndGetPermissions(Dictionary<string, List<FuncPermissionStatus>> permissions)
+        public void EndGetPermissions(Dictionary<string, List<FuncPermissionStatus>> permissions)
         {
             try
             {
-                this._AccessPermissions = new Function();
-                this._AccessPermissions.FunctionPermissions = permissions;
+                Principal.Instance.UserPermission = new UserPermission();
+                Principal.Instance.UserPermission.FunctionPermissions = permissions;
             }
             catch (Exception ex)
             {
@@ -230,19 +297,40 @@ namespace ManagerConsole.Model
             }
         }
 
-        public List<RoleData> GetRoles()
+        public void GetRoles(Action<List<RoleData>> endGetRoles)
         {
-            return this._ServiceProxy.GetRoles();
+            this._ServiceProxy.BeginGetRoles(delegate(IAsyncResult ar)
+            {
+                List<RoleData> rolesDatas = this._ServiceProxy.EndGetRoles(ar);
+                App.MainFrameWindow.Dispatcher.BeginInvoke((Action<List<RoleData>>)delegate(List<RoleData> roles)
+                {
+                    endGetRoles(roles);
+                }, rolesDatas);
+            }, null);
         }
 
-        public List<RoleFunctonPermission> GetAllFunctionPermission()
+        public void GetAllFunctionPermission(Action<List<RoleFunctonPermission>> endGetAllFunctionPermission)
         {
-            return this._ServiceProxy.GetAllFunctionPermission();
+            this._ServiceProxy.BeginGetAllFunctionPermission(delegate(IAsyncResult ar)
+            {
+                List<RoleFunctonPermission> functonPermissions = this._ServiceProxy.EndGetAllFunctionPermission(ar);
+                App.MainFrameWindow.Dispatcher.BeginInvoke((Action<List<RoleFunctonPermission>>)delegate(List<RoleFunctonPermission> permissions)
+                {
+                    endGetAllFunctionPermission(permissions);
+                }, functonPermissions);
+            }, null);
         }
 
-        public List<RoleDataPermission> GetAllDataPermissions()
+        public void GetAllDataPermissions(Action<List<RoleDataPermission>> endGetAllDataPermissions)
         {
-            return this._ServiceProxy.GetAllDataPermission();
+            this._ServiceProxy.BeginGetAllDataPermission(delegate(IAsyncResult ar)
+            {
+                List<RoleDataPermission> dataPermissions = this._ServiceProxy.EndGetAllDataPermission(ar);
+                App.MainFrameWindow.Dispatcher.BeginInvoke((Action<List<RoleDataPermission>>)delegate(List<RoleDataPermission> permissions)
+                {
+                    endGetAllDataPermissions(permissions);
+                }, dataPermissions);
+            }, null);
         }
        
         public void UpdateUser(UserData user, string password, bool isNewUser, Action<bool> EndUpdateUser)

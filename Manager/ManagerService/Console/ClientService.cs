@@ -21,23 +21,19 @@ namespace ManagerService.Console
     public class ClientService : IClientService
     {
         private Client _Client;
-
-        private List<DataPermission> _DataPermissions;
         #region MainWindowFunction
-        
-        public LoginResult Login(string userName, string password, string oldSessionId, Language language)
+        public LoginResult Login(string userName, string password, Language language)
         {
             LoginResult loginResult = new LoginResult();
             List<DataPermission> dataPermissions = new List<DataPermission>();
             try
             {
-                User user = UserDataAccess.Login(userName, password,out dataPermissions);
+                User user = UserDataAccess.Login(userName, password, out dataPermissions);
                 if (user.UserId != Guid.Empty)
                 {
-                    this._DataPermissions = dataPermissions;
                     string sessionId = OperationContext.Current.SessionId;
                     IClientProxy clientProxy = OperationContext.Current.GetCallbackChannel<IClientProxy>();
-                    this._Client = MainService.ClientManager.AddClient(oldSessionId, sessionId, user, clientProxy, language);
+                    this._Client = MainService.ClientManager.AddClient(sessionId, user, clientProxy, language, dataPermissions);
 
                     OperationContext.Current.Channel.Faulted += this._Client.Channel_Broken;
                     OperationContext.Current.Channel.Closed += this._Client.Channel_Broken;
@@ -49,6 +45,9 @@ namespace ManagerService.Console
                     UserDataAccess.LoadLayout(userName, SR.LastClosed, out docklayout, out content);
                     loginResult.DockLayout = docklayout;
                     loginResult.ContentLayout = content;
+
+                    loginResult.SourceConnectionStates = MainService.QuotationManager.SourceConnectionStates;
+                    loginResult.ExchangeConnectionStates = MainService.ExchangeManager.ExchangeConnectionStates;
                 }
                 else
                 {
@@ -57,53 +56,80 @@ namespace ManagerService.Console
             }
             catch (Exception ex)
             {
-                Logger.TraceEvent(TraceEventType.Error, "userName:{0}, login failed:\r\n{1}", userName, ex.ToString());
+                Logger.TraceEvent(TraceEventType.Error, "Login userName:{0}, login failed:\r\n{1}", userName, ex.ToString());
             }
             return loginResult;
+        }
+
+        public bool RecoverConnection(string oldSessionId)
+        {
+            try
+            {
+                string sessionId = OperationContext.Current.SessionId;
+                IClientProxy clientProxy = OperationContext.Current.GetCallbackChannel<IClientProxy>();
+                Client client;
+                if (MainService.ClientManager.TryRecoverConnection(oldSessionId, sessionId, clientProxy, out client))
+                {
+                    this._Client = client;
+                    return true;
+                }
+                else
+                {
+                    OperationContext.Current.Channel.Abort();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "RecoverConnection oldSessionId:{0}, login failed:\r\n{1}", oldSessionId, ex);
+            }
+            return false;
         }
 
         public InitializeData GetInitializeData()
         {
             InitializeData initializeData = new InitializeData();
-            initializeData.ConfigParameter = new ConfigParameter()
-            {
-                AllowModifyOrderLot = MainService.ManagerSettings.AllowModifyOrderLot,
-                ConfirmRejectDQOrder = MainService.ManagerSettings.ConfirmRejectDQOrder
-            };
             try
             {
+                initializeData.ConfigParameter = new ConfigParameter()
+                {
+                    AllowModifyOrderLot = MainService.ManagerSettings.AllowModifyOrderLot,
+                };
                 Dictionary<string, List<Guid>> accountPermissions = new Dictionary<string, List<Guid>>();
                 Dictionary<string, List<Guid>> instrumentPermissions = new Dictionary<string, List<Guid>>();
                 List<ExchangeInitializeData> exchangeInitializeDatas = new List<ExchangeInitializeData>();
-                foreach (ExchangeSystemSetting item in MainService.ManagerSettings.ExchangeSystems)
+                foreach (ExchangeSystemSetting exchangeSystemSetting in MainService.ManagerSettings.ExchangeSystems)
                 {
                     List<Guid> accountMemberIds = new List<Guid>();
                     List<Guid> instrumentMemberIds = new List<Guid>();
                     bool accountDeafultStatus;
                     bool instrumentDeafultStatus;
 
-                    List<DataPermission> systemPermissions = this._DataPermissions.FindAll(delegate(DataPermission data)
-                        {
-                            return data.ExchangeSystemCode == item.Code;
-                        });
-                    UserDataAccess.GetGroupDeafultStatus(item.Code, systemPermissions, out accountDeafultStatus, out instrumentDeafultStatus);
+                    List<DataPermission> systemPermissions;
                     if (this._Client.user.IsAdmin)
                     {
                         accountDeafultStatus = true;
                         instrumentDeafultStatus = true;
-                        systemPermissions.Clear();
+                        systemPermissions = new List<DataPermission>();
                     }
-                    ExchangeInitializeData exchangeInitializeData = ExchangeData.GetInitData(item.Code, this._Client.user.UserId, systemPermissions,
+                    else
+                    {
+                        systemPermissions = this._Client.DataPermissions.FindAll(delegate(DataPermission data)
+                        {
+                            return data.ExchangeSystemCode == exchangeSystemSetting.Code;
+                        });
+                        UserDataAccess.GetGroupDeafultStatus(exchangeSystemSetting.Code, systemPermissions, out accountDeafultStatus, out instrumentDeafultStatus);
+                    }
+                    ExchangeInitializeData exchangeInitializeData = ExchangeData.GetInitData(exchangeSystemSetting.Code, this._Client.user.UserId, systemPermissions,
                         accountDeafultStatus, instrumentDeafultStatus, out accountMemberIds, out instrumentMemberIds);
 
-                    exchangeInitializeData.ExchangeCode = item.Code;
-                    accountPermissions.Add(item.Code, accountMemberIds);
-                    instrumentPermissions.Add(item.Code, instrumentMemberIds);
+                    exchangeInitializeData.ExchangeCode = exchangeSystemSetting.Code;
+                    accountPermissions.Add(exchangeSystemSetting.Code, accountMemberIds);
+                    instrumentPermissions.Add(exchangeSystemSetting.Code, instrumentMemberIds);
 
                     exchangeInitializeDatas.Add(exchangeInitializeData);
 
                 }
-                this._Client.UpdatePermission(accountPermissions, instrumentPermissions);
+                this._Client.ReplacePermissionData(accountPermissions, instrumentPermissions);
                 initializeData.ExchangeInitializeDatas = exchangeInitializeDatas.ToArray();
             }
             catch (Exception ex)
@@ -115,34 +141,80 @@ namespace ManagerService.Console
 
         public void Logout()
         {
-            this._Client.Close();
+            try
+            {
+                this._Client.HandleLogout();
+            }
+            catch (Exception ex)
+            {
+                Logger.AddEvent(TraceEventType.Error, "ClientService.SaveLayout userName:{0},IP:{1}\r\n{2}", this._Client.user.UserName,this._Client.IP, ex);
+            }
         }
 
         public FunctionTree GetFunctionTree()
         {
-            return this._Client.GetFunctionTree();
+            try
+            {
+                return this._Client.GetFunctionTree();
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "ClientService.GetFunctionTree userName:{0},IP:{1}\r\n{2}", this._Client.user.UserName, this._Client.IP, ex);
+                return new FunctionTree();
+            }
         }
 
-        public void SaveLayout(string layout, string content,string layoutName)
+        public void SaveLayout(string layout, string content, string layoutName)
         {
-            this._Client.SaveLayout(layout, content, layoutName);
+            try
+            {
+                this._Client.SaveLayout(layout, content, layoutName);
+            }
+            catch (Exception ex)
+            {
+                Logger.AddEvent(TraceEventType.Error, "ClientService.SaveLayout userName:{0},IP:{1}\r\n{2}", this._Client.user.UserName, this._Client.IP, ex);
+            }
         }
 
         public List<string> LoadLayout(string layoutName)
         {
-            return this._Client.LoadLayout(layoutName);
+            try
+            {
+                return this._Client.LoadLayout(layoutName);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "ClientService.LoadLayout userName:{0},IP:{1}\r\n{2}", this._Client.user.UserName, this._Client.IP, ex);
+                return new List<string>();
+            }
         }
         #endregion
 
         #region UserAndRoleManager
         public bool ChangePassword(string currentPassword, string newPassword)
         {
-            return this._Client.ChangePassword(currentPassword, newPassword);
+            try
+            {
+                return this._Client.ChangePassword(currentPassword, newPassword);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "ClientService.ChangePassword userName:{0},IP:{1}\r\n{2}", this._Client.user.UserName, this._Client.IP, ex);
+                return false;
+            }
         }
 
         public Dictionary<string, List<FuncPermissionStatus>> GetAccessPermissions()
         {
-            return this._Client.GetAccessPermissions();
+            try
+            {
+                return this._Client.GetAccessPermissions();
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "ClientService.GetAccessPermission userName:{0},IP:{1}\r\n{2}", this._Client.user.UserName, this._Client.IP, ex);
+                return null;
+            }
         }
 
         public List<UserData> GetUserData()
@@ -285,7 +357,15 @@ namespace ManagerService.Console
         public List<OrderQueryEntity> GetOrderByInstrument(Guid instrumentId, Guid accountGroupId, OrderType orderType,
             bool isExecute, DateTime fromDate, DateTime toDate)
         {
-            return this._Client.GetOrderByInstrument(instrumentId, accountGroupId, orderType, isExecute, fromDate, toDate);
+            try
+            {
+                return this._Client.GetOrderByInstrument(instrumentId, accountGroupId, orderType, isExecute, fromDate, toDate);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "ClientService.GetOrderByInstrument userName:{0},IP:{1}\r\n{2}", this._Client.user.UserName, this._Client.IP, ex);
+                return null;
+            }
         }
 
         public List<AccountGroupGNP> GetGroupNetPosition()
@@ -339,7 +419,15 @@ namespace ManagerService.Console
 
         public ConfigMetadata GetConfigMetadata()
         {
-            return this._Client.GetConfigMetadata();
+            try
+            {
+                return this._Client.GetConfigMetadata();
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "ClientService.GetConfigMetadata userName:{0},IP:{1}\r\n{2}", this._Client.user.UserName, this._Client.IP, ex);
+                return null;
+            }
         }
         
 
@@ -356,7 +444,7 @@ namespace ManagerService.Console
             }
             catch (Exception ex)
             {
-                Logger.AddEvent(TraceEventType.Error, "[ManagerService.AddMetadataObject]{0}\r\n{1}", metadataObject, ex.ToString());
+                Logger.AddEvent(TraceEventType.Error, "[ClientService.GetQuoteLogData]{0}\r\n{1}", metadataObject, ex.ToString());
             }
             return 0;
         }
@@ -369,7 +457,7 @@ namespace ManagerService.Console
             }
             catch (Exception ex)
             {
-                Logger.AddEvent(TraceEventType.Error, "[ManagerService.AddMetadataObjects]{0}", ex.ToString());
+                Logger.AddEvent(TraceEventType.Error, "[ClientService.AddInstrument]{0}", ex.ToString());
             }
             return 0;
         }
@@ -384,7 +472,7 @@ namespace ManagerService.Console
             catch (Exception ex)
             {
                 Logger.AddEvent(TraceEventType.Error,
-                    "[ManagerService.UpdateMetadataObject]Type:{0}, Id:{1}\r\nfields:\r\n{2}{3}", type, objectId, ServiceHelper.DumpDictionary(fieldAndValues), ex.ToString());
+                    "[ClientService.UpdateMetadataObject]Type:{0}, Id:{1}\r\nfields:\r\n{2}{3}", type, objectId, ServiceHelper.DumpDictionary(fieldAndValues), ex.ToString());
             }
             return false;
         }
@@ -397,7 +485,7 @@ namespace ManagerService.Console
             }
             catch (Exception ex)
             {
-                string log = "[ManagerService.UpdateMetadataObjects]\r\n";
+                string log = "[ClientService.UpdateMetadataObjects]\r\n";
                 foreach (UpdateData item in updateDatas)
                 {
                     log += string.Format("Type:{0}, Id:{1}\r\nfields:\r\n{2}\r\n", item.MetadataType, item.ObjectId, ServiceHelper.DumpDictionary(item.FieldsAndValues));
@@ -417,7 +505,7 @@ namespace ManagerService.Console
             catch (Exception ex)
             {
                 Logger.AddEvent(TraceEventType.Error,
-                    "[ManagerService.UpdateMetadataObject]type:{0}, Id:{1}, field:{2}, value:{3}\r\n{4}", type, objectId, field, value, ex.ToString());
+                    "[ClientService.UpdateMetadataObject]type:{0}, Id:{1}, field:{2}, value:{3}\r\n{4}", type, objectId, field, value, ex.ToString());
             }
             return false;
         }
@@ -432,7 +520,7 @@ namespace ManagerService.Console
             catch (Exception ex)
             {
                 Logger.AddEvent(TraceEventType.Error,
-                    "[ManagerService.DeleteMetadataObject]Type:{0}, Id:{1}\r\n{2}", type, objectId, ex.ToString());
+                    "[ClientService.DeleteMetadataObject]Type:{0}, Id:{1}\r\n{2}", type, objectId, ex.ToString());
             }
             return false;
         }
@@ -447,7 +535,7 @@ namespace ManagerService.Console
             catch (Exception ex)
             {
                 Logger.AddEvent(TraceEventType.Error,
-                    "[ManagerService.SendQuotation]instrumentSourceRelationId:{0}, ask:{1}, bid:{2}\r\n{3}", instrumentSourceRelationId, ask, bid, ex.ToString());
+                    "[ClientService.SendQuotation]instrumentSourceRelationId:{0}, ask:{1}, bid:{2}\r\n{3}", instrumentSourceRelationId, ask, bid, ex.ToString());
             }
         }
 
@@ -477,7 +565,15 @@ namespace ManagerService.Console
 
         public bool ExchangeSuspendResume(Dictionary<string, List<Guid>> instruments, bool resume)
         {
-            return this._Client.ExchangeSuspendResume(instruments, resume);
+            try
+            {
+                return this._Client.ExchangeSuspendResume(instruments, resume);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "ClientService.ExchangeSuspendResume userName:{0},IP:{1}\r\n{2}", this._Client.user.UserName, this._Client.IP, ex);
+                return false;
+            }
         }
 
         public void SetQuotationPolicyDetail(Guid relationId, QuotePolicyDetailsSetAction action, int changeValue)
@@ -488,7 +584,7 @@ namespace ManagerService.Console
             }
             catch (Exception ex)
             {
-                Logger.TraceEvent(TraceEventType.Error, "ManagerServer/SetQuotePolicyDetail.\r\n{0}", ex.ToString());
+                Logger.TraceEvent(TraceEventType.Error, "ClientService.SetQuotePolicyDetail.\r\n{0}", ex.ToString());
             }
         }
 
@@ -500,7 +596,7 @@ namespace ManagerService.Console
             }
             catch (Exception ex)
             {
-                Logger.TraceEvent(TraceEventType.Error, "ManagerServer.AddNewRelation.\r\n{0}", ex.ToString());
+                Logger.TraceEvent(TraceEventType.Error, "ClientService.AddNewRelation.\r\n{0}", ex.ToString());
                 return false;
             }
         }
@@ -514,7 +610,7 @@ namespace ManagerService.Console
             catch (Exception ex)
             {
                 Logger.AddEvent(TraceEventType.Error,
-                    "[ManagerService.SwitchActiveSource] InstrumentId:{0}, OldRelationId:{1}, NewRelationId:{2}\r\n{3}",
+                    "ClientService.SwitchActiveSource InstrumentId:{0}, OldRelationId:{1}, NewRelationId:{2}\r\n{3}",
                     message.InstrumentId, message.OldRelationId, message.NewRelationId, ex.ToString());
             }
         }
@@ -527,7 +623,7 @@ namespace ManagerService.Console
             }
             catch (Exception ex)
             {
-                Logger.TraceEvent(TraceEventType.Error, "[ManagerService.GetQuotePolicyRelation\r\n{0}", ex.ToString());
+                Logger.TraceEvent(TraceEventType.Error, "ClientService.GetQuotePolicyRelation\r\n{0}", ex.ToString());
                 return new List<QuotePolicyRelation>();
             }
         }
@@ -541,7 +637,7 @@ namespace ManagerService.Console
             catch (Exception ex)
             {
                 Logger.AddEvent(TraceEventType.Error,
-                    "[ManagerService.ConfirmAbnormalQuotation] instrumentId:{0}, confirmId:{1}, accepted:{2}\r\n{3}",
+                    "ClientService.ConfirmAbnormalQuotation instrumentId:{0}, confirmId:{1}, accepted:{2}\r\n{3}",
                     instrumentId, confirmId, accepted, ex.ToString());
             }
         }
@@ -555,7 +651,7 @@ namespace ManagerService.Console
             catch (Exception exception)
             {
                 Logger.AddEvent(TraceEventType.Error,
-                    "[ManagerService.SuspendResume] instrumentIds:{0}, resume:{1}\r\n{2}",
+                    "ClientService.SuspendResume instrumentIds:{0}, resume:{1}\r\n{2}",
                     string.Join(",", instrumentIds), resume, exception);
             }
         }

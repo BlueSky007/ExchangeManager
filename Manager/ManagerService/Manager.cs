@@ -18,6 +18,7 @@ namespace ManagerService
         {
             try
             {
+                System.IO.Directory.SetCurrentDirectory(System.AppDomain.CurrentDomain.BaseDirectory);
                 MainService.ManagerSettings = ManagerSettings.Load();
                 MainService.ExchangeManager = new ExchangeManager(MainService.ManagerSettings.ExchangeSystems);
                 MainService.ClientManager = new ClientManager();

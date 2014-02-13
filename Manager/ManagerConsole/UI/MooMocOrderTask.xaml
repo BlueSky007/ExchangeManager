@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:igGrid="http://schemas.infragistics.com/xaml"
+             xmlns:localui="clr-namespace:ManagerConsole.Helper"
              mc:Ignorable="d" 
               d:DesignHeight="500" d:DesignWidth="1000">
     <UserControl.Resources>
@@ -23,10 +24,12 @@
         <Style x:Key="ButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="#FF86CEF3"/>
         </Style>
+        <localui:PriceTrendConverter  x:Key="PriceTrendConverter" />
+        <localui:PriceTrendForegroundConvert x:Key="PriceTrendForegroundConvert"/>
     </UserControl.Resources>
     <Grid x:Name="LayRootGrid">
         <Border Margin="0 0 5 0" BorderBrush="Black" Grid.Row="0">
-            <igGrid:XamGrid x:Name="MooMocOrderTaskGrid" AutoGenerateColumns="False" Background="#FF808080" ColumnWidth="Auto" CellStyle="{StaticResource CellStyle}" Foreground="{Binding IsBuyBrush}">
+            <igGrid:XamGrid x:Name="MooMocOrderTaskGrid" AutoGenerateColumns="False" ColumnWidth="Auto">
                 <igGrid:XamGrid.EditingSettings>
                     <igGrid:EditingSettings IsEnterKeyEditingEnabled="True" IsF2EditingEnabled="True"/>
                 </igGrid:XamGrid.EditingSettings>
@@ -55,17 +58,17 @@
                                     </DataTemplate>
                                 </igGrid:TemplateColumn.ItemTemplate>
                             </igGrid:TemplateColumn>
-                            <igGrid:TemplateColumn Key="OrderStatusString" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Order Status">
+                            <igGrid:TemplateColumn Key="OrderStatusString" Width="120" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Order Status">
                                 <igGrid:TemplateColumn.ItemTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding OrderStatusString}" Foreground="{Binding RowBrush}" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding OrderStatusString}" Foreground="Red" FontWeight="Black"/>
                                     </DataTemplate>
                                 </igGrid:TemplateColumn.ItemTemplate>
                             </igGrid:TemplateColumn>
                             <igGrid:TemplateColumn Key="InstrumentCode" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Item">
                                 <igGrid:TemplateColumn.ItemTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding InstrumentCode}" Foreground="{Binding RowBrush}"/>
+                                        <TextBlock Text="{Binding InstrumentCode}"/>
                                     </DataTemplate>
                                 </igGrid:TemplateColumn.ItemTemplate>
                             </igGrid:TemplateColumn>
@@ -100,15 +103,25 @@
                     </igGrid:ColumnLayout>
 
                     <!--Column Setting-->
-                    <igGrid:UnboundColumn Key="MooMocHandle" HeaderText="Action" IsFixed="Left" Width="250">
+                    <igGrid:UnboundColumn Key="MooMocHandle" HeaderText="Action" IsFixed="Left" Width="125">
                         <igGrid:UnboundColumn.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal" Width="240">
-                                    <Button x:Name="AcceptBtn" Background="#FF293955" Foreground="White" Click="OrderHandlerBtn_Click" Width="48" Content="Accept"/>
-                                    <Button x:Name="RejectBtn" Background="#FF293955" Foreground="White" Click="OrderHandlerBtn_Click" Width="48" Content="Reject"/>
-                                    <Button x:Name="ApplyBtn"  Background="#FF293955" Foreground="White" Click="OrderHandlerBtn_Click" Width="48" Content="Apply"/>
-                                    <Button x:Name="ExcuteBtn" Background="#FF293955" Foreground="White" Click="OrderHandlerBtn_Click" Width="48" Content="Execute"/>
-                                    <Button x:Name="CancelBtn" Background="#FF293955" Foreground="White" Click="OrderHandlerBtn_Click" Width="48" Height="25" Content="Cancel"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Click="OrderHandlerBtn_Click" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="AcceptBtn" Margin="0" Width="25" >
+                                        <Image Source="../Asset/Images/Accept.png" ToolTipService.ToolTip="Accept"  Width="17" Height="17"/>
+                                    </Button>
+                                    <Button Click="OrderHandlerBtn_Click" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Margin="1,0,0,0" x:Name="RejectBtn">
+                                        <Image Source="../Asset/Images/Reject.png" ToolTipService.ToolTip="Reject"  Width="17" Height="17"/>
+                                    </Button>
+                                    <Button Click="OrderHandlerBtn_Click" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="ApplyBtn" Margin="0" Width="25" >
+                                        <Image Source="../Asset/Images/Apply.png" ToolTipService.ToolTip="Apply"  Width="17" Height="17"/>
+                                    </Button>
+                                    <Button Click="OrderHandlerBtn_Click" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Margin="1,0,0,0" x:Name="ExcuteBtn">
+                                        <Image Source="../Asset/Images/Execute.png" ToolTipService.ToolTip="Execute"  Width="17" Height="17"/>
+                                    </Button>
+                                    <Button Click="OrderHandlerBtn_Click" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="CancelBtn" Margin="0" Width="25" >
+                                        <Image Source="../Asset/Images/delete.png" ToolTipService.ToolTip="Cancel"  Width="17" Height="17"/>
+                                    </Button>
                                 </StackPanel>
                             </DataTemplate>
                         </igGrid:UnboundColumn.ItemTemplate>
@@ -116,7 +129,7 @@
                     <igGrid:TemplateColumn Key="InstrumentCode" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Item">
                         <igGrid:TemplateColumn.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding InstrumentCode}" Foreground="{Binding RowBrush}"/>
+                                <TextBlock Text="{Binding InstrumentCode}"/>
                             </DataTemplate>
                         </igGrid:TemplateColumn.ItemTemplate>
                     </igGrid:TemplateColumn>
@@ -124,27 +137,46 @@
                     <igGrid:TemplateColumn Key="Origin" Width="80" HorizontalContentAlignment="Center"  HeaderText="Origin">
                         <igGrid:TemplateColumn.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Origin}" Foreground="{Binding IsBuyBrush}"/>
+                                <TextBlock Text="{Binding Origin}"/>
+                            </DataTemplate>
+                        </igGrid:TemplateColumn.ItemTemplate>
+                    </igGrid:TemplateColumn>
+                    <igGrid:TemplateColumn Key="PriceTrend"  Width="18" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText=" " >
+                        <igGrid:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <Image x:Name="PriceTrendImage" HorizontalAlignment="Center" Source="{Binding PriceTrend, Converter={StaticResource PriceTrendConverter}}" VerticalAlignment="Top" Width="15" Height="11"/>
+                            </DataTemplate>
+                        </igGrid:TemplateColumn.ItemTemplate>
+                    </igGrid:TemplateColumn>
+                    <igGrid:TemplateColumn Key="Ask"  Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Ask" >
+                        <igGrid:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Ask}" Margin="0,0,0,5" FontWeight="Bold" Foreground="{Binding PriceTrend,Converter={StaticResource PriceTrendForegroundConvert}}" TextAlignment="Right" />
+                            </DataTemplate>
+                        </igGrid:TemplateColumn.ItemTemplate>
+                    </igGrid:TemplateColumn>
+                    <igGrid:TemplateColumn Key="Bid"  Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Bid" >
+                        <igGrid:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Bid}" Margin="0,0,0,5" FontWeight="Bold" Foreground="{Binding PriceTrend,Converter={StaticResource PriceTrendForegroundConvert}}" TextAlignment="Right"/>
                             </DataTemplate>
                         </igGrid:TemplateColumn.ItemTemplate>
                     </igGrid:TemplateColumn>
                     <igGrid:TextColumn Key="SumSellLot"  Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Total Sell" />
                     <igGrid:TextColumn Key="SumBuyLot" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Total Buy" />
-                    <igGrid:TextColumn Key="Instrument.Ask"  Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Ask" />
-                    <igGrid:TextColumn Key="Instrument.Bid" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Bid" />
                     <igGrid:TemplateColumn Key="BuySellString" HeaderText="BuySell"  Width="100">
                         <igGrid:TemplateColumn.ItemTemplate>
                             <DataTemplate>
                                 <!--<igCombo:XamComboEditor x:Name="BuySellCombo" Loaded="" Width="90" SelectionChanged="" />-->
-                                <ComboBox x:Name="BuySellCombo" Margin="0" Foreground="Blue" ItemsSource="{Binding BuySellList}"  SelectedItem="{Binding BuySellString,Mode=TwoWay}"  Width="90" />
+                                <ComboBox x:Name="BuySellCombo" Margin="0" Foreground="Blue"  Width="100" ItemsSource="{Binding BuySellList}"  SelectedItem="{Binding BuySellString,Mode=TwoWay}"/>
                             </DataTemplate>
                         </igGrid:TemplateColumn.ItemTemplate>
                     </igGrid:TemplateColumn>
 
-                    <igGrid:TemplateColumn Key="OpenCloseString" HeaderText="Is Open" Width="100">
+                    <igGrid:TemplateColumn Key="OpenCloseString" x:Name="OpenCloseColumn" HeaderText="Is Open" Width="100">
                         <igGrid:TemplateColumn.ItemTemplate>
                             <DataTemplate>
-                                <ComboBox x:Name="IsOPenCombo" Margin="0" Foreground="Blue" ItemsSource="{Binding OpenCloseList}" SelectedItem="{Binding OpenCloseString,Mode=TwoWay}" Width="90" />
+                                <ComboBox x:Name="IsOPenCombo" Margin="0" Foreground="Blue" HorizontalAlignment="Center" ItemsSource="{Binding OpenCloseList}" SelectedItem="{Binding OpenCloseString,Mode=TwoWay}" Width="100" />
                             </DataTemplate>
                         </igGrid:TemplateColumn.ItemTemplate>
                     </igGrid:TemplateColumn>

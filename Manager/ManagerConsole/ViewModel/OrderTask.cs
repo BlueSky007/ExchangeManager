@@ -24,7 +24,6 @@ namespace ManagerConsole.ViewModel
             this.Update(order);
         }
 
-
         #region Private Property
         private Order _BaseOrder;
         private bool _IsSelected = false;
@@ -81,6 +80,8 @@ namespace ManagerConsole.ViewModel
         {
             this.ChangeOrderStatus(newOrderStatus);
         }
+
+        public string ScheduleID { get; set; }
 
         public bool IsSelected
         {
@@ -422,6 +423,7 @@ namespace ManagerConsole.ViewModel
         #endregion
 
         #region Change OrderStatus
+
         public void ChangeOrderStatus(OrderStatus newStatus)
         {
             this.LastOrderStatus = this.OrderStatus;
@@ -477,12 +479,12 @@ namespace ManagerConsole.ViewModel
                 }
                 else
                 {
-                    this._CellDataDefine1.ColumnWidth = 120;
+                    this._CellDataDefine1.ColumnWidth = 25;
                     this._CellDataDefine1.Action = HandleAction.OnOrderAcceptPlace;
                     this._CellDataDefine1.Caption = "Accept";
                     this._CellDataDefine1.IsVisibility = Visibility.Visible;
 
-                    this._CellDataDefine2.ColumnWidth = 120;
+                    this._CellDataDefine2.ColumnWidth = 25;
                     this._CellDataDefine2.Action = HandleAction.OnOrderRejectPlace;
                     this._CellDataDefine2.Caption = "Reject";
                     this._CellDataDefine2.FontColor = new SolidColorBrush(Colors.Red);
@@ -522,9 +524,9 @@ namespace ManagerConsole.ViewModel
                 if ((this.OrderType == OrderType.Limit || this.OrderType == OrderType.OneCancelOther)
                             && this.OrderStatus == OrderStatus.WaitAcceptRejectCancel)
                 {
-                    this._CellDataDefine1.ColumnWidth = 120;
+                    this._CellDataDefine1.ColumnWidth = 25;
                     this._CellDataDefine1.IsVisibility = Visibility.Visible;
-                    this._CellDataDefine2.ColumnWidth = 120;
+                    this._CellDataDefine2.ColumnWidth = 25;
                     this._CellDataDefine2.IsVisibility = Visibility.Visible;
                 }
                 else if (this.OrderStatus == OrderStatus.WaitOutPriceLMT 
@@ -534,25 +536,25 @@ namespace ManagerConsole.ViewModel
                 {
                     bool btnUpdateIsEnable = (this.OrderStatus == OrderStatus.WaitOutPriceLMT) ? false : true;
                     bool btnModifyIsEnable = (this.OrderStatus == OrderStatus.WaitOutLotLMT) ? true : false;
-                    this._CellDataDefine1.ColumnWidth = 60;
+                    this._CellDataDefine1.ColumnWidth = 25;
                     this._CellDataDefine1.Action = HandleAction.OnOrderUpdate;
                     this._CellDataDefine1.Caption = "uPdate";
                     this._CellDataDefine1.IsEnable = btnUpdateIsEnable;
                     this._CellDataDefine1.IsVisibility = Visibility.Visible;
 
-                    this._CellDataDefine2.ColumnWidth = 60;
+                    this._CellDataDefine2.ColumnWidth = 25;
                     this._CellDataDefine2.Action = HandleAction.OnOrderModify;
                     this._CellDataDefine2.Caption = "modiFy";
                     this._CellDataDefine2.IsEnable = btnModifyIsEnable;
                     this._CellDataDefine2.IsVisibility = Visibility.Visible;
 
-                    this._CellDataDefine3.ColumnWidth = 60;
+                    this._CellDataDefine3.ColumnWidth = 25;
                     this._CellDataDefine3.Action = HandleAction.OnOrderWait;
                     this._CellDataDefine3.Caption = "waIt";
                     this._CellDataDefine3.IsEnable = true;
                     this._CellDataDefine3.IsVisibility = Visibility.Visible;
 
-                    this._CellDataDefine4.ColumnWidth = 60;
+                    this._CellDataDefine4.ColumnWidth = 25;
                     this._CellDataDefine4.Action = HandleAction.OnOrderExecute;
                     this._CellDataDefine4.Caption = "Execute";
                     this._CellDataDefine3.IsEnable = true;
@@ -567,11 +569,11 @@ namespace ManagerConsole.ViewModel
                     this._DQCellDataDefine2.IsEnable = true;
                     this._DQCellDataDefine2.IsVisibility = Visibility.Visible;
 
-                    this._CellDataDefine2.ColumnWidth = 240;
-                    this._CellDataDefine2.Action = HandleAction.OnOrderCancel;
-                    this._CellDataDefine2.Caption = "Cancel";
-                    this._CellDataDefine2.IsEnable = true;
-                    this._CellDataDefine2.IsVisibility = Visibility.Visible;
+                    this._CellDataDefine3.ColumnWidth = 100;
+                    this._CellDataDefine3.Action = HandleAction.OnOrderCancel;
+                    this._CellDataDefine3.Caption = "Cancel";
+                    this._CellDataDefine3.IsEnable = true;
+                    this._CellDataDefine3.IsVisibility = Visibility.Visible;
                 }
                 else if (this.OrderType == OrderType.Market)
                 {
@@ -590,32 +592,14 @@ namespace ManagerConsole.ViewModel
         #region Handle Action
         public void ResetHit()
         {
-            this._HitCount = 0;
+            this.HitCount = 0;
         }
         public void ChangeStatus(OrderStatus orderStatus)
         {
             this.OrderStatus = orderStatus;
             this.SetCellDataDefine(this.OrderStatus);
         }
-        public void DoAcceptPlace()
-        {
-            if (this.OrderStatus == OrderStatus.WaitAcceptRejectPlace)
-            {
-                this.ChangeStatus(OrderStatus.WaitServerResponse);
-            }
-        }
-        public void DoWait()
-        {
-            if (this.OrderStatus == OrderStatus.WaitOutPriceLMT || this.OrderStatus == OrderStatus.WaitOutLotLMT
-           || this.OrderStatus == OrderStatus.WaitOutLotLMTOrigin)
-            {
-                this.ChangeStatus(OrderStatus.WaitNextPrice);
-            }
-        }
-        public void DoReject()
-        {
-            this.ChangeStatus(OrderStatus.Deleting);
-        }
+
         #endregion
         #endregion
 
@@ -642,6 +626,15 @@ namespace ManagerConsole.ViewModel
             this._BestPrice = order.BestPrice;
             this._BestTime = order.BestTime;
             this.ChangeStatus(this._OrderStatus);
+        }
+
+        internal void UpdateHitOrder(Order newOrder)
+        {
+            this.SetPrice = newOrder.SetPrice;
+            this.HitCount = newOrder.HitCount;
+            this.BestPrice = newOrder.BestPrice;
+            this.BestTime = newOrder.BestTime;
+            this.OrderStatus = newOrder.Status;
         }
     }
 

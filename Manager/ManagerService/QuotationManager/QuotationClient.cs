@@ -22,12 +22,14 @@ namespace ManagerService.Quotation
         private string _SourceName;
         private QuotationManager _QuotationManager;
         private RelayEngine<string> _QuotationRelayEngine;
+        private Timer _ConnectionCheckTimer;
 
         public QuotationClient(TcpClient tcpClient, QuotationManager quotationManager)
         {
             this._QuotationManager = quotationManager;
             this._TcpClient = tcpClient;
             this._SourceName = "";
+            this._ConnectionCheckTimer = new Timer(this.ConnectionCheck);
         }
 
         public void Start()
@@ -129,7 +131,7 @@ namespace ManagerService.Quotation
             string password = authenticationInfo[2];
             this._SourceName = sourceName;
 
-            this._QuotationManager.QuotationSourceStatusChanged(sourceName, ConnectionState.Connecting);
+            this._QuotationManager.NofitySourceConnectionStatus(sourceName, ConnectionState.Connecting);
 
             QuotationClient oldQuotationClient;
             if (QuotationClient._Sources.TryGetValue(sourceName, out oldQuotationClient))
@@ -144,7 +146,7 @@ namespace ManagerService.Quotation
                 Logger.AddEvent(TraceEventType.Information, "QuotationReceiver.ProcessAuthentication Connection from {0} is established", this._SourceName);
                 this._TcpClient.GetStream().WriteByte(1);
                 QuotationClient._Sources.Add(sourceName, this);
-                this._QuotationManager.QuotationSourceStatusChanged(sourceName, ConnectionState.Connected);
+                this._QuotationManager.NofitySourceConnectionStatus(sourceName, ConnectionState.Connected);
             }
             else
             {
@@ -166,7 +168,7 @@ namespace ManagerService.Quotation
                 if (!string.IsNullOrEmpty(this._SourceName))
                 {
                     QuotationClient._Sources.Remove(this._SourceName);
-                    this._QuotationManager.QuotationSourceStatusChanged(this._SourceName, ConnectionState.Disconnected);
+                    this._QuotationManager.NofitySourceConnectionStatus(this._SourceName, ConnectionState.Disconnected);
                 }
             }
         }
@@ -177,13 +179,25 @@ namespace ManagerService.Quotation
             {
                 int offset = 0;
                 int len = buffer.Length;
+                bool checkTimerStarted = false;
 
                 while (len > 0)
                 {
                     int readLength = this._NetworkStream.Read(buffer, offset, len);
-                    offset += readLength;
-                    len = buffer.Length - offset;
-                    Thread.Sleep(10);
+                    if (readLength == 0)
+                    {
+                        if (!checkTimerStarted)
+                        {
+                            this._ConnectionCheckTimer.Change(1, Timeout.Infinite);
+                            checkTimerStarted = true;
+                        }
+                    }
+                    else
+                    {
+                        offset += readLength;
+                        len = buffer.Length - offset;
+                    }
+                    Thread.Sleep(3);
                 }
                 return true;
             }
@@ -191,6 +205,19 @@ namespace ManagerService.Quotation
             {
                 Logger.TraceEvent(TraceEventType.Error, "QuotationClient.ReadAll error:\r\n{0}", ex.ToString());
                 return false;
+            }
+        }
+
+        private void ConnectionCheck(object o)
+        {
+            try
+            {                
+                this._NetworkStream.WriteByte(1);
+                this._ConnectionCheckTimer.Change(3000, Timeout.Infinite);
+            }
+            catch
+            {
+                this._ConnectionCheckTimer.Change(Timeout.Infinite, Timeout.Infinite);
             }
         }
     }

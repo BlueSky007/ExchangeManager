@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Media;
 using Price = iExchange.Common.Price;
+using Scheduler = iExchange.Common.Scheduler;
 
 namespace ManagerConsole.ViewModel
 {
@@ -35,6 +36,10 @@ namespace ManagerConsole.ViewModel
         private int _BuyVariation = 0;
         private int _SellVariation = 0;
         private SolidColorBrush _IsBuyBrush = SolidColorBrushes.BorderBrush;
+
+        private PriceTrend _MarketPriceTrend;
+        private Scheduler _Scheduler = new Scheduler();
+        private string _MarketPriceScheduleId;
         #endregion
 
         public InstantOrderForInstrument()
@@ -169,14 +174,75 @@ namespace ManagerConsole.ViewModel
             set{this._IsBuyBrush = value;this.OnPropertyChanged("IsBuyBrush"); }   
         }
 
+        
+        public PriceTrend MarketPriceTrend
+        {
+            get { return this._MarketPriceTrend; }
+            set
+            {
+                if (this._MarketPriceTrend != value)
+                {
+                    this._MarketPriceTrend = value;
+                    this.OnPropertyChanged("MarketPriceTrend");
+                    if (value != PriceTrend.NoChange)
+                    {
+                        if (this._MarketPriceScheduleId != null)
+                        {
+                            this._Scheduler.Remove(this._MarketPriceScheduleId);
+                        }
+                        this._MarketPriceScheduleId = this._Scheduler.Add(this.ResetTrendState, "MarketPriceTrend", DateTime.Now.AddSeconds(4));
+                    }
+                }
+            }
+        }
+
         #endregion
+
+        private PriceTrend GetPriceTrend(double newPrice, double oldPrice)
+        {
+            if (newPrice > oldPrice)
+            {
+                return PriceTrend.Up;
+            }
+            else if (newPrice < oldPrice)
+            {
+                return PriceTrend.Down;
+            }
+            return PriceTrend.NoChange;
+        }
+
+        private void ResetTrendState(object sender, object actionArgs)
+        {
+            if (actionArgs.Equals("MarketPriceTrend"))
+            {
+                this._MarketPriceScheduleId = null;
+            }
+
+            App.MainFrameWindow.Dispatcher.BeginInvoke((Action<string>)delegate(string propName)
+            {
+                if (propName.Equals("MarketPriceTrend"))
+                {
+                    this.MarketPriceTrend = PriceTrend.NoChange;
+                }
+            }, (string)actionArgs);
+        }
 
         internal void UpdateOverridedQuotation(ExchangeQuotation exchangeQuotation)
         {
             if (exchangeQuotation.InstruemtnId == this.Instrument.Id)
             {
+                if (this.BuySell == BuySell.Buy)
+                {
+                    this.MarketPriceTrend = this.GetPriceTrend(double.Parse(exchangeQuotation.Ask), double.Parse(this.Ask));
+                }
+                else
+                {
+                    this.MarketPriceTrend = this.GetPriceTrend(double.Parse(exchangeQuotation.Bid), double.Parse(this.Bid));
+                }
+
                 this.Ask = exchangeQuotation.Ask;
                 this.Bid = exchangeQuotation.Bid;
+                this.UpdateMarketPrice(this.BuySell == BuySell.Buy);
             }
         }
 
@@ -191,13 +257,22 @@ namespace ManagerConsole.ViewModel
             this.BuySell = orderTask.IsBuy;
             this.Lot = orderTask.Lot.Value;
             this._SetPrice = orderTask.SetPrice;
-            this.OpenAvgPrice = "1.568";
+            this.OpenAvgPrice = orderTask.Transaction.GetOpenOrderAvgPrice(this.OrderId);
 
             this.UpdateBrush();
             this.UpdateMarketPrice(this.BuySell == BuySell.Buy);
             this.IsAllowAdjustPrice = true;// OrderTaskManager.IsNeedDQMaxMove(orderTask);
             this.UpdateCustomerPrice();
             this.UpdateDiff();
+
+            if (this.BuySell == BuySell.Buy)
+            {
+                this.MarketPriceTrend = this.GetPriceTrend(double.Parse(this.Ask), double.Parse(this.Ask));
+            }
+            else
+            {
+                this.MarketPriceTrend = this.GetPriceTrend(double.Parse(this.Bid), double.Parse(this.Bid));
+            }
         }
 
         internal void CreateEmptyEntity()
@@ -217,6 +292,10 @@ namespace ManagerConsole.ViewModel
             this.IsAllowAdjustPrice = false;
             this.CustomerPrice = new Price(1, 1, 10);
             this.Diff = 0;
+            this.SumBuyLot = decimal.Zero;
+            this.SumSellLot = decimal.Zero;
+            this.BuyOrderCount = 0;
+            this.SellOrderCount = 0;
         }
 
         internal void UpdateBrush()
@@ -245,12 +324,12 @@ namespace ManagerConsole.ViewModel
                 if (isBuy)
                 {
                     this.SumBuyLot -= orderTask.Lot.Value;
-                    this.BuyOrderCount++;
+                    this.BuyOrderCount--;
                 }
                 else
                 {
                     this.SumSellLot -= orderTask.Lot.Value;
-                    this.SellOrderCount++;
+                    this.SellOrderCount--;
                 }
             }
         }
@@ -260,12 +339,12 @@ namespace ManagerConsole.ViewModel
             if (!this._Instrument.NumeratorUnit.HasValue) return;
             if (isBuy)
             {
-                Price bid = new Price(this.Instrument.Bid, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+                Price bid = new Price(this.Bid, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
                 this.MarketPrice = bid;
             }
             else
             {
-                Price ask = new Price(this.Instrument.Bid, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+                Price ask = new Price(this.Ask, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
                 this.MarketPrice = ask;
             }
         }

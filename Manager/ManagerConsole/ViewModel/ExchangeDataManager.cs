@@ -25,6 +25,8 @@ using OrderRelationType = iExchange.Common.OrderRelationType;
 using OverridedQuotation = iExchange.Common.OverridedQuotation;
 using SettingsParameter = Manager.Common.Settings.SettingsParameter;
 using ExchangeInitializeData = Manager.Common.ExchangeInitializeData;
+using Scheduler = iExchange.Common.Scheduler;
+using OrderType = iExchange.Common.OrderType;
 using Manager.Common.QuotationEntities;
 
 namespace ManagerConsole.ViewModel
@@ -59,6 +61,10 @@ namespace ManagerConsole.ViewModel
         private ExecuteOrderSummaryItemModel _ExecuteOrderSummaryItemModel = new ExecuteOrderSummaryItemModel();
         private SettingsParameterManager _SettingsParameterManager;
         private bool _IsInitializeCompleted = false;
+
+        //private static IComparer<OrderTask> _HitOrderCompare = new HitOrderCompare();
+        private Scheduler Scheduler = new Scheduler();
+        private Scheduler.Action _RemoveTransactionWhenTimeOver;
 
 
         //询价
@@ -180,6 +186,7 @@ namespace ManagerConsole.ViewModel
             this.ExchangeSettingManagers = new Dictionary<string, ExchangeSettingManager>();
             this.ExchangeTradingManagers = new Dictionary<string, ExchangeTradingManager>();
             this._TranPhaseManager = new TranPhaseManager(this);
+            this._RemoveTransactionWhenTimeOver = new Scheduler.Action(this.RemoveTransactionWhenTimeOver);
         }
 
         #region Initialize Data
@@ -201,6 +208,16 @@ namespace ManagerConsole.ViewModel
             }
             this.UpdateTradingSetting();
             this._IsInitializeCompleted = true;
+        }
+
+        public void Clear()
+        {
+            this._ExchangeCodes.Clear();
+            this.ExchangeSettingManagers.Clear();
+            this.ExchangeTradingManagers.Clear();
+            this._IsInitializeCompleted = false;
+            this._Transactions.Clear();
+            this._Orders.Clear();
         }
 
         public void UpdateTradingSetting()
@@ -231,6 +248,7 @@ namespace ManagerConsole.ViewModel
 
                     foreach (Order order in tran.Orders)
                     {
+                        order.Hit2();
                         this.AddOrderTaskEntity(order);
                     }
                 }
@@ -264,7 +282,7 @@ namespace ManagerConsole.ViewModel
                 exchangeQuotation.Low = quotation.Low;
                 exchangeQuotation.Origin = quotation.Origin;
 
-                //Update DQ UI Price
+                //Update DQ/Lmt UI Price
                 if (this._ProcessInstantOrder.InstantOrderForInstrument != null)
                 {
                     this._ProcessInstantOrder.InstantOrderForInstrument.UpdateOverridedQuotation(exchangeQuotation);
@@ -272,6 +290,13 @@ namespace ManagerConsole.ViewModel
                 if (this._ProcessLmtOrder.LmtOrderForInstrument != null)
                 {
                     this._ProcessLmtOrder.LmtOrderForInstrument.UpdateOverridedQuotation(exchangeQuotation);
+                }
+                if (this._MooMocOrderForInstrumentModel.MooMocOrderForInstruments.Count > 0)
+                {
+                    foreach (MooMocOrderForInstrument mooMocOrderForInstrument in this._MooMocOrderForInstrumentModel.MooMocOrderForInstruments)
+                    {
+                        mooMocOrderForInstrument.UpdateOverridedQuotation(exchangeQuotation);
+                    }
                 }
             }
         }
@@ -305,6 +330,13 @@ namespace ManagerConsole.ViewModel
             foreach (CommonTransaction commonTransaction in placeMessage.Transactions)
             {
                 this.ProcessTransaction(exchangeCode,commonTransaction, false);
+
+                if (commonTransaction.OrderType == OrderType.SpotTrade 
+                    || commonTransaction.OrderType == OrderType.Limit 
+                    || commonTransaction.OrderType == OrderType.Stop)
+                {
+                    this.Scheduler.Add(this.RemoveTransactionWhenTimeOver, commonTransaction.Id, DateTime.Now.AddSeconds(commonTransaction.OrderValidDuration));
+                }
             }
             foreach (CommonOrder commonOrder in placeMessage.Orders)
             {
@@ -368,9 +400,17 @@ namespace ManagerConsole.ViewModel
                 {
                     this._Orders[commonOrder.Id].HitUpdate(commonOrder);
 
-                    this.UpdateOrderTask(this._Orders[commonOrder.Id]);
+                    Order hitOrder = this._Orders[commonOrder.Id];
+                    this._ProcessLmtOrder.UpdateHitOrder(hitOrder);
+                    this._ProcessLmtOrder.TopLmtOrder(hitOrder);
                 }
-            } 
+            }
+
+            if (this.OnHitPriceReceivedRefreshUIEvent != null)
+            {
+                int hitOrdersCount = hitMessage.Orders.Count();
+                this.OnHitPriceReceivedRefreshUIEvent(hitOrdersCount);
+            }
         }
 
         public void ProcessUpdateMessage(UpdateMessage updateMessage)
@@ -424,63 +464,6 @@ namespace ManagerConsole.ViewModel
                     this.TranPhaseManager.AddExecutedOrder(order);
                 }
                 //Refresh OpenInterestGrid
-            }
-        }
-
-        //Move Hit Order To the First Row
-        private void MoveHitOrder(Order newOrder)
-        {
-            List<OrderTask> hitOrders = new List<OrderTask>();
-            IEnumerable<OrderTask> orders = this._OrderTaskModel.OrderTasks.Where(P => P.OrderId == newOrder.Id);
-
-            foreach (OrderTask entity in orders)
-            {
-                hitOrders.Add(entity);
-            }
-            foreach (OrderTask entity in hitOrders)
-            {
-                this._OrderTaskModel.RemoveOrderTask(entity);
-                OrderTask orderTask = new OrderTask(newOrder);
-                orderTask.BaseOrder = newOrder;
-                this._OrderTaskModel.OrderTasks.Insert(0, orderTask);
-
-                if (this.OnOrderHitPriceNotifyEvent != null)
-                {
-                    this.OnOrderHitPriceNotifyEvent(orderTask);
-                }
-            }
-
-            if (this.OnHitPriceReceivedRefreshUIEvent != null)
-            {
-                int hitOrdersCount = hitOrders.Count();
-                this.OnHitPriceReceivedRefreshUIEvent(hitOrdersCount);
-            }
-        }
-
-        private void UpdateOrderTask(Order newOrder)
-        {
-            this.MoveHitOrder(newOrder);
-            //Update DQ Order
-            foreach (DQOrderTaskForInstrument entity in this._DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments)
-            {
-                foreach (OrderTask orderTask in entity.OrderTasks)
-                {
-                    if (orderTask.OrderId == newOrder.Id)
-                    {
-                        orderTask.Update(newOrder);
-                    }
-                }
-            }
-            //Update Lmt/Stop Order
-            foreach (LMTProcessForInstrument entity in this._LMTProcessModel.LMTProcessForInstruments)
-            {
-                foreach (OrderTask orderTask in entity.OrderTasks)
-                {
-                    if (orderTask.OrderId == newOrder.Id)
-                    {
-                        orderTask.Update(newOrder);
-                    }
-                }
             }
         }
 
@@ -571,8 +554,7 @@ namespace ManagerConsole.ViewModel
 
                     if (openOrder != null)
                     {
-                        string openOrderInfo
-                            = string.Format("{0}x{1}x{2}", (string.Format("{0}-{1}-{2}", openOrder.Transaction.SubmitTime.Year, openOrder.Transaction.SubmitTime.Month.ToString().PadLeft(2, '0'), openOrder.Transaction.SubmitTime.Day.ToString().PadLeft(2, '0'))));
+                        string openOrderInfo = string.Format("{0}x{1}x{2}", openOrder.Transaction.SubmitTime.ToString("yyyy-MM-dd"), openOrder.Lot, openOrder.SetPrice);
                         relation.OpenOrderInfo = openOrderInfo;
 
                         CloseOrder closerOrder = new CloseOrder(order, relation.ClosedLot);
@@ -591,27 +573,8 @@ namespace ManagerConsole.ViewModel
                 OrderTask orderTask = new OrderTask(order);
                 orderTask.BaseOrder = order;
                 orderTask.OrderStatus = OrderStatus.TimeArrived;
-                MooMocOrderForInstrument mooMocOrderForInstrument = null;
-                mooMocOrderForInstrument = this._MooMocOrderForInstrumentModel.MooMocOrderForInstruments.SingleOrDefault(P => P.Instrument.Id == order.Transaction.Instrument.Id);
-                if (mooMocOrderForInstrument == null)
-                {
-                    mooMocOrderForInstrument = new MooMocOrderForInstrument();
-                    InstrumentClient instrument = order.Transaction.Instrument;
-                    mooMocOrderForInstrument.Instrument = instrument;
-                    mooMocOrderForInstrument.Origin = instrument.Origin;
-                    mooMocOrderForInstrument.Variation = 0;
 
-                    this._MooMocOrderForInstrumentModel.MooMocOrderForInstruments.Add(mooMocOrderForInstrument);
-                }
-                if (orderTask.IsBuy == BuySell.Buy)
-                {
-                    mooMocOrderForInstrument.SumBuyLot += orderTask.Lot.Value;
-                }
-                else
-                {
-                    mooMocOrderForInstrument.SumSellLot += orderTask.Lot.Value;
-                }
-                mooMocOrderForInstrument.OrderTasks.Add(orderTask);
+                this._MooMocOrderForInstrumentModel.AddMooMocOrderForInstrument(orderTask);
             }
             else if(order.Transaction.OrderType == iExchange.Common.OrderType.SpotTrade)
             {
@@ -624,10 +587,6 @@ namespace ManagerConsole.ViewModel
             {
                 OrderTask orderTask = new OrderTask(order);
                 orderTask.BaseOrder = order;
-
-                //this._OrderTaskModel.OrderTasks.Add(orderTask);
-                //orderTask.SetCellDataDefine(orderTask.OrderStatus);
-
                 this._ProcessLmtOrder.AddLmtOrder(orderTask);
             }
         }
@@ -675,5 +634,45 @@ namespace ManagerConsole.ViewModel
             }
         }
         #endregion
+
+        private void RemoveTransactionWhenTimeOver(object sender, object Args)
+        {
+            App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
+            {
+                Guid transactionId = (Guid)Args;
+
+                if (!this._Transactions.ContainsKey(transactionId)) return;
+                Transaction tran = this._Transactions[transactionId];
+
+                List<OrderTask> instanceOrders = new List<OrderTask>();
+                List<OrderTask> lmtOrders = new List<OrderTask>();
+
+                foreach (Order order in tran.Orders)
+                {
+                    if (order.Transaction.OrderType == OrderType.SpotTrade)
+                    {
+                        foreach (OrderTask orderTask in this._ProcessInstantOrder.OrderTasks)
+                        {
+                            if (orderTask.OrderId == order.Id)
+                            {
+                                instanceOrders.Add(orderTask);
+                            }
+                        }
+                    }
+                    else if (order.Transaction.OrderType == OrderType.Limit || order.Transaction.OrderType == OrderType.Stop)
+                    {
+                        foreach (OrderTask orderTask in this._ProcessLmtOrder.OrderTasks)
+                        {
+                            if (orderTask.OrderId == order.Id)
+                            {
+                                lmtOrders.Add(orderTask);
+                            }
+                        }
+                    }
+                }
+                this._ProcessInstantOrder.RemoveInstanceOrder(instanceOrders);
+                this._ProcessLmtOrder.RemoveLmtOrder(lmtOrders);
+            });
+        }
     }
 }

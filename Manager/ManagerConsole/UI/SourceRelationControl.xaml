@@ -6,13 +6,18 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <DataTemplate x:Key="AdjustPointsTemplate">
+            <TextBlock Text="{Binding AdjustPoints}" />
+        </DataTemplate>
+    </UserControl.Resources>
     <Grid>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="10,5,0,0">
             <TextBlock Text="Instrument Code:" VerticalAlignment="Center" />
             <TextBlock Text="{Binding Code}" VerticalAlignment="Center" Margin="10,0,10,0"/>
             <Button x:Name="AddRelationButton" Content="Add Relation" Click="AddRelationButton_Click" Height="22" BorderThickness="1" Visibility="Hidden" Style="{DynamicResource ButtonStyle}"/>
         </StackPanel>
-        <ig:XamGrid x:Name="RelationGrid" AutoGenerateColumns="False" Margin="10,30,0,0" CellDoubleClicked="RelationGrid_CellDoubleClicked" KeyDown="RelationGrid_KeyDown">
+        <ig:XamGrid x:Name="RelationGrid" AutoGenerateColumns="False" Margin="10,30,0,0" CellDoubleClicked="RelationGrid_CellDoubleClicked" KeyDown="RelationGrid_KeyDown" RowHeight="23">
             <ig:XamGrid.SelectionSettings>
                 <ig:SelectionSettings CellClickAction="SelectRow"/>
             </ig:XamGrid.SelectionSettings>
@@ -21,17 +26,17 @@
             </ig:XamGrid.EditingSettings>
             <ig:XamGrid.Columns>
                 <ig:TextColumn Key="QuotationSource.Name" HeaderText="Source" IsReadOnly="True" />
-                <ig:TextColumn Key="Timestamp" HeaderText="Timestamp" IsReadOnly="True" />
+                <ig:TextColumn Key="Timestamp" HeaderText="Timestamp" IsReadOnly="True" FormatString="{}{0:HH:mm:ss}" />
                 <ig:TextColumn Key="Ask" HeaderText="Ask" IsReadOnly="True" HorizontalContentAlignment="Right" />
                 <ig:TextColumn Key="Bid" HeaderText="Bid" IsReadOnly="True" HorizontalContentAlignment="Right" />
                 <ig:TextColumn Key="ActiveState" HeaderText="State" IsReadOnly="True"/>
-                <ig:TemplateColumn Key="AdjustPoints" HeaderText="AdjustPoints" IsReadOnly="True">
+                <ig:TemplateColumn Key="AdjustPoints" HeaderText="AdjustPoints" IsReadOnly="True" HorizontalContentAlignment="Center">
                     <ig:TemplateColumn.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <Button x:Name="DecButton" Content="-" Background="Red" Foreground="White" Width="20" Tag="{Binding}" Click="AdjustButton_Click"/>
+                                <Button x:Name="DecButton" Content="-" Style="{StaticResource RedButtonStyle}" Tag="{Binding}" Click="AdjustButton_Click"/>
                                 <TextBox Text="{Binding AdjustPoints}" TextAlignment="Right" Width="60" KeyDown="TextBox_KeyDown"/>
-                                <Button x:Name="IncButton" Content="+" Background="Green" Foreground="White" Width="20" Tag="{Binding}" Click="AdjustButton_Click" />
+                                <Button x:Name="IncButton" Content="+"  Style="{StaticResource GreenButtonStyle}" Tag="{Binding}" Click="AdjustButton_Click" />
                             </StackPanel>
                         </DataTemplate>
                     </ig:TemplateColumn.ItemTemplate>

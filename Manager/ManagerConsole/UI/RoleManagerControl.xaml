@@ -584,6 +584,7 @@
             </Grid>
         </Grid>-->
         <ig:XamGrid x:Name="RoleGrid" Grid.Column="0" Grid.RowSpan="2" CellClicked="RoleGrid_CellClicked"  >
+            
             <ig:XamGrid.SelectionSettings>
                 <ig:SelectionSettings CellClickAction="SelectRow" CellSelection="Single" ColumnSelection="Single" RowSelection="Single"></ig:SelectionSettings>
             </ig:XamGrid.SelectionSettings>
@@ -597,12 +598,22 @@
                             <StackPanel Orientation="Horizontal">
                                 <Button Tag="{Binding RoleId}" Visibility="{Binding IsAllowEdit, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BooleanToVisibility}}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="EditButton_Click">
                                     <Button.Content>
-                                        <Image Source="../Asset/Images/edit.png" Width="20" Height="20" ToolTipService.ToolTip="Edit"/>
+                                        <Image Source="../Asset/Images/edit.png" Width="14" Height="14" ToolTipService.ToolTip="Edit"/>
                                     </Button.Content>
                                 </Button>
-                                <Button Tag="{Binding RoleId}" Visibility="{Binding IsAllowDelete,RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BooleanToVisibility}}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="DeleteButton_Click">
+                                <Button Tag="{Binding RoleId}" Visibility="{Binding IsAllowDelete,RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BooleanToVisibility}}" Click="DeleteButton_Click">
+                                    <Button.Resources>
+                                        <Style TargetType="Button" BasedOn="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Tag,RelativeSource={RelativeSource Self}}" Value="2">
+                                                    <Setter Property="IsEnabled" Value="False"/>
+                                                    <Setter Property="Opacity" Value="0.7"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Resources>
                                     <Button.Content>
-                                        <Image Source="../Asset/Images/delete.png" Width="20" Height="20" ToolTipService.ToolTip="Delete"/>
+                                        <Image Source="../Asset/Images/delete.png" Width="14" Height="14" ToolTipService.ToolTip="Delete"/>
                                     </Button.Content>
                                 </Button>
                             </StackPanel>

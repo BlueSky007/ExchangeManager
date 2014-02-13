@@ -49,7 +49,7 @@ namespace ManagerConsole.UI
             this._App = ((ManagerConsole.MainWindow)Application.Current.MainWindow);
             this._CommonDialogWin = this._App._CommonDialogWin;
             this._ConfirmDialogWin = this._App._ConfirmDialogWin;
-            this._QuotePriceClientModel = this._App.InitDataManager.QuotePriceClientModel;
+            this._QuotePriceClientModel = this._App.ExchangeDataManager.QuotePriceClientModel;
             this._CurrentInstrumentStyle = Application.Current.Resources["QuoteInstrumentStyle"] as Style;
             this._NormalStyle = Application.Current.Resources["CellControlStyle"] as Style;
         }
@@ -63,7 +63,7 @@ namespace ManagerConsole.UI
 
         private void Quote_Tick(object sender, EventArgs e)
         {
-            ObservableCollection<QuotePriceClient> quotePriceClients = this._App.InitDataManager.QuotePriceClientModel.QuotePriceClients;
+            ObservableCollection<QuotePriceClient> quotePriceClients = this._App.ExchangeDataManager.QuotePriceClientModel.QuotePriceClients;
             if (quotePriceClients.Count <= 0)
             {
                 if (this._QuoteTimer.IsEnabled)

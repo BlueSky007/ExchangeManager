@@ -41,7 +41,7 @@
                     </Grid>
                 </Button>
                 <StackPanel Grid.Column="1">
-                    <TextBlock Text="{Binding FirstItem.DiffPoints}" HorizontalAlignment="Center" Margin="0,20,0,0" />
+                    <TextBlock Text="{Binding FirstItem.DiffPoints}" HorizontalAlignment="Center" Margin="0,20,0,0" FontWeight="Bold" />
                     <TextBlock Text="{Binding FirstItem.RemainingSeconds}" HorizontalAlignment="Center" Margin="0,20" Foreground="Red" />
                 </StackPanel>
                 <Button Grid.Column="3" Style="{DynamicResource ButtonStyle}" x:Name="MaintainButton" Click="ConfirmButton_Click">

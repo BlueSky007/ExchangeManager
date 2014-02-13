@@ -30,18 +30,26 @@ namespace ManagerService.Exchange
         {
             this._ExchangeSystemSetting = exchangeSystemSetting;
             this._ConnectionManager = connectionManager;
-            this._CommandRelayEngine = new RelayEngine<Command>(this.Dispatch, this.HandleEngineException);
+            this._CommandRelayEngine = new RelayEngine<Command>(this.DispatchCommand, this.HandleEngineException);
             this._QuotationRelayEngine = new RelayEngine<List<GeneralQuotation>>(this.SetQuotation, this.HandleQuotationRelayEngineException);
             this._QuotationServer = new QuotationServer(exchangeSystemSetting);
         }
 
         public string ExchangeCode { get { return this._ExchangeSystemSetting.Code; } }
         public string StateServerUrl { get { return this._ExchangeSystemSetting.StateServerUrl; } }
-        public ConnectionState ConnectionState { get { return this._ConnectionState; } }
+        public ConnectionState ConnectionState
+        {
+            get { return this._ConnectionState; }
+            private set
+            {
+                this._ConnectionState = value;
+                MainService.ExchangeManager.NotifyExchangeConnectionStatus(this.ExchangeCode, value);
+            }
+        }
 
         public void Channel_Broken(object sender, EventArgs e)
         {
-            this._ConnectionState = ConnectionState.Disconnected;
+            this.ConnectionState = ConnectionState.Disconnected;
             this._ConnectionManager.NotifyExchangeToConnect(this.StateServerUrl, this.ExchangeCode);
             Logger.AddEvent(TraceEventType.Warning, "ExchangeSystem Channel_Broken of ExchangeCode:{0} sessionId:{1}", ExchangeCode, this._SessionId);
         }
@@ -50,7 +58,7 @@ namespace ManagerService.Exchange
         {
             this._SessionId = sessionId;
             this._StateServer = stateServer;
-            this._ConnectionState = ConnectionState.Connected;
+            this.ConnectionState = ConnectionState.Connected;
             this._QuotationServer.SetStateServer(stateServer);
             this._QuotationRelayEngine.Resume();
             Logger.AddEvent(TraceEventType.Warning, "ExchangeCode:{0},Connection to StateSever established. sessionId:{1}", ExchangeCode, this._SessionId);
@@ -167,17 +175,20 @@ namespace ManagerService.Exchange
             MainService.ClientManager.Dispatch(updateMessage);
         }
 
-        private bool Dispatch(Command command)
+        private bool DispatchCommand(Command command)
         {
             try
             {
-                if (command.GetType() == typeof(ChangeGroupCommand))
+                ChangeGroupCommand changeGroupCommand = command as ChangeGroupCommand;
+                if (changeGroupCommand != null)
                 {
-                    ChangeGroupCommand changeGroupCommand = command as ChangeGroupCommand;
                     MainService.ClientManager.UpdateGroup(this.ExchangeCode, changeGroupCommand.xmlNode);
                 }
-                Message message = CommandConvertor.Convert(this.ExchangeCode, command);
-                MainService.ClientManager.Dispatch(message);
+                else
+                {
+                    Message message = CommandConvertor.Convert(this.ExchangeCode, command);
+                    MainService.ClientManager.Dispatch(message);
+                }
                 return true;
             }
             catch (Exception ex)
@@ -289,7 +300,7 @@ namespace ManagerService.Exchange
             {
                 Token token = new Token(Guid.Empty, UserType.System, AppType.Manager);
                 bool isOk = this._StateServer.UpdateInstrument(token, parameterUpdateTask);
-                return true;
+                return isOk;
             }
             catch (Exception ex)
             {

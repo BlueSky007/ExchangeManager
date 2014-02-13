@@ -44,7 +44,7 @@ namespace ManagerConsole.UI
         {
             get
             {
-                return ConsoleClient.Instance.HasPermission(ModuleCategoryType.Quotation, ModuleType.QuotationMonitor, OperationCode.Modify);
+                return Principal.Instance.HasPermission(ModuleCategoryType.Quotation, ModuleType.QuotationMonitor, OperationCode.Modify);
             }
         }
 
@@ -54,6 +54,18 @@ namespace ManagerConsole.UI
             {
                 this.MonitorGrid.Rows[0].IsSelected = true;
                 this.SelectRow(this.MonitorGrid.Rows[0].Data as VmInstrument);
+            }
+
+            this.ToolBarPanel.Visibility = this.MonitorGrid.Columns["Id"].Visibility = this.MonitorGrid.Columns["TempProperty"].Visibility = this.CanModify ? Visibility.Visible : Visibility.Hidden;
+            this.CoverGrid.Visibility = this.CanModify ? Visibility.Hidden : Visibility.Visible;
+            foreach(var column in this.MonitorGrid.Columns)
+            {
+                TextColumn textColumn = column as TextColumn;
+                if (textColumn != null) textColumn.IsReadOnly = !this.CanModify;
+            }
+            if (!this.CanModify)
+            {
+                (this.MonitorGrid.Columns["AdjustPoints"] as TemplateColumn).ItemTemplate = this.Resources["AdjustPointsTemplate"] as DataTemplate;
             }
         }
         private void ShowRelation(object state)

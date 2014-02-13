@@ -56,7 +56,8 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <Style x:Name="CustomPager1" TargetType="igPrim:PagerCellControl" >
+        <Style TargetType="igPrim:PagerCellControl" >
+            <Setter Property="Background" Value="Red"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="igPrim:PagerCellControl">

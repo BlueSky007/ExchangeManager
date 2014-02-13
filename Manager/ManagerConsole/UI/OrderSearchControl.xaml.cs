@@ -18,13 +18,14 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Xml.Linq;
 using OrderType = iExchange.Common.OrderType;
 namespace ManagerConsole.UI
 {
     /// <summary>
     /// Interaction logic for OrderSearchControl.xaml
     /// </summary>
-    public partial class OrderSearchControl : UserControl
+    public partial class OrderSearchControl : UserControl,IControlLayout
     {
         private ManagerConsole.MainWindow _App;
         private ObservableCollection<InstrumentClient> _InstrumentList = new ObservableCollection<InstrumentClient>();
@@ -48,7 +49,7 @@ namespace ManagerConsole.UI
 
         private bool InilizeUI()
         {
-            if (this._App.InitDataManager.IsInitializeCompleted)
+            if (this._App.ExchangeDataManager.IsInitializeCompleted)
             {
                 this.Dispatcher.BeginInvoke((Action)delegate()
                 {
@@ -69,9 +70,9 @@ namespace ManagerConsole.UI
             InstrumentClient allInstrument = new InstrumentClient();
             allInstrument.Code = "All";
 
-            foreach (string exchangeCode in this._App.InitDataManager.ExchangeCodes)
+            foreach (string exchangeCode in this._App.ExchangeDataManager.ExchangeCodes)
             {
-                ExchangeSettingManager settingManager = this._App.InitDataManager.GetExchangeSetting(exchangeCode);
+                ExchangeSettingManager settingManager = this._App.ExchangeDataManager.GetExchangeSetting(exchangeCode);
 
                 foreach (InstrumentClient instrument in settingManager.Instruments.Values)
                 {
@@ -89,9 +90,9 @@ namespace ManagerConsole.UI
 
             AccountGroup allGroup = new AccountGroup();
             allGroup.Code = "All";
-            foreach (string exchangeCode in this._App.InitDataManager.ExchangeCodes)
+            foreach (string exchangeCode in this._App.ExchangeDataManager.ExchangeCodes)
             {
-                ExchangeSettingManager settingManager = this._App.InitDataManager.GetExchangeSetting(exchangeCode);
+                ExchangeSettingManager settingManager = this._App.ExchangeDataManager.GetExchangeSetting(exchangeCode);
 
                 foreach (AccountGroup group in settingManager.GetAccountGroups())
                 {
@@ -149,5 +150,42 @@ namespace ManagerConsole.UI
                 this._OrderSerchGrid.ItemsSource = result;
             }, queryOrders);
         }
+
+        #region 布局
+        /// <summary>
+        /// Layout format:
+        /// <GridSettings>
+        ///    <ColumnsWidth Data="53,0,194,70,222,60,89,60,80,80,80,70,80,80,80,60,60,59,80,80,80,100,80,150,80,"/>
+        /// </GridSettings>
+
+        public string GetLayout()
+        {
+            //InstrumentCode
+            StringBuilder layoutBuilder = new StringBuilder();
+            layoutBuilder.Append("<GridSettings>");
+            layoutBuilder.Append(ColumnWidthPersistence.GetPersistentColumnsWidthString(this._OrderSerchGrid));
+            layoutBuilder.Append("</GridSettings>");
+            return layoutBuilder.ToString();
+        }
+
+        public void SetLayout(XElement layout)
+        {
+            try
+            {
+                if (layout.HasElements)
+                {
+                    XElement columnWidthElement = layout.Element("GridSettings").Element("ColumnsWidth");
+                    if (columnWidthElement != null)
+                    {
+                        ColumnWidthPersistence.LoadColumnsWidth(this._OrderSerchGrid, columnWidthElement);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Manager.Common.Logger.AddEvent(System.Diagnostics.TraceEventType.Error, "OrderSearchControl.SetLayout\r\n{0}", ex.ToString());
+            }
+        }
+        #endregion
     }
 }

@@ -13,6 +13,7 @@ using TransactionType = iExchange.Common.TransactionType;
 using OrderPhase = iExchange.Common.OrderPhase;
 using InstrumentCategory = iExchange.Common.InstrumentCategory;
 using ExpireType = iExchange.Common.ExpireType;
+using Price = iExchange.Common.Price;
 
 namespace ManagerConsole.Model
 {
@@ -227,9 +228,9 @@ namespace ManagerConsole.Model
             this.InstrumentCategory = transaction.InstrumentCategory == null ? InstrumentCategory.Forex : transaction.InstrumentCategory.Value;
         }
 
-         internal void Initialize(CommonOrder commonOrder)
+        internal void Initialize(CommonOrder commonOrder)
          {
-             this.Id = commonOrder.Id;
+             this.Id = commonOrder.TransactionId;
              this.BeginTime = commonOrder.BeginTime;
              this.Code = commonOrder.Code;
              this.ContractSize = commonOrder.ContractSize;
@@ -245,5 +246,25 @@ namespace ManagerConsole.Model
              this.AssigningOrderId = commonOrder.AssigningOrderID;
              this.InstrumentCategory = this.Instrument.Category;
          }
+
+        internal string GetOpenOrderAvgPrice(Guid openOrderId)
+        {
+            var orderRelations = this._OrderRelations.Where(P => P.OrderId == openOrderId);
+
+            decimal sumCloseLot = decimal.Zero;
+            decimal sumAmount = decimal.Zero;
+            foreach (OrderRelation relation in orderRelations)
+            {
+                sumCloseLot += relation.ClosedLot;
+                sumAmount += relation.ClosedLot * decimal.Parse(relation.OpenOrderPrice);
+            }
+
+            if (sumCloseLot == 0)
+            {
+                return "-";
+            }
+            decimal avgPriceValue = sumAmount / sumCloseLot;
+            return avgPriceValue.ToString();
+        }
     }
 }

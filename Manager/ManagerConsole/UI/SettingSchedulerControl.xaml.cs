@@ -22,6 +22,7 @@ using CommonTaskScheduler = Manager.Common.Settings.TaskScheduler;
 using TaskType = Manager.Common.TaskType;
 using ActionType = Manager.Common.ActionType;
 using SettingParameterType = Manager.Common.SettingParameterType;
+using System.Xml.Linq;
 
 
 namespace ManagerConsole.UI
@@ -29,7 +30,7 @@ namespace ManagerConsole.UI
     /// <summary>
     /// Interaction logic for SettingSchedulerControl.xaml
     /// </summary>
-    public partial class SettingSchedulerControl : UserControl
+    public partial class SettingSchedulerControl : UserControl,IControlLayout
     {
         private NewTaskWindow _NewTaskWindow;
         private TaskSchedulerModel _TaskSchedulerModel = new TaskSchedulerModel();
@@ -225,5 +226,51 @@ namespace ManagerConsole.UI
                 this._TaskSchedulerModel.UpdateTaskScheduler(taskScheduler);
             }
         }
+
+        #region 布局
+        /// <summary>
+        /// Layout format:
+        /// <GridSettings>
+        ///    <GridSetting Name="" ColumnWidth="53,0,194,70,222,60,89,60,80,80,80,70,80,80,80,60,60,59,80,80,80,100,80,150,80,"/>
+        /// </GridSettings>
+
+        public string GetLayout()
+        {
+            StringBuilder layoutBuilder = new StringBuilder();
+            layoutBuilder.Append("<GridSettings>");
+            layoutBuilder.Append(ColumnWidthPersistence.GetGridColumnsWidthString(this._SettingSchedulerGrid));
+            layoutBuilder.Append(ColumnWidthPersistence.GetGridColumnsWidthString(this._ParameterSettingGrid));
+            layoutBuilder.Append("</GridSettings>");
+            return layoutBuilder.ToString();
+        }
+
+        public void SetLayout(XElement layout)
+        {
+            try
+            {
+                if (layout.HasElements)
+                {
+                    IEnumerable<XElement> settings = from el in layout.Element("GridSettings").Elements() select el;
+
+                    foreach(XElement setting in settings)
+                    {
+                        switch (setting.Attribute("Name").Value)
+                        {
+                            case "_SettingSchedulerGrid":
+                                ColumnWidthPersistence.LoadGridColumnsWidth(this._SettingSchedulerGrid, setting);
+                                break;
+                            case "_ParameterSettingGrid":
+                                ColumnWidthPersistence.LoadGridColumnsWidth(this._ParameterSettingGrid, setting);
+                                break;
+                        }
+                    }    
+                }
+            }
+            catch (Exception ex)
+            {
+                Manager.Common.Logger.AddEvent(System.Diagnostics.TraceEventType.Error, "SettingSchedulerControl.SetLayout\r\n{0}", ex.ToString());
+            }
+        }
+        #endregion
     }
 }

@@ -7,21 +7,22 @@ using Phase = iExchange.Common.OrderPhase;
 using OrderType = iExchange.Common.OrderType;
 using System.Collections.ObjectModel;
 using ManagerConsole.ViewModel;
+using System.Windows.Threading;
 
 namespace ManagerConsole.Helper
 {
     public class TranPhaseManager
     {
-        private ExchangeDataManager _InitDataManager;
+        private ExchangeDataManager _ExchangeDataManager;
         public TranPhaseManager(ExchangeDataManager initDataManager)
         {
-            this._InitDataManager = initDataManager;
+            this._ExchangeDataManager = initDataManager;
         }
 
         public ExchangeDataManager InitDataManager
         {
-            get { return this._InitDataManager; }
-            set { this._InitDataManager = value; }
+            get { return this._ExchangeDataManager; }
+            set { this._ExchangeDataManager = value; }
         }
 
         public void UpdateTransaction(Transaction transaction)
@@ -84,13 +85,13 @@ namespace ManagerConsole.Helper
         #region Binding Data Update
         public void AddExecutedOrder(Order order)
         {
-            this._InitDataManager.ExecutedOrders.Add(order);
-            this._InitDataManager.AddExecutedOrderSummaryItem(order);
+            this._ExchangeDataManager.ExecutedOrders.Add(order);
+            this._ExchangeDataManager.AddExecutedOrderSummaryItem(order);
         }
 
         public void DeletedExecutedOrderSummaryItem(Order order)
         {
-            this._InitDataManager.ExecuteOrderSummaryItemModel.DeletedExecutedOrderFromGrid(order);
+            this._ExchangeDataManager.ExecuteOrderSummaryItemModel.DeletedExecutedOrderFromGrid(order);
         }
 
         #endregion
@@ -98,9 +99,9 @@ namespace ManagerConsole.Helper
         #region Lot Changed
         public void DeleteOrderNotifyUpdateLot(Guid instrumentId, Order deletedOrder)
         {
-            //InstrumentClient instrument = this._InitDataManager.Instruments.SingleOrDefault(P => P.Id == instrumentId);
+            //InstrumentClient instrument = this._ExchangeDataManager.Instruments.SingleOrDefault(P => P.Id == instrumentId);
             //Customer customer = new Customer();
-            //QuotePolicyDetail quotePolicyDetail = this._InitDataManager.ExchangeSettingManagers.GetQuotePolicyDetail(instrumentId, customer);
+            //QuotePolicyDetail quotePolicyDetail = this._ExchangeDataManager.ExchangeSettingManagers.GetQuotePolicyDetail(instrumentId, customer);
             //decimal lotBalance = deletedOrder.LotBalance;
             //bool isBuy = (deletedOrder.BuySell == BuySell.Buy);
             //this.SubtractBuySellLot(instrument, quotePolicyDetail, isBuy, lotBalance);
@@ -142,9 +143,9 @@ namespace ManagerConsole.Helper
             decimal lotBalance = deletedOrder.LotBalance;
             bool isOpen = deletedOrder.OpenClose == OpenClose.Open;
             bool isBuy = deletedOrder.BuySell == BuySell.Buy;
-            InstrumentClient instrument = this._InitDataManager.GetExchangeSetting(deletedOrder.ExchangeCode).Instruments.Values.SingleOrDefault(P => P.Id == instrumentId);
+            InstrumentClient instrument = this._ExchangeDataManager.GetExchangeSetting(deletedOrder.ExchangeCode).Instruments.Values.SingleOrDefault(P => P.Id == instrumentId);
             Customer customer = new Customer();
-            QuotePolicyDetail quotePolicyDetail = this._InitDataManager.ExchangeSettingManagers["WF01"].GetQuotePolicyDetail(instrumentId, customer);
+            QuotePolicyDetail quotePolicyDetail = this._ExchangeDataManager.ExchangeSettingManagers["WF01"].GetQuotePolicyDetail(instrumentId, customer);
             ObservableCollection<CloseOrder> closeOrders = deletedOrder.CloseOrders;
 
             if (phase == Phase.Executed || phase == Phase.Completed)

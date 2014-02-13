@@ -20,6 +20,7 @@ using System.Xml;
 using Manager.Common.QuotationEntities;
 using System.Xml.Linq;
 using PriceType = iExchange.Common.PriceType;
+using Infragistics;
 
 namespace ManagerConsole.UI
 {
@@ -144,13 +145,69 @@ namespace ManagerConsole.UI
 
         public string GetLayout()
         {
-            string layout = "";
-            return layout;
+           
+            StringBuilder layoutBuilder = new StringBuilder();
+            layoutBuilder.Append("<ExchangeQuotationFilter>");
+            if (this.QuotationGrid.FilteringSettings.RowFiltersCollection.Count > 0)
+            {
+                foreach (RowsFilter rowsFilter in this.QuotationGrid.FilteringSettings.RowFiltersCollection)
+                {
+                    layoutBuilder.AppendFormat("<Fitler FieldName=\"{0}\" LogicalOperator=\"{1}\">",rowsFilter.FieldName, (int)rowsFilter.Conditions.LogicalOperator);
+                    foreach (IFilterCondition condition in rowsFilter.Conditions)
+                    {
+                        ComparisonCondition comparisonCondition = condition as ComparisonCondition;
+                        if (comparisonCondition != null)
+                        {
+                            layoutBuilder.AppendFormat("<Condition op=\"{0}\" val=\"{1}\"/>", (int)comparisonCondition.Operator, comparisonCondition.FilterValue);
+                        }
+                    }
+                    layoutBuilder.Append("</Fitler>");
+                }
+            }
+            layoutBuilder.AppendFormat("<Spliter Width=\"{0}\"/>", this.MainGrid.ColumnDefinitions[0].ActualWidth);
+            layoutBuilder.Append(ColumnWidthPersistence.GetPersistentColumnsWidthString(this.QuotationGrid));
+            layoutBuilder.Append("</ExchangeQuotationFilter>");
+            //string layout = "";
+            return layoutBuilder.ToString();
         }
 
         public void SetLayout(XElement layout)
         {
-            
+            try
+            {
+                
+                if (layout.HasElements)
+                {
+                    foreach (XElement filterElement in layout.Element("ExchangeQuotationFilter").Elements("Fitler"))
+                    {
+                        if (filterElement != null)
+                        {
+                            RowsFilter rowsFilter = new RowsFilter(typeof(string), this.QuotationGrid.Columns.DataColumns[filterElement.Attribute("FieldName").Value]);
+                            rowsFilter.Conditions.LogicalOperator = (LogicalOperator)int.Parse(filterElement.Attribute("LogicalOperator").Value);
+
+                            foreach (XElement element in filterElement.Elements("Condition"))
+                            {
+                                rowsFilter.Conditions.Add(new ComparisonCondition() { FilterValue = element.Attribute("val").Value, Operator = (ComparisonOperator)int.Parse(element.Attribute("op").Value) });
+                            }
+                            this.QuotationGrid.FilteringSettings.RowFiltersCollection.Add(rowsFilter);
+                        }
+                    }
+                    XElement spliterElement = layout.Element("ExchangeQuotationFilter").Element("Spliter");
+                    if (spliterElement != null)
+                    {
+                        this.MainGrid.ColumnDefinitions[0].Width = new GridLength(double.Parse(spliterElement.Attribute("Width").Value));
+                    }
+                    XElement columnWidthElement = layout.Element("ExchangeQuotationFilter").Element("ColumnsWidth");
+                    if (columnWidthElement !=null)
+                    {
+                        ColumnWidthPersistence.LoadColumnsWidth(this.QuotationGrid, columnWidthElement);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.AddEvent(System.Diagnostics.TraceEventType.Error, "ExchangeQuotationControl.SetLayout\r\n{0}", ex.ToString());
+            }
         }
 
         private void SRButton_Click(object sender, RoutedEventArgs e)
@@ -167,9 +224,7 @@ namespace ManagerConsole.UI
                 button.Content = "Resume";
                 resume = false;
             }
-
             InstrumentQuotation instrumentQuotations = button.Tag as InstrumentQuotation;
-            InstrumentQuotation iq = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == instrumentQuotations.ExchangeCode && i.QuotationPolicyId == instrumentQuotations.QuotationPolicyId && i.InstruemtnId == instrumentQuotations.InstruemtnId);
             Dictionary<string ,List<Guid>> instruments = new Dictionary<string,List<Guid>>();
             List<Guid> ids = new List<Guid>();
             ids.Add(instrumentQuotations.InstruemtnId);
@@ -177,6 +232,94 @@ namespace ManagerConsole.UI
             ConsoleClient.Instance.ExchangeSuspendResume(instruments, resume);
         }
 
+        private void IsOriginHiLoCheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            CheckBox cb = sender as CheckBox;
+            InstrumentQuotation instrumentQuotation = cb.Tag as InstrumentQuotation;
+            if (instrumentQuotation != null)
+            {
+                InstrumentQuotationSet set = new InstrumentQuotationSet();
+                set.ExchangeCode = instrumentQuotation.ExchangeCode;
+                set.QoutePolicyId = instrumentQuotation.QuotationPolicyId;
+                set.InstrumentId = instrumentQuotation.InstruemtnId;
+                set.type = InstrumentQuotationEditType.IsOriginHiLo;
+                set.Value = (bool)cb.IsChecked ? 1 : 0;
+                ConsoleClient.Instance.UpdateExchangeQuotation(set);
+            }
+        }
+
+        private void IsAutoFillCheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            CheckBox cb = sender as CheckBox;
+            InstrumentQuotation instrumentQuotation = cb.Tag as InstrumentQuotation;
+            if (instrumentQuotation != null)
+            {
+                IEnumerable<InstrumentQuotation> instruments = ExchangeQuotationViewModel.Instance.Exchanges.Where(i => i.ExchangeCode == instrumentQuotation.ExchangeCode && i.InstruemtnId == instrumentQuotation.InstruemtnId);
+                foreach (InstrumentQuotation item in instruments)
+                {
+                    ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == item.ExchangeCode && i.QuotationPolicyId == item.QuotationPolicyId && i.InstruemtnId == item.InstruemtnId).IsAutoFill = (cb.IsChecked == true);
+                }
+                this.UpdateInstrument(InstrumentQuotationEditType.IsAutoFill, instrumentQuotation, (bool)cb.IsChecked ? 1 : 0);
+            }
+        }
+
+        private void AllowLimitCheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            CheckBox cb = sender as CheckBox;
+            InstrumentQuotation instrumentQuotation = cb.Tag as InstrumentQuotation;
+            if (instrumentQuotation != null)
+            {
+                int value;
+                IEnumerable<InstrumentQuotation> instruments = ExchangeQuotationViewModel.Instance.Exchanges.Where(i => i.ExchangeCode == instrumentQuotation.ExchangeCode && i.InstruemtnId == instrumentQuotation.InstruemtnId);
+                foreach (InstrumentQuotation item in instruments)
+                {
+                    ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == item.ExchangeCode && i.QuotationPolicyId == item.QuotationPolicyId && i.InstruemtnId == item.InstruemtnId).AllowLimit = (cb.IsChecked == true);
+                }
+                value = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == instrumentQuotation.ExchangeCode && i.QuotationPolicyId == instrumentQuotation.QuotationPolicyId && i.InstruemtnId == instrumentQuotation.InstruemtnId).OrderTypeMask;
+                this.UpdateInstrument(InstrumentQuotationEditType.OrderTypeMask, instrumentQuotation, value);
+            }
+        }
+
+        private void IsPriceEnabledCheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            CheckBox cb = sender as CheckBox;
+            InstrumentQuotation instrumentQuotation = cb.Tag as InstrumentQuotation;
+            if (instrumentQuotation != null)
+            {
+                IEnumerable<InstrumentQuotation> instruments = ExchangeQuotationViewModel.Instance.Exchanges.Where(i => i.ExchangeCode == instrumentQuotation.ExchangeCode && i.InstruemtnId == instrumentQuotation.InstruemtnId);
+                foreach (InstrumentQuotation item in instruments)
+                {
+                    ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == item.ExchangeCode && i.QuotationPolicyId == item.QuotationPolicyId && i.InstruemtnId == item.InstruemtnId).IsPriceEnabled = (cb.IsChecked == true);
+                }
+                this.UpdateInstrument(InstrumentQuotationEditType.IsPriceEnabled, instrumentQuotation, (bool)cb.IsChecked ? 1 : 0);
+            }
+        }
+
+        private void IsAutoEnablePriceCheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            CheckBox cb = sender as CheckBox;
+            InstrumentQuotation instrumentQuotation = cb.Tag as InstrumentQuotation;
+            if (instrumentQuotation != null)
+            {
+                IEnumerable<InstrumentQuotation> instruments = ExchangeQuotationViewModel.Instance.Exchanges.Where(i => i.ExchangeCode == instrumentQuotation.ExchangeCode && i.InstruemtnId == instrumentQuotation.InstruemtnId);
+                foreach (InstrumentQuotation item in instruments)
+                {
+                    ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == item.ExchangeCode && i.QuotationPolicyId == item.QuotationPolicyId && i.InstruemtnId == item.InstruemtnId).IsAutoEnablePrice = (cb.IsChecked == true);
+                }
+                this.UpdateInstrument(InstrumentQuotationEditType.IsAutoEnablePrice, instrumentQuotation, (bool)cb.IsChecked ? 1 : 0);
+            }
+        }
+
+        private void UpdateInstrument(InstrumentQuotationEditType type, InstrumentQuotation instrumentQuotation,int value)
+        {
+            InstrumentQuotationSet set = new InstrumentQuotationSet();
+            set.ExchangeCode = instrumentQuotation.ExchangeCode;
+            set.QoutePolicyId = instrumentQuotation.QuotationPolicyId;
+            set.InstrumentId = instrumentQuotation.InstruemtnId;
+            set.type = type;
+            set.Value = value;
+            ConsoleClient.Instance.UpdateInstrument(set);
+        }
         //private void SRHeader_Click(object sender, RoutedEventArgs e)
         //{
 

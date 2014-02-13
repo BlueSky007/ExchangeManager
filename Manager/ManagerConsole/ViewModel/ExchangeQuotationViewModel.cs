@@ -44,9 +44,9 @@ namespace ManagerConsole.ViewModel
                 return true;
             }
             bool isSuccess = false;
-            isSuccess = this.Convert(App.MainFrameWindow.InitDataManager.ExchangeSettingManagers);
-            
-            IsInitData = isSuccess;
+            isSuccess = this.Convert(App.MainFrameWindow.ExchangeDataManager.ExchangeSettingManagers);
+
+            this.IsInitData = isSuccess;
             return isSuccess;
         }
 
@@ -100,6 +100,10 @@ namespace ManagerConsole.ViewModel
                     }
                 }
             }
+            if (this._Exchanges.Count == 0)
+            {
+                return false;
+            }
             return true;
         }
 
@@ -131,8 +135,13 @@ namespace ManagerConsole.ViewModel
 
         public void UpdateExchangeQuotationPolicy(List<InstrumentQuotationSet> setings)
         {
+            // TODO: fix bug: SingleOrDefault return null, will cause exception.
             foreach (InstrumentQuotationSet set in setings)
             {
+                if (this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId) == null)
+                {
+                    return;
+                }
                 switch (set.type)
                 {
                     case InstrumentQuotationEditType.PriceType:
@@ -175,7 +184,7 @@ namespace ManagerConsole.ViewModel
                         this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).IsAutoFill = (set.Value ==1);
                         break;
                     case InstrumentQuotationEditType.IsPriceEnabled:
-                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).IsEnablePrice = (set.Value == 1);
+                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).IsPriceEnabled = (set.Value == 1);
                         break;
                     case InstrumentQuotationEditType.IsAutoEnablePrice:
                         this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).IsAutoEnablePrice = (set.Value == 1);
@@ -250,7 +259,7 @@ namespace ManagerConsole.ViewModel
         private string _BidSchedulerId;
         private string _AskSchedulerId;
         private bool _IsAutoFill;
-        private bool _IsEnablePrice;
+        private bool _IsPriceEnabled;
         private bool _IsAutoEnablePrice;
         private int _OrderTypeMask;
         private bool _AllowLimit = false;
@@ -531,13 +540,13 @@ namespace ManagerConsole.ViewModel
             }
         }
 
-        public bool IsEnablePrice
+        public bool IsPriceEnabled
         {
-            get { return _IsEnablePrice; }
+            get { return _IsPriceEnabled; }
             set
             {
-                _IsEnablePrice = value;
-                NotifyPropertyChanged("IsEnablePrice");
+                _IsPriceEnabled = value;
+                NotifyPropertyChanged("IsPriceEnabled");
             }
         }
 
@@ -593,7 +602,7 @@ namespace ManagerConsole.ViewModel
         {
             get 
             {
-                if (this.IsEnablePrice&&this.IsAutoEnablePrice)
+                if (this.IsPriceEnabled&&this.IsAutoEnablePrice)
                 {
                     return "Suspend";
                 }
@@ -642,7 +651,7 @@ namespace ManagerConsole.ViewModel
             instrument.MaxSpreadPoints = quote.MaxSpreadPoints;
             instrument.IsOriginHiLo = quote.IsOriginHiLo;
             instrument.IsAutoFill = quote.IsAutoFill;
-            instrument.IsEnablePrice = quote.IsEnablePrice;
+            instrument.IsPriceEnabled = quote.IsPriceEnabled;
             instrument.IsAutoEnablePrice = quote.IsAutoEnablePrice;
             instrument.OrderTypeMask = quote.OrderTypeMask;
             return instrument;

@@ -544,6 +544,9 @@ namespace ManagerService.DataAccess
                     case FieldSetting.AutoConfirm:
                         setting.AutoConfirm = bool.Parse(value);
                         return;
+                    case FieldSetting.ConfirmRejectDQOrder:
+                        setting.ConfirmRejectDQOrder = bool.Parse(value);
+                        return;
                     case FieldSetting.LimitStopSummaryIsTimeRange:
                         setting.LimitStopSummaryIsTimeRange = bool.Parse(value);
                         return;

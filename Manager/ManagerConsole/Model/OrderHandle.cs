@@ -46,7 +46,7 @@ namespace ManagerConsole.Model
             this.ConfirmOrderDialogWin.OnConfirmDialogResult += new ConfirmOrderDialogWin.ConfirmDialogResultHandle(ExecuteOrderHandle);
             this.ConfirmOrderDialogWin.OnModifyPriceDialogResult += new ConfirmOrderDialogWin.ConfirmModifyPriceResultHandle(ModifyPriceHandle);
             this.ConfirmOrderDialogWin.OnRejectOrderDialogResult += new ConfirmOrderDialogWin.RejectOrderResultHandle(RejectOrderHandle);
-            this._TranPhaseManager = this._App.InitDataManager.TranPhaseManager;
+            this._TranPhaseManager = this._App.ExchangeDataManager.TranPhaseManager;
         }
 
         public TranPhaseManager TranPhaseManager
@@ -59,8 +59,8 @@ namespace ManagerConsole.Model
 
         public void OnOrderAccept(OrderTask orderTask)
         {
-            SystemParameter systemParameter = this._App.InitDataManager.GetExchangeSetting(orderTask.ExchangeCode).SystemParameter;
-            ConfigParameter configParameter = this._App.InitDataManager.ConfigParameter;
+            SystemParameter systemParameter = this._App.ExchangeDataManager.GetExchangeSetting(orderTask.ExchangeCode).SystemParameter;
+            ConfigParameter configParameter = this._App.ExchangeDataManager.ConfigParameter;
             bool allowModifyOrderLot = configParameter.AllowModifyOrderLot;
             systemParameter.CanDealerViewAccountInfo = true;
             bool isOK = OrderTaskManager.CheckDQOrder(orderTask, systemParameter, configParameter);
@@ -89,38 +89,43 @@ namespace ManagerConsole.Model
 
         public void OnOrderReject(OrderTask order)
         {
-            ConfigParameter parameter = this._App.InitDataManager.ConfigParameter;
+            DealingOrderParameter parameter = this._App.ExchangeDataManager.SettingsParameterManager.DealingOrderParameter;
             if (order.OrderStatus == OrderStatus.WaitOutPriceDQ || order.OrderStatus == OrderStatus.WaitOutLotDQ)
             {
                 if (parameter.ConfirmRejectDQOrder)
                 {
                     if (MessageBox.Show("Are you sure reject the order?", "Reject", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                     {
-                        if (order.OrderStatus == OrderStatus.WaitAcceptRejectPlace
-                            || order.OrderStatus == OrderStatus.WaitAcceptRejectCancel
-                            || order.OrderStatus == OrderStatus.WaitOutPriceDQ
-                            || order.OrderStatus == OrderStatus.WaitOutLotDQ
-                            || (order.OrderStatus == OrderStatus.WaitNextPrice && order.Transaction.OrderType == OrderType.Limit))
-                        {
-                            foreach (Order orderEntity in order.Transaction.Orders)
-                            {
-                                orderEntity.Status = OrderStatus.Deleting;
-                            }
-                            this.CancelTransaction(order);
-                        }
-                        else
-                        {
-                            string sMsg = "The order is canceled or executed already";
-                            this._CommonDialogWin.ShowDialogWin(sMsg, "Alert");
-                        }
+                        this.DoReject(order);
                     }
                 }
+                else
+                {
+                    this.DoReject(order);
+                }
+            }
+        }
+
+        public void DoReject(OrderTask order)
+        {
+            if (OrderTaskManager.CheckWhenRejectOrder(order))
+            {
+                foreach (Order orderEntity in order.Transaction.Orders)
+                {
+                    orderEntity.Status = OrderStatus.Deleting;
+                }
+                this.CancelTransaction(order);
+            }
+            else
+            {
+                string sMsg = "The order is canceled or executed already";
+                this._CommonDialogWin.ShowDialogWin(sMsg, "Alert");
             }
         }
 
 
         //接受限价单下单
-        private void AcceptLmtPlace(OrderTask orderTask)
+        private void AcceptOrderPlace(OrderTask orderTask)
         {
             LogOrder logEntity = LogEntityConvert.GetLogOrderEntity(orderTask, OperationType.OnOrderAcceptPlace, "ExecuteOrder");
             ConsoleClient.Instance.AcceptPlace(orderTask.Transaction, logEntity, AcceptPlaceCallback);
@@ -157,7 +162,7 @@ namespace ManagerConsole.Model
         #region 撞线状态操作
         public void OnOrderExecute(OrderTask orderTask)
         {
-            ExchangeSettingManager settingManager = this._App.InitDataManager.GetExchangeSetting(orderTask.ExchangeCode);
+            ExchangeSettingManager settingManager = this._App.ExchangeDataManager.GetExchangeSetting(orderTask.ExchangeCode);
             SystemParameter systemParameter = settingManager.SystemParameter;
             systemParameter.CanDealerViewAccountInfo = true;
             bool isOK = OrderTaskManager.CheckExecuteOrder(orderTask);
@@ -186,14 +191,31 @@ namespace ManagerConsole.Model
             }
         }
 
-        public void OnOrderModify(OrderTask orderTask)
+        public void OnOrderModify(OrderTask orderTask,string origin)
         {
             if (orderTask.OrderStatus == OrderStatus.WaitOutLotLMT)
             {
-                this.ConfirmOrderDialogWin.ShowDialogWin("Modify Price", orderTask, HandleAction.OnOrderModify);
+                this.ConfirmOrderDialogWin.ShowDialogWin("Modify Price", orderTask, origin, HandleAction.OnOrderModify);
             }
         }
+        public void OnOrderUpdate(OrderTask orderTask,LmtOrderForInstrument currentInstrument)
+        { 
+            if(orderTask.Transaction.OrderType == OrderType.Limit || orderTask.Transaction.OrderType == OrderType.Market)
+            {
+                if (orderTask.OrderStatus == OrderStatus.WaitOutLotLMT || orderTask.OrderStatus == OrderStatus.WaitOutLotLMTOrigin)
+                {
+                    InstrumentClient instrument = orderTask.Instrument;
+                    if (instrument.IsNormal ^ (orderTask.IsBuy == BuySell.Buy))
+                        orderTask.BestPrice = currentInstrument.Bid;
+                    else
+                        orderTask.BestPrice = currentInstrument.Ask;
 
+                    if (orderTask.Transaction.OrderType == OrderType.Limit)
+                        orderTask.SetPrice = orderTask.BestPrice;
+                }
+            }
+        }
+        //Old Function
         public void OnOrderUpdate(OrderTask orderTask)
         { 
             if(orderTask.Transaction.OrderType == OrderType.Limit || orderTask.Transaction.OrderType == OrderType.Market)
@@ -214,7 +236,7 @@ namespace ManagerConsole.Model
         #endregion
 
        
-        //Accept or Reject Lmt Order
+        //Accept or Reject Lmt Order/Moo.Moc
         public void OnOrderAcceptPlace(OrderTask orderTask)
         {
             if (orderTask.OrderStatus == OrderStatus.WaitAcceptRejectPlace)
@@ -224,12 +246,16 @@ namespace ManagerConsole.Model
                     order.ChangeStatus(OrderStatus.WaitServerResponse);
                 }
             }
-            this.AcceptLmtPlace(orderTask);
+            this.AcceptOrderPlace(orderTask);
         }
 
         public void OnOrderRejectPlace(OrderTask orderTask)
         {
-            if (orderTask.OrderStatus == OrderStatus.WaitAcceptRejectPlace)
+            if (orderTask.OrderStatus == OrderStatus.WaitAcceptRejectPlace
+            || orderTask.OrderStatus == OrderStatus.WaitAcceptRejectCancel
+            || orderTask.OrderStatus == OrderStatus.WaitOutPriceDQ
+            || orderTask.OrderStatus == OrderStatus.WaitOutLotDQ
+            || (orderTask.OrderStatus == OrderStatus.WaitNextPrice && orderTask.Transaction.OrderType == OrderType.Limit))
             {
                 string rejectOrderMsg = this.GetRejectOrderMessage(orderTask);
                 this._RejectTran = orderTask.Transaction;
@@ -255,32 +281,146 @@ namespace ManagerConsole.Model
             }
         }
 
-        public void OnLMTExecute(LMTProcessForInstrument lMTProcessForInstrument)
+        //All Lmt Order
+        public void OnLMTExecute(ProcessLmtOrder processLmtOrder,bool isBuy)
         {
-            foreach (OrderTask orderTask in lMTProcessForInstrument.OrderTasks)
+            foreach (OrderTask orderTask in processLmtOrder.OrderTasks)
+            {
+                if (isBuy != (orderTask.IsBuy == BuySell.Buy)) continue;
+                if (!OrderTaskManager.CheckExecuteOrder(orderTask)) continue;
+
+                string executedPrice = isBuy ? processLmtOrder.LmtOrderForInstrument.CustomerBidPrice : processLmtOrder.LmtOrderForInstrument.CustomerAskPrice;
+                string marketPrice = isBuy ? processLmtOrder.LmtOrderForInstrument.Ask : processLmtOrder.LmtOrderForInstrument.Bid;
+
+                if (!string.IsNullOrEmpty(marketPrice))
+                {
+                    bool isValidPrice = OrderTaskManager.IsProblePrice(orderTask.Instrument, marketPrice, executedPrice);
+                    if (!isValidPrice)
+                    {
+                        string executePrice = orderTask.IsBuy == BuySell.Buy ? processLmtOrder.LmtOrderForInstrument.Ask : processLmtOrder.LmtOrderForInstrument.Bid;
+                        this.Commit(orderTask, executePrice, (decimal)orderTask.Lot);
+                    }
+                }
+                else
+                {
+                    string msg = "Out of Range,Accept or Reject?";
+                    this.ConfirmOrderDialogWin.ShowRejectOrderWin(msg, orderTask, HandleAction.OnLMTExecute);
+                }
+            }
+        }
+
+        public void OnLMTOrderWait(ProcessLmtOrder processLmtOrder, bool isBuy)
+        {
+            foreach (OrderTask orderTask in processLmtOrder.OrderTasks)
+            {
+                if (isBuy != (orderTask.IsBuy == BuySell.Buy)) continue;
+
+                if (orderTask.OrderStatus == OrderStatus.WaitOutPriceLMT
+                || orderTask.OrderStatus == OrderStatus.WaitOutLotLMT
+                || orderTask.OrderStatus == OrderStatus.WaitOutLotLMTOrigin)
+                {
+                    orderTask.ChangeStatus(OrderStatus.WaitNextPrice);
+                    orderTask.ResetHit();
+                    Guid[] orderIds = new Guid[] { orderTask.OrderId };
+                    ConsoleClient.Instance.ResetHit(orderTask.ExchangeCode, orderIds);
+
+                    if (this.OnOrderWaitNofityEvent != null)
+                    {
+                        this.OnOrderWaitNofityEvent(orderTask);
+                    }
+                }
+            } 
+        }
+        #endregion
+
+        #endregion
+
+        #region MOO/MOC Order Action
+
+        public void OnMooMocAccept(MooMocOrderForInstrument mooMocOrderForInstrument)
+        {
+            foreach (OrderTask orderTask in mooMocOrderForInstrument.OrderTasks)
             {
                 if (orderTask.IsSelected)
                 {
-                    bool? isValidPrice = OrderTaskManager.IsValidPrice(orderTask.Instrument, decimal.Parse(orderTask.SetPrice));
-                    if (isValidPrice.HasValue)
+                    this.OnOrderAcceptPlace(orderTask);
+                }
+            }
+        }
+
+        public void OnMooMocReject(MooMocOrderForInstrument mooMocOrderForInstrument)
+        {
+            foreach (OrderTask orderTask in mooMocOrderForInstrument.OrderTasks)
+            {
+                if (orderTask.IsSelected)
+                {
+                    orderTask.SetPrice = orderTask.IsBuy == BuySell.Buy ? mooMocOrderForInstrument.Bid : mooMocOrderForInstrument.Ask;
+                    this.OnOrderRejectPlace(orderTask);
+                }
+            }
+        }
+
+        public void OnMooMocCancel(MooMocOrderForInstrument mooMocOrderForInstrument)
+        {
+            if (MessageBox.Show("Are you sure cancel the order?", "Alert", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                foreach (OrderTask orderTask in mooMocOrderForInstrument.OrderTasks)
+                {
+                    if (orderTask.IsSelected)
                     {
-                        if (isValidPrice.Value)
-                        {
-                            //合法
-                            string executePrice = orderTask.IsBuy == BuySell.Buy ? lMTProcessForInstrument.Instrument.Ask : lMTProcessForInstrument.Instrument.Bid;
-                            this.Commit(orderTask, executePrice, (decimal)orderTask.Lot);
-                        }
-                    }
-                    else
-                    {
-                        string msg = "Out of Range,Accept or Reject?";
-                        this.ConfirmOrderDialogWin.ShowRejectOrderWin(msg, orderTask, HandleAction.OnLMTExecute);
+                        this.CancelTransaction(orderTask);
                     }
                 }
             }
         }
-        #endregion
 
+        public void OnMooMocExecute(MooMocOrderForInstrument mooMocOrderForInstrument)
+        { 
+            foreach(OrderTask orderTask in mooMocOrderForInstrument.OrderTasks)
+            {
+                if(orderTask.IsSelected)
+                {
+                    if (!this.IsCanExecutedMooMoc(orderTask)) continue;
+
+                    this.Commit(orderTask, orderTask.SetPrice, (decimal)orderTask.Lot);
+                }
+            }
+        }
+
+        public void OnMooMocApply(MooMocOrderForInstrument mooMocOrderForInstrument)
+        {
+            foreach (OrderTask orderTask in mooMocOrderForInstrument.OrderTasks)
+            {
+                if (orderTask.IsSelected)
+                {
+                    InstrumentClient instrument = orderTask.Transaction.Instrument;
+                    if (instrument.IsNormal == (orderTask.IsBuy== BuySell.Buy))
+                    {
+                        orderTask.SetPrice = mooMocOrderForInstrument.Ask;
+                    }
+                    else
+                    {
+                        orderTask.SetPrice = mooMocOrderForInstrument.Bid;
+                    }
+                }
+            }
+        }
+
+        private bool IsCanExecutedMooMoc(OrderTask orderTask)
+        {
+            bool canExecute = false;
+            InstrumentClient instrument = orderTask.Transaction.Instrument;
+            if (orderTask.OrderType == OrderType.MarketOnOpen)
+            {
+                canExecute = instrument.DayOpenTime != null 
+                    && orderTask.Transaction.BeginTime.Ticks == instrument.DayOpenTime.Ticks;
+            }
+            else if (orderTask.OrderType == OrderType.MarketOnClose)
+            {
+                canExecute = true;
+            }
+            return canExecute;
+        }
         #endregion
 
         #region 辅助方法
@@ -309,7 +449,12 @@ namespace ManagerConsole.Model
             if (canDealerViewAccountInfo)
             {
                 //just test data
-                AccountInformation accountInfor = ConsoleClient.Instance.GetAcountInfo(orderTask.ExchangeCode,Guid.Empty);
+                AccountInformation accountInfor = ConsoleClient.Instance.GetAcountInfo(orderTask.ExchangeCode, orderTask.Transaction.Id);
+                if (accountInfor == null)
+                {
+                    this._App._CommonDialogWin.ShowDialogWin("Get account information failed!","Error");
+                    return;
+                }
                 this._App._ConfirmOrderDialogWin.ShowDialogWin(accountInfor, title, orderTask, action);
             }
             else
@@ -358,6 +503,14 @@ namespace ManagerConsole.Model
             return account.Code + (isBuy ? " buy " : " sell ") + orderTask.Lot + " " + instrument.Code + " at " + orderTask.SetPrice;
         }
 
+        private string GetMooMocDescription(OrderTask orderTask,string marketPrice)
+        {
+            bool isBuy = orderTask.IsBuy == BuySell.Buy;
+            Account account = orderTask.Transaction.Account;
+            InstrumentClient instrument = orderTask.Instrument;
+            return account.Code + (isBuy ? " buy " : " sell ") + orderTask.Lot + " " + instrument.Code + " at " + marketPrice;
+        }
+ 
         private void Commit(OrderTask orderTask, string executePrice, decimal lot)
         {
             orderTask.ChangeStatus(OrderStatus.WaitServerResponse);
@@ -442,7 +595,7 @@ namespace ManagerConsole.Model
         }
 
         //修改价格
-        void ModifyPriceHandle(bool yesOrNo, string newPrice, OrderTask orderTask, HandleAction action)
+        void ModifyPriceHandle(bool yesOrNo, string newPrice, OrderTask orderTask,string origin, HandleAction action)
         {
             if (yesOrNo)
             {
@@ -457,7 +610,7 @@ namespace ManagerConsole.Model
                         return;
                     }
                     bool? isValidPrice = false;
-                    isValidPrice = OrderTaskManager.IsValidPrice(instrument,decimal.Parse(newPrice));
+                    isValidPrice = OrderTaskManager.IsValidPrice(instrument,origin,decimal.Parse(newPrice));
 
                     if(isValidPrice.HasValue)
                     {
@@ -566,8 +719,6 @@ namespace ManagerConsole.Model
                     this.RemoveTransaction(tran);
 
                     this.TranPhaseManager.UpdateTransaction(tran);
-
-                    
                 }
             });
         }
@@ -576,23 +727,56 @@ namespace ManagerConsole.Model
         private void RemoveTransaction(Transaction tran)
         {
             List<OrderTask> instanceOrders = new List<OrderTask>();
+            List<OrderTask> lmtOrders = new List<OrderTask>();
+            List<OrderTask> mooMocOrders = new List<OrderTask>();
+            MooMocOrderForInstrument mooMocOrderForInstrument = null;
 
             foreach (Order order in tran.Orders)
             {
-                order.ChangeStatus(OrderStatus.Canceled);
-
-                foreach (OrderTask orderTask in this._App.InitDataManager.ProcessInstantOrder.OrderTasks)
+                if (order.Transaction.OrderType == OrderType.SpotTrade)
                 {
-                    if (orderTask.OrderId == order.Id)
+                    foreach (OrderTask orderTask in this._App.ExchangeDataManager.ProcessInstantOrder.OrderTasks)
                     {
-                        instanceOrders.Add(orderTask);
-                        continue;
+                        if (orderTask.OrderId == order.Id)
+                        {
+                            instanceOrders.Add(orderTask);
+                        }
+                    }
+                }
+                else if(order.Transaction.OrderType == OrderType.Limit || order.Transaction.OrderType == OrderType.Stop)
+                {
+                    foreach (OrderTask orderTask in this._App.ExchangeDataManager.ProcessLmtOrder.OrderTasks)
+                    {
+                        if (orderTask.OrderId == order.Id)
+                        {
+                            lmtOrders.Add(orderTask);
+                        }
+                    }
+                }
+                else if (order.Transaction.OrderType == OrderType.MarketOnOpen || order.Transaction.OrderType == OrderType.MarketOnClose)
+                {
+                    if (mooMocOrderForInstrument == null)
+                    {
+                        mooMocOrderForInstrument = this._App.ExchangeDataManager.MooMocOrderForInstrumentModel.MooMocOrderForInstruments.SingleOrDefault(P => P.Instrument.Id == order.Transaction.Instrument.Id);
+                    }
+                    if (mooMocOrderForInstrument != null)
+                    {
+                        OrderTask orderTask = mooMocOrderForInstrument.OrderTasks.SingleOrDefault(P => P.OrderId == order.Id);
+
+                        if (orderTask == null) continue;
+                        mooMocOrders.Add(orderTask);
                     }
                 }
             }
+            this._App.ExchangeDataManager.ProcessInstantOrder.RemoveInstanceOrder(instanceOrders);
+            this._App.ExchangeDataManager.ProcessLmtOrder.RemoveLmtOrder(lmtOrders);
+            mooMocOrderForInstrument.RemoveMooMocOrder(mooMocOrders);
 
-            if (instanceOrders.Count <= 0) return;
-            this._App.InitDataManager.ProcessInstantOrder.RemoveInstanceOrder(instanceOrders);
+            if (mooMocOrderForInstrument.OrderTasks.Count == 0)
+            {
+                this._App.ExchangeDataManager.MooMocOrderForInstrumentModel.RemoveMooMocOrderForInstrument(mooMocOrderForInstrument);
+            }
         }
+
     }
 }

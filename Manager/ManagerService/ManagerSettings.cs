@@ -32,7 +32,6 @@ namespace ManagerService
         public string ServiceAddressForConsole;
         public string ServiceAddressForExchange;
         public int QuotationListenPort;
-        public bool ConfirmRejectDQOrder;
         public bool AllowModifyOrderLot;
         public ExchangeSystemSetting[] ExchangeSystems;
 

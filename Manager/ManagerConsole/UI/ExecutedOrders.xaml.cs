@@ -4,18 +4,23 @@ using Infragistics.Windows.Reporting;
 using ManagerConsole.Model;
 using ManagerConsole.ViewModel;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Xml.Linq;
+using System.Linq;
+using Logger = Manager.Common.Logger;
 
 namespace ManagerConsole.UI
 {
     /// <summary>
     /// Interaction logic for ExecutedOrders.xaml
     /// </summary>
-    public partial class ExecutedOrders : UserControl
+    public partial class ExecutedOrders : UserControl, IControlLayout
     {
         private ManagerConsole.MainWindow _App;
         private ObservableCollection<AccountGroup> _AccountGroups = new ObservableCollection<AccountGroup>();
@@ -44,7 +49,7 @@ namespace ManagerConsole.UI
             RangeType rangeType = (this._TimeRangeRadio.IsChecked.Value) ? RangeType.Time : RangeType.Price;
             int interval = (rangeType == RangeType.Time) ? int.Parse(this._TimeRangeText.Text): int.Parse(this._PriceRangeText.Text);
 
-            this._Model.InitializeExecuteOrderSummaryItems(this._App.InitDataManager.ExecutedOrders, rangeType, interval);
+            this._Model.InitializeExecuteOrderSummaryItems(this._App.ExchangeDataManager.ExecutedOrders, rangeType, interval);
 
             this._ExecutedOrderSummaryGrid.ItemsSource = this._Model.ExecuteOrderSummaryItems;
         }
@@ -73,8 +78,8 @@ namespace ManagerConsole.UI
 
         private void AttachEvent()
         {
-            this._App.InitDataManager.OnDeleteOrderNotifyEvent += new ExchangeDataManager.DeleteOrderNotifyHandler(this.DeleteOrderFromExecuteOrderGrid);
-            this._App.InitDataManager.OnExecutedOrderNotifyEvent += new ExchangeDataManager.ExecutedOrderNotifyHandler(this.AddExecutedOrder);
+            this._App.ExchangeDataManager.OnDeleteOrderNotifyEvent += new ExchangeDataManager.DeleteOrderNotifyHandler(this.DeleteOrderFromExecuteOrderGrid);
+            this._App.ExchangeDataManager.OnExecutedOrderNotifyEvent += new ExchangeDataManager.ExecutedOrderNotifyHandler(this.AddExecutedOrder);
         }
 
         private void AddExecutedOrder(Order order)
@@ -87,8 +92,8 @@ namespace ManagerConsole.UI
         private void BindingData()
         {
             this._App = (ManagerConsole.MainWindow)Application.Current.MainWindow;
-            this._Model = this._App.InitDataManager.ExecuteOrderSummaryItemModel;
-            this._ExecutedOrderListGrid.ItemsSource = this._App.InitDataManager.ExecutedOrders;
+            this._Model = this._App.ExchangeDataManager.ExecuteOrderSummaryItemModel;
+            this._ExecutedOrderListGrid.ItemsSource = this._App.ExchangeDataManager.ExecutedOrders;
             this.GetComboListData();
         }
 
@@ -97,9 +102,9 @@ namespace ManagerConsole.UI
             AccountGroup allGroup = new AccountGroup();
             allGroup.Code = "All";
 
-            foreach (string exchangeCode in this._App.InitDataManager.ExchangeCodes)
+            foreach (string exchangeCode in this._App.ExchangeDataManager.ExchangeCodes)
             {
-                ExchangeSettingManager settingManager = this._App.InitDataManager.GetExchangeSetting(exchangeCode);
+                ExchangeSettingManager settingManager = this._App.ExchangeDataManager.GetExchangeSetting(exchangeCode);
 
                 foreach (AccountGroup group in settingManager.GetAccountGroups())
                 {
@@ -235,7 +240,7 @@ namespace ManagerConsole.UI
             Style style = new Style(typeof(Infragistics.Controls.Grids.CellControl));
             style.Setters.Add(new Setter(BackgroundProperty, new SolidColorBrush(Colors.Gray)));
             style.Setters.Add(new Setter(ForegroundProperty, deletedOrder.IsBuyBrush));
-            int index = this._App.InitDataManager.ExecutedOrders.IndexOf(deletedOrder);
+            int index = this._App.ExchangeDataManager.ExecutedOrders.IndexOf(deletedOrder);
             this._ExecutedOrderListGrid.Rows[index].CellStyle = style;
         }
 
@@ -262,5 +267,51 @@ namespace ManagerConsole.UI
                 }
             }
         }
+
+        #region 布局
+        /// <summary>
+        /// Layout format:
+        /// <GridSettings>
+        ///    <ColumnsWidth Data="53,0,194,70,222,60,89,60,80,80,80,70,80,80,80,60,60,59,80,80,80,100,80,150,80,"/>
+        /// </GridSettings>
+
+        public string GetLayout()
+        {
+            StringBuilder layoutBuilder = new StringBuilder();
+            layoutBuilder.Append("<GridSettings>");
+            layoutBuilder.Append(ColumnWidthPersistence.GetGridColumnsWidthString(this._ExecutedOrderListGrid));
+            layoutBuilder.Append(ColumnWidthPersistence.GetGridColumnsWidthString(this._ExecutedOrderSummaryGrid));
+            layoutBuilder.Append("</GridSettings>");
+            return layoutBuilder.ToString();
+        }
+
+        public void SetLayout(XElement layout)
+        {
+            try
+            {
+                if (layout.HasElements)
+                {
+                    IEnumerable<XElement> settings = from el in layout.Element("GridSettings").Elements() select el;
+
+                    foreach (XElement setting in settings)
+                    {
+                        switch (setting.Attribute("Name").Value)
+                        {
+                            case "_ExecutedOrderListGrid":
+                                ColumnWidthPersistence.LoadGridColumnsWidth(this._ExecutedOrderListGrid, setting);
+                                break;
+                            case "_ExecutedOrderSummaryGrid":
+                                ColumnWidthPersistence.LoadGridColumnsWidth(this._ExecutedOrderSummaryGrid, setting);
+                                break;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Manager.Common.Logger.AddEvent(System.Diagnostics.TraceEventType.Error, "ExecutedOrders.SetLayout\r\n{0}", ex.ToString());
+            }
+        }
+        #endregion
     }
 }

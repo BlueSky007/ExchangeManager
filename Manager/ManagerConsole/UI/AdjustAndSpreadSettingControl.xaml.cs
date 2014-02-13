@@ -28,10 +28,6 @@ namespace ManagerConsole.UI
         private ObservableCollection<AdjustRelationViewModel> _ItemSource = new ObservableCollection<AdjustRelationViewModel>();
         private bool IsEditing = false;
 
-        public static readonly DependencyProperty addRelation = DependencyProperty.Register("AddRelation", typeof(bool), typeof(AdjustAndSpreadSettingControl));
-        public static readonly DependencyProperty setAdjust = DependencyProperty.Register("SetAdjust", typeof(bool), typeof(AdjustAndSpreadSettingControl));
-        public static readonly DependencyProperty setSpread = DependencyProperty.Register("SetSpread", typeof(bool), typeof(AdjustAndSpreadSettingControl));
-
         public bool AddRelation { get; set; }
         public bool SetAdjust { get; set; }
         public bool SetSpread { get; set; }
@@ -42,15 +38,21 @@ namespace ManagerConsole.UI
             {
                 InitializeComponent();
                 this.BeginInitData();
-                this.AddRelation = ConsoleClient.Instance.HasPermission(ModuleCategoryType.Quotation, ModuleType.AdjustSpreadSetting, "AddRelation");
-                this.SetAdjust = ConsoleClient.Instance.HasPermission(ModuleCategoryType.Quotation, ModuleType.AdjustSpreadSetting, "SetAdjust");
-                this.SetSpread = ConsoleClient.Instance.HasPermission(ModuleCategoryType.Quotation, ModuleType.AdjustSpreadSetting, "SetSpread");
+                Principal.Instance.PermissionChanged += Instance_PermissionChanged;
+                Instance_PermissionChanged();
             }
             catch (Exception ex)
             {
                 Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "AdjustAndSpreadSettingControl.Construct Error\r\n{0}", ex.ToString());
                 MessageBox.Show("Open AdjustAndSpreadSettingControl Error");
             }
+        }
+
+        public void Instance_PermissionChanged()
+        {
+            this.AddRelation = Principal.Instance.HasPermission(ModuleCategoryType.Quotation, ModuleType.AdjustSpreadSetting, "AddRelation");
+            this.SetAdjust = Principal.Instance.HasPermission(ModuleCategoryType.Quotation, ModuleType.AdjustSpreadSetting, "SetAdjust");
+            this.SetSpread = Principal.Instance.HasPermission(ModuleCategoryType.Quotation, ModuleType.AdjustSpreadSetting, "SetSpread");
         }
 
         public void BeginInitData()
@@ -169,7 +171,7 @@ namespace ManagerConsole.UI
         {
             Button btn = sender as Button;
             List<int> instrumentIds = this._ItemSource.SingleOrDefault(i => i.Id == (Guid)btn.Tag).InstrumentIds;
-            NewRelationWindow newRelaWin = new NewRelationWindow(instrumentIds, this.EditSuccess);
+            NewRelationWindow newRelaWin = new NewRelationWindow(instrumentIds,btn.Content.ToString(), this.EditSuccess);
             App.MainFrameWindow.MainFrame.Children.Add(newRelaWin);
             newRelaWin.IsModal = true;
             newRelaWin.Show();

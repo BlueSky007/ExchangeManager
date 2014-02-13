@@ -61,6 +61,7 @@ namespace ManagerConsole.Model
                 {
                     foreach (CommonOrder commonOrder in settingSet.Orders)
                     {
+                        commonOrder.ExchangeCode = this._ExchangeCode;
                         this.InitializeOrder(commonOrder);
                     }
                 }

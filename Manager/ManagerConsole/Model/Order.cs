@@ -1,16 +1,12 @@
-﻿using Manager.Common;
-using ManagerConsole.Helper;
+﻿using ManagerConsole.Helper;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 using System.Windows.Media;
 using CommonOrder = iExchange.Common.Manager.Order;
 using OrderType = iExchange.Common.OrderType;
-using Helper = Manager.Common.Helper;
 using iExchange.Common;
 using Phase = iExchange.Common.OrderPhase;
 
@@ -467,11 +463,6 @@ namespace ManagerConsole.Model
             }
         }
 
-        internal iExchange.Common.Manager.Order ToCommonOrder()
-        {
-            return null;
-        }
-
         internal void Initialize(CommonOrder commonOrder)
         {
             this.Id = commonOrder.Id;
@@ -537,38 +528,7 @@ namespace ManagerConsole.Model
             }
 
             //Hit2
-            if (this.Transaction.OrderType == OrderType.Limit || this.Transaction.OrderType == OrderType.Market)
-            {
-                if (this.Transaction.OrderType == OrderType.Market && this.Transaction != null)
-                {
-                    this.ChangeStatus(OrderStatus.WaitOutLotLMT);
-                }
-
-                Price setPrice = new Price(this.SetPrice, instrument.NumeratorUnit.Value, instrument.Denominator.Value);
-                if (this.BestPrice == null || this.SetPrice == null) return;
-                if (this.HitCount > 0
-                    || (this.Transaction.OrderType == OrderType.Limit 
-                    && !instrument.Mit && instrument.PenetrationPoint >= 0
-                    && Math.Abs(bestPrice - setPrice) >= instrument.PenetrationPoint))
-                {
-                    this.ChangeStatus(OrderStatus.WaitOutLotLMT);
-                    //this.mainWindow.oDealingConsole.PlaySound(SoundOption.LimitDealerIntervene);
-                }
-            }
-            else if (this.IsNeedDQMaxMove())
-            {
-                var isExceed = true;// = this.IsPriceExceedMaxMin(this.tran.executePrice);
-                if (isExceed == true)
-                {
-                    //Waiting for Dealer Accept/Reject
-                    this.ChangeStatus(OrderStatus.WaitOutPriceDQ);
-                }
-                else
-                {
-                    //Waiting for Dealer Confirm/Reject
-                    this.ChangeStatus(OrderStatus.WaitOutLotDQ);
-                }
-            }
+            this.Hit2();
         }
 
         #region Change Order Status
@@ -597,8 +557,57 @@ namespace ManagerConsole.Model
             }
         }
 
+        internal void Hit2()
+        {
+            try
+            {
+                InstrumentClient instrument = this.Transaction.Instrument;
+                if (this.Transaction.OrderType == OrderType.Limit || this.Transaction.OrderType == OrderType.Market)
+                {
+                    if (this.Transaction.OrderType == OrderType.Market && this.BestPrice != null)
+                    {
+                        this.ChangeStatus(OrderStatus.WaitOutLotLMT);
+                    }
+
+                    if (string.IsNullOrEmpty(this.BestPrice) || string.IsNullOrEmpty(this.BestPrice)) return;
+                    Price bestPrice = new Price(this.BestPrice, instrument.NumeratorUnit.Value, instrument.Denominator.Value);
+                    Price setPrice = new Price(this.SetPrice, instrument.NumeratorUnit.Value, instrument.Denominator.Value);
+                    decimal diff = decimal.Parse(this.BestPrice) - decimal.Parse(this.SetPrice);
+
+                    if (this.HitCount > 0 || (this.Transaction.OrderType == OrderType.Limit
+                        && !this.Transaction.Instrument.Mit
+                        && instrument.PenetrationPoint >= 0
+                        && Math.Abs(diff) >= instrument.PenetrationPoint)) this.ChangeStatus(OrderStatus.WaitOutLotLMT);
+                }
+                else if (this.IsNeedDQMaxMove())
+                {
+                    if (instrument == null) return;
+                    var isExceed = this.IsPriceExceedMaxMin(this.ExecutePrice);
+                    if (isExceed == true)
+                    {
+                        this.ChangeStatus(OrderStatus.WaitOutPriceDQ);
+                    }
+                    else
+                    {
+                        this.ChangeStatus(OrderStatus.WaitOutLotDQ);
+                    }
+                    //this.mainWindow.oDealingConsole.PlaySound(SoundOption.LimitDealerIntervene);
+                }
+            }
+            catch (Exception ex)
+            {
+                Manager.Common.Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "Order.Hit2 Error:.\r\n{0}", ex.ToString());
+            }
+        }
+
+
 
         #endregion
+
+        private bool IsPriceExceedMaxMin(string executedPrice)
+        {
+            return true;
+        }
     }
 
     public class OrderComparerByCode : IComparer<Order>

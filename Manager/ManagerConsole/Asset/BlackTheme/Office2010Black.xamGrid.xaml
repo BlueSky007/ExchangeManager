@@ -1746,7 +1746,7 @@
         <Setter Property="BorderBrush" Value="{StaticResource CellItemBorderBrush}"/>
         <Setter Property="BorderThickness" Value="0,0,1,1"/>
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
-        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Padding" Value="0,0,2,0"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ig:CellControl">

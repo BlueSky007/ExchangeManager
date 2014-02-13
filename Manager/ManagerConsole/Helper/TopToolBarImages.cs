@@ -41,7 +41,7 @@ namespace ManagerConsole.Helper
         {
             this._UpdateImg = new BitmapImage(new Uri("../../Asset/Images/Update.png", UriKind.Relative));
             this._ModifyImg = new BitmapImage(new Uri("../../Asset/Images/Modify.png", UriKind.Relative));
-            this._CancelImg = new BitmapImage(new Uri("../../Asset/Images/CancelOrder.png", UriKind.Relative));
+            this._CancelImg = new BitmapImage(new Uri("../../Asset/Images/Reject.png", UriKind.Relative));
             this.ExecuteImg = new BitmapImage(new Uri("../../Asset/Images/Execute.png", UriKind.Relative));
         }
     }

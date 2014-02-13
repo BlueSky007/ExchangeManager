@@ -15,6 +15,7 @@ using ManagerConsole.ViewModel;
 using Infragistics.Controls.Grids;
 using Manager.Common.QuotationEntities;
 using ManagerConsole.Model;
+using Manager.Common;
 
 namespace ManagerConsole.UI
 {
@@ -26,6 +27,7 @@ namespace ManagerConsole.UI
         public SourceRelationControl()
         {
             InitializeComponent();
+            this.Loaded += SourceRelationControl_Loaded;
         }
 
         public void BindToInstrument(VmInstrument instrument)
@@ -42,7 +44,27 @@ namespace ManagerConsole.UI
                 this.AddRelationButton.Visibility = Visibility.Visible;
             }
         }
-
+        private bool CanModify
+        {
+            get
+            {
+                return Principal.Instance.HasPermission(ModuleCategoryType.Quotation, ModuleType.QuotationMonitor, OperationCode.Modify);
+            }
+        }
+        private void SourceRelationControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            this.RelationGrid.Columns["Id"].Visibility = this.CanModify ? Visibility.Visible : Visibility.Collapsed;
+            this.AddRelationButton.IsEnabled = this.CanModify;
+            if (!this.CanModify)
+            {
+                (this.RelationGrid.Columns["AdjustPoints"] as TemplateColumn).ItemTemplate = this.Resources["AdjustPointsTemplate"] as DataTemplate;
+            }
+            foreach (var column in this.RelationGrid.Columns)
+            {
+                TextColumn textColumn = column as TextColumn;
+                if (textColumn != null) textColumn.IsReadOnly = !this.CanModify;
+            }
+        }
         private void AdjustButton_Click(object sender, RoutedEventArgs e)
         {
             Button button = (Button)sender;
@@ -58,6 +80,7 @@ namespace ManagerConsole.UI
         }
         private void RelationGrid_CellDoubleClicked(object sender, CellClickedEventArgs e)
         {
+            if (!this.CanModify) return;
             if (e.Cell.Column.Key == "QuotationSource.Name" || e.Cell.Column.Key == FieldSR.SourceSymbol)
             {
                 VmInstrumentSourceRelation vmRelation = e.Cell.Row.Data as VmInstrumentSourceRelation;

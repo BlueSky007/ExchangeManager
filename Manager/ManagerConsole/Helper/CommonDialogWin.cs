@@ -273,7 +273,7 @@ namespace ManagerConsole.Helper
         public delegate void ConfirmDialogResultHandle(bool yesOrNo, OrderTask orderTask, HandleAction action);
         public event ConfirmDialogResultHandle OnConfirmDialogResult;
 
-        public delegate void ConfirmModifyPriceResultHandle(bool yesOrNo, string newPrice,OrderTask orderTask, HandleAction action);
+        public delegate void ConfirmModifyPriceResultHandle(bool yesOrNo, string newPrice,OrderTask orderTask,string origin, HandleAction action);
         public event ConfirmModifyPriceResultHandle OnModifyPriceDialogResult;
 
         public delegate void RejectOrderResultHandle(bool yesOrNo,OrderTask orderTask,HandleAction action);
@@ -285,6 +285,7 @@ namespace ManagerConsole.Helper
         private XamDialogWindow _RejectOrderDialogWin = null;
         private UIElement _ConfirmOptionElement = null;
         private OrderTask _OrderTask;
+        private string _Origin;
         private HandleAction _HandleAction;
         private TextBox _NewPriceElement;
 
@@ -308,7 +309,7 @@ namespace ManagerConsole.Helper
         }
 
         //Modify SetPrice
-        public void ShowDialogWin(string caption, OrderTask orderTask, HandleAction action)
+        public void ShowDialogWin(string caption, OrderTask orderTask,string origin, HandleAction action)
         {
             if (this._ModifyPriceDialogWin == null)
             {
@@ -326,6 +327,7 @@ namespace ManagerConsole.Helper
             }
             this._HandleAction = action;
             this._OrderTask = orderTask;
+            this._Origin = origin;
             TextBlock ModifyPriceLable = new TextBlock()
             {
                 Name = "ModifyPriceLable",
@@ -887,7 +889,7 @@ namespace ManagerConsole.Helper
 
             if (this.OnModifyPriceDialogResult != null)
             {
-                this.OnModifyPriceDialogResult(true, newPrice, this._OrderTask, this._HandleAction);
+                this.OnModifyPriceDialogResult(true, newPrice, this._OrderTask,this._Origin, this._HandleAction);
             }
             this.Close();
         }
@@ -900,7 +902,7 @@ namespace ManagerConsole.Helper
             if (cancelBtn != null) cancelBtn.IsEnabled = false;
             if (this.OnModifyPriceDialogResult != null)
             {
-                this.OnModifyPriceDialogResult(false, "",null, this._HandleAction);
+                this.OnModifyPriceDialogResult(false, "",null,"", this._HandleAction);
             }
             this.Close();
         }

@@ -65,9 +65,14 @@ namespace ManagerConsole.Model
             return true;
         }
 
-        private void Process(SourceStatusMessage message)
+        private void Process(SourceConnectionStatusMessage message)
         {
             this._QuotationMessageProcessor.Process(message);
+        }
+
+        private void Process(ExchangeConnectionStatusMessage message)
+        {
+            App.MainFrameWindow.StatusBar.Process(message);
         }
 
         private void Process(QuotationsMessage message)
@@ -188,6 +193,65 @@ namespace ManagerConsole.Model
                 try
                 {
                     this.UpdateExchangeSettingEvent(updateMessage);
+                }
+                catch (Exception ex)
+                {
+                    this.HandleException(ex);
+                }
+            }
+        }
+
+        internal void Process(AccessPermissionUpdateMessage message)
+        {
+            if (message != null)
+            {
+                try
+                {
+                    if (Principal.Instance.User.UserId == message.user.UserId)
+                    {
+                        Principal.Instance.ProcessUpdate(message.NewPermission);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    HandleException(ex);
+
+                }
+            }
+        }
+
+        internal void Process(UpdateRoleMessage message)
+        {
+            if (message != null)
+            {
+                try
+                {
+                    if (Principal.Instance.User.IsInRole(message.RoleId))
+                    {
+                        Principal.Instance.ProcessUpdateRole(message.Type, message.RoleId);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    HandleException(ex);
+
+                }
+            }
+        }
+
+        internal void Process(NotifyLogoutMessage message)
+        {
+            if (message != null)
+            {
+                try
+                {
+                    if (Principal.Instance.User.UserId == message.UserId)
+                    {
+                        App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
+                        {
+                            App.MainFrameWindow.KickOut();
+                        });
+                    }
                 }
                 catch (Exception ex)
                 {

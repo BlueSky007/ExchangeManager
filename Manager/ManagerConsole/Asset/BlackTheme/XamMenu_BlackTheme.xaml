@@ -175,10 +175,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="igMenu:XamContextMenu">
-                    <Border x:Name="PopupBorder"
-      Background="{TemplateBinding Background}"
-      BorderBrush="{TemplateBinding BorderBrush}"
-      BorderThickness="{TemplateBinding BorderThickness}">
+                    <Border x:Name="PopupBorder" Background="{TemplateBinding Background}"      BorderBrush="{TemplateBinding BorderBrush}"      BorderThickness="{TemplateBinding BorderThickness}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition MaxWidth="33"/>
@@ -223,7 +220,7 @@
 
                                 <VisualState x:Name="Normal">
                                     <Storyboard>
-                                        <DoubleAnimation Duration="0" To="0.3" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="HeaderMask" d:IsOptimized="True"/>
+                                        <DoubleAnimation Duration="0" To="0" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="HeaderMask" d:IsOptimized="True"/>
                                     </Storyboard>
                                 </VisualState>
 
@@ -242,7 +239,7 @@
                                         <ObjectAnimationUsingKeyFrames Storyboard.TargetName="inputGestureText" Storyboard.TargetProperty="Foreground">
                                             <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource LightForegroundBrush}"/>
                                         </ObjectAnimationUsingKeyFrames>
-                                        <DoubleAnimation Duration="0" To="0" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="HeaderMask" d:IsOptimized="True"/>
+                                        <DoubleAnimation Duration="0" To="0.3" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="HeaderMask" d:IsOptimized="True"/>
                                     </Storyboard>
                                 </VisualState>
 
@@ -273,7 +270,6 @@
                                         <DoubleAnimation Duration="0" To="0" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="HeaderMask" d:IsOptimized="True"/>
                                     </Storyboard>
                                 </VisualState>
-
                             </VisualStateGroup>
 
                             <VisualStateGroup x:Name="SubmenuState">

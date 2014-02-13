@@ -49,6 +49,11 @@
                     <ComboBoxItem>False</ComboBoxItem>
                     <ComboBoxItem>True</ComboBoxItem>
                 </ComboBox>
+                <TextBlock Text="Confirm Reject DQOrder:" Canvas.Left="41" Canvas.Top="180" />
+                <ComboBox x:Name="ConfirmRejectDQOrderComboBox" SelectedIndex="{Binding ConfirmRejectDQOrder,Mode=TwoWay}" Width="119" Canvas.Left="188" Canvas.Top="180">
+                    <ComboBoxItem>False</ComboBoxItem>
+                    <ComboBoxItem>True</ComboBoxItem>
+                </ComboBox>
                 <Button x:Name="ApplyParameterSettingBtn" Content="Apply" Canvas.Left="222" Canvas.Top="342" Width="75" Click="ApplyParameterSettingBtn_Click"/>
             </Canvas>
         </GroupBox>

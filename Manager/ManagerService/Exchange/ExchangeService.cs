@@ -31,7 +31,5 @@ namespace ManagerService.Exchange
         {
             this._ExchangeSystem.AddCommand(command);
         }
-
-       
     }
 }

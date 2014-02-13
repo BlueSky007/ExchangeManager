@@ -78,6 +78,19 @@ namespace ManagerConsole.ViewModel
             this._InstantOrderForInstrument.AdjustAutoPointVariation(isBuy,upOrDown);
         }
 
+        public void RemoveInstanceOrder(OrderTask orderTask)
+        {
+            this.OrderTasks.Remove(orderTask);
+            if (this.OrderTasks.Count <= 0)
+            {
+                this.InstantOrderForInstrument.CreateEmptyEntity();
+                return;
+            }
+            this.InstantOrderForInstrument.UpdateSumBuySellLot(false, orderTask);
+
+            this.UpdateFirstOrder();
+        }
+
         public void RemoveInstanceOrder(List<OrderTask> orderTasks)
         {
             if (orderTasks.Count <= 0) return;
@@ -92,6 +105,12 @@ namespace ManagerConsole.ViewModel
                 this.InstantOrderForInstrument.UpdateSumBuySellLot(false, order);
             }
 
+            this.UpdateFirstOrder();
+        }
+
+        private void UpdateFirstOrder()
+        {
+            if (this.OrderTasks.Count <= 0) return;
             OrderTask currentOrder = this.OrderTasks[0];
             this.InstantOrderForInstrument.Update(currentOrder);
 

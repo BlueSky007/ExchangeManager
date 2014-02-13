@@ -55,7 +55,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="21"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="Bid" FontSize="12" Grid.Row="0" Grid.Column="1"/>
+                                <TextBlock Text="Bid" Foreground="Black" FontSize="12" Grid.Row="0" Grid.Column="1"/>
                                 <TextBlock Text="{Binding Bid}" HorizontalAlignment="Center" Style="{StaticResource QuoteTextStyle}" VerticalAlignment="Center" FontSize="14" FontWeight="Bold" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"/>
                             </Grid>
                         </Grid>
@@ -87,7 +87,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="22"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="Ask" FontSize="12" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left"/>
+                                <TextBlock Text="Ask" Foreground="Black" FontSize="12" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left"/>
                                 <TextBlock Text="{Binding Ask}" Style="{StaticResource QuoteTextStyle}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" FontWeight="Bold" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"/>
                             </Grid>
                         </Grid>

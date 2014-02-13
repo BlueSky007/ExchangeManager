@@ -52,9 +52,12 @@ namespace ManagerService.DataAccess
                 using (SqlCommand command = connection.CreateCommand())
                 {
                     command.CommandText = sql;
-                    foreach (SqlParameter parameter in parameters)
+                    if (parameters != null)
                     {
-                        command.Parameters.Add(parameter);
+                        foreach (SqlParameter parameter in parameters)
+                        {
+                            command.Parameters.Add(parameter);
+                        }
                     }
                     command.CommandType = commandType;
                     return command.ExecuteScalar();

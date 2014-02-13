@@ -33,7 +33,7 @@ namespace ManagerConsole.ViewModel
         public ObservableCollection<OrderTask> OrderTasks
         {
             get { return this._OrderTasks; }
-            set { this._OrderTasks = value; }
+            set { this._OrderTasks = value; this.OnPropertyChanged("OrderTasks"); }
         }
         public Guid? SelectedInstrumentId
         {
@@ -58,20 +58,14 @@ namespace ManagerConsole.ViewModel
             }
 
             this.LmtOrderForInstrument.UpdateSumBuySellLot(true, orderTask);
-            if (this.OnSettingFirstRowStyleEvent != null && this.SelectedInstrumentId != null && (orderTask.InstrumentId == this.SelectedInstrumentId))
+            bool isOK = OrderTaskManager.CheckExecuteOrder(orderTask);
+            if (isOK && this.OnSettingFirstRowStyleEvent != null && this.SelectedInstrumentId != null && (orderTask.InstrumentId == this.SelectedInstrumentId))
             {
                 this.OnSettingFirstRowStyleEvent();
             }
         }
 
-        public void AdjustPrice(bool upOrDown)
-        {
-            if (this.LmtOrderForInstrument == null) return;
-
-            this.LmtOrderForInstrument.AdjustCustomerPrice(upOrDown);
-        }
-
-        public void RemoveInstanceOrder(List<OrderTask> orderTasks)
+        public void RemoveLmtOrder(List<OrderTask> orderTasks)
         {
             if (orderTasks.Count <= 0) return;
             foreach (OrderTask order in orderTasks)
@@ -88,10 +82,64 @@ namespace ManagerConsole.ViewModel
             OrderTask currentOrder = this.OrderTasks[0];
             this._LmtOrderForInstrument.Update(currentOrder);
 
-            if (this.OnSettingFirstRowStyleEvent != null)
+            bool isOK = OrderTaskManager.CheckExecuteOrder(currentOrder);
+            if (isOK && this.OnSettingFirstRowStyleEvent != null)
             {
                 this.OnSettingFirstRowStyleEvent();
             }
+        }
+
+        //Move Hit Order To the First Row
+        public void TopLmtOrder(Order hitOrder)
+        {
+            OrderTask orderTask = this.OrderTasks.SingleOrDefault(P => P.OrderId == hitOrder.Id);
+
+            if (this.OrderTasks.Count <= 1) return;
+            this.OrderTasks.Remove(orderTask);
+
+            this.OrderTasks.Insert(0, orderTask);
+
+            this.LmtOrderForInstrument.Update(orderTask);
+        }
+
+        public void UpdateHitOrder(Order newOrder)
+        {
+            foreach (OrderTask orderTask in this.OrderTasks)
+            {
+                if (orderTask.OrderId == newOrder.Id)
+                {
+                    orderTask.UpdateHitOrder(newOrder);
+                }
+            }
+        }
+
+        public void SetAllOrderBottom(bool isBuy)
+        {
+            if (this.OrderTasks.Count == 0) return;
+            BuySell buysell = isBuy ? BuySell.Buy : BuySell.Sell;
+            List<OrderTask> orderTasks = this.OrderTasks.Where(P => P.IsBuy == buysell).ToList();
+
+            foreach (OrderTask orderTask in orderTasks)
+            {
+                this.OrderTasks.Remove(orderTask);
+                
+                int index = this.OrderTasks.Count;
+                this.OrderTasks.Insert(index, orderTask);
+            }
+
+            OrderTask firstOrder = this.OrderTasks[0];
+            this.LmtOrderForInstrument.Update(firstOrder);
+        }
+
+        public void SetOrderBottom(OrderTask orderTask, int rowIndex)
+        {
+            if (this.OrderTasks.Count <= 1) return;
+            int index = this.OrderTasks.Count - 1;
+            this.OrderTasks.Remove(orderTask);
+            this.OrderTasks.Insert(index, orderTask);
+
+            OrderTask firstOrder = this.OrderTasks[0];
+            this.LmtOrderForInstrument.Update(firstOrder);
         }
 
         public void InitializeBinding(Guid instrumentId)

@@ -35,11 +35,12 @@ namespace ManagerConsole.UI
             this._AddNewSuccess = addNewSuccess;
         }
 
-        public NewRelationWindow(List<int> instrumentIds, Action<AdjustRelationViewModel> editSuccess)
+        public NewRelationWindow(List<int> instrumentIds,string code, Action<AdjustRelationViewModel> editSuccess)
         {
             InitializeComponent();
             this.SourceInstrument.ItemsSource = VmQuotationManager.Instance.Instruments;
             this._AddNewSuccess = editSuccess;
+            this.RelationCode.Text = code;
             foreach (VmInstrument item in VmQuotationManager.Instance.Instruments)
             {
                 if (instrumentIds.Contains(item.Id))

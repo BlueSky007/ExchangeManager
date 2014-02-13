@@ -38,7 +38,7 @@ namespace ManagerService.DataAccess
             }
             else
             {
-                DataPermission exchangePermission = permissions.SingleOrDefault(d => d.ExchangeSystemCode == exchangeCode && d.DataObjectType == DataObjectType.None);
+                DataPermission exchangePermission = permissions.SingleOrDefault(d => d.ExchangeSystemCode == exchangeCode && d.DataObjectType == DataObjectType.Exchange);
                 if (exchangePermission != null)
                 {
                     deafultStatus = exchangePermission.IsAllow;
@@ -230,21 +230,13 @@ namespace ManagerService.DataAccess
         {
             List<OrderQueryEntity> queryOrders = new List<OrderQueryEntity>();
             string sql = string.Empty;
-            if (isExecute)
-            {
-                sql = string.Format("exec dbo.P_GetExecutedOrderByInstrument '{0}','{1}',{2},'{3}','{4}','{5}'", userId, instrumentId, orderType, fromDate, toDate, accountGroupId);
-            }
-            else
-            {
-                sql = string.Format("exec dbo.P_GetCancelledOrderByInstrument '{0}','{1}',{2},'{3}','{4}','{5}'", userId, instrumentId, orderType, fromDate, toDate, accountGroupId);
-            }
-
+ 
             string exhcangeCode = "WF01";
             using (SqlConnection sqlConnection = DataAccess.GetInstance(exhcangeCode).GetSqlConnection())
             {
                 SqlCommand command = sqlConnection.CreateCommand();
-                command.CommandText = sql;
-                command.CommandType = System.Data.CommandType.Text;
+                command.CommandText = isExecute ? "dbo.P_GetExecutedOrderByInstrument" : "dbo.P_GetCancelledOrderByInstrument";
+                command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@UserID", userId));
                 command.Parameters.Add(new SqlParameter("@InstrumentID", instrumentId));
                 command.Parameters.Add(new SqlParameter("@OrderType", (byte)orderType));
@@ -275,6 +267,19 @@ namespace ManagerService.DataAccess
             return queryOrders;
         }
 
+        public static string GetOrderRelationOpenPrice(string exchangeCode,string openOrderId)
+        {
+            string setPrice = string.Empty;
+
+            string sql = string.Format("SELECT SetPrice FROM v_Order WHERE ID = N'{0}'", openOrderId);
+            Object o = DataAccess.GetInstance(exchangeCode).ExecuteScalar(sql,CommandType.Text,null);
+            if (o != null)
+            {
+                setPrice = (string)o;
+            }
+            return setPrice;
+        }
+
         public static Tuple<string, Guid, string> GetAccountGroup(string exchangeCode, Guid accountId)
         {
             Tuple<string, Guid, string> group = null;
@@ -301,7 +306,7 @@ namespace ManagerService.DataAccess
         }
 
 
-        public static SettingSet GetExchangeDataChange(string exchangeCode, string type, List<Guid> memberIds, List<Guid> accounts, List<Guid> instruments)
+        public static SettingSet GetExchangeDataChange(string exchangeCode, GroupChangeType type, List<Guid> memberIds, List<Guid> accounts, List<Guid> instruments)
         {
             SettingSet set = new SettingSet();
             string xmlMemberIds = ExchangeData.GetXmlIds(memberIds);
@@ -319,7 +324,7 @@ namespace ManagerService.DataAccess
                     command.Parameters.Add(new SqlParameter("@xmlInstrumentIds", xmlInstrumentIds));
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        if (type =="Account")
+                        if (type == GroupChangeType.Account)
                         {
                             set = SettingsSetHelper.GetExchangeDataChangeByAccountChange(reader);
                         }

@@ -25,10 +25,14 @@ namespace ManagerConsole.ViewModel
         private BuySell _BuySell;
         private string _Ask;
         private string _Bid;
-        private Price _CustomerBidPrice; //客定Bid价
-        private Price _CustomerAskPrice; //客定Ask价
-        private int _Diff;
+        private string _Origin;
+        private string _CustomerBidPrice; //客定Bid价
+        private string _CustomerAskPrice; //客定Ask价
+        private int _BidDiff;
+        private int _AskDiff;
         private string _OpenAvgPrice;
+        private string _PriceFormat;
+        private decimal _IncrementPoint;
 
         private PriceTrend _AskTrend;
         private PriceTrend _BidTrend;
@@ -105,6 +109,12 @@ namespace ManagerConsole.ViewModel
             set { this._BuySell = value; this.OnPropertyChanged("BuySell"); }
         }
 
+        public string Origin
+        {
+            get { return this._Origin; }
+            set { this._Origin = value; this.OnPropertyChanged("Origin"); }
+        }
+
         public string Ask
         {
             get { return this._Ask; }
@@ -117,7 +127,7 @@ namespace ManagerConsole.ViewModel
             set { this._Bid = value; this.OnPropertyChanged("Bid"); }
         }
 
-        public Price CustomerBidPrice
+        public string CustomerBidPrice
         {
             get { return this._CustomerBidPrice; }
             set
@@ -128,7 +138,7 @@ namespace ManagerConsole.ViewModel
             }
         }
 
-        public Price CustomerAskPrice
+        public string CustomerAskPrice
         {
             get { return this._CustomerAskPrice; }
             set
@@ -139,10 +149,16 @@ namespace ManagerConsole.ViewModel
             }
         }
 
-        public int Diff
+        public int BidDiff
         {
-            get { return this._Diff; }
-            set { this._Diff = value; this.OnPropertyChanged("Diff"); }
+            get { return this._BidDiff; }
+            set { this._BidDiff = value; this.OnPropertyChanged("BidDiff"); }
+        }
+
+        public int AskDiff
+        {
+            get { return this._AskDiff; }
+            set { this._AskDiff = value; this.OnPropertyChanged("AskDiff"); }
         }
 
         public string OpenAvgPrice
@@ -197,18 +213,32 @@ namespace ManagerConsole.ViewModel
                 }
             }
         }
+
+        public string PriceFormat
+        {
+            get { return this._PriceFormat; }
+            set { this._PriceFormat = value; this.OnPropertyChanged("PriceFormat"); }
+        }
+
+        public decimal IncrementPoint
+        {
+            get { return this._IncrementPoint; }
+            set { this._IncrementPoint = value; this.OnPropertyChanged("IncrementPoint"); }
+        }
         #endregion
 
         internal void UpdateOverridedQuotation(ExchangeQuotation exchangeQuotation)
         {
             if (exchangeQuotation.InstruemtnId == this.Instrument.Id)
             {
-
                 this.AskTrend = this.GetPriceTrend(double.Parse(exchangeQuotation.Ask),double.Parse(this.Ask));
                 this.BidTrend = this.GetPriceTrend(double.Parse(exchangeQuotation.Bid),double.Parse(this.Bid));
 
                 this.Ask = exchangeQuotation.Ask;
                 this.Bid = exchangeQuotation.Bid;
+                this.Origin = exchangeQuotation.Origin;
+
+                this.UpdateDiff();
             }
         }
 
@@ -235,12 +265,36 @@ namespace ManagerConsole.ViewModel
             this.AccountCode = orderTask.AccountCode;
             this.BuySell = orderTask.IsBuy;
             this.Lot = orderTask.Lot.Value;
-            this.OpenAvgPrice = "1.568";
+            this.OpenAvgPrice = orderTask.Transaction.GetOpenOrderAvgPrice(this.OrderId);
 
             this.UpdateBrush();
-            this.UpdateMarketPrice(this.BuySell == BuySell.Buy);
-            this.UpdateCustomerPrice();
+            this.CustomerAskPrice = this.Ask;
+            this.CustomerBidPrice = this.Bid;
             this.UpdateDiff();
+
+            this.GetPriceFormating();
+        }
+
+        internal void GetPriceFormating()
+        {
+            this.IncrementPoint = (decimal)this.Instrument.NumeratorUnit.Value / (decimal)this.Instrument.Denominator.Value;
+
+            if (this.IncrementPoint < 1)
+            {
+                int index = this.IncrementPoint.ToString().IndexOf(".");
+                int length = this.IncrementPoint.ToString().Length;
+                int decimalPlace = length - (index + 1);
+
+                this.PriceFormat = "nnnnnnnn.";
+                for (int i = 0; i < decimalPlace; i++)
+                {
+                    this.PriceFormat += "n";
+                }
+            }
+            else
+            {
+                this.PriceFormat = "nnnnnnnn";
+            }
         }
 
         internal void CreateEmptyEntity()
@@ -254,9 +308,26 @@ namespace ManagerConsole.ViewModel
             this.BuySell = BuySell.Buy;
             this.Lot = decimal.Zero;
             this.OpenAvgPrice = string.Empty;
+            this.CustomerAskPrice = string.Empty;
+            this.CustomerBidPrice = string.Empty;
+            this.BuyOrderCount = 0;
+            this.SellOrderCount = 0;
 
             this.UpdateBrush();
-            this.Diff = 0;
+            this.AskDiff = 0;
+            this.BidDiff = 0;
+        }
+
+        internal void ApplyMaretPrice(bool isBuy)
+        {
+            if (isBuy)
+            {
+                this.CustomerBidPrice = this.Bid;
+            }
+            else
+            {
+                this.CustomerAskPrice = this.Ask;
+            }
         }
 
         private void ResetTrendState(object sender, object actionArgs)
@@ -308,39 +379,20 @@ namespace ManagerConsole.ViewModel
                 if (isBuy)
                 {
                     this.SumBuyLot -= orderTask.Lot.Value;
-                    this.BuyOrderCount++;
+                    this.BuyOrderCount--;
                 }
                 else
                 {
                     this.SumSellLot -= orderTask.Lot.Value;
-                    this.SellOrderCount++;
+                    this.SellOrderCount--;
                 }
             }
         }
 
-        internal void UpdateMarketPrice(bool isBuy)
-        {
-            //if (!this._Instrument.NumeratorUnit.HasValue) return;
-            //if (isBuy)
-            //{
-            //    Price bid = new Price(this.Instrument.Bid, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
-            //    this.MarketPrice = bid;
-            //}
-            //else
-            //{
-            //    Price ask = new Price(this.Instrument.Bid, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
-            //    this.MarketPrice = ask;
-            //}
-        }
-
-        internal void UpdateCustomerPrice()
-        {
-
-        }
-
         internal void SetCustomerPrice(bool isBuy)
         {
-            Price price = isBuy ? this.CustomerBidPrice : this.CustomerAskPrice;
+            string pricString = isBuy ? this.CustomerBidPrice : this.CustomerAskPrice;
+            Price price = new Price(pricString, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
 
             Price ask = new Price(this.Ask, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
             Price bid = new Price(this.Bid, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
@@ -356,24 +408,15 @@ namespace ManagerConsole.ViewModel
             }
         }
 
-        internal void AdjustCustomerPrice(bool upOrDown)
-        {
-            //int adjust = upOrDown ? 1 : -1;
-            //if (this.Instrument.IsNormal ^ (this.BuySell == BuySell.Buy))
-            //{
-            //    this.CustomerPrice += adjust;
-            //}
-            //else
-            //{
-            //    this.CustomerPrice -= adjust;
-            //}
-        }
-
-
-
         internal void UpdateDiff()
         {
-            //this.Diff = this.MarketPrice - this.CustomerPrice;
+            if (this.CustomerBidPrice == null || this.CustomerAskPrice == null || this._Instrument.NumeratorUnit == null) return;
+            Price customerAskPrice = new Price(this.CustomerAskPrice, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+            Price customerBidPrice = new Price(this.CustomerBidPrice, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+            Price ask = new Price(this.Ask, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+            Price bid = new Price(this.Bid, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+            this.AskDiff = ask - customerAskPrice;
+            this.BidDiff = bid - customerBidPrice;
         }
     }
 }

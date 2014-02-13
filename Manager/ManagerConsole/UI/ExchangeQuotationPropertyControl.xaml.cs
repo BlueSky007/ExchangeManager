@@ -90,9 +90,9 @@ namespace ManagerConsole.UI
             Binding isAutoFill = new Binding("IsAutoFill");
             isAutoFill.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
             this.IsAutoFill.SetBinding(CheckBox.IsCheckedProperty, isAutoFill);
-            Binding isEnablePrice = new Binding("IsEnablePrice");
-            isEnablePrice.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
-            this.IsEnablePrice.SetBinding(CheckBox.IsCheckedProperty, isEnablePrice);
+            Binding IsPriceEnabled = new Binding("IsPriceEnabled");
+            IsPriceEnabled.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.IsEnablePrice.SetBinding(CheckBox.IsCheckedProperty, IsPriceEnabled);
             Binding isAutoEnablePrice = new Binding("IsAutoEnablePrice");
             isAutoEnablePrice.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
             this.IsAutoEnablePrice.SetBinding(CheckBox.IsCheckedProperty, isAutoEnablePrice);
@@ -213,7 +213,7 @@ namespace ManagerConsole.UI
             if (this._IsInit)
             {
                 PriceType type = (PriceType)Enum.Parse(typeof(PriceType),this.priceType.SelectedItem.ToString());
-                ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).PriceType = type;
+                ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault( i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).PriceType = type;
                 this.SetQuotePolicyDetail(InstrumentQuotationEditType.PriceType, (int)type);
             }
         }
@@ -267,7 +267,7 @@ namespace ManagerConsole.UI
                 IEnumerable<InstrumentQuotation> instruments = ExchangeQuotationViewModel.Instance.Exchanges.Where(i => i.ExchangeCode == this._Source.ExchangeCode && i.InstruemtnId == this._Source.InstruemtnId);
                 foreach (InstrumentQuotation item in instruments)
                 {
-                    ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == item.ExchangeCode && i.QuotationPolicyId == item.QuotationPolicyId && i.InstruemtnId == item.InstruemtnId).IsEnablePrice = (this.IsEnablePrice.IsChecked == true);
+                    ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == item.ExchangeCode && i.QuotationPolicyId == item.QuotationPolicyId && i.InstruemtnId == item.InstruemtnId).IsPriceEnabled = (this.IsEnablePrice.IsChecked == true);
                 }
                // ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).IsEnablePrice = (this.IsEnablePrice.IsChecked == true);
                 this.SetInstrument(InstrumentQuotationEditType.IsPriceEnabled, value);
@@ -292,7 +292,7 @@ namespace ManagerConsole.UI
                 {
                     ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == item.ExchangeCode && i.QuotationPolicyId == item.QuotationPolicyId && i.InstruemtnId == item.InstruemtnId).IsAutoEnablePrice = (this.IsAutoEnablePrice.IsChecked == true);
                 }
-               // ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).IsAutoEnablePrice = (this.IsAutoEnablePrice.IsChecked == true);
+                //ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).IsAutoEnablePrice = (this.IsAutoEnablePrice.IsChecked == true);
                 this.SetInstrument(InstrumentQuotationEditType.IsAutoEnablePrice, value);
             }
         }

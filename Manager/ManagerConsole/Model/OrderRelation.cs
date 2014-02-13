@@ -15,6 +15,8 @@ namespace ManagerConsole.Model
 
         public decimal ClosedLot { get; set; }
 
+        public string OpenOrderPrice { get; set; }
+
         public OrderRelationType RelationType { get; set; }
 
         public string OpenOrderInfo{get;set;}
@@ -37,7 +39,6 @@ namespace ManagerConsole.Model
             return this.RelationType.GetHashCode();
         }
 
-    
         public void Update(OrderRelation orderRelation)
         {
             if (orderRelation != null)
@@ -46,6 +47,7 @@ namespace ManagerConsole.Model
                 this.OrderId = orderRelation.OrderId;
                 this.ClosedLot = orderRelation.ClosedLot;
                 this.RelationType = orderRelation.RelationType;
+                this.OpenOrderPrice = orderRelation.OpenOrderPrice;
             }
         }
 
@@ -55,6 +57,7 @@ namespace ManagerConsole.Model
             this.OrderId = commonOrderRelation.OrderId;
             this.ClosedLot = commonOrderRelation.ClosedLot;
             this.RelationType = commonOrderRelation.RelationType;
+            this.OpenOrderPrice = commonOrderRelation.OpenOrderPrice;
         }
     }
 }

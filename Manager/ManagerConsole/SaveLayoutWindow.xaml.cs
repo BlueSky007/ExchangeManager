@@ -68,11 +68,13 @@ namespace ManagerConsole
             }
         }
 
-        private void Deltet_Click(object sender, RoutedEventArgs e)
+        private void Delete_Click(object sender, RoutedEventArgs e)
         {
             if (this.layoutName.SelectedIndex != -1)
             {
-                this.layoutName.Items.RemoveAt(this.layoutName.SelectedIndex);
+                //TODO: implement Delete_Click
+                //this.layoutName.Items.RemoveAt(this.layoutName.SelectedIndex);
+                this._Layouts.RemoveAt(this.layoutName.SelectedIndex);
             }
         }
 

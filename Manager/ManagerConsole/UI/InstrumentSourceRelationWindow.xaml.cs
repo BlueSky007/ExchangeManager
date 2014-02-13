@@ -37,8 +37,10 @@ namespace ManagerConsole.UI
 
             if (editMode == EditMode.AddNew)
             {
-                this._Relation = new InstrumentSourceRelation() { InstrumentId = this._vmInstrument.Id, SwitchTimeout = 5 };
+                this._Relation = new InstrumentSourceRelation() { InstrumentId = this._vmInstrument.Id, SwitchTimeout = 60, Priority = 30 };
                 this._Relation.IsActive = vmInstrument.SourceRelations.Count == 0;  // Only for UI display(the backend can process normally)
+                this._Relation.IsDefault = false;
+                this.IsDefaultCheckBox.IsEnabled = false;
             }
             else
             {
@@ -46,11 +48,6 @@ namespace ManagerConsole.UI
                 this.SourcesComboBox.IsEnabled = false;
             }
             InstrumentCodeTextBlock.Text = vmInstrument.Code;
-            //if (vmInstrument.HasDefaultSourceRelation)
-            //{
-            //    this._Relation.IsDefault = false;
-            //    this.IsDefaultCheckBox.IsEnabled = false;
-            //}
             this.BindSourcesComboBox();
             this.DataContext = this._Relation;
 

@@ -1,6 +1,0 @@
-﻿CREATE TABLE [dbo].[UserInRole]
-(
-	UserId UNIQUEIDENTIFIER NOT NULL, 
-	RoleId int NOT NULL
-)
- 

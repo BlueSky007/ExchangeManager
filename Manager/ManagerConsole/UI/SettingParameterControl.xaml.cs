@@ -16,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Xml.Linq;
 using SettingParameterType = Manager.Common.SettingParameterType;
 
 namespace ManagerConsole.UI
@@ -48,7 +49,7 @@ namespace ManagerConsole.UI
 
         private bool InilizeUI()
         {
-            if (this._App.InitDataManager.IsInitializeCompleted)
+            if (this._App.ExchangeDataManager.IsInitializeCompleted)
             {
                 this.Dispatcher.BeginInvoke((Action)delegate()
                 {
@@ -64,7 +65,7 @@ namespace ManagerConsole.UI
 
         private void BindingData()
         {
-            this._SettingsParameter = this._App.InitDataManager.SettingsParameterManager;
+            this._SettingsParameter = this._App.ExchangeDataManager.SettingsParameterManager;
             this.DealingOrderParameterGroup.DataContext = this._SettingsParameter.DealingOrderParameter;
             this.SetValueParameterGroup.DataContext = this._SettingsParameter.SetValueSetting;
             this._SoundSettingGrid.ItemsSource = this._SettingsParameter.SoundSettings;
@@ -184,6 +185,44 @@ namespace ManagerConsole.UI
             e.Handled = true;
             this._SoundSettingGrid.ItemsSource = null;
             this._SoundSettingGrid.ItemsSource = this._SettingsParameter.SoundSettings;
+        }
+        #endregion
+
+
+        #region 布局
+        /// <summary>
+        /// Layout format:
+        /// <GridSettings>
+        ///    <GridSetting Name="" ColumnWidth="53,0,194,70,222,60,89,60,80,80,80,70,80,80,80,60,60,59,80,80,80,100,80,150,80,"/>
+        /// </GridSettings>
+
+        public string GetLayout()
+        {
+            //InstrumentCode
+            StringBuilder layoutBuilder = new StringBuilder();
+            layoutBuilder.Append("<GridSettings>");
+            layoutBuilder.Append(ColumnWidthPersistence.GetPersistentColumnsWidthString(this._SoundSettingGrid));
+            layoutBuilder.Append("</GridSettings>");
+            return layoutBuilder.ToString();
+        }
+
+        public void SetLayout(XElement layout)
+        {
+            try
+            {
+                if (layout.HasElements)
+                {
+                    XElement columnWidthElement = layout.Element("GridSettings").Element("ColumnsWidth");
+                    if (columnWidthElement != null)
+                    {
+                        ColumnWidthPersistence.LoadColumnsWidth(this._SoundSettingGrid, columnWidthElement);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Manager.Common.Logger.AddEvent(System.Diagnostics.TraceEventType.Error, "SettingParameterControl.SetLayout\r\n{0}", ex.ToString());
+            }
         }
         #endregion
     }

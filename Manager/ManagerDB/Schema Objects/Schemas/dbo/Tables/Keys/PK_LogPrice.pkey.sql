@@ -1,3 +1,0 @@
-﻿ALTER TABLE [dbo].[LogPrice]
-	ADD CONSTRAINT [PK_LogPrice]
-	PRIMARY KEY (Id)

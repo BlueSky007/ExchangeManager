@@ -62,7 +62,7 @@ namespace ManagerConsole.UI
         }
         private void AttachEvent()
         {
-            this._App.InitDataManager.OnHitPriceReceivedRefreshUIEvent += new ExchangeDataManager.HitPriceReceivedRefreshUIEventHandler(this.ForwardHitOrder);
+            this._App.ExchangeDataManager.OnHitPriceReceivedRefreshUIEvent += new ExchangeDataManager.HitPriceReceivedRefreshUIEventHandler(this.ForwardHitOrder);
         }
         #endregion
 
@@ -70,9 +70,9 @@ namespace ManagerConsole.UI
         {
             InstrumentClient allInstrument = new InstrumentClient();
             allInstrument.Code = "All";
-            foreach (string exchangeCode in this._App.InitDataManager.ExchangeCodes)
+            foreach (string exchangeCode in this._App.ExchangeDataManager.ExchangeCodes)
             {
-                ExchangeSettingManager settingManager = this._App.InitDataManager.GetExchangeSetting(exchangeCode);
+                ExchangeSettingManager settingManager = this._App.ExchangeDataManager.GetExchangeSetting(exchangeCode);
 
                 foreach (InstrumentClient instrument in settingManager.Instruments.Values)
                 {
@@ -90,9 +90,9 @@ namespace ManagerConsole.UI
 
         private void BindGridData()
         {
-            this.LayRootGrid.DataContext = this._App.InitDataManager.OrderTaskModel;
+            this.LayRootGrid.DataContext = this._App.ExchangeDataManager.OrderTaskModel;
             this._ConfirmDialogWin.OnConfirmDialogResult += new ConfirmDialogWin.ConfirmDialogResultHandle(ExcuteOrder);
-            this._OrderTaskGrid.ItemsSource = this._App.InitDataManager.OrderTaskModel.OrderTasks;
+            this._OrderTaskGrid.ItemsSource = this._App.ExchangeDataManager.OrderTaskModel.OrderTasks;
             this._TopToolBar.DataContext = new TopToolBarImages();
         }
 
@@ -117,7 +117,7 @@ namespace ManagerConsole.UI
                     break;
                 case "_ModifyBtn":
                     if (orderTask == null || orderTask.OrderType != OrderType.Limit) return;
-                    this._App.OrderHandle.OnOrderModify(orderTask);
+                    //this._App.OrderHandle.OnOrderModify(orderTask,);
                     break;
                 case "_CancelBtn":
                     if (orderTask == null || orderTask.OrderType != OrderType.Limit) return;
@@ -221,7 +221,7 @@ namespace ManagerConsole.UI
                     isEnabled = currentCellData.IsEnable;
                     if (isEnabled)
                     {
-                        this._App.OrderHandle.OnOrderModify(orderTask);
+                        //this._App.OrderHandle.OnOrderModify(orderTask);
                     }
                     break;
                 case HandleAction.OnOrderWait:
@@ -239,8 +239,8 @@ namespace ManagerConsole.UI
         #region Quote Order
         private void OnOrderAccept(OrderTask order)
         {
-            SystemParameter systemParameter = this._App.InitDataManager.GetExchangeSetting(order.ExchangeCode).SystemParameter;
-            ConfigParameter configParameter = this._App.InitDataManager.ConfigParameter;
+            SystemParameter systemParameter = this._App.ExchangeDataManager.GetExchangeSetting(order.ExchangeCode).SystemParameter;
+            ConfigParameter configParameter = this._App.ExchangeDataManager.ConfigParameter;
             systemParameter.CanDealerViewAccountInfo = false;
             bool isOK = OrderTaskManager.CheckDQOrder(order, systemParameter, configParameter);
             isOK = false;
@@ -549,7 +549,7 @@ namespace ManagerConsole.UI
             {
                 OrderTask order = this._OrderTaskGrid.Rows[i].Data as OrderTask;
                 Customer customer = new Customer();
-                QuotePolicyDetail quotePolicyDetail = this._App.InitDataManager.GetExchangeSetting(order.ExchangeCode).GetQuotePolicyDetail(order.InstrumentId.Value, customer);
+                QuotePolicyDetail quotePolicyDetail = this._App.ExchangeDataManager.GetExchangeSetting(order.ExchangeCode).GetQuotePolicyDetail(order.InstrumentId.Value, customer);
                 if (OrderTaskManager.AllowAccept(order, quotePolicyDetail, origin, int.Parse(this._VariationText.Text)))
                 {
                     this._App.OrderHandle.OnOrderAccept(order);
@@ -564,8 +564,9 @@ namespace ManagerConsole.UI
         public void ForwardHitOrder(int hitOrdersCount)
         {
             this._OrderTaskGrid.ItemsSource = null;
-            this._OrderTaskGrid.ItemsSource = this._App.InitDataManager.OrderTaskModel.OrderTasks;
+            this._OrderTaskGrid.ItemsSource = this._App.ExchangeDataManager.OrderTaskModel.OrderTasks;
 
+            if(this._App.ExchangeDataManager.OrderTaskModel.OrderTasks.Count == 0)return;
             for (int i = 0; i < hitOrdersCount; i++)
             {
                 this._OrderTaskGrid.Rows[i].CellStyle = this._ExecuteStatusStyle;
@@ -576,10 +577,10 @@ namespace ManagerConsole.UI
         public void BackHitOrder(OrderTask orderTask,int rowIndex)
         {
             this._OrderTaskGrid.Rows[rowIndex].CellStyle = this._NormalStyle;
-            this._App.InitDataManager.OrderTaskModel.OrderTasks.Remove(orderTask);
-            int index = this._App.InitDataManager.OrderTaskModel.OrderTasks.Count - 1;
-            this._App.InitDataManager.OrderTaskModel.OrderTasks.Insert(index, orderTask);
-            this._OrderTaskGrid.ItemsSource = this._App.InitDataManager.OrderTaskModel.OrderTasks;
+            this._App.ExchangeDataManager.OrderTaskModel.OrderTasks.Remove(orderTask);
+            int index = this._App.ExchangeDataManager.OrderTaskModel.OrderTasks.Count - 1;
+            this._App.ExchangeDataManager.OrderTaskModel.OrderTasks.Insert(index, orderTask);
+            this._OrderTaskGrid.ItemsSource = this._App.ExchangeDataManager.OrderTaskModel.OrderTasks;
         }
 
         private void CheckDQAcceptVariation()

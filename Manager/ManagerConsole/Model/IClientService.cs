@@ -26,20 +26,26 @@ namespace ManagerConsole.Model
     public interface IClientService
     {
         [OperationContract(AsyncPattern = true)]
-        IAsyncResult BeginLogin(string userName, string password, string oldSessionId, Language language, AsyncCallback callback, object asyncState);
+        IAsyncResult BeginLogin(string userName, string password, Language language, AsyncCallback callback, object asyncState);
         LoginResult EndLogin(IAsyncResult result);
-      
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginRecoverConnection(string sessionId, AsyncCallback callback, object asyncState);
+        bool EndRecoverConnection(IAsyncResult result);
+
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginGetInitializeData(AsyncCallback callback, object asyncState);
         InitializeData EndGetInitializeData(IAsyncResult result);
-      
+
 
         [OperationContract(IsInitiating = false)]
-        FunctionTree GetFunctionTree();      
+        FunctionTree GetFunctionTree();
 
-        [OperationContract(AsyncPattern = true)]
-        IAsyncResult BeginLogout(AsyncCallback callback, object asyncState);
-        void EndLogout(IAsyncResult result);
+        [OperationContract(IsOneWay = true)]
+        void Logout();
+        //[OperationContract(AsyncPattern = true)]
+        //IAsyncResult BeginLogout(AsyncCallback callback, object asyncState);
+        //void EndLogout(IAsyncResult result);
 
         [OperationContract(IsInitiating = false)]
         void SaveLayout(string layout, string content, string layoutName);
@@ -57,14 +63,28 @@ namespace ManagerConsole.Model
         IAsyncResult BeginGetUserData(AsyncCallback callback, object asyncState);
         List<UserData> EndGetUserData(IAsyncResult result);
 
-        [OperationContract(IsInitiating = false)]
-        List<RoleData> GetRoles();
+        //[OperationContract(IsInitiating = false)]
+        //List<RoleData> GetRoles();
 
-        [OperationContract(IsInitiating = false)]
-        List<RoleFunctonPermission> GetAllFunctionPermission();
 
-        [OperationContract(IsInitiating = false)]
-        List<RoleDataPermission> GetAllDataPermission();
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginGetRoles(AsyncCallback callback, object asyncState);
+        List<RoleData> EndGetRoles(IAsyncResult result);
+
+        //[OperationContract(IsInitiating = false)]
+        //List<RoleFunctonPermission> GetAllFunctionPermission();
+
+        //[OperationContract(IsInitiating = false)]
+        //List<RoleDataPermission> GetAllDataPermission();
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginGetAllFunctionPermission(AsyncCallback callback, object asyncState);
+        List<RoleFunctonPermission> EndGetAllFunctionPermission(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginGetAllDataPermission(AsyncCallback callback, object asyncState);
+        List<RoleDataPermission> EndGetAllDataPermission(IAsyncResult result);
+
 
         [OperationContract(IsInitiating = false)]
         bool ChangePassword(string currentPassword, string newPassword);
@@ -110,12 +130,12 @@ namespace ManagerConsole.Model
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginCancel(Guid transactionId, CancelReason cancelReason, LogOrder logEntity, AsyncCallback callback, object asyncState);
         TransactionError EndCancel(IAsyncResult result);
-        
-        [OperationContract(IsInitiating = false)]
-        void ResetHit(string exchangeCode,Guid[] orderIds);
 
         [OperationContract(IsInitiating = false)]
-        AccountInformation GetAcountInfo(string exchangeCode,Guid transactionId);
+        void ResetHit(string exchangeCode, Guid[] orderIds);
+
+        [OperationContract(IsInitiating = false)]
+        AccountInformation GetAcountInfo(string exchangeCode, Guid transactionId);
 
         #endregion
 
@@ -137,7 +157,7 @@ namespace ManagerConsole.Model
         bool EndEditorTaskScheduler(IAsyncResult result);
 
         [OperationContract(IsInitiating = false)]
-        void EnableTaskScheduler(TaskScheduler taskScheduler);  
+        void EnableTaskScheduler(TaskScheduler taskScheduler);
 
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginStartRunTaskScheduler(TaskScheduler taskScheduler, AsyncCallback callback, object asyncState);
@@ -146,13 +166,13 @@ namespace ManagerConsole.Model
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginDeleteTaskScheduler(TaskScheduler taskScheduler, AsyncCallback callback, object asyncState);
         bool EndDeleteTaskScheduler(IAsyncResult result);
-        
+
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginGetTaskSchedulersData(AsyncCallback callback, object asyncState);
         List<TaskScheduler> EndGetTaskSchedulersData(IAsyncResult result);
 
         [OperationContract(AsyncPattern = true)]
-        IAsyncResult BeginUpdateManagerSettings(Guid settingId,SettingParameterType type, Dictionary<string, object> fieldAndValues, AsyncCallback callback, object asyncState);
+        IAsyncResult BeginUpdateManagerSettings(Guid settingId, SettingParameterType type, Dictionary<string, object> fieldAndValues, AsyncCallback callback, object asyncState);
         bool EndUpdateManagerSettings(IAsyncResult result);
         #endregion
 
@@ -171,11 +191,11 @@ namespace ManagerConsole.Model
         List<OpenInterestSummary> EndGetInstrumentSummary(IAsyncResult result);
 
         [OperationContract(AsyncPattern = true)]
-        IAsyncResult BeginGetAccountSummary(Guid instrumentId,string[] blotterCodeSelecteds, AsyncCallback callback, object asyncState);
+        IAsyncResult BeginGetAccountSummary(Guid instrumentId, string[] blotterCodeSelecteds, AsyncCallback callback, object asyncState);
         List<OpenInterestSummary> EndGetAccountSummary(IAsyncResult result);
 
         [OperationContract(AsyncPattern = true)]
-        IAsyncResult BeginGetOrderSummary(Guid instrumentId,Guid accountId,AccountType accountType,string[] blotterCodeSelecteds, AsyncCallback callback, object asyncState);
+        IAsyncResult BeginGetOrderSummary(Guid instrumentId, Guid accountId, AccountType accountType, string[] blotterCodeSelecteds, AsyncCallback callback, object asyncState);
         List<OpenInterestSummary> EndGetOrderSummary(IAsyncResult result);
 
         #endregion
@@ -219,8 +239,8 @@ namespace ManagerConsole.Model
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginUpdateMetadataObject(MetadataType type, int objectId, Dictionary<string, object> fieldAndValues, AsyncCallback callback, object asyncState);
         bool EndUpdateMetadataObject(IAsyncResult result);
-        
-        [OperationContract(AsyncPattern=true)]
+
+        [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginUpdateMetadataObjects(UpdateData[] updateDatas, AsyncCallback callback, object asyncState);
         bool EndUpdateMetadataObjects(IAsyncResult result);
 
@@ -239,7 +259,7 @@ namespace ManagerConsole.Model
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginSwitchDefaultSource(SwitchRelationBooleanPropertyMessage message, AsyncCallback callback, object asyncState);
         void EndSwitchDefaultSource(IAsyncResult result);
-      
+
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginGetQuotePolicyRelation(AsyncCallback callback, object asyncState);
         List<QuotePolicyRelation> EndGetQuotePolicyRelation(IAsyncResult result);
@@ -257,7 +277,7 @@ namespace ManagerConsole.Model
         #endregion
 
         [OperationContract(AsyncPattern = false)]
-        void Updatetest();  
+        void Updatetest();
 
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginUpdateQuotationPolicy(InstrumentQuotationSet set, AsyncCallback callback, object asyncState);

@@ -32,7 +32,7 @@ namespace ManagerConsole
             this._IgnorePaneNames.Add("FloatPane");
             this._IgnorePaneNames.Add("FunctionTreePane");
             this._MultipleOpenModuleMaxSuffixes.Add(ModuleType.QuotationMonitor, 0);
-            this._MultipleOpenModuleMaxSuffixes.Add(ModuleType.IExchangeQuotation, 0);
+            this._MultipleOpenModuleMaxSuffixes.Add(ModuleType.ExchangeQuotation, 0);
             this._MultipleOpenModuleMaxSuffixes.Add(ModuleType.DQOrderProcess, 0);
         }
 
@@ -210,7 +210,7 @@ namespace ManagerConsole
                     return new QuotationMonitorControl();
                 case ModuleType.AbnormalQuotation:
                     break;
-                case ModuleType.IExchangeQuotation:
+                case ModuleType.ExchangeQuotation:
                     return new ExchangeQuotationControl();
                 case ModuleType.AdjustSpreadSetting:
                     return new AdjustAndSpreadSettingControl();

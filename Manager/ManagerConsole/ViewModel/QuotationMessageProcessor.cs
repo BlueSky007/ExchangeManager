@@ -40,7 +40,7 @@ namespace ManagerConsole.ViewModel
             App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
             {
                 VmQuotationManager.Instance.AddAbnormalQuotation(message);
-                App.MainFrameWindow.ShowAbnormalQuotation();
+                App.MainFrameWindow.ShowAbnormalQuotationPane();
             });
         }
 
@@ -60,10 +60,12 @@ namespace ManagerConsole.ViewModel
             });
         }
 
-        public void Process(SourceStatusMessage sourceStatusMessage)
+        public void Process(SourceConnectionStatusMessage message)
         {
-            // TODO: handle SourceStatusMessage here
-            throw new NotImplementedException();
+            App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
+            {
+                VmQuotationManager.Instance.QuotationSources.Single(s => s.Name == message.SouceName).ConnectionState = message.ConnectionState;
+            });
         }
 
         internal void Process(AddMetadataObjectMessage message)

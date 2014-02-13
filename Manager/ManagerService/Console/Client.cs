@@ -31,17 +31,28 @@ namespace ManagerService.Console
         private IClientProxy _ClientProxy;
         private RelayEngine<Message> _MessageRelayEngine;
         private Language _Language;
-        private Dictionary<string, List<Guid>> _AccountPermission;
-        private Dictionary<string, List<Guid>> _InstrumentPermission;
-        private bool _IsInitialized = false;
+        private List<DataPermission> _DataPermissions;
 
-        public Client(string sessionId, User user, IClientProxy clientProxy, Language language)
+        // Map for ExchangeCode -> AccountId HashSet
+        private Dictionary<string, HashSet<Guid>> _OwnAccounts;
+
+        // Map for ExchangeCode -> InstrumentId HashSet
+        private Dictionary<string, HashSet<Guid>> _OwnInstruments;
+        
+        private bool _IsInitialized = false;
+        private ClientManager _ClientManager;
+        private DateTime _ChannelBrokenTime;
+        private ConnectionState _ConnectionState = ConnectionState.Unknown;
+
+        public Client(string sessionId, User user, IClientProxy clientProxy, Language language, List<DataPermission> dataPermissions, ClientManager clientManager)
         {
             this._SessionId = sessionId;
             this._IP = ServiceHelper.GetIpAdreess();
             this._User = user;
             this._ClientProxy = clientProxy;
             this._Language = language;
+            this._DataPermissions = dataPermissions;
+            this._ClientManager = clientManager;
             this._MessageRelayEngine = new RelayEngine<Message>(this.SendMessage, this.HandlEngineException);
         }
 
@@ -51,83 +62,114 @@ namespace ManagerService.Console
         public Guid userId { get { return this._User.UserId; } }
         public User user { get { return this._User; } }
         public Language language { get { return this._Language; } }
+        public List<DataPermission> DataPermissions { get { return this._DataPermissions; } }
+        public DateTime ChannelBrokenTime { get { return this._ChannelBrokenTime; } }
+        public ConnectionState ConnectionState { get { return this._ConnectionState; } }
 
         public void Replace(string sessionId, IClientProxy clientProxy)
         {
             this._SessionId = sessionId;
             this._ClientProxy = clientProxy;
             this._MessageRelayEngine.Resume();
+            this._ConnectionState = ConnectionState.Connected;
         }
 
-        public void UpdateDataPermission(string exchangeCode, string type, Guid groupId, List<Guid> memberIds)
+        public void UpdateDataPermission(string exchangeCode, GroupChangeType type, Guid groupId, List<Guid> memberIds)
         {
-            bool hasPermission = UserDataAccess.CheckPermission(userId,groupId, type, exchangeCode);
+            bool hasPermission = UserDataAccess.CheckPermission(userId, groupId, type, exchangeCode);
             if (hasPermission)
             {
-                if (type == "Account")
+                if (type == GroupChangeType.Account)
                 {
-                    if (!this._AccountPermission[exchangeCode].Contains(memberIds[0]))
+                    if (!this._OwnAccounts[exchangeCode].Contains(memberIds[0]))
                     {
-                        this._AccountPermission[exchangeCode].AddRange(memberIds);
-                        SettingSet set = ExchangeData.GetExchangeDataChange(exchangeCode, type, memberIds, this._AccountPermission[exchangeCode], this._InstrumentPermission[exchangeCode]);
-                        this.SendMessage(new UpdateMessage { AddSettingSets = set, ExchangeCode = exchangeCode });
+                        this._OwnAccounts[exchangeCode].UnionWith(memberIds);
+                        SettingSet set = ExchangeData.GetExchangeDataChange(exchangeCode, type, memberIds, this._OwnAccounts[exchangeCode].ToList(), this._OwnInstruments[exchangeCode].ToList());
+                        this._MessageRelayEngine.AddItem(new UpdateMessage { AddSettingSets = set, ExchangeCode = exchangeCode });
                     }
                 }
                 else
                 {
-                    if (!this._InstrumentPermission[exchangeCode].Contains(memberIds[0]))
+                    if (!this._OwnInstruments[exchangeCode].Contains(memberIds[0]))
                     {
-                        this._InstrumentPermission[exchangeCode].AddRange(memberIds);
-                        SettingSet set = ExchangeData.GetExchangeDataChange(exchangeCode, type, memberIds, this._AccountPermission[exchangeCode], this._InstrumentPermission[exchangeCode]);
-                        this.SendMessage(new UpdateMessage { AddSettingSets = set, ExchangeCode = exchangeCode });
+                        this._OwnInstruments[exchangeCode].UnionWith(memberIds);
+                        SettingSet set = ExchangeData.GetExchangeDataChange(exchangeCode, type, memberIds, this._OwnAccounts[exchangeCode].ToList(), this._OwnInstruments[exchangeCode].ToList());
+                        this._MessageRelayEngine.AddItem(new UpdateMessage { AddSettingSets = set, ExchangeCode = exchangeCode });
                     }
                 }
             }
             else
             {
-                if (type == "Account")
+                if (type == GroupChangeType.Account)
                 {
-                    if (this._AccountPermission[exchangeCode].Contains(memberIds[0]))
+                    if (this._OwnAccounts[exchangeCode].Contains(memberIds[0]))
                     {
                         foreach (Guid memberId in memberIds)
                         {
-                            this._AccountPermission[exchangeCode].Remove(memberId);
+                            this._OwnAccounts[exchangeCode].Remove(memberId);
                         }
                     }
                 }
                 else
                 {
-                    if (this._InstrumentPermission[exchangeCode].Contains(memberIds[0]))
+                    if (this._OwnInstruments[exchangeCode].Contains(memberIds[0]))
                     {
                         foreach (Guid memberId in memberIds)
                         {
-                            this._InstrumentPermission[exchangeCode].Remove(memberId);
+                            this._OwnInstruments[exchangeCode].Remove(memberId);
                         }
                     }
                 }
             }
         }       
 
-        public void UpdatePermission(Dictionary<string, List<Guid>> accountPermissions, Dictionary<string, List<Guid>> instrumentPermission)
+        public void ReplacePermissionData(Dictionary<string, List<Guid>> ownAccounts, Dictionary<string, List<Guid>> ownInstruments,List<DataPermission> dataPermission = null)
         {
-            this._AccountPermission = accountPermissions;
-            this._InstrumentPermission = instrumentPermission;
+             if (dataPermission!=null)
+             {
+                this._DataPermissions = dataPermission;
+            }
+            this._OwnAccounts = new Dictionary<string, HashSet<Guid>>();
+            this._OwnInstruments = new Dictionary<string, HashSet<Guid>>();
+            foreach (string exchangeCode in ownAccounts.Keys) this._OwnAccounts.Add(exchangeCode, new HashSet<Guid>(ownAccounts[exchangeCode]));
+            foreach (string exchangeCode in ownInstruments.Keys) this._OwnInstruments.Add(exchangeCode, new HashSet<Guid>(ownInstruments[exchangeCode]));
             this._IsInitialized = true;
-        }
-
-        public void InitPermissionData(List<DataPermission> dataPermission)
-        {
-
         }
 
         public void AddMessage(Message message)
         {
             if (this._IsInitialized)
             {
-                Message msg = this.Filter(message);
-                if (msg != null)
+                UpdateMessage updateMessage = message as UpdateMessage;
+                if (updateMessage != null)
                 {
-                    this._MessageRelayEngine.AddItem(msg);
+                    if (updateMessage.AddSettingSets != null)
+                    {
+                        if (updateMessage.AddSettingSets.Accounts != null && updateMessage.AddSettingSets.Accounts.Length > 0)
+                        {
+
+                        }
+                        if (updateMessage.AddSettingSets.Instruments != null && updateMessage.AddSettingSets.Instruments.Length > 0)
+                        {
+
+                        }
+                    }
+                    if (updateMessage.DeletedSettings != null)
+                    {
+                        if (updateMessage.DeletedSettings.Accounts != null && updateMessage.DeletedSettings.Accounts.Length > 0)
+                        {
+
+                        }
+                        if (updateMessage.DeletedSettings.Instruments != null && updateMessage.DeletedSettings.Instruments.Length > 0)
+                        {
+
+                        }
+                    }
+                }
+
+                if (this.Require(message))
+                {
+                    this._MessageRelayEngine.AddItem(message);
                 }
             }
         }
@@ -135,12 +177,17 @@ namespace ManagerService.Console
         public void Channel_Broken(object sender, EventArgs e)
         {
             this._MessageRelayEngine.Suspend();
+            this._ChannelBrokenTime = DateTime.Now;
+            this._ConnectionState = ConnectionState.Disconnected;
+            this._ClientManager.AddChannelBrokenClient(this);
             Logger.AddEvent(TraceEventType.Warning, "Client Channel_Broken of UserName:{0} sessionId:{1}", this.user.UserName, this._SessionId);
         }
 
-        public void Close()
+        public void HandleLogout()
         {
             this._MessageRelayEngine.Stop();
+            this._ClientManager.OnClientLogout(this.SessionId);
+            Logger.AddEvent(TraceEventType.Information, "Client.HandleLogout User logged out. UserName:{0} sessionId:{1}", this.user.UserName, this._SessionId);
         }
 
         public ConfigMetadata GetConfigMetadata()
@@ -155,9 +202,10 @@ namespace ManagerService.Console
                 this._ClientProxy.SendMessage(message);
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                Logger.AddEvent(TraceEventType.Error, "Client.SendMessage error:\r\n{0}", ex.ToString());
+                Logger.AddEvent(TraceEventType.Warning, "Client.SendMessage SendMessage error, MessageEngine suspended, waiting client recover connection.\r\nUserName:{0},sessionId:{1}\r\n{2}",
+                    this.user.UserName, this._SessionId, exception);
             }
             return false;
         }
@@ -167,37 +215,34 @@ namespace ManagerService.Console
             Logger.TraceEvent(TraceEventType.Error, "Client.HandlEngineException RelayEngine stopped:\r\n" + ex.ToString());
         }
 
-        private Message Filter(Message message)
+        private bool Require(Message message)
         {
+            bool isRequire = true;
             IFilterable filterableMessage = message as IFilterable;
             ExchangeMessage exchangeMessage = message as ExchangeMessage;
             if (filterableMessage != null && exchangeMessage != null)
             {
-                List<Guid> accountPermissions = new List<Guid>();
-                List<Guid> instrumentPermissions = new List<Guid>();
                 if(string.IsNullOrEmpty(exchangeMessage.ExchangeCode))
                 {
                     Logger.TraceEvent(TraceEventType.Error, "Client.Filter exchangeMessage.ExchangeCode is empty, type:{0}", exchangeMessage.GetType().Name);
+                    throw new Exception("exchangeMessage.ExchangeCode is empty");
                 }
-                this._AccountPermission.TryGetValue(exchangeMessage.ExchangeCode, out accountPermissions);
-                this._InstrumentPermission.TryGetValue(exchangeMessage.ExchangeCode, out instrumentPermissions);
 
-                if (filterableMessage.AccountId != null)
+                HashSet<Guid> accountPermissions;
+                HashSet<Guid> instrumentPermissions;
+                if (filterableMessage.AccountId.HasValue && this._OwnAccounts.TryGetValue(exchangeMessage.ExchangeCode, out accountPermissions))
                 {
-                    if (!accountPermissions.Contains(filterableMessage.AccountId.Value))
-                    {
-                        message = null;
-                    }
+                    isRequire = accountPermissions.Contains(filterableMessage.AccountId.Value);
                 }
-                if (filterableMessage.InstrumentId != null)
+                if (isRequire)
                 {
-                    if (!instrumentPermissions.Contains(filterableMessage.InstrumentId.Value))
-                    {
-                        message = null;
-                    }
+                    if (filterableMessage.InstrumentId.HasValue && this._OwnInstruments.TryGetValue(exchangeMessage.ExchangeCode, out instrumentPermissions))
+                {
+                    isRequire = instrumentPermissions.Contains(filterableMessage.InstrumentId.Value);
                 }
             }
-            return message;
+            }
+            return isRequire;
         }
 
         #region MainWindowFunction
@@ -208,16 +253,8 @@ namespace ManagerService.Console
 
         public FunctionTree GetFunctionTree()
         {
-            try
-            {
-                FunctionTree tree = UserDataAccess.BuildFunctionTree(this.userId, this.language);
-                return tree;
-            }
-            catch (Exception ex)
-            {
-                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerService.Console.ClientService/GetFunctionTree.\r\n{0}", ex.ToString());
-                return new FunctionTree();
-            }
+            FunctionTree tree = UserDataAccess.BuildFunctionTree(this.userId, this.language);
+            return tree;
         }
 
         public void SaveLayout(string layout, string content, string layoutName)
@@ -244,51 +281,27 @@ namespace ManagerService.Console
 
         public List<string> LoadLayout(string layoutName)
         {
-            try
-            {
-                List<string> layouts = new List<string>();
-                string dockLayout;
-                string contentLayout;
-                UserDataAccess.LoadLayout(this.user.UserName, layoutName, out dockLayout, out contentLayout);
-                layouts.Add(dockLayout);
-                layouts.Add(contentLayout);
-                return layouts;
-            }
-            catch (Exception ex)
-            {
-                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerService/LoadLayout.\r\n{0}", ex.ToString());
-                return new List<string>();
-            }
+            List<string> layouts = new List<string>();
+            string dockLayout;
+            string contentLayout;
+            UserDataAccess.LoadLayout(this.user.UserName, layoutName, out dockLayout, out contentLayout);
+            layouts.Add(dockLayout);
+            layouts.Add(contentLayout);
+            return layouts;
         }
         #endregion
 
         #region UserAndRoleManager
         public bool ChangePassword(string currentPassword, string newPassword)
         {
-            try
-            {
-                bool isSuccess = UserDataAccess.ChangePassword(this.userId, currentPassword, newPassword);
-                return isSuccess;
-            }
-            catch (Exception ex)
-            {
-                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerService.Console.ClientService/ChangePassword.\r\n{0}", ex.ToString());
-                return false;
-            }
+            bool isSuccess = UserDataAccess.ChangePassword(this.userId, currentPassword, newPassword);
+            return isSuccess;
         }
 
         public Dictionary<string, List<FuncPermissionStatus>> GetAccessPermissions()
         {
-            try
-            {
-                Dictionary<string, List<FuncPermissionStatus>> permissions = UserDataAccess.GetAccessPermissions(this.userId, this.language);
-                return permissions;
-            }
-            catch (Exception ex)
-            {
-                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerService.Console.ClientService/GetAccessPermission.\r\n{0}", ex.ToString());
-                return null;
-            }
+            Dictionary<string, List<FuncPermissionStatus>> permissions = UserDataAccess.GetAccessPermissions(this.userId, this.language);
+            return permissions;
         }
 
         public List<UserData> GetUserData()
@@ -309,7 +322,9 @@ namespace ManagerService.Console
         {
             try
             {
+                Logger.AddEvent(TraceEventType.Information, "Client.GetRoles begin{0}", this.SessionId);
                 List<RoleData> roles = UserDataAccess.GetRoles(this.language.ToString());
+                Logger.AddEvent(TraceEventType.Information, "Client.GetRoles end{0}", this.SessionId);
                 return roles;
             }
             catch (Exception ex)
@@ -323,16 +338,29 @@ namespace ManagerService.Console
         {
             try
             {
+                bool isSuccess;
                 if (isNewUser)
                 {
-                    UserDataAccess.AddNewUser(user, password);
-                    return true;
+                    isSuccess = UserDataAccess.AddNewUser(user, password);
                 }
                 else
                 {
-                    UserDataAccess.EditUser(user, password);
-                    return false;
+                   
+                    Dictionary<string, List<FuncPermissionStatus>> permissions = new Dictionary<string, List<FuncPermissionStatus>>();
+                    isSuccess = UserDataAccess.EditUser(user, password,out permissions);
+                    if (isSuccess)
+                    {
+                        User editUser = new User();
+                        editUser.UserId = user.UserId;
+                        editUser.UserName = user.UserName;
+                        foreach (RoleData role in user.Roles)
+                        {
+                            editUser.Roles.Add(role.RoleId, role.RoleName);
+                        }
+                        MainService.ClientManager.Dispatch(new AccessPermissionUpdateMessage { user = editUser, NewPermission = permissions });
+                    }
                 }
+                return isSuccess;
             }
             catch (Exception ex)
             {
@@ -351,7 +379,12 @@ namespace ManagerService.Console
                 }
                 else
                 {
-                    return UserDataAccess.DeleteUser(userId);
+                    bool isSuccess = UserDataAccess.DeleteUser(userId);
+                    if (isSuccess)
+                    {
+                        MainService.ClientManager.DispatchToUser(new NotifyLogoutMessage { UserId = userId }, userId);
+                    }
+                    return isSuccess;
                 }
             }
             catch (Exception ex)
@@ -402,68 +435,13 @@ namespace ManagerService.Console
                 else
                 {
                     isSuccess = UserDataAccess.EditRole(role);
-                }
-                if (isSuccess)
-                {
-
-                    Thread updatePermission = new Thread(delegate()
+                    if (isSuccess)
                     {
-                        MainService.ClientManager.UpdatePermission(role);
-                        return;
-                    });
-                    updatePermission.IsBackground = true;
-                    updatePermission.Start();
-                }
-                if (this.user.IsInRole(role.RoleId) && isSuccess)
-                {
-                    List<DataPermission> dataPermissions = new List<DataPermission>();
-                    Dictionary<string, List<Guid>> accountPermissions = new Dictionary<string, List<Guid>>();
-                    Dictionary<string, List<Guid>> instrumentPermissions = new Dictionary<string, List<Guid>>();
-                    foreach (ExchangeSystemSetting item in MainService.ManagerSettings.ExchangeSystems)
-                    {
-                        bool deafultStatus = false;
-                        List<Guid> accountMemberIds = new List<Guid>();
-                        List<Guid> instrumentMemberIds = new List<Guid>();
-                        List<RoleDataPermission> systemPermissions = role.DataPermissions.FindAll(delegate(RoleDataPermission data)
-                        {
-                            return data.ExchangeCode == item.Code;
-                        });
-                        RoleDataPermission account = systemPermissions.SingleOrDefault(r => r.Type == DataObjectType.Account && r.Level == 2);
-                        if (account != null)
-                        {
-                            deafultStatus = account.IsAllow;
-                        }
-                        else
-                        {
-                            RoleDataPermission exchange = systemPermissions.SingleOrDefault(r => r.Level == 1);
-                            if (exchange != null)
-                            {
-                                deafultStatus = exchange.IsAllow;
-                            }
-                        }
-                        accountMemberIds.AddRange(ExchangeData.GetNewMemberIds(item.Code, deafultStatus, systemPermissions, DataObjectType.Account));
-                        RoleDataPermission instrument = systemPermissions.SingleOrDefault(r => r.Type == DataObjectType.Instrument && r.Level == 2);
-                        if (instrument != null)
-                        {
-                            deafultStatus = instrument.IsAllow;
-                        }
-                        else
-                        {
-                            RoleDataPermission exchange = systemPermissions.SingleOrDefault(r => r.Level == 1);
-                            if (exchange != null)
-                            {
-                                deafultStatus = exchange.IsAllow;
-                            }
-                        }
-                        instrumentMemberIds.AddRange(ExchangeData.GetNewMemberIds(item.Code, deafultStatus, systemPermissions, DataObjectType.Instrument));
-                        accountPermissions.Add(item.Code, accountMemberIds);
-                        instrumentPermissions.Add(item.Code, instrumentMemberIds);
+                        //MainService.ClientManager.UpdatePermission(role);
+                        MainService.ClientManager.Dispatch(new UpdateRoleMessage { RoleId = roleId, Type= UpdateRoleType.Modify });
                     }
-
-                    this.UpdatePermission(accountPermissions, instrumentPermissions);
                 }
                 return isSuccess;
-
             }
             catch (Exception ex)
             {
@@ -482,7 +460,12 @@ namespace ManagerService.Console
                 }
                 else
                 {
-                    return UserDataAccess.DeleteRole(roleId, this.userId);
+                    bool isSuccess = UserDataAccess.DeleteRole(roleId, this.userId);
+                    if (isSuccess)
+                    {
+                        MainService.ClientManager.Dispatch(new UpdateRoleMessage { RoleId = roleId,Type = UpdateRoleType.Delete });
+                    }
+                    return isSuccess;
                 }
             }
             catch (Exception ex)
@@ -793,6 +776,9 @@ namespace ManagerService.Console
         internal List<OrderQueryEntity> GetOrderByInstrument(Guid instrumentId, Guid accountGroupId, OrderType orderType,
            bool isExecute, DateTime fromDate, DateTime toDate)
         {
+            string exchangeCode = "CHUNG";
+            HashSet<Guid> accounts = this._OwnAccounts[exchangeCode];
+            HashSet<Guid> instruments = this._OwnInstruments[exchangeCode];
             return ExchangeData.GetOrderByInstrument(this.userId,instrumentId, accountGroupId, orderType, isExecute, fromDate, toDate);
         }
 

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Resources;
 
@@ -106,6 +107,34 @@ namespace ManagerConsole.Helper
             }
         }
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return value;
+        }
+    }
+
+    public class PriceTrendForegroundConvert : IValueConverter
+    {
+        public static readonly SolidColorBrush _PriceDownBrush = new SolidColorBrush(Color.FromArgb(255, 255, 0, 0));
+        public static readonly SolidColorBrush _PriceUpBrush = new SolidColorBrush(Color.FromArgb(255, 1, 137, 10));
+
+        object IValueConverter.Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            PriceTrend trend = (PriceTrend)value;
+            if (trend == PriceTrend.Up)
+            {
+                return PriceTrendForegroundConvert._PriceUpBrush;
+            }
+            else if (trend == PriceTrend.Down)
+            {
+                return PriceTrendForegroundConvert._PriceDownBrush;
+            }
+            else
+            {
+                return SolidColorBrushes.LightBlue;
+            }
+        }
+
+        object IValueConverter.ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             return value;
         }

@@ -11,11 +11,13 @@ using Manager.Common.Settings;
 using iExchange.Common.Manager;
 using Manager.Common.ExchangeEntities;
 using System.Diagnostics;
+using ManagerService.DataAccess;
 
 namespace ManagerService.Exchange
 {
     public class CommandConvertor
     {
+        private static Dictionary<string, string> _OrderRelationOpenPrics = new Dictionary<string, string>();
         public static Message Convert(string exchagenCode, Command command)
         {
             return CommandConvertor.Convert(exchagenCode, (dynamic)command);
@@ -248,10 +250,22 @@ namespace ManagerService.Exchange
 
                 foreach (XmlNode orderRelationNode in orderNode.ChildNodes)
                 {
-                    Guid openOrderId = new Guid(orderRelationNode.Attributes["OpenOrderID"].Value);
+                    string openOrderPrice = string.Empty;
+                    string openOrderID = orderRelationNode.Attributes["OpenOrderID"].Value;
+                    Guid openOrderId = new Guid(openOrderID);
                     decimal closeLot = decimal.Parse(orderRelationNode.Attributes["ClosedLot"].Value);
 
-                    OrderRelation relation = new OrderRelation(order.Id, openOrderId, closeLot);
+                    if (_OrderRelationOpenPrics.ContainsKey(openOrderID))
+                    {
+                        openOrderPrice = _OrderRelationOpenPrics[openOrderID];
+                    }
+                    else
+                    {
+                        openOrderPrice = ExchangeData.GetOrderRelationOpenPrice("CHUNG", openOrderID);
+                        _OrderRelationOpenPrics.Add(openOrderID, openOrderPrice);
+                    }
+
+                    OrderRelation relation = new OrderRelation(order.Id, openOrderId, closeLot, openOrderPrice);
                     orderRelations.Add(relation);
                 }
             }
@@ -827,6 +841,9 @@ namespace ManagerService.Exchange
                 else if (nodeName == "EndTime")
                 {
                     transaction.EndTime = DateTime.Parse(nodeValue);
+                    DateTime oSystemTime = DateTime.Now;
+                    int orderValidDuration = DateDiff(transaction.EndTime, oSystemTime);
+                    transaction.OrderValidDuration = orderValidDuration;
                     continue;
                 }
                 else if (nodeName == "ExpireType")
@@ -962,6 +979,15 @@ namespace ManagerService.Exchange
             }
         }
 
+        internal static int DateDiff(DateTime DateTime1, DateTime DateTime2)
+        {
+            int dateDiff = 0;
+            TimeSpan ts1 = new TimeSpan(DateTime1.Ticks);
+            TimeSpan ts2 = new TimeSpan(DateTime2.Ticks);
+            TimeSpan ts = ts1.Subtract(ts2).Duration();
+            dateDiff = int.Parse(ts.Seconds.ToString()) + int.Parse(ts.Minutes.ToString()) * 60;
+            return dateDiff;
+        }
 
         internal static bool IsNullOrEmpty(this ICollection collection)
         {

@@ -48,7 +48,7 @@ namespace ManagerConsole.UI
 
         private void BindGridData()
         {
-            this.DQOrderTaskGrid.ItemsSource = this._App.InitDataManager.DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments;
+            this.DQOrderTaskGrid.ItemsSource = this._App.ExchangeDataManager.DQOrderTaskForInstrumentModel.DQOrderTaskForInstruments;
         }
 
         #region Grid Event

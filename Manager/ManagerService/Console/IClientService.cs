@@ -23,7 +23,10 @@ namespace ManagerService.Console
     public interface IClientService
     {
         [OperationContract]
-        LoginResult Login(string userName, string password, string oldSessionId, Language language);
+        LoginResult Login(string userName, string password, Language language);
+
+        [OperationContract]
+        bool RecoverConnection(string sessionId);
 
         [OperationContract(IsTerminating = true)]
         void Logout();

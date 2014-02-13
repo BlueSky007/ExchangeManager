@@ -19,13 +19,13 @@
             <StackPanel Orientation="Vertical">
                 <StackPanel Orientation="Horizontal"  >
                     <TextBlock  Width="90" Text="Query Type:" Margin="8,5,1,0" Height="25"/>
-                    <ComboBox x:Name="_QueryType" Style="{StaticResource ComboBoxStyle}" Width="85" Height="23" SelectedIndex="0">
+                    <ComboBox x:Name="_QueryType" Width="85" Height="23" SelectedIndex="0">
                         <ComboBoxItem>Executed</ComboBoxItem>
                         <ComboBoxItem>Cancelled</ComboBoxItem>
                     </ComboBox>
                     <TextBlock Text="Instrument:" Margin="8,10,0,0" Height="25" Width="90" TextAlignment="Right"/>
-                    <ComboBox Style="{StaticResource ComboBoxStyle}" x:Name="_InstrumentCombo" Margin="5,1,1,1" Height="23"  Width="110" />
-                    <TextBlock x:Name="_FromTextBlock" Text="Trad Time From:" Margin="8,10,0,0" Height="25"/>
+                    <ComboBox x:Name="_InstrumentCombo" Margin="5,1,1,1" Height="23"  Width="110" />
+                    <TextBlock x:Name="_FromTextBlock" Text="Trade Time From:" Margin="8,10,0,0" Height="25"/>
                     <igGrid:XamDateTimeInput AutoFillDate="MonthAndYear" DropDownButtonDisplayMode="Always" SpinButtonDisplayMode="Focused" SpinIncrement="1m" Width="150" Height="23" x:Name="_FromDatePicker"   AllowDropDown="True" Mask="yyyy-mm-dd hh:mm:ss"/>
 
                     <Button x:Name="_QueryButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"  Click="ToolBar_Click" Width="25" Height="25" Margin="2" >
@@ -36,11 +36,11 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Grid.Row="1">
                     <TextBlock Text="Account Group:" Width="90" Margin="8,5,0,0"/>
-                    <ComboBox Style="{StaticResource ComboBoxStyle}" x:Name="_AccountGroupCombo" Height="23"  Width="86" Margin="0,5,0,0"/>
+                    <ComboBox x:Name="_AccountGroupCombo" Height="23"  Width="86" Margin="0,5,0,0"/>
                     <TextBlock Text="OrderType:" Margin="5,5,0,0" Width="90" TextAlignment="Right"/>
-                    <ComboBox Style="{StaticResource ComboBoxStyle}" x:Name="_OrderTypeCombo" Height="23" Margin="8,5,0,0" Width="110" />
+                    <ComboBox x:Name="_OrderTypeCombo" Height="23" Margin="8,5,0,0" Width="110" />
                     <TextBlock x:Name="_ToTextBlock" Text="To:" Margin="8,5,0,0" Height="25" Width="80" TextAlignment="Right"/>
-                    <igGrid:XamDateTimeInput x:Name="_ToDatePicker" AutoFillDate="MonthAndYear" DropDownButtonDisplayMode="Always" SpinButtonDisplayMode="Focused" SpinIncrement="1m"  Margin="3,0,0,0" Width="150" Height="23" AllowDropDown="True"  Mask="yyyy-mm-dd hh:mm:ss"/>
+                    <igGrid:XamDateTimeInput x:Name="_ToDatePicker" AutoFillDate="MonthAndYear" DropDownButtonDisplayMode="Always" SpinButtonDisplayMode="Focused" SpinIncrement="1m"  Margin="8,0,0,0" Width="150" Height="23" AllowDropDown="True"  Mask="yyyy-mm-dd hh:mm:ss"/>
                     <Button x:Name="_PrintBtn" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"  Click="ToolBar_Click" Width="25" Height="25" Margin="2" >
                         <Button.Content>
                             <Image Source="../Asset/Images/Print.png" ToolTipService.ToolTip="Query Log"  Margin="1"/>

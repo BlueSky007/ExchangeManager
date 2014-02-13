@@ -12,10 +12,13 @@
             <Setter Property="Width" Value="{Binding ActualWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=Grid}}"/>
             <Setter Property="Height" Value="{Binding ActualHeight, Mode=OneTime, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=Grid}}"/>
         </Style>
+        <DataTemplate x:Key="AdjustPointsTemplate">
+            <TextBlock Text="{Binding AdjustPoints}" />
+        </DataTemplate>
     </UserControl.Resources>
-    <Grid PreviewMouseRightButtonDown="Grid_PreviewMouseRightButtonDown">
+    <Grid PreviewMouseRightButtonDown="Grid_PreviewMouseRightButtonDown">   
         <ToolBar VerticalAlignment="Top" Margin="-3,-1,0,0" Padding="0">
-            <ToolBarPanel Height="26" Orientation="Horizontal">
+            <ToolBarPanel Height="26" Orientation="Horizontal" x:Name="ToolBarPanel">
                 <Button x:Name="AddInstrument" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="AddInstrument_Click">
                     <Image Source="../Asset/Images/add.png" ToolTipService.ToolTip="Add Instrument" Width="20" Height="20"/>
                 </Button>
@@ -38,13 +41,13 @@
                         <RotateTransform Angle="-90"/>
                     </Separator.LayoutTransform>
                 </Separator>
+                <Button x:Name="ResumeAll" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="SuspendResumeAll_Click">
+                    <Image Source="../Asset/Images/play.png" ToolTipService.ToolTip="Resume All" Width="20" Height="20"/>
+                </Button>
+                <Button x:Name="SuspendAll" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="SuspendResumeAll_Click">
+                    <Image Source="../Asset/Images/pause.png" ToolTipService.ToolTip="Suspend All" Width="20" Height="20"/>
+                </Button>
             </ToolBarPanel>
-            <Button x:Name="ResumeAll" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="SuspendResumeAll_Click">
-                <Image Source="../Asset/Images/play.png" ToolTipService.ToolTip="Resume All" Width="20" Height="20"/>
-            </Button>
-            <Button x:Name="SuspendAll" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="SuspendResumeAll_Click">
-                <Image Source="../Asset/Images/pause.png" ToolTipService.ToolTip="Suspend All" Width="20" Height="20"/>
-            </Button>
         </ToolBar>
         <Grid x:Name="MainGrid" Margin="0,30,0,0">
             <Grid.ColumnDefinitions>
@@ -53,7 +56,7 @@
                 <ColumnDefinition x:Name="LastTradeColumn" Width="410" />
             </Grid.ColumnDefinitions>
             <ig:XamGrid x:Name="MonitorGrid" AutoGenerateColumns="False"
-                        SelectedRowsCollectionChanged="MonitorGrid_SelectedRowsCollectionChanged" >
+                        SelectedRowsCollectionChanged="MonitorGrid_SelectedRowsCollectionChanged" RowHeight="23">
                 <ig:XamGrid.SelectionSettings>
                     <ig:SelectionSettings CellClickAction="SelectRow" />
                 </ig:XamGrid.SelectionSettings>
@@ -84,23 +87,23 @@
                             </DataTemplate>
                         </ig:TemplateColumn.ItemTemplate>
                     </ig:TemplateColumn>
-                    <ig:TemplateColumn Key="Id" HeaderText="Adjust" IsFilterable="False" IsReadOnly="True">
+                    <ig:TemplateColumn Key="Id" HeaderText="Adjust" IsFilterable="False" IsReadOnly="True" Width="60">
                         <ig:TemplateColumn.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" Visibility="{Binding SendButtonVisibility}">
-                                    <TextBox x:Name="AdjustPrice" Tag="{Binding}" Width="60" BorderThickness="1" TextAlignment="Right" MaxLength="10"
+                                    <TextBox x:Name="AdjustPrice" Tag="{Binding}" Width="{Binding ActualWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=Grid}}" BorderThickness="1" TextAlignment="Right" MaxLength="10"
                                                     TextChanged="AdjustPrice_TextChanged" MouseDoubleClick="AdjustPrice_MouseDoubleClick" KeyDown="AdjustPrice_KeyDown" />
                                 </StackPanel>
                             </DataTemplate>
                         </ig:TemplateColumn.ItemTemplate>
                     </ig:TemplateColumn>
-                    <ig:TemplateColumn Key="AdjustPoints" HeaderText="AdjustPoints" IsFilterable="False" IsReadOnly="True">
+                    <ig:TemplateColumn Key="AdjustPoints" HeaderText="AdjustPoints" IsFilterable="False" IsReadOnly="True" HorizontalContentAlignment="Center">
                         <ig:TemplateColumn.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <Button x:Name="DecButton" Content="-" Background="Red" Foreground="White" Width="20" Tag="{Binding}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="AdjustButton_Click"/>
+                                    <Button x:Name="DecButton" Content="-"  Width="20" Tag="{Binding}" Style="{StaticResource RedButtonStyle}" Click="AdjustButton_Click"/>
                                     <TextBox Text="{Binding AdjustPoints}" TextAlignment="Right" Width="60" KeyDown="TextBox_KeyDown"/>
-                                    <Button x:Name="IncButton" Content="+" Background="Green" Foreground="White" Width="20" Tag="{Binding}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="AdjustButton_Click" />
+                                    <Button x:Name="IncButton" Content="+"  Width="20" Tag="{Binding}" Style="{StaticResource GreenButtonStyle}" Click="AdjustButton_Click" />
                                 </StackPanel>
                             </DataTemplate>
                         </ig:TemplateColumn.ItemTemplate>
@@ -163,6 +166,9 @@
                     <TextBlock Text="{Binding Code}" Margin="10,0"/>
                 </StackPanel>
                 <local:DerivedInstrumentControl x:Name="DerivedInstrumentControl" Margin="10,25,0,0" DataContext="{Binding VmDerivativeRelation}"/>
+            </Grid>
+            
+            <Grid Grid.Column="2" Background="#55383838" x:Name="CoverGrid">
             </Grid>
 
             <GridSplitter x:Name="GridSplitter" Grid.Row="0" Grid.Column="1" Background="DarkGray" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  />

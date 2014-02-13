@@ -1,4 +1,5 @@
-﻿using Infragistics.Controls.Grids;
+﻿using Infragistics;
+using Infragistics.Controls.Grids;
 using ManagerConsole.Helper;
 using ManagerConsole.Model;
 using ManagerConsole.ViewModel;
@@ -16,6 +17,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Xml.Linq;
 using Logger = Manager.Common.Logger;
 
 namespace ManagerConsole.UI
@@ -23,7 +25,7 @@ namespace ManagerConsole.UI
     /// <summary>
     /// Interaction logic for DealingInstanceOrder.xaml
     /// </summary>
-    public partial class DealingInstanceOrder : UserControl
+    public partial class DealingInstanceOrder : UserControl, IControlLayout
     {
         private ManagerConsole.MainWindow _App;
         private ObservableCollection<InstrumentClient> _InstrumentList = new ObservableCollection<InstrumentClient>();
@@ -33,7 +35,7 @@ namespace ManagerConsole.UI
         {
             InitializeComponent();
             this._App = ((ManagerConsole.MainWindow)Application.Current.MainWindow);
-            this._ProcessInstantOrder = this._App.InitDataManager.ProcessInstantOrder;
+            this._ProcessInstantOrder = this._App.ExchangeDataManager.ProcessInstantOrder;
             this.InitializeData();
             this.BindGridData();
             this.GetComboBoxData();
@@ -58,9 +60,9 @@ namespace ManagerConsole.UI
             InstrumentClient allInstrument = new InstrumentClient();
             allInstrument.Code = "All";
 
-            foreach (string exchangeCode in this._App.InitDataManager.ExchangeCodes)
+            foreach (string exchangeCode in this._App.ExchangeDataManager.ExchangeCodes)
             {
-                ExchangeSettingManager settingManager = this._App.InitDataManager.GetExchangeSetting(exchangeCode);
+                ExchangeSettingManager settingManager = this._App.ExchangeDataManager.GetExchangeSetting(exchangeCode);
 
                 foreach (InstrumentClient instrument in settingManager.Instruments.Values)
                 {
@@ -180,7 +182,7 @@ namespace ManagerConsole.UI
             {
                 OrderTask order = this._OrderTaskGrid.Rows[i].Data as OrderTask;
                 string exchangeCode = order.ExchangeCode;
-                ExchangeSettingManager settingManager = this._App.InitDataManager.GetExchangeSetting(exchangeCode);
+                ExchangeSettingManager settingManager = this._App.ExchangeDataManager.GetExchangeSetting(exchangeCode);
 
                 string ask = this._ProcessInstantOrder.InstantOrderForInstrument.Ask;
                 string bid = this._ProcessInstantOrder.InstantOrderForInstrument.Bid;
@@ -265,6 +267,77 @@ namespace ManagerConsole.UI
             }
         }
 
-        
+
+        #region 布局
+        /// <summary>
+        /// Layout format:
+        /// <GridSettings>
+        ///    <ColumnsWidth Data="53,0,194,70,222,60,89,60,80,80,80,70,80,80,80,60,60,59,80,80,80,100,80,150,80,"/>
+        /// </GridSettings>
+
+        public string GetLayout()
+        {
+            //InstrumentCode
+            StringBuilder layoutBuilder = new StringBuilder();
+            layoutBuilder.Append("<GridSettings>");
+            if (this._OrderTaskGrid.FilteringSettings.RowFiltersCollection.Count > 0)
+            { 
+                IRecordFilter rowsFilter = this._OrderTaskGrid.FilteringSettings.RowFiltersCollection[0];
+
+                if (rowsFilter.FieldName == "InstrumentCode")
+                {
+                     layoutBuilder.AppendFormat("<Fitler LogicalOperator=\"{0}\">", (int)rowsFilter.Conditions.LogicalOperator);
+                    foreach (IFilterCondition condition in rowsFilter.Conditions)
+                    {
+                        ComparisonCondition comparisonCondition = condition as ComparisonCondition;
+                        if (comparisonCondition != null)
+                        {
+                            layoutBuilder.AppendFormat("<Condition op=\"{0}\" val=\"{1}\"/>", (int)comparisonCondition.Operator, comparisonCondition.FilterValue);
+                        }
+                    }
+                    layoutBuilder.Append("</Fitler>");
+                }
+            }
+
+            layoutBuilder.Append(ColumnWidthPersistence.GetPersistentColumnsWidthString(this._OrderTaskGrid));
+            layoutBuilder.Append("</GridSettings>");
+
+            return layoutBuilder.ToString();
+        }
+
+        public void SetLayout(XElement layout)
+        {
+            try
+            {
+                if (layout.HasElements)
+                {
+                    XElement filterElement = layout.Element("Fitler");
+                    if (filterElement != null)
+                    {
+                        RowsFilter rowsFilter = new RowsFilter(typeof(string), this._OrderTaskGrid.Columns.DataColumns["InstrumentCode"]);
+                        rowsFilter.Conditions.LogicalOperator = (LogicalOperator)int.Parse(filterElement.Attribute("LogicalOperator").Value);
+
+                        foreach (XElement element in filterElement.Elements("Condition"))
+                        {
+                            rowsFilter.Conditions.Add(new ComparisonCondition() { FilterValue = element.Attribute("val").Value, Operator = (ComparisonOperator)int.Parse(element.Attribute("op").Value) });
+                        }
+                        this._OrderTaskGrid.FilteringSettings.RowFiltersCollection.Add(rowsFilter);
+                    }
+                    //Grid Column Width
+                    XElement columnWidthElement = layout.Element("GridSettings").Element("ColumnsWidth");
+                    if (columnWidthElement != null)
+                    {
+                        ColumnWidthPersistence.LoadColumnsWidth(this._OrderTaskGrid, columnWidthElement);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.AddEvent(System.Diagnostics.TraceEventType.Error, "DealingInstanceOrder.SetLayout\r\n{0}", ex.ToString());
+            }
+        }
+        #endregion
+
+
     }
 }

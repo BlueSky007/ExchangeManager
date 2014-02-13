@@ -1,0 +1,54 @@
+﻿<StatusBar xmlns:UI="clr-namespace:ManagerConsole.UI"  x:Class="ManagerConsole.UI.MainStatusBar"
+           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+           xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+           Background="#FF282828" Foreground="Gray"
+           mc:Ignorable="d" d:DesignHeight="20" d:DesignWidth="300">
+
+    <StatusBarItem>
+        <TextBlock x:Name="LoginUserNameTextBlock" />
+    </StatusBarItem>
+    <StatusBarItem>
+        <Image x:Name="UserConnectStateImage"  MouseDown="UserConnectStateImage_MouseDown" />
+    </StatusBarItem>
+    <StatusBarItem HorizontalAlignment="Right">
+        <StackPanel Orientation="Horizontal">
+            <ItemsControl x:Name="ExchangeConnectionStateControl" Background="#FF181818" Padding="3,0,3,0">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" Margin="5,0,0,0"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding ExchangeCode}"/>
+                            <UI:ConnectionStateControl State="{Binding ConnectionState}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <ItemsControl x:Name="SourceConnectionStateControl" Background="#FF181818" Padding="3,0,3,0" Margin="5,0,5,0">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="Margin" Value="5,0,0,0"/>
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Name}"/>
+                            <UI:ConnectionStateControl State="{Binding ConnectionState}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </StatusBarItem>
+</StatusBar>

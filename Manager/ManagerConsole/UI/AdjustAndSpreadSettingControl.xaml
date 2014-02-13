@@ -16,7 +16,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Canvas Height="30" Width="800" HorizontalAlignment="Left">
-            <Button Canvas.Left="0" Canvas.Top="0" Height="30" Width="80" Content="New Relation" Visibility="{Binding AddRelation,Converter={StaticResource BoolToVisibility}}" Foreground="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:AdjustAndSpreadSettingControl}}" Click="NewButton_Click"/>
+            <Button Canvas.Left="0" Canvas.Top="0" Height="30" Width="80" Content="New Relation" Visibility="{Binding AddRelation, RelativeSource={RelativeSource AncestorType=UserControl},Converter={StaticResource BoolToVisibility}}" Foreground="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:AdjustAndSpreadSettingControl}}" Click="NewButton_Click"/>
             <Label Canvas.Left="80" Canvas.Top="0" Height="30" Width="290" Content="AutoAdjustPoints" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" BorderBrush="#FF8BA5C8" BorderThickness="1,0,1,0" Foreground="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:AdjustAndSpreadSettingControl}}"/>
 
             <TextBlock Canvas.Left="370" Canvas.Top="0" Height="30" Width="291" Text="SpreadPoints" TextAlignment="Center" Foreground="{Binding Foreground,RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=local:AdjustAndSpreadSettingControl}}" />
@@ -38,21 +38,21 @@
                 <ig:TemplateColumn Key="Name" HeaderText="Name" Width="80" IsReadOnly="True">
                     <ig:TemplateColumn.ItemTemplate>
                         <DataTemplate>
-                            <Button Content="{Binding Name}" Width="80" Visibility="{Binding SetAdjust,Converter={StaticResource BoolToVisibility}}" Tag="{Binding Id}" Click="Button_Click"></Button>
+                            <Button Content="{Binding Name}" Width="80" Visibility="{Binding AddRelation, RelativeSource={RelativeSource AncestorType=UserControl},Converter={StaticResource BoolToVisibility}}" Tag="{Binding Id}" Click="Button_Click"></Button>
                         </DataTemplate>
                     </ig:TemplateColumn.ItemTemplate>
                 </ig:TemplateColumn>
                 <ig:TemplateColumn Key="AdjustActionUp" HeaderText="Up" Width="35" IsReadOnly="True">
                     <ig:TemplateColumn.ItemTemplate>
                         <DataTemplate>
-                            <Button Background="#FF4169E1" Tag="{Binding Id}" Visibility="{Binding SetAdjust,Converter={StaticResource BoolToVisibility}}" Height="20" Width="35" FontSize="12" Padding="0,0,0,2" Style="{StaticResource GreenButtonStyle}" Content="+" Click="AdjustUp_Click"/>
+                            <Button Background="#FF4169E1" Tag="{Binding Id}" Visibility="{Binding SetAdjust, RelativeSource={RelativeSource AncestorType=UserControl},Converter={StaticResource BoolToVisibility}}" Height="20" Width="35" FontSize="12" Padding="0,0,0,2" Style="{StaticResource GreenButtonStyle}" Content="+" Click="AdjustUp_Click"/>
                         </DataTemplate>
                     </ig:TemplateColumn.ItemTemplate>
                 </ig:TemplateColumn>
                 <ig:TemplateColumn Key="AdjustActionDN" HeaderText="Dn" Width="35" IsReadOnly="True">
                     <ig:TemplateColumn.ItemTemplate>
                         <DataTemplate>
-                            <Button Background="#FFCD5C5C" Tag="{Binding Id}" Visibility="{Binding SetAdjust,Converter={StaticResource BoolToVisibility}}" Height="20" Width="35" FontSize="12" Padding="0,0,0,2" Style="{StaticResource RedButtonStyle}" Content="-" Click="AdjustDn_Click"/>
+                            <Button Background="#FFCD5C5C" Tag="{Binding Id}" Visibility="{Binding SetAdjust, RelativeSource={RelativeSource AncestorType=UserControl},Converter={StaticResource BoolToVisibility}}" Height="20" Width="35" FontSize="12" Padding="0,0,0,2" Style="{StaticResource RedButtonStyle}" Content="-" Click="AdjustDn_Click"/>
                         </DataTemplate>
                     </ig:TemplateColumn.ItemTemplate>
                 </ig:TemplateColumn>
@@ -86,21 +86,21 @@
                 <ig:TemplateColumn Key="AdjustActionReplace" HeaderText="Action" Width="60" IsReadOnly="True">
                     <ig:TemplateColumn.ItemTemplate>
                         <DataTemplate>
-                            <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Tag="{Binding Id}"  Visibility="{Binding SetAdjust,Converter={StaticResource BoolToVisibility}}" Foreground="Blue" Content="Replace" Click="AdjustReplace_Click"/>
+                            <Button Tag="{Binding Id}"  Visibility="{Binding SetAdjust, RelativeSource={RelativeSource AncestorType=UserControl},Converter={StaticResource BoolToVisibility}}" Content="Replace" Click="AdjustReplace_Click"/>
                         </DataTemplate>
                     </ig:TemplateColumn.ItemTemplate>
                 </ig:TemplateColumn>
                 <ig:TemplateColumn Key="SpreadActionUp" HeaderText="Up" Width="35" IsReadOnly="True">
                     <ig:TemplateColumn.ItemTemplate>
                         <DataTemplate>
-                            <Button Background="#FF4169E1" Height="20" Width="35" FontSize="12" Tag="{Binding Id}" Padding="0,0,0,2" Visibility="{Binding SetSpread,Converter={StaticResource BoolToVisibility}}"  Style="{StaticResource GreenButtonStyle}" Content="+" Click="SpreadUp_Click"/>
+                            <Button Background="#FF4169E1" Height="20" Width="35" FontSize="12" Tag="{Binding Id}" Padding="0,0,0,2" Visibility="{Binding SetSpread, RelativeSource={RelativeSource AncestorType=UserControl},Converter={StaticResource BoolToVisibility}}"  Style="{StaticResource GreenButtonStyle}" Content="+" Click="SpreadUp_Click"/>
                         </DataTemplate>
                     </ig:TemplateColumn.ItemTemplate>
                 </ig:TemplateColumn>
                 <ig:TemplateColumn Key="SpreadActionDN" HeaderText="Dn" Width="35" IsReadOnly="True">
                     <ig:TemplateColumn.ItemTemplate>
                         <DataTemplate>
-                            <Button Background="#FFCD5C5C" Height="20" Width="35" FontSize="12" Tag="{Binding Id}" Padding="0,0,0,2" Visibility="{Binding SetSpread,Converter={StaticResource BoolToVisibility}}"  Style="{StaticResource RedButtonStyle}" Content="-" Click="SpreadDn_Click"/>
+                            <Button Background="#FFCD5C5C" Height="20" Width="35" FontSize="12" Tag="{Binding Id}" Padding="0,0,0,2" Visibility="{Binding SetSpread, RelativeSource={RelativeSource AncestorType=UserControl},Converter={StaticResource BoolToVisibility}}"  Style="{StaticResource RedButtonStyle}" Content="-" Click="SpreadDn_Click"/>
                         </DataTemplate>
                     </ig:TemplateColumn.ItemTemplate>
                 </ig:TemplateColumn>
@@ -133,7 +133,7 @@
                 <ig:TemplateColumn Key="SpreadActionReplace" HeaderText="Action" Width="60" IsReadOnly="True">
                     <ig:TemplateColumn.ItemTemplate>
                         <DataTemplate>
-                            <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Tag="{Binding Id}" Visibility="{Binding SetSpread,Converter={StaticResource BoolToVisibility}}"  Foreground="Blue" Content="Replace" Click="SpreadReplace_Click"></Button>
+                            <Button Tag="{Binding Id}" Visibility="{Binding SetSpread, RelativeSource={RelativeSource AncestorType=UserControl},Converter={StaticResource BoolToVisibility}}" Content="Replace" Click="SpreadReplace_Click"></Button>
                         </DataTemplate>
                     </ig:TemplateColumn.ItemTemplate>
                 </ig:TemplateColumn>

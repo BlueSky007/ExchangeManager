@@ -49,7 +49,7 @@
                 <igWPF:SplitPane igWPF:XamDockManager.InitialLocation="DockedLeft">
                     <igWPF:TabGroupPane>
                         <igWPF:ContentPane Header="ExhcangeQuotation" AllowClose="False" >-->
-        <Grid>
+        <Grid x:Name="MainGrid">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="5"/>
@@ -123,7 +123,7 @@
                             <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Cell.Row.Data.AllowLimit}" Value="False">
                                 <Setter Property="Background" Value="{DynamicResource AllowLimitBackgroudBrush}"/>
                             </DataTrigger>
-                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Cell.Row.Data.IsEnablePrice}" Value="False">
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Cell.Row.Data.IsPriceEnabled}" Value="False">
                                 <Setter Property="Background" Value="{DynamicResource EnablePriceBackgroudBrush}" />
                             </DataTrigger>
                         </Style.Triggers>
@@ -136,15 +136,15 @@
                     <ig:FilteringSettings AllowFiltering="FilterMenu" />
                 </ig:XamGrid.FilteringSettings>
                 <ig:XamGrid.EditingSettings>
-                    <ig:EditingSettings AllowEditing="Cell"/>
+                    <ig:EditingSettings AllowEditing="Cell" IsMouseActionEditingEnabled="DoubleClick" IsF2EditingEnabled="False" />
                 </ig:XamGrid.EditingSettings>
                 <ig:XamGrid.Columns>
                     <ig:TextColumn Key="InstruemtnId" Visibility="Hidden" AllowCaseSensitiveSort="False" ></ig:TextColumn>
                     <ig:TextColumn Key="QuotationPolicyId" Visibility="Hidden"/>
-                    <ig:TextColumn Key="ExchangeCode" HeaderText="ExchangeSystem" IsFixed="Left" IsFilterable="True" Width="50"></ig:TextColumn>
-                    <ig:TextColumn Key="QuotationPolicyCode" HeaderText="QuotationPolicy" IsFixed="Left" IsFilterable="True" Width="50"></ig:TextColumn>
-                    <ig:TextColumn Key="InstrumentOriginCode" HeaderText="OriginCode" IsFixed="Left" IsFilterable="True" Width="50"/>
-                    <ig:TextColumn Key="InstrumentCode" HeaderText="Instrument" IsFixed="Left" IsFilterable="True" Width="100"></ig:TextColumn>
+                    <ig:TextColumn Key="ExchangeCode" HeaderText="ExchangeSystem" IsFixed="Left" IsReadOnly="True" IsFilterable="True" Width="50"></ig:TextColumn>
+                    <ig:TextColumn Key="QuotationPolicyCode" HeaderText="QuotationPolicy" IsFixed="Left" IsReadOnly="True" IsFilterable="True" Width="50"></ig:TextColumn>
+                    <ig:TextColumn Key="InstrumentOriginCode" HeaderText="OriginCode" IsFixed="Left" IsReadOnly="True" IsFilterable="True" Width="50"/>
+                    <ig:TextColumn Key="InstrumentCode" HeaderText="Instrument" IsReadOnly="True" IsFixed="Left" IsFilterable="True" Width="100"></ig:TextColumn>
                     <!--<ig:TextColumn Key="Bid" HeaderText="Bid" Width="50" IsFilterable="False"></ig:TextColumn>-->
                     <ig:TemplateColumn Key="Bid" HeaderText="Bid" IsReadOnly="True" Width="50" IsFilterable="False" >
                         <ig:TemplateColumn.ItemTemplate>
@@ -165,24 +165,59 @@
                         </ig:TemplateColumn.ItemTemplate>
                     </ig:TemplateColumn>
                     <!--<ig:TextColumn Key="Ask" HeaderText="Ask" Width="50" IsFilterable="False"></ig:TextColumn>-->
-                    <ig:TextColumn Key="High" HeaderText="High" Width="50" IsFilterable="False"></ig:TextColumn>
-                    <ig:TextColumn Key="Low" HeaderText="Low" Width="50" IsFilterable="False"></ig:TextColumn>
-                    <ig:TextColumn Key="TimeSpan" HeaderText="Timespan" Width="100" IsFilterable="False"></ig:TextColumn>
+                    <ig:TextColumn Key="High" HeaderText="High" Width="50" IsFilterable="False" IsReadOnly="True"></ig:TextColumn>
+                    <ig:TextColumn Key="Low" HeaderText="Low" Width="50" IsFilterable="False" IsReadOnly="True"></ig:TextColumn>
+                    <ig:TextColumn Key="TimeSpan" HeaderText="Timespan" Width="100" IsFilterable="False" IsReadOnly="True"></ig:TextColumn>
                     <ig:TextColumn Key="AutoAdjustPoints" HeaderText="AutoAdjustPoints" Width="100" IsFilterable="False"></ig:TextColumn>
                     <ig:TextColumn Key="SpreadPoints" HeaderText="SpreadPoints" Width="100" IsFilterable="False"></ig:TextColumn>
-                    <ig:TextColumn Key="AutoAdjustPoints2" HeaderText="AutoAdjustPoints2" Width="100" IsFilterable="False"></ig:TextColumn>
+                    <ig:TextColumn Key="AutoAdjustPoints2"  HeaderText="AutoAdjustPoints2" Width="100" IsFilterable="False"></ig:TextColumn>
                     <ig:TextColumn Key="AutoAdjustPoints3" HeaderText="AutoAdjustPoints3" Width="100" IsFilterable="False"></ig:TextColumn>
                     <ig:TextColumn Key="AutoAdjustPoints4" HeaderText="AutoAdjustPoints4" Width="100" IsFilterable="False"></ig:TextColumn>
                     <ig:TextColumn Key="SpreadPoints2" HeaderText="SpreadPoints2" Width="100" IsFilterable="False"></ig:TextColumn>
                     <ig:TextColumn Key="SpreadPoints3" HeaderText="SpreadPoints3" Width="100" IsFilterable="False"></ig:TextColumn>
                     <ig:TextColumn Key="SpreadPoints4" HeaderText="SpreadPoints4" Width="100" IsFilterable="False"></ig:TextColumn>
-                    <ig:CheckBoxColumn Key="IsOriginHiLo" HeaderText="IsOriginHiLo" Width="100" IsFilterable="False"></ig:CheckBoxColumn>
+                    <ig:TemplateColumn Key="IsOriginHiLo" HeaderText="IsOriginHiLo" IsReadOnly="True" Width="100" HorizontalContentAlignment="Center" IsFilterable="False">
+                        <ig:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsOriginHiLo}" Tag="{Binding}" Click="IsOriginHiLoCheckBox_Click"/>
+                            </DataTemplate>
+                        </ig:TemplateColumn.ItemTemplate>
+                    </ig:TemplateColumn>
+                    <!--<ig:CheckBoxColumn Key="IsOriginHiLo" HeaderText="IsOriginHiLo" Width="100" IsReadOnly="True" IsFilterable="False"></ig:CheckBoxColumn>-->
                     <ig:TextColumn Key="MaxAuotAdjustPoints" HeaderText="MaxAuotAdjustPoints" Width="100" IsFilterable="False"></ig:TextColumn>
                     <ig:TextColumn Key="MaxSpreadPoints" HeaderText="MaxSpreadPoints" Width="100" IsFilterable="False"></ig:TextColumn>
-                    <ig:CheckBoxColumn Key="IsAutoFill" HeaderText="IsAutoFill" Width="100" IsFilterable="False"></ig:CheckBoxColumn>
-                    <ig:CheckBoxColumn Key="AllowLimit" HeaderText="AllowLimit" Width="100" IsFilterable="False"></ig:CheckBoxColumn>
-                    <ig:CheckBoxColumn Key="IsEnablePrice" HeaderText="IsEnablePrice" Width="100" IsFilterable="False"></ig:CheckBoxColumn>
-                    <ig:CheckBoxColumn Key="IsAutoEnablePrice" HeaderText="IsAutoEnablePrice" Width="100" IsFilterable="False"></ig:CheckBoxColumn>
+                    <ig:TemplateColumn Key="IsAutoFill" HeaderText="IsAutoFill" Width="100" IsReadOnly="True" HorizontalContentAlignment="Center" IsFilterable="False">
+                        <ig:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsAutoFill}" Tag="{Binding}" Click="IsAutoFillCheckBox_Click"/>
+                            </DataTemplate>
+                        </ig:TemplateColumn.ItemTemplate>
+                    </ig:TemplateColumn>
+                    <ig:TemplateColumn Key="AllowLimit" HeaderText="AllowLimit" IsReadOnly="True" Width="100" HorizontalContentAlignment="Center" IsFilterable="False">
+                        <ig:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding AllowLimit}" Tag="{Binding}" Click="AllowLimitCheckBox_Click"/>
+                            </DataTemplate>
+                        </ig:TemplateColumn.ItemTemplate>
+                    </ig:TemplateColumn>
+                    <ig:TemplateColumn Key="IsPriceEnabled" HeaderText="IsPriceEnabled" IsReadOnly="True" Width="100" HorizontalContentAlignment="Center" IsFilterable="False">
+                        <ig:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsPriceEnabled}" Tag="{Binding}" Click="IsPriceEnabledCheckBox_Click"/>
+                            </DataTemplate>
+                        </ig:TemplateColumn.ItemTemplate>
+                    </ig:TemplateColumn>
+                    <ig:TemplateColumn Key="IsAutoEnablePrice" HeaderText="IsAutoEnablePrice" IsReadOnly="True" Width="100" HorizontalContentAlignment="Center" IsFilterable="False">
+                        <ig:TemplateColumn.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsAutoEnablePrice}" Tag="{Binding}" Click="IsAutoEnablePriceCheckBox_Click"/>
+                            </DataTemplate>
+                        </ig:TemplateColumn.ItemTemplate>
+                    </ig:TemplateColumn>
+                    <!--<ig:CheckBoxColumn Key="IsAutoFill" HeaderText="IsAutoFill" Width="100" IsReadOnly="True" IsFilterable="False"></ig:CheckBoxColumn>
+                    <ig:CheckBoxColumn Key="AllowLimit" HeaderText="AllowLimit" Width="100" IsReadOnly="True" IsFilterable="False"></ig:CheckBoxColumn>
+                    <ig:CheckBoxColumn Key="IsEnablePrice" HeaderText="IsEnablePrice" Width="100" IsReadOnly="True" IsFilterable="False"></ig:CheckBoxColumn>
+                    <ig:CheckBoxColumn Key="IsAutoEnablePrice" HeaderText="IsAutoEnablePrice" Width="100" IsReadOnly="True" IsFilterable="False"></ig:CheckBoxColumn>-->
                     <ig:TemplateColumn Key="SuspendResume" Width="80" IsFilterable="False">
                         <ig:TemplateColumn.ItemTemplate>
                             <DataTemplate>
@@ -197,7 +232,7 @@
             </tk:PropertyGrid>-->
 
 
-            <my:ExchangeQuotationPropertyControl Grid.Column="2" x:Name="QuotationProperty" Margin="0,0,0,0"/>
+            <my:ExchangeQuotationPropertyControl Grid.Column="2" Height="AUTO" Width="AUTO" x:Name="QuotationProperty" Margin="0,0,0,0"/>
         </Grid>
         <!--</igWPF:ContentPane>
                     </igWPF:TabGroupPane>

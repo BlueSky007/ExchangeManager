@@ -4,13 +4,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:igGrid="http://schemas.infragistics.com/xaml"
+             xmlns:localui="clr-namespace:ManagerConsole.Helper"
              mc:Ignorable="d" 
              d:DesignHeight="500" d:DesignWidth="1200" BorderBrush="Black" BorderThickness="0">
     <UserControl.Resources>
         <LinearGradientBrush x:Key="BorderBrush" StartPoint="0.5, 0" EndPoint="0.5, 1">
             <GradientStop Color="#FF282828" Offset="1" />
         </LinearGradientBrush>
-        <Style TargetType="TextBlock">
+        <!--<Style TargetType="TextBlock">
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontWeight" Value="Black"/>
@@ -18,20 +19,21 @@
             <Setter Property="Margin" Value="5,0,0,0"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-        <Style TargetType="Border">
+        </Style>-->
+        <!--<Style TargetType="Border">
             <Setter Property="CornerRadius" Value="3"/>
             <Setter Property="BorderBrush" Value="Gray"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Background" Value="#FF282828"/>
-        </Style>
+        </Style>-->
         <Style x:Key="CellStyle" TargetType="igGrid:CellControl">
             <Setter Property="Padding" Value="0,0,3,0"/>
             <Setter Property="BorderThickness" Value="0,0,1,1"/>
             <Setter Property="BorderBrush" Value="#FFDEDEDE" />
         </Style>
+        <localui:PriceTrendConverter  x:Key="PriceTrendConverter" />
     </UserControl.Resources>
-    <Grid x:Name="LayRootGrid" Background="Black">
+    <Grid x:Name="LayRootGrid" Style="{DynamicResource DealingGridStyle}">
         <Grid.RowDefinitions>
             <RowDefinition Height="120"/>
             <RowDefinition Height="36"/>
@@ -58,7 +60,7 @@
                 <ColumnDefinition Width="30"/>
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4"  Margin="1,5,0,0">
+            <Border Style="{DynamicResource DealingBorderStyle}" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4"  Margin="1,5,0,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="40"/>
@@ -66,16 +68,17 @@
                         <ColumnDefinition Width="80"/>
                         <ColumnDefinition Width="40"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock x:Name="_LotTexCaption" Margin="5 0 0 0" FontWeight="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="0" Text="Lot" ></TextBlock>
-                    <TextBlock x:Name="_LotTextBlock" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Text="{Binding Lot,StringFormat={}{0:N2}}" Margin="5 0 5 0" Foreground="#FF9090FF"></TextBlock>
+                    <TextBlock Style="{DynamicResource DealingDQTextBlockStyle}" x:Name="_LotTexCaption" Margin="5 0 0 0" FontWeight="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="0" Text="Lot" ></TextBlock>
+                    <TextBlock Style="{DynamicResource DealingDQTextBlockStyle}" x:Name="_LotTextBlock" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Text="{Binding Lot,StringFormat={}{0:N2}}" Margin="5 0 5 0" Foreground="#FF9090FF"></TextBlock>
 
-                    <TextBlock Text="{Binding MarketPrice}" FontSize="12" Foreground="{Binding IsBuyBrush}" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="2"/>
-                    <TextBlock Text="{Binding Diff}" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="14" FontWeight="Bold" Grid.Column="4" Margin="0,0,8,0"/>
+                    <Image x:Name="PriceTrendImage" Source="{Binding MarketPriceTrend, Converter={StaticResource PriceTrendConverter}}" VerticalAlignment="Top"  Height="15" Width="11" Grid.Column="2" HorizontalAlignment="Left" />
+                    <TextBlock Style="{DynamicResource DealingDQTextBlockStyle}" Text="{Binding MarketPrice}" Foreground="{Binding IsBuyBrush}" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="2"/>
+                    <TextBlock Style="{DynamicResource DealingDQTextBlockStyle}" Text="{Binding Diff}" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="14" FontWeight="Bold" Grid.Column="4" Margin="0,0,8,0"/>
                 </Grid>
             </Border>
 
-            <Border Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Background="{Binding IsBuyBrush}" Margin="0,2,0,0">
-                <TextBlock x:Name="_CustomerPriceTextBlock" Foreground="White" FontSize="17" Grid.Row="0" Grid.Column="0" Text="{Binding CustomerPrice}" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+            <Border Style="{DynamicResource DealingBorderStyle}" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Background="{Binding IsBuyBrush}" Margin="0,2,0,0">
+                <TextBlock Style="{DynamicResource DealingDQTextBlockStyle}" x:Name="_CustomerPriceTextBlock" Foreground="White" FontSize="17" Grid.Row="0" Grid.Column="0" Text="{Binding CustomerPrice}" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
             </Border>
             <Button BorderThickness="1" BorderBrush="Black" IsEnabled="{Binding IsAllowAdjustPrice}" Height="40" Width="30" FontSize="14" Grid.Row="1" Grid.Column="0" Margin="1,2,1,1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_UpPriceButton" Content="+" Background="#FF92D050" Click="AdjustBtn_Click"/>
             <Button BorderThickness="1" BorderBrush="Black" IsEnabled="{Binding IsAllowAdjustPrice}" Height="40" Width="30" FontSize="14" Grid.Row="1" Grid.Column="3" Margin="1,2,1,1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_DownPriceButton" Content="-" Background="#FFFFCC00" Click="AdjustBtn_Click"/>
@@ -101,7 +104,7 @@
                                         <ColumnDefinition Width="25"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock x:Name="_AcceptButtonCaption" Foreground="{Binding ElementName=_ExecutedButton,Path=Foreground}" FontWeight="Bold" FontFamily="hei" FontSize="12" Margin="5 0 0 0" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Text="Execute" ></TextBlock>
-                                    <Image Source="../Asset/Images/Accept.png" Grid.Column="1" Width="18" Height="18" HorizontalAlignment="Center"/>
+                                    <Image Source="../Asset/Images/Accept.png" Grid.Column="1" Width="15" Height="15" HorizontalAlignment="Center"/>
                                 </Grid>
                             </Grid>
                         </Border>
@@ -130,7 +133,7 @@
                                         <ColumnDefinition Width="25"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock x:Name="_AcceptButtonCaption" Foreground="{Binding ElementName=_RejectButton,Path=Foreground}" FontWeight="Bold" FontFamily="hei" FontSize="12" Margin="5 0 0 0" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Text="Reject" ></TextBlock>
-                                    <Image Source="../Asset/Images/Reject.png" Grid.Column="1" Width="18" Height="18" HorizontalAlignment="Center"/>
+                                    <Image Source="../Asset/Images/Reject.png" Grid.Column="1" Width="15" Height="15" HorizontalAlignment="Center"/>
                                 </Grid>
                             </Grid>
                         </Border>
@@ -140,7 +143,7 @@
         </Grid>
         
         <!--Order Information-->
-        <Border  BorderBrush="DarkGray" BorderThickness="1" Grid.Row="0" Grid.Column="1" Margin="25,5,0,0">
+        <Border Style="{DynamicResource DealingBorderStyle}" BorderThickness="1" Grid.Row="0" Grid.Column="1" Margin="25,5,0,0">
             <!--<Border.Background>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <GradientStop Color="#FF5A7A7A" Offset="1"/>
@@ -158,14 +161,14 @@
                     <ColumnDefinition Width="110"/>
                     <ColumnDefinition Width="110"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock x:Name="InstrumentCaption" Grid.Row="0" Grid.Column="0" Text="Item" FontStyle="Italic" VerticalAlignment="Bottom"></TextBlock>
-                <TextBlock x:Name="InstrumentTextBlock" Grid.Row="0" Grid.Column="1" Text="{Binding InstrumentCode}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Foreground="#FF9090FF"></TextBlock>
-                <TextBlock x:Name="AccountCaption" Grid.Row="1" Grid.Column="0" Text="Account No" FontStyle="Italic" VerticalAlignment="Bottom"></TextBlock>
-                <TextBlock x:Name="AccountTextBlock" Grid.Row="1" Grid.Column="1" Text="{Binding AccountCode}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Foreground="#FF9090FF"></TextBlock>
-                <TextBlock x:Name="LotCaption" Grid.Row="2" Grid.Column="0" Text="Lot" FontStyle="Italic" VerticalAlignment="Bottom"></TextBlock>
-                <TextBlock x:Name="LotTextBlock" Grid.Row="2" Grid.Column="1" Text="{Binding Lot,StringFormat={}{0:N2}}" HorizontalAlignment="Right" Foreground="#FF9090FF" VerticalAlignment="Bottom"></TextBlock>
-                <TextBlock x:Name="OpenAveragePriceCaption" Grid.Row="3" Grid.Column="0" Text="Open Avg Price" FontStyle="Italic" VerticalAlignment="Bottom"></TextBlock>
-                <TextBlock x:Name="OpenAveragePriceTextBlock" Grid.Row="3" Grid.Column="1" Text="{Binding OpenAvgPrice}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Foreground="#FF9090FF"></TextBlock>
+                <TextBlock Style="{DynamicResource DealingDQTextBlockStyle}" x:Name="InstrumentCaption" Grid.Row="0" Grid.Column="0" Text="Item" FontStyle="Italic" VerticalAlignment="Bottom"></TextBlock>
+                <TextBlock Style="{DynamicResource DealingDQTextBlockStyle}" x:Name="InstrumentTextBlock" Grid.Row="0" Grid.Column="1" Text="{Binding InstrumentCode}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Foreground="#FF9090FF"></TextBlock>
+                <TextBlock Style="{DynamicResource DealingDQTextBlockStyle}" x:Name="AccountCaption" Grid.Row="1" Grid.Column="0" Text="Account No" FontStyle="Italic" VerticalAlignment="Bottom"></TextBlock>
+                <TextBlock Style="{DynamicResource DealingDQTextBlockStyle}" x:Name="AccountTextBlock" Grid.Row="1" Grid.Column="1" Text="{Binding AccountCode}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Foreground="#FF9090FF"></TextBlock>
+                <TextBlock Style="{DynamicResource DealingDQTextBlockStyle}" x:Name="LotCaption" Grid.Row="2" Grid.Column="0" Text="Lot" FontStyle="Italic" VerticalAlignment="Bottom"></TextBlock>
+                <TextBlock Style="{DynamicResource DealingDQTextBlockStyle}" x:Name="LotTextBlock" Grid.Row="2" Grid.Column="1" Text="{Binding Lot,StringFormat={}{0:N2}}" HorizontalAlignment="Right" Foreground="#FF9090FF" VerticalAlignment="Bottom"></TextBlock>
+                <TextBlock Style="{DynamicResource DealingDQTextBlockStyle}" x:Name="OpenAveragePriceCaption" Grid.Row="3" Grid.Column="0" Text="Open Avg Price" FontStyle="Italic" VerticalAlignment="Bottom"></TextBlock>
+                <TextBlock Style="{DynamicResource DealingDQTextBlockStyle}" x:Name="OpenAveragePriceTextBlock" Grid.Row="3" Grid.Column="1" Text="{Binding OpenAvgPrice}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Foreground="#FF9090FF"></TextBlock>
             </Grid>
         </Border>
 
@@ -183,17 +186,17 @@
                 <ColumnDefinition Width="30"/>
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4">
+            <Border Style="{DynamicResource DealingBorderStyle}" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock x:Name="_SumSellLotTexCaption" Width="60" FontWeight="Black" HorizontalAlignment="Left" Text="Total Lot"></TextBlock>
-                    <TextBlock x:Name="_SumSellLotTexTextBlock" Width="35" TextAlignment="Right" Text="{Binding SumSellLot,StringFormat={}{0:N2}}" Foreground="Red"></TextBlock>
-                    <TextBlock x:Name="_SellOrderCountCaption" Width="40" Margin="10 0 0 0" FontWeight="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Text="Count"></TextBlock>
-                    <TextBlock x:Name="_SellOrderCountTextBlock" Width="25" TextAlignment="Right" VerticalAlignment="Center" Foreground="#FF9090FF" Text="{Binding SellOrderCount}" ></TextBlock>
-                    <TextBlock x:Name="_SellDifferCaption" Width="32" Margin="10 0 0 0" FontWeight="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Text="Differ"></TextBlock>
-                    <TextBlock x:Name="_SellDifferTextBlock" Width="30" TextAlignment="Center" Text="{Binding SellVariation}" Foreground="#FF9090FF" Margin="0,0,8,0"></TextBlock>
+                    <TextBlock Style="{DynamicResource DealingDQTextBlockStyle}" x:Name="_SumSellLotTexCaption" Width="60" FontWeight="Black" HorizontalAlignment="Left" Text="Total Lot"></TextBlock>
+                    <TextBlock Style="{DynamicResource DealingDQTextBlockStyle}" x:Name="_SumSellLotTexTextBlock" Width="35" TextAlignment="Right" Text="{Binding SumSellLot,StringFormat={}{0:N2}}" Foreground="Red"></TextBlock>
+                    <TextBlock Style="{DynamicResource DealingDQTextBlockStyle}" x:Name="_SellOrderCountCaption" Width="40" Margin="10 0 0 0" FontWeight="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Text="Count"></TextBlock>
+                    <TextBlock Style="{DynamicResource DealingDQTextBlockStyle}" x:Name="_SellOrderCountTextBlock" Width="25" TextAlignment="Right" VerticalAlignment="Center" Foreground="#FF9090FF" Text="{Binding SellOrderCount}" ></TextBlock>
+                    <TextBlock Style="{DynamicResource DealingDQTextBlockStyle}" x:Name="_SellDifferCaption" Width="32" Margin="10 0 0 0" FontWeight="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Text="Differ"></TextBlock>
+                    <TextBlock Style="{DynamicResource DealingDQTextBlockStyle}" x:Name="_SellDifferTextBlock" Width="30" TextAlignment="Center" Text="{Binding SellVariation}" Foreground="#FF9090FF" Margin="0,0,8,0"></TextBlock>
                 </StackPanel>
             </Border>
-            <Border Grid.Row="1" Grid.Column="1" BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="2" Background="Red" Margin="0,1,0,0">
+            <Border Style="{DynamicResource DealingBorderStyle}" Grid.Row="1" Grid.Column="1" BorderBrush="Black" BorderThickness="1" Grid.ColumnSpan="2" Background="Red" Margin="0, 2,0,0">
                 <TextBlock x:Name="_MarketSellPrice" Foreground="White" FontSize="17" Grid.Row="0" Grid.Column="0" Text="{Binding Bid}" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
             </Border>
             <Button BorderThickness="1" BorderBrush="Black" Height="38" Width="31" FontSize="14" Grid.Row="1" Grid.Column="0"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_IncreaseSellAutoPointsButton" Content="+" Background="#FF92D050" IsEnabled="{Binding IsAllowAdjustPrice}" Click="AdjustBtn_Click"/>
@@ -221,7 +224,7 @@
                                         <ColumnDefinition Width="100"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock x:Name="_ExecuteRejectSellButtonCaption" Foreground="{Binding ElementName=_ExecuteRejectSellButton,Path=Foreground}" FontWeight="Bold" FontFamily="hei" FontSize="12" Margin="5 0 0 0" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Text="Execute/Reject" ></TextBlock>
-                                    <Image Source="../Asset/Images/Accept.png" Grid.Column="1" Width="18" Height="18" HorizontalAlignment="Center"/>
+                                    <Image Source="../Asset/Images/Accept.png" Grid.Column="1" Width="15" Height="15" HorizontalAlignment="Center"/>
                                 </Grid>
                             </Grid>
                         </Border>
@@ -245,17 +248,17 @@
                 <ColumnDefinition Width="30"/>
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4">
+            <Border Style="{DynamicResource DealingBorderStyle}" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock x:Name="_SumBuyLotTexCaption" Width="60" FontWeight="Black" HorizontalAlignment="Left" Text="Total Lot"></TextBlock>
-                    <TextBlock x:Name="_SumBuyLotTexTextBlock" Width="35" TextAlignment="Right" Text="{Binding SumBuyLot,StringFormat={}{0:N2}}" Foreground="#FF9090FF"></TextBlock>
-                    <TextBlock x:Name="_BuyOrderCountCaption" Width="40" Margin="10 0 0 0" FontWeight="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Text="Count"></TextBlock>
-                    <TextBlock x:Name="_BuyOrderCountTextBlock" Width="25" TextAlignment="Right" VerticalAlignment="Center" Foreground="#FF9090FF" Text="{Binding BuyOrderCount}"></TextBlock>
-                    <TextBlock x:Name="_BuyPriceDifferCaption" Width="32" Margin="10 0 0 0" FontWeight="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Text="Differ"></TextBlock>
-                    <TextBlock x:Name="_BuyPriceDifferTextBlock" Width="30" TextAlignment="Center" Text="{Binding BuyVariation}" Foreground="#FF9090FF" Margin="0,0,8,0"></TextBlock>
+                    <TextBlock Style="{DynamicResource DealingDQTextBlockStyle}" x:Name="_SumBuyLotTexCaption" Width="60" FontWeight="Black" HorizontalAlignment="Left" Text="Total Lot"></TextBlock>
+                    <TextBlock Style="{DynamicResource DealingDQTextBlockStyle}" x:Name="_SumBuyLotTexTextBlock" Width="35" TextAlignment="Right" Text="{Binding SumBuyLot,StringFormat={}{0:N2}}" Foreground="#FF9090FF"></TextBlock>
+                    <TextBlock Style="{DynamicResource DealingDQTextBlockStyle}" x:Name="_BuyOrderCountCaption" Width="40" Margin="10 0 0 0" FontWeight="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Text="Count"></TextBlock>
+                    <TextBlock Style="{DynamicResource DealingDQTextBlockStyle}" x:Name="_BuyOrderCountTextBlock" Width="25" TextAlignment="Right" VerticalAlignment="Center" Foreground="#FF9090FF" Text="{Binding BuyOrderCount}"></TextBlock>
+                    <TextBlock Style="{DynamicResource DealingDQTextBlockStyle}" x:Name="_BuyPriceDifferCaption" Width="32" Margin="10 0 0 0" FontWeight="Black" HorizontalAlignment="Left" VerticalAlignment="Center" Text="Differ"></TextBlock>
+                    <TextBlock Style="{DynamicResource DealingDQTextBlockStyle}" x:Name="_BuyPriceDifferTextBlock" Width="30" TextAlignment="Center" Text="{Binding BuyVariation}" Foreground="#FF9090FF" Margin="0,0,8,0"></TextBlock>
                 </StackPanel>
             </Border>
-            <Border BorderThickness="1" BorderBrush="Black" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Background="#FF75923C" Margin="0,1,0,0">
+            <Border Style="{DynamicResource DealingBorderStyle}" BorderThickness="1" BorderBrush="Black" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Background="#FF75923C" Margin="0,2,0,0">
                 <TextBlock x:Name="_MarketBuyPrice" Foreground="White" FontSize="17" Grid.Row="0" Grid.Column="0" Text="{Binding Ask}" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
             </Border>
             <Button Height="38" Width="31" FontSize="14" Grid.Row="1" Grid.Column="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="_IncreaseBuyAutoPointsButton" Content="+" Background="#FF92D050" Click="AdjustBtn_Click" IsEnabled="{Binding IsAllowAdjustPrice}"/>
@@ -283,7 +286,7 @@
                                         <ColumnDefinition Width="100"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock x:Name="_ExecuteRejectSellButtonCaption" Foreground="{Binding ElementName=_ExecuteRejectBuyButton,Path=Foreground}" FontWeight="Bold" FontFamily="hei" FontSize="12" Margin="5 0 0 0" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Text="Execute/Reject" ></TextBlock>
-                                    <Image Source="../Asset/Images/Accept.png" Grid.Column="1" Width="18" Height="18" HorizontalAlignment="Center"/>
+                                    <Image Source="../Asset/Images/Accept.png" Grid.Column="1" Width="15" Height="15" HorizontalAlignment="Center"/>
                                 </Grid>
                             </Grid>
                         </Border>
@@ -292,10 +295,10 @@
             </Button>
         </Grid>
 
-        <Border Margin="0 3 0 0" Grid.Row="1" Grid.ColumnSpan="5">
+        <Border Margin="0 3 0 0" Grid.Row="1" Grid.ColumnSpan="5" Style="{DynamicResource DealingBorderStyle}">
             <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.ColumnSpan="5">
-                <TextBlock Text="Instrument" />
-                <ComboBox Style="{StaticResource ComboBoxStyle}" x:Name="_InstrumentCombo" Margin="10,1,1,1" Height="23"  Width="110" SelectionChanged="InstrumentCombo_SelectionChanged" />
+                <TextBlock Text="Instrument" Style="{DynamicResource DealingDQTextBlockStyle}"/>
+                <ComboBox x:Name="_InstrumentCombo" Margin="10,1,1,1" Height="23"  Width="110" SelectionChanged="InstrumentCombo_SelectionChanged" />
                 <Button Width="25" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Height="25" x:Name="_ShowGroupPanelBtn" Margin="50,1,1,1" Click="ToolBar_Click" HorizontalAlignment="Right">
                     <Button.Content>
                         <Image Source="../Asset/Images/Execute.png" x:Name="_ShowGroupPanelImg" ToolTipService.ToolTip="Show Group Panel"  Margin="1"/>
@@ -303,8 +306,8 @@
                 </Button>
             </StackPanel>
         </Border>
-        
-        <Border Margin="0 3 0 0" BorderBrush="Black" Grid.Row="2" Grid.ColumnSpan="5">
+
+        <Border Style="{DynamicResource DealingBorderStyle}" Margin="0 3 0 0" BorderBrush="Black" Grid.Row="2" Grid.ColumnSpan="5">
             <Border.Resources>
                 <Style TargetType="TextBlock">
                     <Setter Property="FontSize" Value="12"/>

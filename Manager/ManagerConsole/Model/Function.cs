@@ -6,11 +6,12 @@ using System.Text;
 
 namespace ManagerConsole.Model
 {
-    public class Function
+    public class UserPermission
     {
+        //Map for parentCode -> ChildPermission
         public Dictionary<string, List<FuncPermissionStatus>> FunctionPermissions { get; set; }
 
-        public Function()
+        public UserPermission()
         {
             FunctionPermissions = new Dictionary<string, List<FuncPermissionStatus>>();
         }
@@ -21,6 +22,10 @@ namespace ManagerConsole.Model
             if (FunctionPermissions.ContainsKey("admin"))
             {
                 return true;
+            }
+            if (FunctionPermissions.Count == 0)
+            {
+                return false;
             }
             List<FuncPermissionStatus> category;
             if (FunctionPermissions.TryGetValue("root", out category))

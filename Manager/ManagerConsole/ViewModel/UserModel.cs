@@ -1075,7 +1075,7 @@ namespace ManagerConsole.ViewModel
                     data.ParentId = 2;
                     data.Level = 1;
                     data.ExchangeCode = exchange.ExchangeCode;
-                    data.Type = DataObjectType.None;
+                    data.Type = DataObjectType.Exchange;
                     if (exchange.IsExchangeAllow == true)
                     {
                         data.IsAllow = true;

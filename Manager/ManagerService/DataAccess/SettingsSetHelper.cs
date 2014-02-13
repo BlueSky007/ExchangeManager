@@ -50,27 +50,20 @@ namespace ManagerService.DataAccess
     {
         public static void Initialize(this SettingSet settingSet, SqlDataReader dr)
         {
-            try
-            {
-                settingSet.TradeDay = InitializationHelper.Create<TradeDay>(dr, Initialize);
-                settingSet.SystemParameter = InitializationHelper.Create<SystemParameter>(dr, Initialize);
-                settingSet.Customers = InitializationHelper.CreateArray<Customer>(dr, Initialize);
-                settingSet.AccountGroups = InitializationHelper.CreateArray<AccountGroup>(dr, Initialize);
-                settingSet.Accounts = InitializationHelper.CreateArray<Account>(dr, Initialize);
-                settingSet.QuotePolicies = InitializationHelper.CreateArray<QuotePolicy>(dr, Initialize);
-                settingSet.QuotePolicyDetails = InitializationHelper.CreateArray<QuotePolicyDetail>(dr, Initialize);
-                settingSet.TradePolicies = InitializationHelper.CreateArray<TradePolicy>(dr, Initialize);
-                settingSet.TradePolicyDetails = InitializationHelper.CreateArray<TradePolicyDetail>(dr, Initialize);
-                settingSet.Instruments = InitializationHelper.CreateArray<Instrument>(dr, Initialize);
-                dr.NextResult();
-                settingSet.OverridedQuotations = InitializationHelper.CreateArray<Manager.Common.Settings.OverridedQuotation>(dr, Initialize);
-                dr.NextResult();
-                settingSet.Orders = InitializationHelper.CreateArray<Order>(dr, Initialize);
-            }
-            catch (Exception ex)
-            {
-                Logger.TraceEvent(TraceEventType.Error, "Initialize.SettingSet:{0}, Error:\r\n{1}", ex.ToString());
-            }
+            settingSet.TradeDay = InitializationHelper.Create<TradeDay>(dr, Initialize);
+            settingSet.SystemParameter = InitializationHelper.Create<SystemParameter>(dr, Initialize);
+            settingSet.Customers = InitializationHelper.CreateArray<Customer>(dr, Initialize);
+            settingSet.AccountGroups = InitializationHelper.CreateArray<AccountGroup>(dr, Initialize);
+            settingSet.Accounts = InitializationHelper.CreateArray<Account>(dr, Initialize);
+            settingSet.QuotePolicies = InitializationHelper.CreateArray<QuotePolicy>(dr, Initialize);
+            settingSet.QuotePolicyDetails = InitializationHelper.CreateArray<QuotePolicyDetail>(dr, Initialize);
+            settingSet.TradePolicies = InitializationHelper.CreateArray<TradePolicy>(dr, Initialize);
+            settingSet.TradePolicyDetails = InitializationHelper.CreateArray<TradePolicyDetail>(dr, Initialize);
+            settingSet.Instruments = InitializationHelper.CreateArray<Instrument>(dr, Initialize);
+            dr.NextResult();
+            settingSet.OverridedQuotations = InitializationHelper.CreateArray<Manager.Common.Settings.OverridedQuotation>(dr, Initialize);
+            dr.NextResult();
+            settingSet.Orders = InitializationHelper.CreateArray<Order>(dr, Initialize);
         }
 
         public static SettingSet GetExchangeDataChangeByAccountChange(SqlDataReader dr)
@@ -286,7 +279,7 @@ namespace ManagerService.DataAccess
             order.AccountId = (Guid)dr["AccountID"];
             order.InstrumentId = (Guid)dr["InstrumentID"];
             order.ContractSize = (decimal)dr["ContractSize"];
-            order.SetPrice = (string)dr["SetPrice"];
+            order.SetPrice = dr.GetItemValue<string>("SetPrice", string.Empty); 
             order.ExecutePrice = dr.GetItemValue<string>("ExecutePrice", string.Empty);
             order.Lot = (decimal)dr["Lot"];
             order.LotBalance = (decimal)dr["LotBalance"];

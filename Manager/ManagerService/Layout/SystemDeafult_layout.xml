@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xamDockManager version="13.1.20131.1009">
   <contentPanes>
-    <contentPane name="IExchangeQuotation_1" location="DockedBottom" lastFloatingSize="1517,668" lastFloatingWindowRect="246,484,1525,692" lastFloatingLocation="246,484" lastActivatedTime="2014-01-15T06:33:21.1212218Z" />
+    <contentPane name="ExchangeQuotation_1" location="DockedBottom" lastFloatingSize="1517,668" lastFloatingWindowRect="246,484,1525,692" lastFloatingLocation="246,484" lastActivatedTime="2014-01-15T06:33:21.1212218Z" />
     <contentPane name="SourceRelation" location="DockedBottom" lastFloatingSize="1460,448" lastFloatingWindowRect="535,703,1468,472" lastFloatingLocation="535,703" lastActivatedTime="2014-01-15T06:33:17.7372218Z" />
     <contentPane name="QuotationMonitor_2" location="Document" lastActivatedTime="2014-01-15T06:33:16.1712218Z" />
     <contentPane name="SourceQuotation" location="DockedRight" lastFloatingSize="1046,341" lastFloatingWindowRect="842,193,1054,365" lastFloatingLocation="842,193" lastActivatedTime="2014-01-15T06:33:13.9372218Z" />
@@ -16,12 +16,12 @@
       <contentPane name="FloatPane" />
     </splitPane>
     <splitPane name="Z9aa11a3a6d11440bbaaf92ee415cd83a" splitterOrientation="Vertical" location="Floating" floatingLocation="246,484" floatingSize="1517,668">
-      <contentPane name="IExchangeQuotation_1" />
+      <contentPane name="ExchangeQuotation_1" />
     </splitPane>
     <splitPane name="Z9a6ea4aba55242cb9fdce924fa67e70f" splitterOrientation="Vertical" location="DockedBottom" extent="620">
       <splitPane name="Z323f8b7976c84146a8c7a12f651749e7" splitterOrientation="Horizontal">
         <contentPane name="SourceRelation" relativeSize="100,44.1558441558442" />
-        <contentPane name="IExchangeQuotation_1" relativeSize="100,155.844155844156" />
+        <contentPane name="ExchangeQuotation_1" relativeSize="100,155.844155844156" />
       </splitPane>
     </splitPane>
     <splitPane name="Z21a26fd57b544966ac83a28cce015a12" splitterOrientation="Vertical" location="Floating" floatingLocation="842,193" floatingSize="1046,341">

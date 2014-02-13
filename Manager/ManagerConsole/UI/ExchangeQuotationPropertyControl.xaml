@@ -12,94 +12,98 @@
         </Style>
     </UserControl.Resources>
         <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="50*"/>
-            <ColumnDefinition Width="50*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="25"/>
-            <RowDefinition Height="25"/>
-            <RowDefinition Height="25"/>
-            <RowDefinition Height="25"/>
-            <RowDefinition Height="25"/>
-            <RowDefinition Height="25"/>
-            <RowDefinition Height="25"/>
-            <RowDefinition Height="25"/>
-            <RowDefinition Height="25"/>
-            <RowDefinition Height="25"/>
-            <RowDefinition Height="25"/>
-            <RowDefinition Height="25"/>
-            <RowDefinition Height="25"/>
-            <RowDefinition Height="25"/>
-            <RowDefinition Height="25"/>
-            <RowDefinition Height="25"/>
-            <RowDefinition Height="25"/>
-        </Grid.RowDefinitions>
-        <Border Grid.Column="0" Grid.Row="0" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,0">
-            <TextBlock Grid.Column="0" Text="AutoAdjustPoints:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
-        </Border>
-        <ig:XamNumericInput x:Name="AutoAdjustPoints" Grid.Column="1" Grid.Row="0" SpinButtonDisplayMode="Always" Mask="-nnnnnn" ValueChanged="AutoAdjustPoints_ValueChanged"/>
-        <Border Grid.Column="0" Grid.Row="1" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,0">
-            <TextBlock Grid.Column="0" Grid.Row="1" Text="SpreadPoints:" TextAlignment="Left" Padding="5,2,0,0" Height="25" />
-        </Border>
-        <ig:XamNumericInput x:Name="SpreadPoints" Grid.Column="1" Grid.Row="1" SpinButtonDisplayMode="Always" Mask="-nnnnnn" ValueChanged="SpreadPoints_ValueChanged"/>
-        <Border Grid.Column="0" Grid.Row="2" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,0">
-            <TextBlock Grid.Column="0" Grid.Row="2" Text="PriceType:" TextAlignment="Left" Padding="5,2,0,0" Height="25" />
-        </Border>
-        <ComboBox x:Name="priceType" Grid.Column="1" Grid.Row="2" SelectionChanged="priceType_SelectionChanged">
-        </ComboBox>
-        <Border Grid.Column="0" Grid.Row="3" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,0">
-            <TextBlock Grid.Column="0" Text="AutoAdjustPoints2:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
-        </Border>
-        <ig:XamNumericInput x:Name="AutoAdjustPoints2" Grid.Column="1" Grid.Row="3" SpinButtonDisplayMode="Always" Mask="-nnnnnn" ValueChanged="AutoAdjustPoints2_ValueChanged" />
-        <Border Grid.Column="0" Grid.Row="4" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,0">
-            <TextBlock Grid.Column="0" Text="AutoAdjustPoints3:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
-        </Border>
-        <ig:XamNumericInput x:Name="AutoAdjustPoints3" Grid.Column="1" Grid.Row="4" SpinButtonDisplayMode="Always" Mask="-nnnnnn" ValueChanged="AutoAdjustPoints3_ValueChanged"/>
-        <Border Grid.Column="0" Grid.Row="5" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,0">
-            <TextBlock Grid.Column="0" Text="AutoAdjustPoints4:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
-        </Border>
-        <ig:XamNumericInput x:Name="AutoAdjustPoints4" Grid.Column="1" Grid.Row="5" SpinButtonDisplayMode="Always" Mask="-nnnnnn" ValueChanged="AutoAdjustPoints4_ValueChanged"/>
-        <Border Grid.Column="0" Grid.Row="6" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,0">
-            <TextBlock Grid.Column="0" Text="SpreadPoints2:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
-        </Border>
-        <ig:XamNumericInput x:Name="SpreadPoints2" Grid.Column="1" Grid.Row="6" SpinButtonDisplayMode="Always" Mask="-nnnnnn" ValueChanged="SpreadPoints2_ValueChanged"/>
-        <Border Grid.Column="0" Grid.Row="7" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,0">
-            <TextBlock Grid.Column="0" Text="SpreadPoints3:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
-        </Border>
-        <ig:XamNumericInput x:Name="SpreadPoints3" Grid.Column="1" Grid.Row="7" SpinButtonDisplayMode="Always" Mask="-nnnnnn" ValueChanged="SpreadPoints3_ValueChanged"/>
-        <Border Grid.Column="0" Grid.Row="8" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,0">
-            <TextBlock Grid.Column="0" Text="SpreadPoints4:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
-        </Border>
-        <ig:XamNumericInput x:Name="SpreadPoints4" Grid.Column="1" Grid.Row="8" SpinButtonDisplayMode="Always" Mask="-nnnnnn" ValueChanged="SpreadPoints4_ValueChanged"/>
-        <Border Grid.Column="0" Grid.Row="9" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,0">
-            <TextBlock Grid.Column="0" Text="MaxAuotAdjustPoints:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
-        </Border>
-        <ig:XamNumericInput x:Name="MaxAuotAdjustPoints" Grid.Column="1" Grid.Row="9" SpinButtonDisplayMode="Always" Mask="-nnnnnn" ValueChanged="MaxAuotAdjustPoints_ValueChanged"/>
-        <Border Grid.Column="0" Grid.Row="10" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,0">
-            <TextBlock Grid.Column="0" Text="MaxSpreadPoints:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
-        </Border>
-        <ig:XamNumericInput x:Name="MaxSpreadPoints" Grid.Column="1" Grid.Row="10" SpinButtonDisplayMode="Always" Mask="-nnnnnn" ValueChanged="MaxSpreadPoints_ValueChanged"/>
-        <Border Grid.Column="0" Grid.Row="11" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,1">
-            <TextBlock Grid.Column="0" Text="IsOriginHiLo:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
-        </Border>
-        <CheckBox  Grid.Column="1" Grid.Row="11" Margin="15,2,0,0" x:Name="IsOriginHiLo" Click="IsOriginHiLo_Click"/>
-        <Border Grid.Column="0" Grid.Row="12" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,1">
-            <TextBlock Grid.Column="0" Text="IsAutoFill:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
-        </Border>
-        <CheckBox  Grid.Column="1" Grid.Row="12" Margin="15,2,0,0" x:Name="IsAutoFill" Click="IsAutoFill_Click"/>
-        <Border Grid.Column="0" Grid.Row="13" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,1">
-            <TextBlock Grid.Column="0" Text="IsEnablePrice:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
-        </Border>
-        <CheckBox  Grid.Column="1" Grid.Row="13" Margin="15,2,0,0" x:Name="IsEnablePrice" Click="IsEnablePrice_Click"/>
-        <Border Grid.Column="0" Grid.Row="14" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,1">
-            <TextBlock Grid.Column="0" Text="IsAutoEnablePrice:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
-        </Border>
-        <CheckBox  Grid.Column="1" Grid.Row="14" Margin="15,2,0,0" x:Name="IsAutoEnablePrice" Click="IsAutoEnablePrice_Click"/>
-        <Border Grid.Column="0" Grid.Row="15" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,1">
-            <TextBlock Grid.Column="0" Text="AllowLimit:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
-        </Border>
-        <CheckBox  Grid.Column="1" Grid.Row="15" Margin="15,2,0,0" x:Name="AllowLomit"  Click="AllowLomit_Click"/>
+        <ScrollViewer>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50*"/>
+                    <ColumnDefinition Width="50*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="25"/>
+                </Grid.RowDefinitions>
+                <Border Grid.Column="0" Grid.Row="0" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,0">
+                    <TextBlock Grid.Column="0" Text="AutoAdjustPoints:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
+                </Border>
+                <ig:XamNumericInput x:Name="AutoAdjustPoints" Grid.Column="1" Grid.Row="0" SpinButtonDisplayMode="Always" Mask="-nnnnnn" ValueChanged="AutoAdjustPoints_ValueChanged"/>
+                <Border Grid.Column="0" Grid.Row="1" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,0">
+                    <TextBlock Grid.Column="0" Grid.Row="1" Text="SpreadPoints:" TextAlignment="Left" Padding="5,2,0,0" Height="25" />
+                </Border>
+                <ig:XamNumericInput x:Name="SpreadPoints" Grid.Column="1" Grid.Row="1" SpinButtonDisplayMode="Always" Mask="-nnnnnn" ValueChanged="SpreadPoints_ValueChanged"/>
+                <Border Grid.Column="0" Grid.Row="2" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,0">
+                    <TextBlock Grid.Column="0" Grid.Row="2" Text="PriceType:" TextAlignment="Left" Padding="5,2,0,0" Height="25" />
+                </Border>
+                <ComboBox x:Name="priceType" Grid.Column="1" Grid.Row="2" SelectionChanged="priceType_SelectionChanged">
+                </ComboBox>
+                <Border Grid.Column="0" Grid.Row="3" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,0">
+                    <TextBlock Grid.Column="0" Text="AutoAdjustPoints2:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
+                </Border>
+                <ig:XamNumericInput x:Name="AutoAdjustPoints2" Grid.Column="1" Grid.Row="3" SpinButtonDisplayMode="Always" Mask="-nnnnnn" ValueChanged="AutoAdjustPoints2_ValueChanged" />
+                <Border Grid.Column="0" Grid.Row="4" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,0">
+                    <TextBlock Grid.Column="0" Text="AutoAdjustPoints3:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
+                </Border>
+                <ig:XamNumericInput x:Name="AutoAdjustPoints3" Grid.Column="1" Grid.Row="4" SpinButtonDisplayMode="Always" Mask="-nnnnnn" ValueChanged="AutoAdjustPoints3_ValueChanged"/>
+                <Border Grid.Column="0" Grid.Row="5" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,0">
+                    <TextBlock Grid.Column="0" Text="AutoAdjustPoints4:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
+                </Border>
+                <ig:XamNumericInput x:Name="AutoAdjustPoints4" Grid.Column="1" Grid.Row="5" SpinButtonDisplayMode="Always" Mask="-nnnnnn" ValueChanged="AutoAdjustPoints4_ValueChanged"/>
+                <Border Grid.Column="0" Grid.Row="6" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,0">
+                    <TextBlock Grid.Column="0" Text="SpreadPoints2:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
+                </Border>
+                <ig:XamNumericInput x:Name="SpreadPoints2" Grid.Column="1" Grid.Row="6" SpinButtonDisplayMode="Always" Mask="-nnnnnn" ValueChanged="SpreadPoints2_ValueChanged"/>
+                <Border Grid.Column="0" Grid.Row="7" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,0">
+                    <TextBlock Grid.Column="0" Text="SpreadPoints3:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
+                </Border>
+                <ig:XamNumericInput x:Name="SpreadPoints3" Grid.Column="1" Grid.Row="7" SpinButtonDisplayMode="Always" Mask="-nnnnnn" ValueChanged="SpreadPoints3_ValueChanged"/>
+                <Border Grid.Column="0" Grid.Row="8" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,0">
+                    <TextBlock Grid.Column="0" Text="SpreadPoints4:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
+                </Border>
+                <ig:XamNumericInput x:Name="SpreadPoints4" Grid.Column="1" Grid.Row="8" SpinButtonDisplayMode="Always" Mask="-nnnnnn" ValueChanged="SpreadPoints4_ValueChanged"/>
+                <Border Grid.Column="0" Grid.Row="9" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,0">
+                    <TextBlock Grid.Column="0" Text="MaxAuotAdjustPoints:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
+                </Border>
+                <ig:XamNumericInput x:Name="MaxAuotAdjustPoints" Grid.Column="1" Grid.Row="9" SpinButtonDisplayMode="Always" Mask="-nnnnnn" ValueChanged="MaxAuotAdjustPoints_ValueChanged"/>
+                <Border Grid.Column="0" Grid.Row="10" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,0">
+                    <TextBlock Grid.Column="0" Text="MaxSpreadPoints:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
+                </Border>
+                <ig:XamNumericInput x:Name="MaxSpreadPoints" Grid.Column="1" Grid.Row="10" SpinButtonDisplayMode="Always" Mask="-nnnnnn" ValueChanged="MaxSpreadPoints_ValueChanged"/>
+                <Border Grid.Column="0" Grid.Row="11" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,1">
+                    <TextBlock Grid.Column="0" Text="IsOriginHiLo:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
+                </Border>
+                <CheckBox  Grid.Column="1" Grid.Row="11" Margin="15,2,0,0" x:Name="IsOriginHiLo" Click="IsOriginHiLo_Click"/>
+                <Border Grid.Column="0" Grid.Row="12" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,1">
+                    <TextBlock Grid.Column="0" Text="IsAutoFill:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
+                </Border>
+                <CheckBox  Grid.Column="1" Grid.Row="12" Margin="15,2,0,0" x:Name="IsAutoFill" Click="IsAutoFill_Click"/>
+                <Border Grid.Column="0" Grid.Row="13" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,1">
+                    <TextBlock Grid.Column="0" Text="IsPriceEnabled:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
+                </Border>
+                <CheckBox  Grid.Column="1" Grid.Row="13" Margin="15,2,0,0" x:Name="IsEnablePrice" Click="IsEnablePrice_Click"/>
+                <Border Grid.Column="0" Grid.Row="14" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,1">
+                    <TextBlock Grid.Column="0" Text="IsAutoEnablePrice:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
+                </Border>
+                <CheckBox  Grid.Column="1" Grid.Row="14" Margin="15,2,0,0" x:Name="IsAutoEnablePrice" Click="IsAutoEnablePrice_Click"/>
+                <Border Grid.Column="0" Grid.Row="15" Style="{StaticResource BorderStyle}" BorderThickness="1,1,1,1">
+                    <TextBlock Grid.Column="0" Text="AllowLimit:" TextAlignment="Left" Padding="5,2,0,0"  Height="25"/>
+                </Border>
+                <CheckBox  Grid.Column="1" Grid.Row="15" Margin="15,2,0,0" x:Name="AllowLomit"  Click="AllowLomit_Click"/>
+            </Grid>
+        </ScrollViewer>
     </Grid>
 </UserControl>
 

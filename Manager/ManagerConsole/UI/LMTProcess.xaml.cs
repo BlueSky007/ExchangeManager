@@ -39,7 +39,7 @@ namespace ManagerConsole.UI
 
         private void AttachEvent()
         {
-            this._App.InitDataManager.OnOrderHitPriceNotifyEvent += new ExchangeDataManager.OrderHitPriceNotifyHandler(this.ReceivedNotifyOnOrderHitPrice);
+            this._App.ExchangeDataManager.OnOrderHitPriceNotifyEvent += new ExchangeDataManager.OrderHitPriceNotifyHandler(this.ReceivedNotifyOnOrderHitPrice);
             this._App.OrderHandle.OnOrderWaitNofityEvent += new OrderHandle.WaitOrderNotifyHandler(this.ReceivedNotifyOnOrderWaite);
             this._App.OrderHandle.OnExecuteOrderNotifyEvent += new OrderHandle.ExecuteOrderNotifyHandler(this.ReceivedNotifyOnOrderExecute);
         }
@@ -65,7 +65,7 @@ namespace ManagerConsole.UI
         private void ReceivedNotifyOnOrderWaite(OrderTask orderTask)
         {
             LMTProcessForInstrument lMTProcessForInstrument = null;
-            lMTProcessForInstrument = this._App.InitDataManager.LMTProcessModel.LMTProcessForInstruments.SingleOrDefault(P => P.Instrument.Code == orderTask.Transaction.Instrument.Code);
+            lMTProcessForInstrument = this._App.ExchangeDataManager.LMTProcessModel.LMTProcessForInstruments.SingleOrDefault(P => P.Instrument.Code == orderTask.Transaction.Instrument.Code);
             if (lMTProcessForInstrument == null) return;
             lMTProcessForInstrument.RemoveLmtOrderTask(orderTask);
         }
@@ -73,7 +73,7 @@ namespace ManagerConsole.UI
         private void ReceivedNotifyOnOrderExecute(OrderTask orderTask)
         {
             LMTProcessForInstrument lMTProcessForInstrument = null;
-            lMTProcessForInstrument = this._App.InitDataManager.LMTProcessModel.LMTProcessForInstruments.SingleOrDefault(P => P.Instrument.Code == orderTask.Transaction.Instrument.Code);
+            lMTProcessForInstrument = this._App.ExchangeDataManager.LMTProcessModel.LMTProcessForInstruments.SingleOrDefault(P => P.Instrument.Code == orderTask.Transaction.Instrument.Code);
             if (lMTProcessForInstrument == null) return;
             lMTProcessForInstrument.RemoveLmtOrderTask(orderTask);
         }
@@ -81,7 +81,7 @@ namespace ManagerConsole.UI
         private void ReceivedNotifyOnOrderHitPrice(OrderTask orderTask)
         {
             LMTProcessForInstrument lMTProcessForInstrument = null;
-            lMTProcessForInstrument = this._App.InitDataManager.LMTProcessModel.LMTProcessForInstruments.SingleOrDefault(P => P.Instrument.Code == orderTask.Transaction.Instrument.Code);
+            lMTProcessForInstrument = this._App.ExchangeDataManager.LMTProcessModel.LMTProcessForInstruments.SingleOrDefault(P => P.Instrument.Code == orderTask.Transaction.Instrument.Code);
             if (lMTProcessForInstrument == null)
             {
                 lMTProcessForInstrument = new LMTProcessForInstrument();
@@ -89,7 +89,7 @@ namespace ManagerConsole.UI
                 lMTProcessForInstrument.Instrument = instrument;
                 lMTProcessForInstrument.Origin = instrument.Origin;
 
-                this._App.InitDataManager.LMTProcessModel.LMTProcessForInstruments.Add(lMTProcessForInstrument);
+                this._App.ExchangeDataManager.LMTProcessModel.LMTProcessForInstruments.Add(lMTProcessForInstrument);
             }
             lMTProcessForInstrument.OnEmptyLmtOrderTask += new LMTProcessForInstrument.OnEmptyLmtOrderTaskHandle(LmtOrderTaskForInstrument_OnEmptyLmtOrderTask);
             lMTProcessForInstrument.OrderTasks.Add(orderTask);
@@ -97,7 +97,7 @@ namespace ManagerConsole.UI
 
         private void GetLMTOrdersToExecute()
         {
-            foreach (Order order in this._App.InitDataManager.GetOrders())
+            foreach (Order order in this._App.ExchangeDataManager.GetOrders())
             {
                 if (order.Transaction.OrderType == OrderType.Limit &&
                     (order.Status == OrderStatus.WaitOutPriceLMT
@@ -108,7 +108,7 @@ namespace ManagerConsole.UI
                     orderTask.BaseOrder = order;
 
                     LMTProcessForInstrument lMTProcessForInstrument = null;
-                    lMTProcessForInstrument = this._App.InitDataManager.LMTProcessModel.LMTProcessForInstruments.SingleOrDefault(P => P.Instrument.Code == order.Transaction.Instrument.Code);
+                    lMTProcessForInstrument = this._App.ExchangeDataManager.LMTProcessModel.LMTProcessForInstruments.SingleOrDefault(P => P.Instrument.Code == order.Transaction.Instrument.Code);
                     if (lMTProcessForInstrument == null)
                     {
                         lMTProcessForInstrument = new LMTProcessForInstrument();
@@ -116,7 +116,7 @@ namespace ManagerConsole.UI
                         lMTProcessForInstrument.Instrument = instrument;
                         lMTProcessForInstrument.Origin = instrument.Origin;
 
-                        this._App.InitDataManager.LMTProcessModel.LMTProcessForInstruments.Add(lMTProcessForInstrument);
+                        this._App.ExchangeDataManager.LMTProcessModel.LMTProcessForInstruments.Add(lMTProcessForInstrument);
                     }
 
                     lMTProcessForInstrument.OnEmptyLmtOrderTask += new LMTProcessForInstrument.OnEmptyLmtOrderTaskHandle(LmtOrderTaskForInstrument_OnEmptyLmtOrderTask);
@@ -128,7 +128,7 @@ namespace ManagerConsole.UI
 
         private void BindGrid()
         {
-            this.LMTProcessOrderGrid.ItemsSource = this._App.InitDataManager.LMTProcessModel.LMTProcessForInstruments;
+            this.LMTProcessOrderGrid.ItemsSource = this._App.ExchangeDataManager.LMTProcessModel.LMTProcessForInstruments;
         }
 
         private void OrderHandlerBtn_Click(object sender, RoutedEventArgs e)
@@ -143,7 +143,7 @@ namespace ManagerConsole.UI
                     break;
                 case "ExecuteBtn":
                     lMTProcessForInstrument = btn.DataContext as LMTProcessForInstrument;
-                    this._App.OrderHandle.OnLMTExecute(lMTProcessForInstrument);
+                    //this._App.OrderHandle.OnLMTExecute(lMTProcessForInstrument);
                     break;
             }
         }
@@ -161,7 +161,7 @@ namespace ManagerConsole.UI
         #region Empty OrderTask Event
         void LmtOrderTaskForInstrument_OnEmptyLmtOrderTask(LMTProcessForInstrument lMTProcessForInstrument)
         {
-            this._App.InitDataManager.LMTProcessModel.LMTProcessForInstruments.Remove(lMTProcessForInstrument);
+            this._App.ExchangeDataManager.LMTProcessModel.LMTProcessForInstruments.Remove(lMTProcessForInstrument);
         }
 
         #endregion

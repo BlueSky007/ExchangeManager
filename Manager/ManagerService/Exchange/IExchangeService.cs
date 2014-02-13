@@ -30,16 +30,16 @@ namespace ManagerService.Exchange
         bool SuspendResume(string[] originCodes, bool resume, out Guid[] affectInstrumentIds);
 
         [OperationContract]
-        void Update(Token token, XmlNode udpateNode);
+        void Update(Token token, string updateXml);
 
         [OperationContract(IsOneWay = true)]
         void BroadcastQuotation(Token token, OriginQuotation[] originQs, OverridedQuotation[] overridedQs);
 
         [OperationContract]
-        void Answer(Token token,List<Answer> answerQutos);
+        void Answer(Token token, List<Answer> answerQutos);
 
         [OperationContract]
-        TransactionError AcceptPlace(Token token,Guid tranID);
+        TransactionError AcceptPlace(Token token, Guid tranID);
 
         [OperationContract]
         TransactionError Cancel(Token token, Guid tranID, CancelReason cancelReason);

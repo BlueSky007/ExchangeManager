@@ -35,6 +35,10 @@ namespace ManagerConsole.UI
                 bool accepted = ((Button)sender).Name.Equals("AcceptButton");
                 ConsoleClient.Instance.ConfirmAbnormalQuotation(abnormalQuotation.InstrumentId, abnormalQuotation.ConfirmId, accepted);
                 VmQuotationManager.Instance.AbnormalQuotationManager.RemoveFirstItem();
+                if(VmQuotationManager.Instance.AbnormalQuotationManager.AbnormalQuotations.Count == 0)
+                {
+                    App.MainFrameWindow.HideAbnormalQuotationPane();
+                }
             }
         }
     }

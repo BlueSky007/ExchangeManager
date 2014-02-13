@@ -28,7 +28,7 @@ namespace ManagerConsole.UI
     /// </summary>
     public partial class RoleManagerControl : UserControl,IControlLayout
     {
-        private ObservableCollection<RoleData> _roleDatas;
+        private ObservableCollection<RoleData> _roleDatas = new ObservableCollection<RoleData>();
         private ObservableCollection<RoleGridData> _RoleGridDatas;
         private FunctionGridData _FunctionGridDatas;
         private DataPermissionGridData _DataPermissionGridDatas;
@@ -37,12 +37,21 @@ namespace ManagerConsole.UI
         private RoleData _SelectRole;
         private bool _isNew;
 
-        public bool IsAllowEdit { get { return ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.RoleManager, "EditRole"); } }
-        public bool IsAllowDelete { get { return ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.RoleManager, "DeleteRole"); } }
-        public bool IsAllowAdd { get { return ConsoleClient.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.RoleManager, "AddRole"); } }
+        public bool IsAllowEdit { get; set; }
+        public bool IsAllowDelete { get; set;}
+        public bool IsAllowAdd { get; set; }
         public RoleManagerControl()
         {
             InitializeComponent();
+            Principal.Instance.PermissionChanged += Instance_PermissionChanged;
+            this.Instance_PermissionChanged();
+        }
+
+        void Instance_PermissionChanged()
+        {
+            this.IsAllowAdd = Principal.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.RoleManager, "AddRole"); 
+            this.IsAllowDelete=Principal.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.RoleManager, "DeleteRole");
+            this.IsAllowEdit = Principal.Instance.HasPermission(ModuleCategoryType.UserManager, ModuleType.RoleManager, "EditRole");
         }
 
         private void AddRole_Click(object sender, RoutedEventArgs e)
@@ -85,25 +94,31 @@ namespace ManagerConsole.UI
             try
             {
                 //this.DataContext = this;
-                List<RoleFunctonPermission> allFunction = ConsoleClient.Instance.GetAllFunctionPermission();
-                List<RoleDataPermission> allData = ConsoleClient.Instance.GetAllDataPermissions();
-                this._AllData = allData;
-                this._AllFunctions = allFunction;
-                List<RoleData> roles = ConsoleClient.Instance.GetRoles();
-                this._roleDatas = new ObservableCollection<RoleData>(roles);
-                this._RoleGridDatas = new ObservableCollection<RoleGridData>();
-                foreach (RoleData role in roles)
+                ConsoleClient.Instance.GetAllFunctionPermission(delegate(List<RoleFunctonPermission> allFunction)
                 {
-                    if (role.RoleId != 1)
+                    this._AllFunctions = allFunction;
+                });
+                ConsoleClient.Instance.GetAllDataPermissions(delegate(List<RoleDataPermission> allData)
+                {
+                    this._AllData = allData;
+                });
+                ConsoleClient.Instance.GetRoles(delegate(List<RoleData> roles)
+                {
+                    this._roleDatas = new ObservableCollection<RoleData>();
+                    foreach (var roleData in roles) this._roleDatas.Add(roleData);
+                    this._RoleGridDatas = new ObservableCollection<RoleGridData>();
+                    foreach (RoleData role in this._roleDatas)
                     {
-                        this._RoleGridDatas.Add(new RoleGridData(role, this.IsAllowAdd, this.IsAllowDelete, this.IsAllowEdit));
+                        if (role.RoleId != 1)
+                        {
+                            this._RoleGridDatas.Add(new RoleGridData(role, this.IsAllowAdd, this.IsAllowDelete, this.IsAllowEdit));
+                        }
                     }
-                }
-                this._AllFunctions = allFunction;
-                this.RoleGrid.ItemsSource = this._RoleGridDatas;
-                this.Submit.Visibility = System.Windows.Visibility.Hidden;
-                this.Cancel.Visibility = System.Windows.Visibility.Hidden;
-                this.FunctionPermission.EditingSettings.AllowEditing = EditingType.None;
+                    this.RoleGrid.ItemsSource = this._RoleGridDatas;
+                    this.Submit.Visibility = System.Windows.Visibility.Hidden;
+                    this.Cancel.Visibility = System.Windows.Visibility.Hidden;
+                    this.FunctionPermission.EditingSettings.AllowEditing = EditingType.None;
+                });
             }
             catch (Exception ex)
             {
@@ -302,10 +317,16 @@ namespace ManagerConsole.UI
         {
             try
             {
+                
                 Button btn = sender as Button;
                 int roleId = (int)btn.Tag;
+                if (roleId == 2)
+                {
+                    MessageBox.Show(App.MainFrameWindow, "无法删除系统默认角色！", "", MessageBoxButton.OK, MessageBoxImage.Asterisk, MessageBoxResult.OK);
+                    return;
+                }
                 this._SelectRole = this._roleDatas.SingleOrDefault(r => r.RoleId == roleId);
-                if (MessageBox.Show(App.MainFrameWindow,string.Format("确认删除{0}角色吗？", this._SelectRole.RoleName), "", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No, MessageBoxOptions.DefaultDesktopOnly) == MessageBoxResult.Yes)
+                if (MessageBox.Show(App.MainFrameWindow,string.Format("确认删除{0}角色吗？", this._SelectRole.RoleName), "", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes)
                 {
                     ConsoleClient.Instance.DeleteRole(roleId, DeleteResult);
                 }

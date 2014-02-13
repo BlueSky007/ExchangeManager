@@ -9,6 +9,7 @@ using Price = iExchange.Common.Price;
 using PriceType = iExchange.Common.PriceType;
 using ConfigParameter = Manager.Common.Settings.ConfigParameter;
 using System.Text.RegularExpressions;
+using TransactionSubType = iExchange.Common.TransactionSubType;
 namespace ManagerConsole.Helper
 {
     public class OrderTaskManager
@@ -33,12 +34,29 @@ namespace ManagerConsole.Helper
             {
                 if (order.OrderStatus == OrderStatus.WaitOutPriceLMT
                     || order.OrderStatus == OrderStatus.WaitOutLotLMT
-                    || order.OrderStatus == OrderStatus.WaitOutLotLMTOrigin) //order.tran.subType == 3 缺少这个条件
+                    || order.OrderStatus == OrderStatus.WaitOutLotLMTOrigin
+                    || order.Transaction.SubType == TransactionSubType.Mapping)
                 {
                     isOK = true;
                 }
             }
             return isOK;
+        }
+
+        public static bool CheckWhenRejectOrder(OrderTask order)
+        {
+            if (order.OrderStatus == OrderStatus.WaitAcceptRejectPlace
+                            || order.OrderStatus == OrderStatus.WaitAcceptRejectCancel
+                            || order.OrderStatus == OrderStatus.WaitOutPriceDQ
+                            || order.OrderStatus == OrderStatus.WaitOutLotDQ
+                            || (order.OrderStatus == OrderStatus.WaitNextPrice && order.Transaction.OrderType == OrderType.Limit))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public static bool CheckModifyPrice(OrderTask order, string newPrice)
@@ -49,9 +67,17 @@ namespace ManagerConsole.Helper
             return result;
         }
 
-        public static bool? IsValidPrice(InstrumentClient instrument, decimal adjust)
+        public static bool IsProblePrice(InstrumentClient instrument,string marketPrice,string executedPrice)
         {
-            Price lastOriginPrice = Price.CreateInstance(instrument.Origin, instrument.NumeratorUnit.Value, instrument.Denominator.Value);
+            Price setExecutedPrice = new Price(executedPrice, instrument.NumeratorUnit.Value, instrument.Denominator.Value);
+            Price currentPrice = new Price(marketPrice, instrument.NumeratorUnit.Value, instrument.Denominator.Value);
+
+            return (Math.Abs(currentPrice - setExecutedPrice) > instrument.AlertVariation);
+        }
+
+        public static bool? IsValidPrice(InstrumentClient instrument, string origin, decimal adjust)
+        {
+            Price lastOriginPrice = Price.CreateInstance(origin, instrument.NumeratorUnit.Value, instrument.Denominator.Value);
             string validInt = "^-?\\d+$";
             Price originPrice;
             if (Regex.IsMatch(adjust.ToString(), validInt))

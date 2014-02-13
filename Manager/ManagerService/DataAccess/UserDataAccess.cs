@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using Manager.Common;
 using System.Xml;
 using System.IO;
+using System.Diagnostics;
 
 namespace ManagerService.DataAccess
 {
@@ -58,7 +59,7 @@ namespace ManagerService.DataAccess
                                 {
                                     DataPermission permission = new DataPermission();
                                     permission.ExchangeSystemCode = reader["IExchangeCode"].ToString();
-                                    permission.DataObjectType = reader["DataType"] is DBNull? DataObjectType.None: (DataObjectType)Enum.Parse(typeof(DataObjectType), reader["DataType"].ToString());
+                                    permission.DataObjectType = reader["DataType"] is DBNull? DataObjectType.Exchange: (DataObjectType)Enum.Parse(typeof(DataObjectType), reader["DataType"].ToString());
                                     permission.DataObjectId = reader["DataObjectId"] is DBNull ? Guid.Empty : (Guid)reader["DataObjectId"];
                                     permission.IsAllow = (bool)reader["Status"];
                                     dataPermissions.Add(permission);
@@ -110,7 +111,7 @@ namespace ManagerService.DataAccess
             }
 
         }
-
+        // Map Key string ->ParentCode ("root" is First Level)  Value -> Code and Permission
         public static Dictionary<string, List<FuncPermissionStatus>> GetAccessPermissions(Guid userId, Language language)
         {
             Dictionary<string, List<FuncPermissionStatus>> permissions = new Dictionary<string, List<FuncPermissionStatus>>();
@@ -201,32 +202,40 @@ namespace ManagerService.DataAccess
         public static FunctionTree BuildFunctionTree(Guid userId, Language language)
         {
             FunctionTree tree = new FunctionTree();
-            using (SqlConnection sqlConnection = DataAccess.GetInstance().GetSqlConnection())
+            try
             {
-                SqlCommand command = sqlConnection.CreateCommand();
-                command.CommandText = "[dbo].[FunctionTree_GetData]";
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@userId", userId));
-                command.Parameters.Add(new SqlParameter("@language", language.ToString()));
-                SqlDataReader reader = command.ExecuteReader();
-                while (reader.Read())
+                using (SqlConnection sqlConnection = DataAccess.GetInstance().GetSqlConnection())
                 {
-                    Category category = new Category();
-                    category.CategoryType = (ModuleCategoryType)Enum.Parse(typeof(ModuleCategoryType),reader["CategoryCode"].ToString());
-                    category.CategoryDescription = reader["Description"].ToString();
-                    tree.Categories.Add(category);
+                    SqlCommand command = sqlConnection.CreateCommand();
+                    command.CommandText = "[dbo].[FunctionTree_GetData]";
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@userId", userId));
+                    command.Parameters.Add(new SqlParameter("@language", language.ToString()));
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        Category category = new Category();
+                        category.CategoryType = (ModuleCategoryType)Enum.Parse(typeof(ModuleCategoryType), reader["CategoryCode"].ToString());
+                        category.CategoryDescription = reader["Description"].ToString();
+                        tree.Categories.Add(category);
+                    }
+                    reader.NextResult();
+                    while (reader.Read())
+                    {
+                        Module module = new Module();
+                        module.Type = (ModuleType)Enum.Parse(typeof(ModuleType), reader["ModuleCode"].ToString());
+                        module.ModuleDescription = reader["Description"].ToString();
+                        module.Category = (ModuleCategoryType)Enum.Parse(typeof(ModuleCategoryType), reader["parentCode"].ToString());
+                        tree.Modules.Add(module);
+                    }
                 }
-                reader.NextResult();
-                while (reader.Read())
-                {
-                    Module module = new Module();
-                    module.Type = (ModuleType)Enum.Parse(typeof(ModuleType), reader["ModuleCode"].ToString());
-                    module.ModuleDescription = reader["Description"].ToString();
-                    module.Category = (ModuleCategoryType)Enum.Parse(typeof(ModuleCategoryType), reader["parentCode"].ToString());
-                    tree.Modules.Add(module);
-                }
+                return tree;
             }
-            return tree;
+            catch (Exception ex)
+            {
+                Logger.AddEvent(TraceEventType.Error, "UserDataAccess.BuildFunctionTree error:\r\n{0}", ex.ToString());
+                return tree;
+            }
         }
 
         public static List<UserData> GetUserData()
@@ -350,8 +359,9 @@ namespace ManagerService.DataAccess
             return isSuccess;
         }
 
-        public static bool EditUser(UserData user, string password)
+        public static bool EditUser(UserData user, string password, out Dictionary<string, List<FuncPermissionStatus>> permissions)
         {
+            permissions = new Dictionary<string, List<FuncPermissionStatus>>();
             string roles = string.Empty;
             bool isSuccess = false;
             foreach (RoleData role in user.Roles)
@@ -382,7 +392,33 @@ namespace ManagerService.DataAccess
                             command.Parameters.Add(new SqlParameter("@roles", roles));
                         }
                         command.Parameters.Add(new SqlParameter("@RETURN_VALUE", SqlDbType.Int) { Direction = ParameterDirection.ReturnValue });
-                        command.ExecuteNonQuery();
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            if (!string.IsNullOrEmpty(roles))
+                            {
+                                while (reader.Read())
+                                {
+                                    FuncPermissionStatus func = new FuncPermissionStatus { Code = reader["Code"].ToString(), HasPermission = (bool)reader["Status"] };
+                                    if (int.Parse(reader["Level"].ToString()) == 1)
+                                    {
+                                        if (!permissions.ContainsKey("root"))
+                                        {
+                                            permissions.Add("root", new List<FuncPermissionStatus>());
+                                        }
+                                        permissions["root"].Add(func);
+                                    }
+                                    else
+                                    {
+                                        if (!permissions.ContainsKey(reader["Parent"].ToString()))
+                                        {
+                                            permissions.Add(reader["Parent"].ToString(), new List<FuncPermissionStatus>());
+                                        }
+                                        permissions[reader["Parent"].ToString()].Add(func);
+                                        //permissions.Add(reader["Parent"].ToString(), );
+                                    }
+                                }
+                            }
+                        }
                         int returnValue = (int)command.Parameters["@RETURN_VALUE"].Value;
                         isSuccess = (returnValue == 0);
                         if (isSuccess)
@@ -613,7 +649,7 @@ namespace ManagerService.DataAccess
             }
             else
             {
-                DataPermission exchangePermission = permissions.SingleOrDefault(d => d.ExchangeSystemCode == exchangeCode && d.DataObjectType == DataObjectType.None);
+                DataPermission exchangePermission = permissions.SingleOrDefault(d => d.ExchangeSystemCode == exchangeCode && d.DataObjectType == DataObjectType.Exchange);
                 if (exchangePermission != null)
                 {
                     accountDeafultStatus = exchangePermission.IsAllow;
@@ -627,7 +663,7 @@ namespace ManagerService.DataAccess
             }
             else
             {
-                DataPermission exchangePermission = permissions.SingleOrDefault(d => d.ExchangeSystemCode == exchangeCode && d.DataObjectType == DataObjectType.None);
+                DataPermission exchangePermission = permissions.SingleOrDefault(d => d.ExchangeSystemCode == exchangeCode && d.DataObjectType == DataObjectType.Exchange);
                 if (exchangePermission != null)
                 {
                     instruemntDeafultStatus = exchangePermission.IsAllow;
@@ -663,7 +699,7 @@ namespace ManagerService.DataAccess
            return layoutNames;
         }
 
-        public static bool CheckPermission(Guid userId, Guid groupId, string type, string exchangeCode)
+        public static bool CheckPermission(Guid userId, Guid groupId, GroupChangeType type, string exchangeCode)
         {
             bool hasPermission = false;
             using (SqlConnection con = DataAccess.GetInstance().GetSqlConnection())

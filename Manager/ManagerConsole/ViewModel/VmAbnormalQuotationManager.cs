@@ -39,7 +39,7 @@ namespace ManagerConsole.ViewModel
         public void RemoveFirstItem()
         {
             this._AbnormalQuotations.RemoveAt(0);
-            this.OnPropertyChanged("FirstItem");
+            this.OnPropertyChanged(SR.FirstItem);
         }
 
         public void AddAbnormalQuotation(AbnormalQuotationMessage message)
@@ -50,7 +50,7 @@ namespace ManagerConsole.ViewModel
                 this._AbnormalQuotations.Add(abnormalQuotation);
                 if(this._AbnormalQuotations.Count == 1)
                 {
-                    this.OnPropertyChanged("FirstItem");
+                    this.OnPropertyChanged(SR.FirstItem);
                 }
                 if (!this._TimerStarted)
                 {
@@ -84,7 +84,7 @@ namespace ManagerConsole.ViewModel
                         this._Timer.Change(Timeout.Infinite, Timeout.Infinite);
                         this._TimerStarted = false;
                     }
-                    if (firstItemChanged) this.OnPropertyChanged("FirstItem");
+                    if (firstItemChanged) this.OnPropertyChanged(SR.FirstItem);
                 }
             });
         }

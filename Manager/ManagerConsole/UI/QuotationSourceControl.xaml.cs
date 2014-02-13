@@ -37,7 +37,7 @@ namespace ManagerConsole.UI
         {
             get
             {
-                return ConsoleClient.Instance.HasPermission(ModuleCategoryType.Quotation, ModuleType.QuotationSource, OperationCode.Modify);
+                return Principal.Instance.HasPermission(ModuleCategoryType.Quotation, ModuleType.QuotationSource, OperationCode.Modify);
             }
         }
 

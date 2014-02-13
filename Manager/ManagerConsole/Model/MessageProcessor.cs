@@ -112,7 +112,5 @@ namespace ManagerConsole
                 TaskSchedulerModel.Instance.TaskSchedulerStatusChangeNotify(message);
             });
         }
-
-        
     }
 }

@@ -19,6 +19,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Xml.Linq;
 using CommonAccountGroupGNP = iExchange.Common.Manager.AccountGroupGNP;
 using CommonOpenInterestSummary = iExchange.Common.Manager.OpenInterestSummary;
 using Logger = Manager.Common.Logger;
@@ -28,7 +29,7 @@ namespace ManagerConsole.UI
     /// <summary>
     /// Interaction logic for OpenInterestControl.xaml
     /// </summary>
-    public partial class OpenInterestControl : UserControl
+    public partial class OpenInterestControl : UserControl, IControlLayout
     {
         private ObservableCollection<RootGNP> _RootGNP = new ObservableCollection<RootGNP>();
         private ObservableCollection<OpenInterestSummary> _OpenInterestSummarys = new ObservableCollection<OpenInterestSummary>();
@@ -424,7 +425,7 @@ namespace ManagerConsole.UI
                     DetailGNP detailGNP = new DetailGNP();
                     foreach (InstrumentGNP instrumentGNP in accountGNP.InstrumentGNPs)
                     {
-                        InstrumentClient instrument = this._App.InitDataManager.GetExchangeSetting("WF01").Instruments.Values.SingleOrDefault(P => P.Id == instrumentGNP.Id);
+                        InstrumentClient instrument = this._App.ExchangeDataManager.GetExchangeSetting("WF01").Instruments.Values.SingleOrDefault(P => P.Id == instrumentGNP.Id);
                         instrumentGNP.Instrument = instrument;
 
                         string summaryGroupCode = instrument.SummaryGroupId == null ? "Other":instrument.SummaryGroupCode;
@@ -617,6 +618,41 @@ namespace ManagerConsole.UI
         }
         #endregion
 
+        #region 布局
+        /// <summary>
+        /// Layout format:
+        /// <GridSettings>
+        ///    <ColumnsWidth Data="53,0,194,70,222,60,89,60,80,80,80,70,80,80,80,60,60,59,80,80,80,100,80,150,80,"/>
+        /// </GridSettings>
 
+        public string GetLayout()
+        {
+            //InstrumentCode
+            StringBuilder layoutBuilder = new StringBuilder();
+            layoutBuilder.Append("<GridSettings>");
+            layoutBuilder.Append(ColumnWidthPersistence.GetPersistentColumnsWidthString(this._SummaryItemGrid));
+            layoutBuilder.Append("</GridSettings>");
+            return layoutBuilder.ToString();
+        }
+
+        public void SetLayout(XElement layout)
+        {
+            try
+            {
+                if (layout.HasElements)
+                {
+                    XElement columnWidthElement = layout.Element("GridSettings").Element("ColumnsWidth");
+                    if (columnWidthElement != null)
+                    {
+                        ColumnWidthPersistence.LoadColumnsWidth(this._SummaryItemGrid, columnWidthElement);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.AddEvent(System.Diagnostics.TraceEventType.Error, "OpenInterestControl.SetLayout\r\n{0}", ex.ToString());
+            }
+        }
+        #endregion
     }
 }

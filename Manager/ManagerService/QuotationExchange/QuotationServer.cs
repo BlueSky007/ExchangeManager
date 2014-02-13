@@ -1223,7 +1223,7 @@ namespace ManagerService.QuotationExchange
                     }
                     if (xmlDocument != null)
                     {
-                        this.scheduler.Add(new Scheduler.Action(this.NotifyOpenPrice), xmlDocument, DateTime.Now.AddSeconds(10), true);
+                        this.scheduler.Add(new Scheduler.Action(this.NotifyOpenPrice), xmlDocument.OuterXml, DateTime.Now.AddSeconds(10), true);
                     }
 
                     if (this.pendingOpenPriceInstrument.Count == 0)
@@ -1269,7 +1269,7 @@ namespace ManagerService.QuotationExchange
 
                     if (xmlDocument != null)
                     {
-                        this.scheduler.Add(new Scheduler.Action(this.NotifyOpenPrice), xmlDocument, DateTime.Now.AddSeconds(10), true);
+                        this.scheduler.Add(new Scheduler.Action(this.NotifyOpenPrice), xmlDocument.OuterXml, DateTime.Now.AddSeconds(10), true);
                     }
 
                     if (this.pendingOpenPriceOriginCode.Count == 0)
@@ -1350,7 +1350,7 @@ namespace ManagerService.QuotationExchange
 
         private void NotifyOpenPrice(object sender, object actionArgs)
         {
-            XmlDocument xmlDocument = (XmlDocument)actionArgs;
+            string updateXml = (string)actionArgs;
             Token token = new Token();
             token.SessionID = "NotifyOpenPrice";
             token.UserID = Guid.Empty;
@@ -1358,17 +1358,17 @@ namespace ManagerService.QuotationExchange
             token.UserType = UserType.System;
             try
             {
-                this._StateServer.Update(token, xmlDocument.DocumentElement);
+                this._StateServer.Update(token, updateXml);
 
                 if (this.traceOpenPrice)
                 {
-                    AppDebug.LogEvent("QuotationServer", string.Format("NotifyOpenPrice:{0}", xmlDocument.OuterXml), EventLogEntryType.Information);
+                    AppDebug.LogEvent("QuotationServer", string.Format("NotifyOpenPrice:{0}", updateXml), EventLogEntryType.Information);
                 }
             }
             catch (Exception exception)
             {
-                this.scheduler.Add(new Scheduler.Action(this.NotifyOpenPrice), xmlDocument, DateTime.Now.AddSeconds(10), true);
-                AppDebug.LogEvent("QuotationServer", string.Format("NotifyOpenPrice:{0}\r\n {1}", exception, xmlDocument.OuterXml), EventLogEntryType.Warning);
+                this.scheduler.Add(new Scheduler.Action(this.NotifyOpenPrice), updateXml, DateTime.Now.AddSeconds(10), true);
+                AppDebug.LogEvent("QuotationServer", string.Format("NotifyOpenPrice:{0}\r\n {1}", exception, updateXml), EventLogEntryType.Warning);
             }
         }
 

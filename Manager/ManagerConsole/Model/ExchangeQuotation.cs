@@ -57,7 +57,7 @@ namespace ManagerConsole.Model
 
         public bool IsAutoFill;
 
-        public bool IsEnablePrice;
+        public bool IsPriceEnabled;
 
         public bool IsAutoEnablePrice;
 
@@ -86,7 +86,7 @@ namespace ManagerConsole.Model
             this.MaxSpreadPoints = detail.MaxSpreadPoints;
             this.IsOriginHiLo = detail.IsOriginHiLo;
             this.IsAutoFill = instrument.IsAutoFill;
-            this.IsEnablePrice = instrument.IsPriceEnabled;
+            this.IsPriceEnabled = instrument.IsPriceEnabled;
             this.IsAutoEnablePrice = instrument.IsAutoEnablePrice;
             this.OrderTypeMask = instrument.OrderTypeMask;
         }
@@ -103,8 +103,8 @@ namespace ManagerConsole.Model
         {
             if (field == ExchangeFieldSR.IsPriceEnabled)
             {
-                this.IsEnablePrice = bool.Parse(value);
-                ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == exchangeCode && i.QuotationPolicyId == this.QuotationPolicyId && i.InstruemtnId == this.InstruemtnId).IsEnablePrice = bool.Parse(value);
+                this.IsPriceEnabled = bool.Parse(value);
+                ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == exchangeCode && i.QuotationPolicyId == this.QuotationPolicyId && i.InstruemtnId == this.InstruemtnId).IsPriceEnabled = bool.Parse(value);
             }
             else if (field == ExchangeFieldSR.IsAutoEnablePrice)
             {

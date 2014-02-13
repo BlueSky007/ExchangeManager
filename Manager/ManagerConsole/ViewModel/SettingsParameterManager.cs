@@ -109,6 +109,7 @@ namespace ManagerConsole.ViewModel
         public int PriceOrderSetting { get; set; }
         public bool DisablePopup { get; set; }
         public bool AutoConfirm { get; set; }
+        public bool ConfirmRejectDQOrder { get; set; }
         public bool LimitStopSummaryIsTimeRange { get; set; }
         public int LimitStopSummaryTimeRangeValue { get; set; }
         public int LimitStopSummaryPriceRangeValue { get; set; }
@@ -120,6 +121,7 @@ namespace ManagerConsole.ViewModel
             this.PriceOrderSetting = commonTradingParameter.PriceOrderSetting;
             this.DisablePopup = commonTradingParameter.DisablePopup;
             this.AutoConfirm = commonTradingParameter.AutoConfirm;
+            this.ConfirmRejectDQOrder = commonTradingParameter.ConfirmRejectDQOrder;
             this.LimitStopSummaryIsTimeRange = commonTradingParameter.LimitStopSummaryIsTimeRange;
             this.LimitStopSummaryTimeRangeValue = commonTradingParameter.LimitStopSummaryTimeRangeValue;
             this.LimitStopSummaryPriceRangeValue = commonTradingParameter.LimitStopSummaryPriceRangeValue;
@@ -136,6 +138,7 @@ namespace ManagerConsole.ViewModel
                 PriceOrderSetting = this.PriceOrderSetting,
                 DisablePopup = this.DisablePopup,
                 AutoConfirm = this.AutoConfirm,
+                ConfirmRejectDQOrder = this.ConfirmRejectDQOrder,
                 LimitStopSummaryIsTimeRange = this.LimitStopSummaryIsTimeRange,
                 LimitStopSummaryTimeRangeValue = this.LimitStopSummaryTimeRangeValue,
                 LimitStopSummaryPriceRangeValue = this.LimitStopSummaryPriceRangeValue,
@@ -169,6 +172,10 @@ namespace ManagerConsole.ViewModel
             if (this.AutoConfirm != this.OriginDealingOrderParameter.AutoConfirm)
             {
                 this.UpdateDealingParameterFileds.Add(FieldSetting.AutoConfirm, this.AutoConfirm);
+            }
+            if (this.ConfirmRejectDQOrder != this.OriginDealingOrderParameter.ConfirmRejectDQOrder)
+            {
+                this.UpdateDealingParameterFileds.Add(FieldSetting.ConfirmRejectDQOrder, this.ConfirmRejectDQOrder);
             }
             if (this.LimitStopSummaryIsTimeRange != this.OriginDealingOrderParameter.LimitStopSummaryIsTimeRange)
             {

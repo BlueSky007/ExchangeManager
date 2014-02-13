@@ -17,6 +17,7 @@ namespace ManagerService.Quotation
         private LastQuotationManager _LastQuotationManager;
         private AbnormalQuotationManager _AbnormalQuotationManager;
         private DerivativeController _DerivativeController;
+        private Dictionary<string, ConnectionState> _SourceConnectionStates = new Dictionary<string, ConnectionState>();
 
         public QuotationManager()
         {
@@ -39,6 +40,8 @@ namespace ManagerService.Quotation
 
         public ConfigMetadata ConfigMetadata { get { return this._ConfigMetadata; } }
 
+        public Dictionary<string, ConnectionState> SourceConnectionStates { get { return this._SourceConnectionStates; } }
+
         public AbnormalQuotationManager AbnormalQuotationManager { get { return this._AbnormalQuotationManager; } }
 
         public bool AuthenticateSource(string sourceName, string loginName, string password)
@@ -46,9 +49,10 @@ namespace ManagerService.Quotation
             return this._ConfigMetadata.AuthenticateSource(sourceName, loginName, password);
         }
 
-        public void QuotationSourceStatusChanged(string sourceName, ConnectionState state)
+        public void NofitySourceConnectionStatus(string sourceName, ConnectionState state)
         {
-            MainService.ClientManager.Dispatch(new SourceStatusMessage() { SouceName = sourceName, ConnectionState = state });
+            this._SourceConnectionStates[sourceName] = state;
+            MainService.ClientManager.Dispatch(new SourceConnectionStatusMessage() { SouceName = sourceName, ConnectionState = state });
         }
 
         public void ProcessQuotation(PrimitiveQuotation primitiveQuotation)
@@ -154,6 +158,7 @@ namespace ManagerService.Quotation
                 case MetadataType.QuotationSource:
                     QuotationSource source = this._ConfigMetadata.QuotationSources.Values.SingleOrDefault(s => s.Id == objectId);
                     if (source != null) this._ConfigMetadata.QuotationSources.Remove(source.Name);
+                    if (this._SourceConnectionStates.ContainsKey(source.Name)) this._SourceConnectionStates.Remove(source.Name);
                     break;
                 case MetadataType.Instrument:
                     if (this._ConfigMetadata.Instruments[objectId].IsDerivative)
@@ -220,7 +225,17 @@ namespace ManagerService.Quotation
                         InstrumentSourceRelation relation = relations.Values.SingleOrDefault(r => r.Id == objectId);
                         if (relation != null)
                         {
-                            relations[relation.SourceSymbol].Update(fieldAndValues);
+                            if (fieldAndValues.ContainsKey(FieldSR.SourceSymbol))
+                            {
+                                string oldSourceSymbol = relation.SourceSymbol;
+                                relation.Update(fieldAndValues);
+                                relations.Remove(oldSourceSymbol);
+                                relations.Add(relation.SourceSymbol, relation);
+                            }
+                            else
+                            {
+                                relation.Update(fieldAndValues);
+                            }
                             break;
                         }
                     }    

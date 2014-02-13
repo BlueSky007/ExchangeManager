@@ -4,12 +4,14 @@ using System.Linq;
 using System.Text;
 using Manager.Common.QuotationEntities;
 using ManagerConsole.Helper;
+using Manager.Common;
 
 namespace ManagerConsole.ViewModel
 {
     public class VmQuotationSource : VmBase
     {
         private QuotationSource _QuotationSource;
+        private ConnectionState _ConnectionState = ConnectionState.Unknown;
 
         public VmQuotationSource(QuotationSource quotationSource)
             : base(quotationSource)
@@ -51,6 +53,19 @@ namespace ManagerConsole.ViewModel
                 {
                     this._QuotationSource.Password = value;
                     this.OnPropertyChanged("Password");
+                }
+            }
+        }
+
+        public ConnectionState ConnectionState
+        {
+            get { return this._ConnectionState; }
+            set
+            {
+                if (this._ConnectionState != value)
+                {
+                    this._ConnectionState = value;
+                    this.OnPropertyChanged("ConnectionState");
                 }
             }
         }

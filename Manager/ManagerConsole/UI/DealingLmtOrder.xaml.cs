@@ -14,13 +14,17 @@ using Infragistics.Controls.Grids;
 using System.Diagnostics;
 using Infragistics;
 using System.Linq;
+using System.Windows.Media.Animation;
+using System.Threading;
+using System.Text;
+using System.Xml.Linq;
 
 namespace ManagerConsole.UI
 {
     /// <summary>
     /// Interaction logic for DealingLmtOrder.xaml
     /// </summary>
-    public partial class DealingLmtOrder : UserControl
+    public partial class DealingLmtOrder : UserControl, IControlLayout
     {
         private CommonDialogWin _CommonDialogWin;
         private ConfirmDialogWin _ConfirmDialogWin;
@@ -28,23 +32,49 @@ namespace ManagerConsole.UI
         private ObservableCollection<InstrumentClient> _InstrumentList = new ObservableCollection<InstrumentClient>();
         private Style _ExecuteStatusStyle;
         private Style _NormalStyle;
+        private bool _IsProcessOrderPanelVisibility = true;
+        private Storyboard _HiddenStoryboard;
+        private Storyboard _ShowStoryboard;
 
         private ProcessLmtOrder _ProcessLmtOrder;
         public DealingLmtOrder()
         {
             InitializeComponent();
-
-            this.InitializeData();
-            this.BindGridData();
-            this.GetComboBoxData();
-            this.AttachEvent();
+            this._App = ((ManagerConsole.MainWindow)Application.Current.MainWindow);
+            Thread thread = new Thread(new ThreadStart(delegate()
+            {
+                while (!this.InilizeUI())
+                {
+                    Thread.Sleep(800);
+                }
+            }));
+            thread.IsBackground = true;
+            thread.Start();
         }
 
         #region Event
+        private bool InilizeUI()
+        {
+            if (this._App.ExchangeDataManager.IsInitializeCompleted)
+            {
+                this.Dispatcher.BeginInvoke((Action)delegate()
+                {
+                    this.InitializeData();
+                    this.BindGridData();
+                    this.GetComboBoxData();
+                    this.AttachEvent();
+                });
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         private void InitializeData()
         {
-            this._App = ((ManagerConsole.MainWindow)Application.Current.MainWindow);
-            this._ProcessLmtOrder = this._App.InitDataManager.ProcessLmtOrder;
+            this._ProcessLmtOrder = this._App.ExchangeDataManager.ProcessLmtOrder;
             this._CommonDialogWin = this._App._CommonDialogWin;
             this._ConfirmDialogWin = this._App._ConfirmDialogWin;
 
@@ -53,11 +83,13 @@ namespace ManagerConsole.UI
             style.Setters.Add(new Setter(BackgroundProperty, new SolidColorBrush(bgColor)));
             this._NormalStyle = this.Resources["CellStyle"] as Style;
             this._ExecuteStatusStyle = App.Current.Resources["ExecuteSatusCellStyle"] as Style;
+            this._HiddenStoryboard = this.Resources["HidBorderStoryboard"] as Storyboard;
+            this._ShowStoryboard = this.Resources["ShowBorderStoryboard"] as Storyboard;
         }
         private void AttachEvent()
         {
             this._ProcessLmtOrder.OnSettingFirstRowStyleEvent += new ProcessLmtOrder.SettingFirstRowStyleHandle(this.SettingFirstRowBackGround);
-            this._App.InitDataManager.OnHitPriceReceivedRefreshUIEvent += new ExchangeDataManager.HitPriceReceivedRefreshUIEventHandler(this.ForwardHitOrder);
+            this._App.ExchangeDataManager.OnHitPriceReceivedRefreshUIEvent += new ExchangeDataManager.HitPriceReceivedRefreshUIEventHandler(this.ForwardHitOrder);
         }
         #endregion
 
@@ -65,9 +97,10 @@ namespace ManagerConsole.UI
         {
             InstrumentClient allInstrument = new InstrumentClient();
             allInstrument.Code = "All";
-            foreach (string exchangeCode in this._App.InitDataManager.ExchangeCodes)
+
+            foreach (string exchangeCode in this._App.ExchangeDataManager.ExchangeCodes)
             {
-                ExchangeSettingManager settingManager = this._App.InitDataManager.GetExchangeSetting(exchangeCode);
+                ExchangeSettingManager settingManager = this._App.ExchangeDataManager.GetExchangeSetting(exchangeCode);
 
                 foreach (InstrumentClient instrument in settingManager.Instruments.Values)
                 {
@@ -98,24 +131,25 @@ namespace ManagerConsole.UI
             switch (clickImg.Name)
             {
                 case "_UpdateBtn":
-                    if (orderTask == null || orderTask.OrderType != OrderType.Limit) return;
-                    this._App.OrderHandle.OnOrderUpdate(orderTask);
+                    this._App.OrderHandle.OnOrderUpdate(orderTask,this._ProcessLmtOrder.LmtOrderForInstrument);
                     break;
                 case "_ModifyBtn":
-                    if (orderTask == null || orderTask.OrderType != OrderType.Limit) return;
-                    this._App.OrderHandle.OnOrderModify(orderTask);
+                    this._App.OrderHandle.OnOrderModify(orderTask,this._ProcessLmtOrder.LmtOrderForInstrument.Origin);
                     break;
                 case "_CancelBtn":
-                    if (orderTask == null || orderTask.OrderType != OrderType.Limit) return;
                     this._App.OrderHandle.OnOrderWait(orderTask);
-                    this.BackHitOrder(orderTask, 0);
+                    this._OrderTaskGrid.Rows[0].CellStyle = this._NormalStyle;
+                    this._ProcessLmtOrder.SetOrderBottom(orderTask, 0);
+                    this._OrderTaskGrid.ItemsSource = this._ProcessLmtOrder.OrderTasks;
                     break;
                 case "_ExecuteBtn":
-                    if (orderTask == null || orderTask.OrderType != OrderType.Limit) return;
                     this._App.OrderHandle.OnOrderExecute(orderTask);
                     break;
                 case "_ShowGroupPanelBtn":
                     this.ShowGroupPanel();
+                    break;
+                case "_ShowBorderButton":
+                    this.ShowProcessPanel();
                     break;
             }
         }
@@ -148,7 +182,9 @@ namespace ManagerConsole.UI
                     orderTask = btn.DataContext as OrderTask;
                     currentCellData = orderTask.CellDataDefine3;
                     int rowIndex = this._OrderTaskGrid.ActiveCell.Row.Index;
-                    this.BackHitOrder(orderTask, rowIndex);
+                    this._OrderTaskGrid.Rows[rowIndex].CellStyle = this._NormalStyle;
+                    this._ProcessLmtOrder.SetOrderBottom(orderTask, rowIndex);
+                    //this._OrderTaskGrid.ItemsSource = this._ProcessLmtOrder.OrderTasks;
                     break;
                 case "ExcuteBtn":
                     orderTask = btn.DataContext as OrderTask;
@@ -163,44 +199,33 @@ namespace ManagerConsole.UI
         {
             e.Handled = true;
             if (this._ProcessLmtOrder.OrderTasks.Count == 0) return;
+            LmtOrderForInstrument lmtOrderForInstrument = this._ProcessLmtOrder.LmtOrderForInstrument;
+            if (lmtOrderForInstrument == null) return;
             Button btn = sender as Button;
-            OrderTask orderTask = null;
-            CellDataDefine currentCellData = null;
-            Guid orderId = this._ProcessLmtOrder.LmtOrderForInstrument.OrderId;
             switch (btn.Name)
             {
                 case "_ExecuteAllSellOrderButton":
-                    orderTask = this._ProcessLmtOrder.OrderTasks.SingleOrDefault(P => P.OrderId == orderId);
-                    currentCellData = orderTask.DQCellDataDefine1;
+                    this._App.OrderHandle.OnLMTExecute(this._ProcessLmtOrder,false);
                     break;
                 case "_WailtNextSellPriceButton":
-                    orderTask = this._ProcessLmtOrder.OrderTasks.SingleOrDefault(P => P.OrderId == orderId);
-                    currentCellData = orderTask.DQCellDataDefine2;
+                    this._App.OrderHandle.OnLMTOrderWait(this._ProcessLmtOrder, false);
+                    this._ProcessLmtOrder.SetAllOrderBottom(false);
                     break;
                 case "_ApplyAskPriceButton":
-                    orderTask = btn.DataContext as OrderTask;
-                    currentCellData = orderTask.DQCellDataDefine1;
+                    lmtOrderForInstrument.ApplyMaretPrice(false);
                     break;
                 case "_ExecuteAllBuyOrderButton":
-                    orderTask = btn.DataContext as OrderTask;
-                    currentCellData = orderTask.DQCellDataDefine2;
+                    this._App.OrderHandle.OnLMTExecute(this._ProcessLmtOrder, true);
                     break;
                 case "_WailtNextAskPriceButton":
-                    this.ExcuteAllLMTOrder(false);
-                    return;
+                    this._App.OrderHandle.OnLMTOrderWait(this._ProcessLmtOrder, true);
+                    this._ProcessLmtOrder.SetAllOrderBottom(true);
+                    break;
                 case "_ApplyBidPriceButton":
-                    this.ExcuteAllLMTOrder(true);
+                    lmtOrderForInstrument.ApplyMaretPrice(true);
                     return;
                 default:
                     break;
-            }
-        }
-
-        private void ExcuteAllLMTOrder(bool isBuy)
-        {
-            for (int i = 0; i < this._OrderTaskGrid.Rows.Count; i++)
-            {
-               
             }
         }
 
@@ -245,14 +270,14 @@ namespace ManagerConsole.UI
                     isEnabled = currentCellData.IsEnable;
                     if (isEnabled)
                     {
-                        this._App.OrderHandle.OnOrderUpdate(orderTask);
+                        this._App.OrderHandle.OnOrderUpdate(orderTask,this._ProcessLmtOrder.LmtOrderForInstrument);
                     }
                     break;
                 case HandleAction.OnOrderModify:
                     isEnabled = currentCellData.IsEnable;
                     if (isEnabled)
                     {
-                        this._App.OrderHandle.OnOrderModify(orderTask);
+                        this._App.OrderHandle.OnOrderModify(orderTask,this._ProcessLmtOrder.LmtOrderForInstrument.Origin);
                     }
                     break;
                 case HandleAction.OnOrderWait:
@@ -300,50 +325,34 @@ namespace ManagerConsole.UI
         {
             InstrumentClient instrument = (InstrumentClient)this._InstrumentCombo.SelectedItem;
             if (instrument == null) return;
-            this.FilterInstantOrder();
+            this.FilterOrderByInstrument(instrument);
         }
 
-        private void IsOPenCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void FilterOrderByInstrument(InstrumentClient instrument)
         {
-            try
+            if (instrument.Id == Guid.Empty) //All
             {
-                ComboBox cmb = sender as ComboBox;
-
-                //if (e.AddedItems.Count <= 0) return;
-                //string isOpenString = e.AddedItems[0].ToString();
-                //OrderTaskForInstrument orderTaskForInstrument = cmb.DataContext as OrderTaskForInstrument;
-                //string buySellString = orderTaskForInstrument.BuySellString;
-
-                //if (orderTaskForInstrument != null)
-                //{
-                //    orderTaskForInstrument.FilterOrderTask(buySellString, isOpenString);
-                //}
+                this._OrderTaskGrid.ItemsSource = this._ProcessLmtOrder.OrderTasks;
+                return;
             }
-            catch (Exception ex)
-            {
-                Logger.TraceEvent(TraceEventType.Error, "OrderTaskControl.IsOPenCombo_SelectionChanged error:\r\n{0}", ex.ToString());
-            }
+            this._OrderTaskGrid.ItemsSource = this._ProcessLmtOrder.OrderTasks.Where(P => P.InstrumentId == instrument.Id);
+            this._ProcessLmtOrder.InitializeBinding(instrument.Id);
+            this.LayRootGrid.DataContext = this._ProcessLmtOrder.LmtOrderForInstrument;
         }
 
-        private void BuySellCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void ShowProcessPanel()
         {
-            try
+            if (this._IsProcessOrderPanelVisibility)
             {
-                ComboBox cmb = sender as ComboBox;
-
-                //if (e.AddedItems.Count <= 0) return;
-                //string buySellString = e.AddedItems[0].ToString();
-
-                //OrderTaskForInstrument orderTaskForInstrument = cmb.DataContext as OrderTaskForInstrument;
-                //string isOpenString = orderTaskForInstrument.IsOpenString;
-                //if (orderTaskForInstrument != null)
-                //{
-                //    orderTaskForInstrument.FilterOrderTask(buySellString, isOpenString);
-                //}
+                this._HiddenStoryboard.Begin();
+                this._IsProcessOrderPanelVisibility = false;
+                this._ShowBorderButton.Content = "Show Panel";
             }
-            catch (Exception ex)
+            else 
             {
-                Manager.Common.Logger.TraceEvent(TraceEventType.Error, "OrderTaskControl.BuySellCombo_SelectionChanged error:\r\n{0}", ex.ToString());
+                this._ShowStoryboard.Begin();
+                this._IsProcessOrderPanelVisibility = true;
+                this._ShowBorderButton.Content = "Hidden Panel";
             }
         }
         #endregion
@@ -373,6 +382,18 @@ namespace ManagerConsole.UI
             }
         }
         #endregion
+
+        private void CustomerAskPriceInput_ValueChanged(object sender, EventArgs e)
+        {
+            if (this._ProcessLmtOrder.OrderTasks.Count == 0) return;
+            this._ProcessLmtOrder.LmtOrderForInstrument.UpdateDiff();
+        }
+
+        private void CustomerBidPriceInput_ValueChanged(object sender, EventArgs e)
+        {
+            if (this._ProcessLmtOrder.OrderTasks.Count == 0) return;
+            this._ProcessLmtOrder.LmtOrderForInstrument.UpdateDiff();
+        }
 
         private void SetOrderTaskStatusStyle(Cell cell)
         {
@@ -408,32 +429,93 @@ namespace ManagerConsole.UI
 
         public void ForwardHitOrder(int hitOrdersCount)
         {
-            this._OrderTaskGrid.ItemsSource = null;
-            this._OrderTaskGrid.ItemsSource = this._App.InitDataManager.OrderTaskModel.OrderTasks;
-
             for (int i = 0; i < hitOrdersCount; i++)
             {
                 this._OrderTaskGrid.Rows[i].CellStyle = this._ExecuteStatusStyle;
             }
-            this.FilterInstantOrder();
+            //this.FilterInstantOrder();
         }
 
-        public void BackHitOrder(OrderTask orderTask,int rowIndex)
+        private void SetAllOrderBottom(bool isBuy)
         {
-            this._OrderTaskGrid.Rows[rowIndex].CellStyle = this._NormalStyle;
-            this._App.InitDataManager.OrderTaskModel.OrderTasks.Remove(orderTask);
-            int index = this._App.InitDataManager.OrderTaskModel.OrderTasks.Count - 1;
-            this._App.InitDataManager.OrderTaskModel.OrderTasks.Insert(index, orderTask);
-            this._OrderTaskGrid.ItemsSource = this._App.InitDataManager.OrderTaskModel.OrderTasks;
-        }
-
-        private void AdjustBtn_Click(object sender, RoutedEventArgs e)
-        { 
+            for (int i = 0; i < this._OrderTaskGrid.Rows.Count; i++)
+            {
+                this._OrderTaskGrid.Rows[i].CellStyle = this._NormalStyle;
+            }
         }
 
         private void SettingFirstRowBackGround()
         {
             this._OrderTaskGrid.Rows[0].CellStyle = this._ExecuteStatusStyle;
         }
+
+
+        #region 布局
+        /// <summary>
+        /// Layout format:
+        /// <GridSettings>
+        ///    <ColumnsWidth Data="53,0,194,70,222,60,89,60,80,80,80,70,80,80,80,60,60,59,80,80,80,100,80,150,80,"/>
+        /// </GridSettings>
+
+        public string GetLayout()
+        {
+            //InstrumentCode
+            StringBuilder layoutBuilder = new StringBuilder();
+            layoutBuilder.Append("<GridSettings>");
+            if (this._OrderTaskGrid.FilteringSettings.RowFiltersCollection.Count > 0)
+            {
+                IRecordFilter rowsFilter = this._OrderTaskGrid.FilteringSettings.RowFiltersCollection[3];
+
+                if (rowsFilter.FieldName == "InstrumentCode")
+                {
+                    layoutBuilder.AppendFormat("<Fitler LogicalOperator=\"{0}\">", (int)rowsFilter.Conditions.LogicalOperator);
+                    foreach (IFilterCondition condition in rowsFilter.Conditions)
+                    {
+                        ComparisonCondition comparisonCondition = condition as ComparisonCondition;
+                        if (comparisonCondition != null)
+                        {
+                            layoutBuilder.AppendFormat("<Condition op=\"{0}\" val=\"{1}\"/>", (int)comparisonCondition.Operator, comparisonCondition.FilterValue);
+                        }
+                    }
+                    layoutBuilder.Append("</Fitler>");
+                }
+            }
+            layoutBuilder.Append(ColumnWidthPersistence.GetPersistentColumnsWidthString(this._OrderTaskGrid));
+            layoutBuilder.Append("</GridSettings>");
+            return layoutBuilder.ToString();
+        }
+
+        public void SetLayout(XElement layout)
+        {
+            try
+            {
+                if (layout.HasElements)
+                {
+                    XElement filterElement = layout.Element("Fitler");
+                    if (filterElement != null)
+                    {
+                        RowsFilter rowsFilter = new RowsFilter(typeof(string), this._OrderTaskGrid.Columns.DataColumns["InstrumentCode"]);
+                        rowsFilter.Conditions.LogicalOperator = (LogicalOperator)int.Parse(filterElement.Attribute("LogicalOperator").Value);
+
+                        foreach (XElement element in filterElement.Elements("Condition"))
+                        {
+                            rowsFilter.Conditions.Add(new ComparisonCondition() { FilterValue = element.Attribute("val").Value, Operator = (ComparisonOperator)int.Parse(element.Attribute("op").Value) });
+                        }
+                        this._OrderTaskGrid.FilteringSettings.RowFiltersCollection.Add(rowsFilter);
+                    }
+                    //Grid Column Width
+                    XElement columnWidthElement = layout.Element("GridSettings").Element("ColumnsWidth");
+                    if (columnWidthElement != null)
+                    {
+                        ColumnWidthPersistence.LoadColumnsWidth(this._OrderTaskGrid, columnWidthElement);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.AddEvent(System.Diagnostics.TraceEventType.Error, "DealingInstanceOrder.SetLayout\r\n{0}", ex.ToString());
+            }
+        }
+        #endregion
     }
 }

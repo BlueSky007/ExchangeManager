@@ -104,9 +104,9 @@ namespace ManagerConsole.UI
             ExchangInstrument allInstrument = new ExchangInstrument();
             allInstrument.InstrumentCode = "All";
 
-            foreach (string exchangeCode in this._App.InitDataManager.ExchangeCodes)
+            foreach (string exchangeCode in this._App.ExchangeDataManager.ExchangeCodes)
             {
-                ExchangeSettingManager settingManager = this._App.InitDataManager.GetExchangeSetting(exchangeCode);
+                ExchangeSettingManager settingManager = this._App.ExchangeDataManager.GetExchangeSetting(exchangeCode);
                 foreach (InstrumentClient instrument in settingManager.Instruments.Values)
                 {
                     this._InstrumentList.Add(instrument.ToExchangeInstrument());
@@ -118,8 +118,8 @@ namespace ManagerConsole.UI
             this._InstrumentComboBox.ItemsSource = this._InstrumentList;
             this._InstrumentComboBox.DisplayMemberPath = "InstrumentCode";
 
-            this.ExchangeComboBox.ItemsSource = this._App.InitDataManager.ExchangeCodes;
-            this.ExchangeComboBox.SelectedItem = this._App.InitDataManager.ExchangeCodes[0];
+            this.ExchangeComboBox.ItemsSource = this._App.ExchangeDataManager.ExchangeCodes;
+            this.ExchangeComboBox.SelectedItem = this._App.ExchangeDataManager.ExchangeCodes[0];
         }
 
         private void OKButton_Click(object sender, RoutedEventArgs e)
