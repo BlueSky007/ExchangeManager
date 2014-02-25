@@ -38,6 +38,7 @@ namespace ManagerConsole.FramePages
         {
             this._FromDatePicker.SelectedDate = DateTime.Today.AddDays(-(DateTime.Now.Day) + 1);
             this._ToDatePicker.SelectedDate = DateTime.Today.AddDays(1).AddSeconds(-1);
+            this.QueryImg.Children.Add((UIElement)this.Resources["LogAuditQuery"]);
         }
 
         //Query
@@ -80,6 +81,7 @@ namespace ManagerConsole.FramePages
             this.Dispatcher.BeginInvoke((Action<List<LogSourceChange>>)delegate(List<LogSourceChange> result)
             {
                 this.RetrieveStoredLinksMask.Visibility = Visibility.Collapsed;
+                if (result.Count == 0) return;
                 this._LogSourceChangeGrid.ItemsSource = result;
             }, logSourceChange);
         }
@@ -89,6 +91,7 @@ namespace ManagerConsole.FramePages
             this.Dispatcher.BeginInvoke((Action<List<LogPrice>>)delegate(List<LogPrice> result)
             {
                 this.RetrieveStoredLinksMask.Visibility = Visibility.Collapsed;
+                if (result.Count == 0) return;
                 this._LogPriceGrid.ItemsSource = result;
             }, logPrice);
         }

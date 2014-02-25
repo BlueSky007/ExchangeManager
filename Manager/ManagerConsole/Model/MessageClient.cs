@@ -10,41 +10,43 @@ namespace ManagerConsole.Model
 {
     public class MessageClient : IClientProxy
     {
-        #region Message Event
-        public delegate void ExchangeQuotationUpdateHandler(OverridedQuotationMessage overidedQuotationMessage);
-        public event ExchangeQuotationUpdateHandler ExchangeQuotationUpdateEvent;
+        //#region Message Event
+        //public delegate void ExchangeQuotationUpdateHandler(OverridedQuotationMessage overidedQuotationMessage);
+        //public event ExchangeQuotationUpdateHandler ExchangeQuotationUpdateEvent;
 
-        public delegate void QuotePriceToDealerEventHandler(QuoteMessage quoteMessage);
-        public event QuotePriceToDealerEventHandler QuotePriceToDealerEvent;
+        //public delegate void QuotePriceToDealerEventHandler(QuoteMessage quoteMessage);
+        //public event QuotePriceToDealerEventHandler QuotePriceToDealerEvent;
 
-        public delegate void QuoteOrderToDealerEventHandler(PlaceMessage placeMessage);
-        public event QuoteOrderToDealerEventHandler QuoteOrderToDealerEvent;
+        //public delegate void QuoteOrderToDealerEventHandler(PlaceMessage placeMessage);
+        //public event QuoteOrderToDealerEventHandler QuoteOrderToDealerEvent;
 
-        public delegate void ExecutedOrderEventHandler(ExecuteMessage executeMessage);
-        public event ExecutedOrderEventHandler ExecutedOrderToDealerEvent;
+        //public delegate void ExecutedOrderEventHandler(ExecuteMessage executeMessage);
+        //public event ExecutedOrderEventHandler ExecutedOrderToDealerEvent;
 
-        public delegate void HitPriceEventHandler(HitMessage hitMessage);
-        public event HitPriceEventHandler HitPriceEvent;
+        //public delegate void HitPriceEventHandler(HitMessage hitMessage);
+        //public event HitPriceEventHandler HitPriceEvent;
 
-        public delegate void DeletedOrderEventHandler(DeleteMessage deleteMessage);
-        public event DeletedOrderEventHandler DeletedOrderEvent;
+        //public delegate void DeletedOrderEventHandler(DeleteMessage deleteMessage);
+        //public event DeletedOrderEventHandler DeletedOrderEvent;
 
-        public delegate void SettingTaskRunEventHandler(UpdateSettingParameterMessage message);
-        public event SettingTaskRunEventHandler OnSettingTaskRunEvent;
+        //public delegate void SettingTaskRunEventHandler(TaskSchedulerRunMessage message);
+        //public event SettingTaskRunEventHandler OnSettingTaskRunEvent;
 
-        public delegate void UpdateExchangeSettingHandler(UpdateMessage updateMessage);
-        public event UpdateExchangeSettingHandler UpdateExchangeSettingEvent;
+        //public delegate void UpdateExchangeSettingHandler(UpdateMessage updateMessage);
+        //public event UpdateExchangeSettingHandler UpdateExchangeSettingEvent;
 
-        #endregion
+        //#endregion
 
         private RelayEngine<Message> _MessageRelayEngine;
 
         private QuotationMessageProcessor _QuotationMessageProcessor = QuotationMessageProcessor.Instance;
-        private MessageProcessor _MessageProcessor = MessageProcessor.Instance;
+        private ExchangeDataManager _ExchangeDataManager;
 
         public MessageClient()
         {
             this._MessageRelayEngine = new RelayEngine<Message>(this.ProcessMessage, this.HandleException);
+            this._MessageRelayEngine.Suspend();
+            this._ExchangeDataManager = App.MainFrameWindow.ExchangeDataManager;
         }
 
         public void SendMessage(Message message)
@@ -52,11 +54,27 @@ namespace ManagerConsole.Model
             this._MessageRelayEngine.AddItem(message);
         }
 
+        public void StartMessageProcess()
+        {
+            this._MessageRelayEngine.Resume();
+        }
+
         private bool ProcessMessage(Message message)
         {
             try
             {
-                this.Process((dynamic)message);
+                App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
+                {
+                    try
+                    {
+                        this.Process((dynamic)message);
+                    }
+                    catch (Exception exception)
+                    {
+                        Logger.TraceEvent(TraceEventType.Error, "MessageClient Dispatcher Message type:{0}\r\n{1}", message.GetType().Name, exception);
+                    }
+                });
+                
             }
             catch (Exception exception)
             {
@@ -97,7 +115,7 @@ namespace ManagerConsole.Model
         private void Process(OverridedQuotationMessage overidedQuotationMessage)
         {
             this._QuotationMessageProcessor.Process(overidedQuotationMessage);
-            if (this.ExchangeQuotationUpdateEvent != null) this.ExchangeQuotationUpdateEvent(overidedQuotationMessage);
+            this._ExchangeDataManager.ProcessOverridedQuotation(overidedQuotationMessage);
         }
 
         private void Process(UpdateInstrumentQuotationMessage quotePolicyDetailMessage)
@@ -125,80 +143,39 @@ namespace ManagerConsole.Model
             this._QuotationMessageProcessor.Process(message);
         }
 
-        private void Process(UpdateSettingParameterMessage message)
+        private void Process(TaskSchedulerRunMessage message)
         {
-            this._MessageProcessor.Process(message);
-            this.OnSettingTaskRunEvent(message);
+            TaskSchedulerModel.Instance.TaskSchedulerStatusChangeNotify(message);
         }
 
         private void Process(QuoteMessage quoteMessage)
         {
-            if (quoteMessage != null)
-            {
-                try
-                {
-                    this.QuotePriceToDealerEvent(quoteMessage);
-                }
-                catch (Exception ex)
-                {
-                    this.HandleException(ex);
-                }
-            }
+            this._ExchangeDataManager.ProcessQuoteMessage(quoteMessage);
         }
 
         private void Process(PlaceMessage placeMessage)
         {
-            if (placeMessage != null)
-            {
-                try
-                {
-                    this.QuoteOrderToDealerEvent(placeMessage);
-                }
-                catch (Exception ex)
-                {
-                    this.HandleException(ex);
-                }
-            }
+            this._ExchangeDataManager.ProcessPlaceMessage(placeMessage);
         }
 
         private void Process(ExecuteMessage executeMessage)
         {
-            this.ExecutedOrderToDealerEvent(executeMessage);
+            this._ExchangeDataManager.ProcessExecuteMessage(executeMessage);
         }
 
         private void Process(DeleteMessage deleteMessage)
         {
-            this.DeletedOrderEvent(deleteMessage);
+            this._ExchangeDataManager.ProcessDeleteMessage(deleteMessage);
         }
 
         private void Process(HitMessage hitMessage)
         {
-            if (hitMessage != null)
-            {
-                try
-                {
-                    this.HitPriceEvent(hitMessage);
-                }
-                catch (Exception ex)
-                {
-                    this.HandleException(ex);
-                }
-            }
+            this._ExchangeDataManager.ProcessHitMessage(hitMessage);
         }
 
         private void Process(UpdateMessage updateMessage)
         {
-            if (updateMessage != null)
-            {
-                try
-                {
-                    this.UpdateExchangeSettingEvent(updateMessage);
-                }
-                catch (Exception ex)
-                {
-                    this.HandleException(ex);
-                }
-            }
+            this._ExchangeDataManager.ProcessUpdateMessage(updateMessage);
         }
 
         internal void Process(AccessPermissionUpdateMessage message)
@@ -247,10 +224,7 @@ namespace ManagerConsole.Model
                 {
                     if (Principal.Instance.User.UserId == message.UserId)
                     {
-                        App.MainFrameWindow.Dispatcher.BeginInvoke((Action)delegate()
-                        {
-                            App.MainFrameWindow.KickOut();
-                        });
+                        App.MainFrameWindow.KickOut();
                     }
                 }
                 catch (Exception ex)

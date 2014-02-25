@@ -63,6 +63,7 @@ namespace ManagerConsole.UI
                     this.BindGridData();
                     this.GetComboBoxData();
                     this.AttachEvent();
+                    this.CheckOrderStatus();
                 });
                 return true;
             }
@@ -121,6 +122,19 @@ namespace ManagerConsole.UI
             this.LayRootGrid.DataContext = this._ProcessLmtOrder.LmtOrderForInstrument;
             this._OrderTaskGrid.ItemsSource = this._ProcessLmtOrder.OrderTasks;
             this._TopToolBar.DataContext = new TopToolBarImages();
+        }
+
+        //Initialize Data Check Set Style
+        private void CheckOrderStatus() 
+        {
+            for (int i = 0; i < this._OrderTaskGrid.Rows.Count; i++)
+            {
+                OrderTask currentOrder = this._OrderTaskGrid.Rows[i].Data as OrderTask;
+                if (OrderTaskManager.CheckExecuteOrder(currentOrder))
+                {
+                    this._OrderTaskGrid.Rows[i].CellStyle = this._ExecuteStatusStyle;
+                }
+            }
         }
 
         private void ToolBar_Click(object sender, RoutedEventArgs e)
@@ -184,7 +198,7 @@ namespace ManagerConsole.UI
                     int rowIndex = this._OrderTaskGrid.ActiveCell.Row.Index;
                     this._OrderTaskGrid.Rows[rowIndex].CellStyle = this._NormalStyle;
                     this._ProcessLmtOrder.SetOrderBottom(orderTask, rowIndex);
-                    //this._OrderTaskGrid.ItemsSource = this._ProcessLmtOrder.OrderTasks;
+                    this._OrderTaskGrid.ItemsSource = this._ProcessLmtOrder.OrderTasks;
                     break;
                 case "ExcuteBtn":
                     orderTask = btn.DataContext as OrderTask;
@@ -393,22 +407,6 @@ namespace ManagerConsole.UI
         {
             if (this._ProcessLmtOrder.OrderTasks.Count == 0) return;
             this._ProcessLmtOrder.LmtOrderForInstrument.UpdateDiff();
-        }
-
-        private void SetOrderTaskStatusStyle(Cell cell)
-        {
-            if (cell == null)
-            {
-                return;
-            }
-            Row row = (Row)cell.Row;
-            OrderTask orderTask = row.Data as OrderTask;
-            if (orderTask != null)
-            {
-                row.CellStyle = App.Current.Resources["ExecuteSatusCellStyle"] as Style;
-                this._OrderTaskGrid.Columns["DQHandle"].CellStyle = App.Current.Resources["OrangeColumnStyle"] as Style;
-                this._OrderTaskGrid.Columns["LMTHandle"].CellStyle = App.Current.Resources["OrangeColumnStyle"] as Style;
-            }
         }
 
         private void FilterOrderTask(string filterValue,string columnName,ComparisonOperator comparisonOperator)

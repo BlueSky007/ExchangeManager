@@ -60,8 +60,8 @@ namespace ManagerConsole.Model
             get;
             set;
         }
-        public int? Denominator { get; set; }
-        public int? NumeratorUnit { get; set; }
+        public int Denominator { get; set; }
+        public int NumeratorUnit { get; set; }
         public string Origin
         {
             get
@@ -388,8 +388,8 @@ namespace ManagerConsole.Model
         public int GetSourceAskBidDiffValue()
         {
             int diffValue = 0;
-            Price lastAsk = new Price(this.LastQuotation.Ask, this.NumeratorUnit.Value, this.Denominator.Value);
-            Price lastBid = new Price(this.LastQuotation.Bid, this.NumeratorUnit.Value, this.Denominator.Value);
+            Price lastAsk = new Price(this.LastQuotation.Ask, this.NumeratorUnit, this.Denominator);
+            Price lastBid = new Price(this.LastQuotation.Bid, this.NumeratorUnit, this.Denominator);
 
             diffValue = lastAsk - lastBid;
             return diffValue;

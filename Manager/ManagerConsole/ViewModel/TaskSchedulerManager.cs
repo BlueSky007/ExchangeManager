@@ -14,7 +14,7 @@ using ActionType = Manager.Common.ActionType;
 using System.Data;
 using System.Windows;
 using ManagerConsole.Model;
-using UpdateSettingParameterMessage = Manager.Common.UpdateSettingParameterMessage;
+using TaskSchedulerRunMessage = Manager.Common.TaskSchedulerRunMessage;
 using ManagerConsole.Helper;
 
 namespace ManagerConsole.ViewModel
@@ -58,15 +58,27 @@ namespace ManagerConsole.ViewModel
             }
         }
 
-        public void TaskSchedulerStatusChangeNotify(UpdateSettingParameterMessage message)
+        public void TaskSchedulerStatusChangeNotify(TaskSchedulerRunMessage message)
         {
-            Guid taskSchedulerId = message.TaskScheduler.Id;
-            TaskScheduler currentTask = this._TaskSchedulers.SingleOrDefault(P => P.Id == taskSchedulerId);
-            if (currentTask == null) return;
-            currentTask.TaskStatus = TaskStatus.Run;
-            currentTask.LastRunTime = currentTask.RunTime;
-        }
+            if (message.IsSucceed)
+            {
+                Guid taskSchedulerId = message.TaskScheduler.Id;
+                TaskScheduler currentTask = this._TaskSchedulers.SingleOrDefault(P => P.Id == taskSchedulerId);
+                if (currentTask == null) return;
+                currentTask.TaskStatus = TaskStatus.Run;
+                currentTask.RunTime = message.TaskScheduler.RunTime;
+                currentTask.LastRunTime = message.TaskScheduler.LastRunTime;
 
+                if (App.MainFrameWindow.ExchangeDataManager.ConfigParameter.IsTaskSchedulerRunNotify)
+                {
+                    App.MainFrameWindow._TaskSchedulerNotify.ShowChatNotifyWindow(message.TaskScheduler);
+                }
+            }
+            else
+            {
+                App.MainFrameWindow._CommonDialogWin.ShowDialogWin("Task Run succeed!", "Manager");
+            }
+        }
 
         public void AddTaskScheduler(TaskScheduler taskScheduler)
         {
@@ -112,7 +124,7 @@ namespace ManagerConsole.ViewModel
         private string _Description;
         private TaskType _TaskType;
         private TaskStatus _TaskStatus;
-        private ActionType _ActionType;
+        private ActionType _ActionType = ActionType.OneTime;
         private Guid _Creater;
         private DateTime _RunTime;
         private DateTime _LastRunTime;
@@ -316,6 +328,10 @@ namespace ManagerConsole.ViewModel
                 ParameterSetting parameterSetting = new ParameterSetting(setting);
                 this._ParameterSettings.Add(parameterSetting);
             }
+            foreach (ExchangInstrument entity in commonTaskScheduler.ExchangInstruments)
+            {
+                this._ExchangInstruments.Add(entity);
+            }
         }
 
         internal void Update(TaskScheduler newTaskScheduler)
@@ -357,6 +373,11 @@ namespace ManagerConsole.ViewModel
             foreach (ParameterSetting setting in this.ParameterSettings)
             {
                 taskScheduler.ParameterSettings.Add(setting.Clone());
+            }
+
+            foreach (ExchangInstrument entity in this.ExchangInstruments)
+            {
+                taskScheduler.ExchangInstruments.Add(entity);
             }
 
             return taskScheduler;

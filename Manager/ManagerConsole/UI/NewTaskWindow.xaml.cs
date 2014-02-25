@@ -75,6 +75,10 @@ namespace ManagerConsole.UI
                 this._EditorTaskScheduler.IsEditorName = false;
                 this.LayOutGrid.DataContext = this._EditorTaskScheduler;
                 this._ParameterSettingGrid.ItemsSource = this._EditorTaskScheduler.ParameterSettings;
+                foreach (ExchangInstrument exchangeInstrument in this._EditorTaskScheduler.ExchangInstruments)
+                {
+                    this._InstrumentComboBox.SelectedItems.Add(exchangeInstrument);
+                }
             }
 
             this.SetBindingComboBox();
@@ -84,8 +88,11 @@ namespace ManagerConsole.UI
         {
             foreach (CommonParameterDefine entity in parameterDefines)
             {
-                ParameterSetting parameterSetting = new ParameterSetting(entity);
-                this._TaskScheduler.ParameterSettings.Add(parameterSetting);
+                if (entity.SettingParameterType == SettingParameterType.InstrumentParameter)
+                {
+                    ParameterSetting parameterSetting = new ParameterSetting(entity);
+                    this._TaskScheduler.ParameterSettings.Add(parameterSetting);
+                }
             }
         }
 
@@ -98,7 +105,7 @@ namespace ManagerConsole.UI
             this.ActionTypeComboBox.ItemsSource = System.Enum.GetNames(typeof(ActionType));
             this.ActionTypeComboBox.SelectedIndex = 3;
 
-            this.SettingsTypeComboBox.ItemsSource = System.Enum.GetNames(typeof(SettingParameterType));
+            this.SettingsTypeComboBox.ItemsSource = System.Enum.GetNames(typeof(SettingTaskType));
             this.SettingsTypeComboBox.SelectedIndex = 0;
 
             ExchangInstrument allInstrument = new ExchangInstrument();
@@ -113,7 +120,7 @@ namespace ManagerConsole.UI
                 }
             }
 
-            this._InstrumentList.Insert(0, allInstrument);
+           // this._InstrumentList.Insert(0, allInstrument);
 
             this._InstrumentComboBox.ItemsSource = this._InstrumentList;
             this._InstrumentComboBox.DisplayMemberPath = "InstrumentCode";
@@ -152,10 +159,12 @@ namespace ManagerConsole.UI
 
         private void SaveTaskScheduler()
         {
+            string exchangeCode = this.ExchangeComboBox.SelectedItem.ToString();
             TaskScheduler taskEntity = this._EditMode == EditMode.AddNew ? this._TaskScheduler : this._EditorTaskScheduler;
             ObservableCollection<ExchangInstrument> instruments = this.GetExchangeInstruments();
             taskEntity.ExchangInstruments = instruments;
             taskEntity.CreateDateTime = DateTime.Now;
+            taskEntity.ExchangeCode = exchangeCode;
             CommonTaskScheduler taskScheduler = taskEntity.ToCommonTaskScheduler();
             if (this._EditMode == EditMode.AddNew)
             {
@@ -229,37 +238,35 @@ namespace ManagerConsole.UI
         private void SettingsTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (!this._IsLoaded) return;
-            SettingParameterType settingType = (SettingParameterType)Enum.ToObject(typeof(SettingParameterType), this.SettingsTypeComboBox.SelectedIndex);
+            SettingTaskType settingType = (SettingTaskType)Enum.ToObject(typeof(SettingTaskType), this.SettingsTypeComboBox.SelectedIndex);
 
-            if (settingType == SettingParameterType.InstrumentParameter || settingType == SettingParameterType.All)
-            {
-                this.ExchangeCodeCaption.Visibility = Visibility.Visible;
-                this.ExchangeComboBox.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                this.ExchangeCodeCaption.Visibility = Visibility.Collapsed;
-                this.ExchangeComboBox.Visibility = Visibility.Collapsed;
-            }
+            //if (settingType == SettingTaskType.InstrumentParameter)
+            //{
+            //    this.ExchangeCodeCaption.Visibility = Visibility.Visible;
+            //    this.ExchangeComboBox.Visibility = Visibility.Visible;
+            //}
+            //else
+            //{
+            //    this.ExchangeCodeCaption.Visibility = Visibility.Collapsed;
+            //    this.ExchangeComboBox.Visibility = Visibility.Collapsed;
+            //}
             this.FilterSettingParameter(settingType);
         }
 
 
         private void InstrumentComboBox_SelectionChanged(object sender, EventArgs e)
         {
-            ObservableCollection<ExchangInstrument> instruments = this.GetExchangeInstruments();
+            if (!this._IsLoaded) return;
+            ExchangInstrument exchangInstrument = this._InstrumentComboBox.SelectedItem as ExchangInstrument;
+            var item = this._InstrumentComboBox.SelectedIndex;
+            var item1 = this._InstrumentComboBox.Tag;
+            var item2 = this._InstrumentComboBox.SelectedItems;
+            ObservableCollection<ExchangInstrument> instruments = this.GetExchangeInstruments();   
         }
 
-        private void FilterSettingParameter(SettingParameterType settingType)
+        private void FilterSettingParameter(SettingTaskType settingType)
         {
-            if (settingType == SettingParameterType.All)
-            {
-                this.FilterOrderTask(this._ParameterSettingGrid, "All", "SettingParameterType", ComparisonOperator.NotEquals);
-            }
-            else
-            {
-                this.FilterOrderTask(this._ParameterSettingGrid, settingType.ToString(), "SettingParameterType", ComparisonOperator.Equals);
-            }
+            //this.FilterOrderTask(this._ParameterSettingGrid, settingType.ToString(), "SettingTaskType", ComparisonOperator.Equals);
         }
 
         private void FilterOrderTask(XamGrid grid,string filterValue, string columnName, ComparisonOperator comparisonOperator)

@@ -176,7 +176,7 @@ namespace ManagerConsole.ViewModel
 
         private OrderRange GetPriceRange(string executePrice, int interval, InstrumentClient instrument)
         {
-            Price rangeValue = new Price(executePrice, (int)instrument.NumeratorUnit.Value, (int)instrument.Denominator.Value);
+            Price rangeValue = new Price(executePrice, (int)instrument.NumeratorUnit, (int)instrument.Denominator);
             Price beginPrice = rangeValue;
             Price EndPrice = rangeValue + interval;
 
@@ -201,8 +201,8 @@ namespace ManagerConsole.ViewModel
             this._Code = orderRange.BeginRange + "~" + orderRange.EndRange;
             this._Id = instrument.Id + "_" + this._Code;
             this._ExecuteOrderSummaryType = ExecuteOrderSummaryType.Range;
-            this._MinNumeratorUnit = instrument.NumeratorUnit.Value;
-            this._MaxDenominator = instrument.Denominator.Value;
+            this._MinNumeratorUnit = instrument.NumeratorUnit;
+            this._MaxDenominator = instrument.Denominator;
             this._Instrument = instrument;
             this._OrderRange = orderRange;
         }
@@ -379,8 +379,8 @@ namespace ManagerConsole.ViewModel
         {
             InstrumentClient instrument = order.Transaction.Instrument;
             this._ExecuteOrderSummaryType = ExecuteOrderSummaryType.Order;
-            this._MinNumeratorUnit = instrument.NumeratorUnit.Value;
-            this._MaxDenominator = instrument.Denominator.Value;
+            this._MinNumeratorUnit = instrument.NumeratorUnit;
+            this._MaxDenominator = instrument.Denominator;
             this._Instrument = instrument;
 
             bool isBuy = order.BuySell == BuySell.Buy;

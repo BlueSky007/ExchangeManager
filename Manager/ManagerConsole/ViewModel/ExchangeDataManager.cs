@@ -28,6 +28,8 @@ using ExchangeInitializeData = Manager.Common.ExchangeInitializeData;
 using Scheduler = iExchange.Common.Scheduler;
 using OrderType = iExchange.Common.OrderType;
 using Manager.Common.QuotationEntities;
+using System.Windows.Controls;
+using SoundOption = Manager.Common.SoundOption;
 
 namespace ManagerConsole.ViewModel
 {
@@ -37,7 +39,6 @@ namespace ManagerConsole.ViewModel
         public event HitPriceReceivedRefreshUIEventHandler OnHitPriceReceivedRefreshUIEvent;
 
         public delegate void OrderHitPriceNotifyHandler(OrderTask orderTask);
-        public event OrderHitPriceNotifyHandler OnOrderHitPriceNotifyEvent;
 
         public delegate void DeleteOrderNotifyHandler(Order deletedOrder);
         public event DeleteOrderNotifyHandler OnDeleteOrderNotifyEvent;
@@ -65,6 +66,9 @@ namespace ManagerConsole.ViewModel
         //private static IComparer<OrderTask> _HitOrderCompare = new HitOrderCompare();
         private Scheduler Scheduler = new Scheduler();
         private Scheduler.Action _RemoveTransactionWhenTimeOver;
+
+        private MediaElement 
+            _SoundMedia;
 
 
         //询价
@@ -180,8 +184,9 @@ namespace ManagerConsole.ViewModel
         //}
         #endregion
 
-        public ExchangeDataManager()
+        public ExchangeDataManager(MediaElement mediaElement)
         {
+            this._SoundMedia = mediaElement;
             this.SettingsManager = new SettingsManager();
             this.ExchangeSettingManagers = new Dictionary<string, ExchangeSettingManager>();
             this.ExchangeTradingManagers = new Dictionary<string, ExchangeTradingManager>();
@@ -253,7 +258,6 @@ namespace ManagerConsole.ViewModel
                     }
                 }
             });
-            
         }
 
         public void InitializeSettingParameter(SettingsParameter settingsParameter)
@@ -322,6 +326,8 @@ namespace ManagerConsole.ViewModel
 
             QuotePriceClient quotePriceClient = new QuotePriceClient(quoteMessage, waiteTime, instrument, customer, quotation);
             this._QuotePriceClientModel.AddSendQuotePrice(quotePriceClient);
+
+            App.MainFrameWindow.QuotePriceWindow.ShowQuotePriceWindow();
         }
 
         public void ProcessPlaceMessage(PlaceMessage placeMessage)
@@ -631,6 +637,20 @@ namespace ManagerConsole.ViewModel
             else
             {
                 return null;
+            }
+        }
+
+        internal void PlaySound(SoundOption soundkey)
+        {
+            string soundPath = this._SettingsParameterManager.GetSoundPath(soundkey);
+
+            if (!string.IsNullOrEmpty(soundPath))
+            {
+                MediaManager.PlayMedia(this._SoundMedia, soundPath);
+            }
+            else
+            {
+                MediaManager.PlayMedia(this._SoundMedia, soundPath);
             }
         }
         #endregion

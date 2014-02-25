@@ -249,7 +249,7 @@ namespace ManagerConsole.ViewModel
             this._AnswerLot = this._Lot;
             this._AdjustLot = this._Lot;
             this._BSStatus = quotePriceClient.BSStatus;
-            this._AdjustPoint = (decimal)this.Instrument.NumeratorUnit.Value / (decimal)this.Instrument.Denominator.Value;
+            this._AdjustPoint = (decimal)this.Instrument.NumeratorUnit / (decimal)this.Instrument.Denominator;
 
             this.CreateBestPrice(true);
             this.SettingBackGround();
@@ -290,7 +290,7 @@ namespace ManagerConsole.ViewModel
             this.Lot = quotePriceClient.Lot;
             this.AnswerLot = this.Lot;
             this.BSStatus = quotePriceClient.BSStatus;
-            this.AdjustPoint = (decimal)this.Instrument.NumeratorUnit.Value / (decimal)this.Instrument.Denominator.Value;
+            this.AdjustPoint = (decimal)this.Instrument.NumeratorUnit / (decimal)this.Instrument.Denominator;
         }
 
         internal void UpdateBestBuySell(Quotation newQuotation)
@@ -334,8 +334,8 @@ namespace ManagerConsole.ViewModel
             }
             else
             {
-                Price ask = new Price(this.Ask, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
-                Price bid = new Price(this.Bid, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+                Price ask = new Price(this.Ask, this._Instrument.NumeratorUnit, this._Instrument.Denominator);
+                Price bid = new Price(this.Bid, this._Instrument.NumeratorUnit, this._Instrument.Denominator);
                 if (this._Instrument.IsNormal ^ (this._BSStatus == BSStatus.Buy))
                 {
                     this.BestBuy = (ask - adjust).ToString();
@@ -360,8 +360,8 @@ namespace ManagerConsole.ViewModel
 
             if (this._BSStatus == BSStatus.Both)
             {
-                ask = new Price(this._BestBuyString, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
-                bid = new Price(this._BestSellString, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+                ask = new Price(this._BestBuyString, this._Instrument.NumeratorUnit, this._Instrument.Denominator);
+                bid = new Price(this._BestSellString, this._Instrument.NumeratorUnit, this._Instrument.Denominator);
 
                 this._BestBuyString = (ask + adjust).ToString();
                 this._BestSellString = (bid + adjust).ToString();
@@ -370,8 +370,8 @@ namespace ManagerConsole.ViewModel
             }
             else
             {
-                ask = new Price(this.BestBuy.Equals("-") ? this.Ask : this.BestBuy, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
-                bid = new Price(this.BestSell.Equals("-") ? this.Bid : this.BestSell, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+                ask = new Price(this.BestBuy.Equals("-") ? this.Ask : this.BestBuy, this._Instrument.NumeratorUnit, this._Instrument.Denominator);
+                bid = new Price(this.BestSell.Equals("-") ? this.Bid : this.BestSell, this._Instrument.NumeratorUnit, this._Instrument.Denominator);
                 if (this._Instrument.IsNormal ^ (this._BSStatus == BSStatus.Buy))
                 {
                     this.BestBuy = (ask - adjust).ToString();
@@ -391,7 +391,7 @@ namespace ManagerConsole.ViewModel
         public bool? IsValidPrice(QuotePriceClient quotePriceClient, decimal adjust)
         {
             if (quotePriceClient.Origin == null) return false;
-            Price lastOriginPrice = Price.CreateInstance(quotePriceClient.Origin, this.Instrument.NumeratorUnit.Value, this.Instrument.Denominator.Value);
+            Price lastOriginPrice = Price.CreateInstance(quotePriceClient.Origin, this.Instrument.NumeratorUnit, this.Instrument.Denominator);
             string validInt = "^-?\\d+$";
             Price originPrice;
             if (Regex.IsMatch(adjust.ToString(), validInt))
@@ -400,7 +400,7 @@ namespace ManagerConsole.ViewModel
             }
             else
             {
-                originPrice = Price.CreateInstance((double)adjust, this.Instrument.NumeratorUnit.Value, this.Instrument.Denominator.Value);
+                originPrice = Price.CreateInstance((double)adjust, this.Instrument.NumeratorUnit, this.Instrument.Denominator);
             }
             if (originPrice != null)
             {
@@ -422,7 +422,7 @@ namespace ManagerConsole.ViewModel
         public bool? IsValidPrice(decimal adjust)
         {
             if (this.Origin == null) return false;
-            Price lastOriginPrice = Price.CreateInstance(this.Origin, this.Instrument.NumeratorUnit.Value, this.Instrument.Denominator.Value);
+            Price lastOriginPrice = Price.CreateInstance(this.Origin, this.Instrument.NumeratorUnit, this.Instrument.Denominator);
 			string validInt = "^-?\\d+$";
             Price originPrice;
             if (Regex.IsMatch(adjust.ToString(), validInt))
@@ -431,7 +431,7 @@ namespace ManagerConsole.ViewModel
             }
             else
             {
-                originPrice = Price.CreateInstance((double)adjust, this.Instrument.NumeratorUnit.Value, this.Instrument.Denominator.Value);
+                originPrice = Price.CreateInstance((double)adjust, this.Instrument.NumeratorUnit, this.Instrument.Denominator);
             }
             if (originPrice != null)
             {

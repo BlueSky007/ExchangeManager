@@ -141,11 +141,6 @@
       <HintPath>E:\ToolsForSofteWare\InfragisticsWPF\NetAdvantage 2013.1\WPF\CLR4.0\Bin\WPFOnly\InfragisticsWPF4.Reporting.v13.1.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="InfragisticsWPF4.Ribbon.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>E:\ToolsForSofteWare\InfragisticsWPF\NetAdvantage 2013.1\WPF\CLR4.0\Bin\WPFOnly\InfragisticsWPF4.Ribbon.v13.1.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="InfragisticsWPF4.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
       <Private>True</Private>
     </Reference>
@@ -160,6 +155,7 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Printing" />
     <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -174,10 +170,6 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="Xceed.Wpf.Toolkit, Version=2.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\References\DotNet\Third Party\Xceed.Wpf.Toolkit.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -195,6 +187,7 @@
     <Compile Include="Model\ExchangeTradingManager.cs" />
     <Compile Include="Model\Principal.cs" />
     <Compile Include="UI\ColumnWidthPersistence.cs" />
+    <Compile Include="ThemeManager.cs" />
     <Compile Include="UI\ConnectionStateControl.xaml.cs">
       <DependentUpon>ConnectionStateControl.xaml</DependentUpon>
     </Compile>
@@ -221,6 +214,9 @@
     <Compile Include="Helper\PropertyChangedNotifier.cs" />
     <Compile Include="Helper\Toolkit.cs" />
     <Compile Include="Helper\TopToolBarImages.cs" />
+    <Compile Include="UI\HistoryQuotationAddingControl.xaml.cs">
+      <DependentUpon>HistoryQuotationAddingControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\ImageSources.cs" />
     <Compile Include="UI\MainStatusBar.xaml.cs">
       <DependentUpon>MainStatusBar.xaml</DependentUpon>
@@ -231,11 +227,13 @@
     <Compile Include="UI\TaskSchedulerNotify.xaml.cs">
       <DependentUpon>TaskSchedulerNotify.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\UpdateExchangeHistoryQuotationControl.xaml.cs">
+      <DependentUpon>UpdateExchangeHistoryQuotationControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ViewModel\ExchangeDataManager.cs" />
     <Compile Include="LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Model\MessageProcessor.cs" />
     <Compile Include="Model\Account.cs" />
     <Compile Include="Model\AccountGroup.cs" />
     <Compile Include="Model\ConsoleClient.cs" />
@@ -320,9 +318,11 @@
     <Compile Include="UI\WeightedRuleControl.xaml.cs">
       <DependentUpon>WeightedRuleControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModel\HistoryQuotationInfo.cs" />
     <Compile Include="ViewModel\InstantOrderForInstrument.cs" />
     <Compile Include="ViewModel\LmtOrderForInstrument.cs" />
     <Compile Include="ViewModel\OpenInterestSummary.cs" />
+    <Compile Include="ViewModel\OrderQueryEntity.cs" />
     <Compile Include="ViewModel\ProcessInstantOrder.cs" />
     <Compile Include="ViewModel\ProcessLmtOrder.cs" />
     <Compile Include="ViewModel\QuotePriceClient.cs" />
@@ -430,6 +430,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Asset\Icons.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Asset\Theme_Black.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -494,6 +498,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UI\HistoryQuotationAddingControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\InstrumentSourceRelationWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -539,6 +547,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\TaskSchedulerNotify.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\UpdateExchangeHistoryQuotationControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

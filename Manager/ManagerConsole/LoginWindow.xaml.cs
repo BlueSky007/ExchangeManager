@@ -97,7 +97,7 @@ namespace ManagerConsole
 
         private void SaveServerSettings()
         {
-            string[] servers = ConfigurationManager.AppSettings["Servers"].Split(';');
+            string[] servers = ConfigurationManager.AppSettings["Servers"].Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
             string newServer = this.ServerComboBox.Text.Trim();
             bool isNewServer = !servers.Any(s => s == newServer);
             string serverConfig = string.Empty;

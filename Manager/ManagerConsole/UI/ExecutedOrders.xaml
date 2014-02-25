@@ -17,15 +17,15 @@
             <Setter Property="Foreground" Value="Red"/>
         </Style>
     </UserControl.Resources>
-    <Grid>
+    <Grid Style="{DynamicResource DealingGridStyle}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="35"/>
-            <RowDefinition Height="500*"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Border x:Name="_ListToolbar" CornerRadius="3" Grid.Row="0">
+        <Border x:Name="_ListToolbar" Style="{DynamicResource DealingBorderStyle}" Margin="3,3,3,3" CornerRadius="3" Grid.Row="0">
             <StackPanel Orientation="Horizontal">
                 <TextBlock  Margin="10,0,0,0" Text="Account Group" Foreground="White" VerticalAlignment="Center"/>
-                <ComboBox Margin="10,0,0,0" VerticalAlignment="Center" Style="{StaticResource ComboBoxStyle}" x:Name="_AccountGroupCombo" Height="23"  Width="100" SelectionChanged="_AccountGroupCombo_SelectionChanged" />
+                <ComboBox Margin="10,0,0,0" VerticalAlignment="Center"  x:Name="_AccountGroupCombo" Height="23"  Width="100" SelectionChanged="_AccountGroupCombo_SelectionChanged" />
                 <Button x:Name="_PrintListOrderBtn" Click="Print_Click" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Width="25" Height="25"  Margin="10,0,0,0">
                    <Button.Content>
                         <Image Source="../Asset/Images/Print.png" ToolTipService.ToolTip="Print"  Margin="1"></Image>
@@ -33,7 +33,7 @@
                 </Button>
             </StackPanel>
         </Border>
-        <Border x:Name="_SummaryToolbar"  Visibility="Collapsed" CornerRadius="5" Background="{StaticResource BackGroundForPanel}" Grid.Row="0">
+        <Border x:Name="_SummaryToolbar"  Visibility="Collapsed" Style="{DynamicResource DealingBorderStyle}" Margin="3,3,3,3" CornerRadius="5"  Grid.Row="0">
             <StackPanel Orientation="Horizontal">
                 <RadioButton x:Name="_TimeRangeRadio" IsChecked="True" Margin="15,0,0,0" Checked="RadioButton_Click" VerticalAlignment="Center"/>
                 <TextBlock Text="Time Range:" Margin="10,0,0,0" Foreground="White" VerticalAlignment="Center"/>
@@ -60,12 +60,8 @@
             </StackPanel>
         </Border>
 
-        <igWindows:XamTabControl x:Name="_ExecutedOrderTab" Grid.Row="1"  Theme="IGTheme"
-                                 TabStripPlacement="Bottom"
-                                 TabLayoutStyle="MultiRowAutoSize"
-                                 AllowTabClosing="True"
-                                 SelectionChanged="ExecutedOrderTab_SelectionChanged">
-            <igWindows:TabItemEx x:Name="_ExecutedOrderListItem"  Header="Group Net Position"  Height="25">
+        <TabControl x:Name="_ExecutedOrderTab" TabStripPlacement="Bottom" Grid.Row="1">
+            <TabItem x:Name="_ExecutedOrderListItem"  Header="Group Net Position" >
                 <igGrid:XamGrid x:Name="_ExecutedOrderListGrid" Grid.Row="1" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto"
                                 InitializeRow="ExecutedOrderListGrid_InitializeRow">
                     <igGrid:XamGrid.FixedColumnSettings>
@@ -93,9 +89,9 @@
                         <igGrid:TextColumn Key="Dealer" Width="80" HorizontalContentAlignment="Right" IsReadOnly="True" HeaderText="Dealer" />
                     </igGrid:XamGrid.Columns>
                 </igGrid:XamGrid>
-            </igWindows:TabItemEx>
-            <igWindows:TabItemEx Header="Net Summary" x:Name="_OrderSummaryItem"  Height="25">
-                <igGrid:XamGrid x:Name="_ExecutedOrderSummaryGrid" FontFamily="hei" Grid.Row="1" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto" InitializeRow="ExecutedOrderSummaryGrid_InitializeRow">    
+            </TabItem>
+            <TabItem Header="Net Summary" x:Name="_OrderSummaryItem">
+                <igGrid:XamGrid x:Name="_ExecutedOrderSummaryGrid" FontFamily="hei" Grid.Row="1" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto" InitializeRow="ExecutedOrderSummaryGrid_InitializeRow">
                     <igGrid:XamGrid.FixedColumnSettings>
                         <igGrid:FixedColumnSettings AllowFixedColumns="DropArea"/>
                     </igGrid:XamGrid.FixedColumnSettings>
@@ -171,7 +167,7 @@
                         </igGrid:TemplateColumn>
                     </igGrid:XamGrid.Columns>
                 </igGrid:XamGrid>
-            </igWindows:TabItemEx>
-        </igWindows:XamTabControl>
+            </TabItem>
+        </TabControl>
     </Grid>
 </UserControl>

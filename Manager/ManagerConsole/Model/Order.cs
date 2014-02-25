@@ -508,7 +508,7 @@ namespace ManagerConsole.Model
             this.BestPrice = commonOrder.BestPrice;
             this.BestTime = commonOrder.BestTime;
 
-            Price bestPrice = new Price(this.BestPrice, instrument.NumeratorUnit.Value, instrument.Denominator.Value);
+            Price bestPrice = new Price(this.BestPrice, instrument.NumeratorUnit, instrument.Denominator);
 
             if (this.Transaction.OrderType == OrderType.Market)
             {
@@ -544,7 +544,7 @@ namespace ManagerConsole.Model
 
         private Price GetDQMaxMovePrice(InstrumentClient instrument)
         {
-            Price setPrice = Price.CreateInstance(double.Parse(this.SetPrice), instrument.NumeratorUnit.Value, instrument.Denominator.Value);
+            Price setPrice = Price.CreateInstance(double.Parse(this.SetPrice), instrument.NumeratorUnit, instrument.Denominator);
             bool isBuy = this.BuySell == ManagerConsole.BuySell.Buy;
             if (instrument.IsNormal == isBuy)
             {
@@ -570,8 +570,8 @@ namespace ManagerConsole.Model
                     }
 
                     if (string.IsNullOrEmpty(this.BestPrice) || string.IsNullOrEmpty(this.BestPrice)) return;
-                    Price bestPrice = new Price(this.BestPrice, instrument.NumeratorUnit.Value, instrument.Denominator.Value);
-                    Price setPrice = new Price(this.SetPrice, instrument.NumeratorUnit.Value, instrument.Denominator.Value);
+                    Price bestPrice = new Price(this.BestPrice, instrument.NumeratorUnit, instrument.Denominator);
+                    Price setPrice = new Price(this.SetPrice, instrument.NumeratorUnit, instrument.Denominator);
                     decimal diff = decimal.Parse(this.BestPrice) - decimal.Parse(this.SetPrice);
 
                     if (this.HitCount > 0 || (this.Transaction.OrderType == OrderType.Limit

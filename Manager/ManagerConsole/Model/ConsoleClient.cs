@@ -13,6 +13,7 @@ using iExchange.Common.Manager;
 using Manager.Common.Settings;
 using TransactionError = iExchange.Common.TransactionError;
 using CancelReason = iExchange.Common.CancelReason;
+using SoundSetting = Manager.Common.Settings.SoundSetting;
 using iExchange.Common;
 
 namespace ManagerConsole.Model
@@ -170,14 +171,15 @@ namespace ManagerConsole.Model
             }
         }
 
-        public void GetInitializeData(Action<InitializeData> EndGetInitializeData)
+        public void GetInitializeData(Action<InitializeData> processInitializeData)
         {
             try
             {
                 this._ServiceProxy.BeginGetInitializeData(delegate(IAsyncResult result)
                 {
                     InitializeData initializeData = this._ServiceProxy.EndGetInitializeData(result);
-                    EndGetInitializeData(initializeData);
+                    processInitializeData(initializeData);
+                    this._MessageClient.StartMessageProcess();
                 }, null);
             }
             catch(Exception ex)
@@ -430,6 +432,15 @@ namespace ManagerConsole.Model
         #endregion
 
         #region Setting Manager
+        public void CopyFromSetting(Guid copyFromUserId,Action<List<SoundSetting>> EndCopyFromSetting)
+        {
+            this._ServiceProxy.BeginCopyFromSetting(copyFromUserId, delegate(IAsyncResult result) 
+            {
+                List<SoundSetting> newSoundSettings = this._ServiceProxy.EndCopyFromSetting(result);
+                EndCopyFromSetting(newSoundSettings);
+            }, null);
+        }
+
         public void LoadParameterDefine(Action<List<ParameterDefine>> EndLoadParameterDefine)
         {
             this._ServiceProxy.BeginLoadParameterDefine(delegate(IAsyncResult result)
@@ -512,51 +523,51 @@ namespace ManagerConsole.Model
         #endregion
 
         #region Report
-        public void GetOrderByInstrument(Guid instrumentId, Guid accountGroupId,OrderType orderType,
+        public void GetOrderByInstrument(string exchangeCode,Guid instrumentId, Guid accountGroupId,OrderType orderType,
             bool isExecute, DateTime fromDate, DateTime toDate,Action<List<OrderQueryEntity>> EndGetOrderByInstrument)
         {
-            this._ServiceProxy.BeginGetOrderByInstrument(instrumentId, accountGroupId, orderType, isExecute, fromDate, toDate, delegate(IAsyncResult result)
+            this._ServiceProxy.BeginGetOrderByInstrument(exchangeCode,instrumentId, accountGroupId, orderType, isExecute, fromDate, toDate, delegate(IAsyncResult result)
             {
                 List<OrderQueryEntity> queryOrders = this._ServiceProxy.EndGetOrderByInstrument(result);
                 EndGetOrderByInstrument(queryOrders);
             }, null);
         }
 
-        public void GetGroupNetPosition(Action<List<AccountGroupGNP>> EndGetGroupNetPosition)
+        public void GetGroupNetPosition(string exchangeCode,bool showActualQuantity, string[] blotterCodeSelecteds,Action<List<AccountGroupGNP>> EndGetGroupNetPosition)
         {
-            this._ServiceProxy.BeginGetGroupNetPosition(delegate(IAsyncResult result) 
+            this._ServiceProxy.BeginGetGroupNetPosition(exchangeCode,showActualQuantity, blotterCodeSelecteds, delegate(IAsyncResult result) 
             {
                 List<iExchange.Common.Manager.AccountGroupGNP> accountGroupGNPs = this._ServiceProxy.EndGetGroupNetPosition(result);
                 EndGetGroupNetPosition(accountGroupGNPs);
             }, null);
         }
 
-        public void GetInstrumentSummary(bool isGroupByOriginCode, string[] blotterCodeSelecteds, Action<List<OpenInterestSummary>> EndGetInstrumentSummary)
+        public void GetOpenInterestInstrumentSummary(string exchangeCode, bool isGroupByOriginCode, string[] blotterCodeSelecteds, Action<List<OpenInterestSummary>> EndGetOpenInterestInstrumentSummary)
         {
-            this._ServiceProxy.BeginGetInstrumentSummary(isGroupByOriginCode, blotterCodeSelecteds, delegate(IAsyncResult result)
+            this._ServiceProxy.BeginGetOpenInterestInstrumentSummary(exchangeCode,isGroupByOriginCode, blotterCodeSelecteds, delegate(IAsyncResult result)
             {
-                List<iExchange.Common.Manager.OpenInterestSummary> openInterestSummarys = this._ServiceProxy.EndGetInstrumentSummary(result);
-                EndGetInstrumentSummary(openInterestSummarys);
+                List<iExchange.Common.Manager.OpenInterestSummary> openInterestSummarys = this._ServiceProxy.EndGetOpenInterestInstrumentSummary(result);
+                EndGetOpenInterestInstrumentSummary(openInterestSummarys);
             }, null);
         }
 
-        public void GetAccountSummary(Guid instrumentId,string[] blotterCodeSelecteds, Action<Guid,List<OpenInterestSummary>> EndGetAccountSummary)
+        public void GetOpenInterestAccountSummary(string exchangeCode, Guid instrumentId, string[] blotterCodeSelecteds, Action<Guid, List<OpenInterestSummary>> EndGetOpenInterestAccountSummary)
         {
-            this._ServiceProxy.BeginGetAccountSummary(instrumentId,blotterCodeSelecteds, delegate(IAsyncResult result)
+            this._ServiceProxy.BeginGetOpenInterestAccountSummary(exchangeCode,instrumentId,blotterCodeSelecteds, delegate(IAsyncResult result)
             {
-                List<iExchange.Common.Manager.OpenInterestSummary> openInterestSummarys = this._ServiceProxy.EndGetAccountSummary(result);
-                EndGetAccountSummary(instrumentId,openInterestSummarys);
+                List<iExchange.Common.Manager.OpenInterestSummary> openInterestSummarys = this._ServiceProxy.EndGetOpenInterestAccountSummary(result);
+                EndGetOpenInterestAccountSummary(instrumentId, openInterestSummarys);
             }, null);
         }
 
-        public void GetOrderSummary(ManagerConsole.ViewModel.OpenInterestSummary accountSumamry, string[] blotterCodeSelecteds, Action<ManagerConsole.ViewModel.OpenInterestSummary, List<OpenInterestSummary>> EndGetOrderSummary)
+        public void GetOpenInterestOrderSummary(string exchangeCode,ManagerConsole.ViewModel.OpenInterestSummary accountSumamry, string[] blotterCodeSelecteds, Action<ManagerConsole.ViewModel.OpenInterestSummary, List<OpenInterestSummary>> EndGetOpenInterestOrderSummary)
         {
             Guid accountId = accountSumamry.Id;
             Guid instrumentId = accountSumamry.InstrumentId;
-            this._ServiceProxy.BeginGetOrderSummary(accountId,instrumentId,accountSumamry.AccountType,blotterCodeSelecteds, delegate(IAsyncResult result)
+            this._ServiceProxy.BeginGetOpenInterestOrderSummary(exchangeCode, instrumentId,accountId, accountSumamry.AccountType, blotterCodeSelecteds, delegate(IAsyncResult result)
             {
-                List<iExchange.Common.Manager.OpenInterestSummary> openInterestSummarys = this._ServiceProxy.EndGetOrderSummary(result);
-                EndGetOrderSummary(accountSumamry,openInterestSummarys);
+                List<iExchange.Common.Manager.OpenInterestSummary> openInterestSummarys = this._ServiceProxy.EndGetOpenInterestOrderSummary(result);
+                EndGetOpenInterestOrderSummary(accountSumamry,openInterestSummarys);
             }, null);
         }
         #endregion
@@ -759,6 +770,24 @@ namespace ManagerConsole.Model
             this._ServiceProxy.BeginExchangeSuspendResume(instruments, resume, delegate(IAsyncResult ar)
             {
                 this._ServiceProxy.EndExchangeSuspendResume(ar);
+            }, null);
+        }
+
+        public void GetOriginQuotationForModifyAskBidHistory(string exchangeCode, Guid instrumentId, DateTime timeSpan, string origin, Action<List<HistoryQuotationData>> callBack)
+        {
+            this._ServiceProxy.BeginGetOriginQuotationForModifyAskBidHistory(exchangeCode, instrumentId, timeSpan, origin, delegate(IAsyncResult ar)
+            {
+                List<HistoryQuotationData> historyQuotations = this._ServiceProxy.EndGetOriginQuotationForModifyAskBidHistory(ar);
+                callBack(historyQuotations);
+            }, null);
+        }
+
+        public void UpdateHighLow(string exchangeCode, Guid instrumentId, bool isOriginHiLo, string newInput, bool isUpdateHigh,Action<UpdateHighLowBatchProcessInfo> callback)
+        {
+            this._ServiceProxy.BeginUpdateHighLow(exchangeCode, instrumentId, isOriginHiLo, newInput, isUpdateHigh, delegate(IAsyncResult ar)
+            {
+                UpdateHighLowBatchProcessInfo batchInfo = this._ServiceProxy.EndUpdateHighLow(ar);
+                callback(batchInfo);
             }, null);
         }
         #endregion

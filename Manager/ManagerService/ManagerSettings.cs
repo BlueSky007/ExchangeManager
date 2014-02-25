@@ -33,6 +33,7 @@ namespace ManagerService
         public string ServiceAddressForExchange;
         public int QuotationListenPort;
         public bool AllowModifyOrderLot;
+        public bool IsTaskSchedulerRunNotify;
         public ExchangeSystemSetting[] ExchangeSystems;
 
         public static ManagerSettings Load()

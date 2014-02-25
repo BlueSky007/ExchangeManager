@@ -21,6 +21,8 @@ namespace ManagerConsole.ViewModel
         public bool IsInitData = false;
         private ObservableCollection<InstrumentQuotation> _Exchanges = new ObservableCollection<InstrumentQuotation>();
 
+        public ObservableCollection<UpdateHighLowBatchProcessInfo> HighLowBatchProcessInfos { get; set; }
+                
         public ObservableCollection<InstrumentQuotation> Exchanges
         {
             get
@@ -44,6 +46,11 @@ namespace ManagerConsole.ViewModel
                 return true;
             }
             bool isSuccess = false;
+            if (!App.MainFrameWindow.ExchangeDataManager.IsInitializeCompleted)
+            {
+                this.IsInitData = false;
+                return false;
+            }
             isSuccess = this.Convert(App.MainFrameWindow.ExchangeDataManager.ExchangeSettingManagers);
 
             this.IsInitData = isSuccess;
@@ -104,6 +111,7 @@ namespace ManagerConsole.ViewModel
             {
                 return false;
             }
+            this.HighLowBatchProcessInfos = new ObservableCollection<UpdateHighLowBatchProcessInfo>();
             return true;
         }
 
@@ -148,53 +156,89 @@ namespace ManagerConsole.ViewModel
                         this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).PriceType = (PriceType)set.Value;
                         break;
                     case InstrumentQuotationEditType.AutoAdjustPoints:
-                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).AutoAdjustPoints = set.Value;
+                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).AutoAdjustPoints = int.Parse(set.Value.ToString());
                         break;
                     case InstrumentQuotationEditType.AutoAdjustPoints2:
-                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).AutoAdjustPoints2 = set.Value;
+                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).AutoAdjustPoints2 = int.Parse(set.Value.ToString());
                         break;
                     case InstrumentQuotationEditType.AutoAdjustPoints3:
-                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).AutoAdjustPoints3 = set.Value;
+                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).AutoAdjustPoints3 = int.Parse(set.Value.ToString());
                         break;
                     case InstrumentQuotationEditType.AutoAdjustPoints4:
-                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).AutoAdjustPoints4 = set.Value;
+                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).AutoAdjustPoints4 = int.Parse(set.Value.ToString());
                         break;
                     case InstrumentQuotationEditType.SpreadPoints:
-                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).SpreadPoints = set.Value;
+                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).SpreadPoints = int.Parse(set.Value.ToString());
                         break;
                     case InstrumentQuotationEditType.SpreadPoints2:
-                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).SpreadPoints2 = set.Value;
+                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).SpreadPoints2 = int.Parse(set.Value.ToString());
                         break;
                     case InstrumentQuotationEditType.SpreadPoints3:
-                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).SpreadPoints3 = set.Value;
+                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).SpreadPoints3 = int.Parse(set.Value.ToString());
                         break;
                     case InstrumentQuotationEditType.SpreadPoints4:
-                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).SpreadPoints4 = set.Value;
+                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).SpreadPoints4 = int.Parse(set.Value.ToString());
                         break;
                     case InstrumentQuotationEditType.MaxAuotAutoAdjustPointsPoints:
-                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).MaxAuotAdjustPoints = set.Value;
+                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).MaxAuotAdjustPoints = int.Parse(set.Value.ToString());
                         break;
                     case InstrumentQuotationEditType.MaxSpreadPointsPoints:
-                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).MaxSpreadPoints = set.Value;
+                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).MaxSpreadPoints = int.Parse(set.Value.ToString());
                         break;
                     case InstrumentQuotationEditType.IsOriginHiLo:
-                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).IsOriginHiLo = (set.Value ==1);
+                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).IsOriginHiLo = (int.Parse(set.Value.ToString()) == 1);
                         break;
                     case InstrumentQuotationEditType.IsAutoFill:
-                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).IsAutoFill = (set.Value ==1);
+                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).IsAutoFill = (int.Parse(set.Value.ToString()) == 1);
                         break;
                     case InstrumentQuotationEditType.IsPriceEnabled:
-                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).IsPriceEnabled = (set.Value == 1);
+                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).IsPriceEnabled = (int.Parse(set.Value.ToString()) == 1);
                         break;
                     case InstrumentQuotationEditType.IsAutoEnablePrice:
-                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).IsAutoEnablePrice = (set.Value == 1);
+                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).IsAutoEnablePrice = (int.Parse(set.Value.ToString()) == 1);
                         break;
                     case InstrumentQuotationEditType.OrderTypeMask:
-                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).OrderTypeMask = set.Value;
+                        this.Exchanges.SingleOrDefault(e => e.ExchangeCode == set.ExchangeCode && e.QuotationPolicyId == set.QoutePolicyId && e.InstruemtnId == set.InstrumentId).OrderTypeMask = int.Parse(set.Value.ToString());
                         break;
                     case InstrumentQuotationEditType.Resume:
                         break;
                     case InstrumentQuotationEditType.Suspend:
+                        break;
+                    case InstrumentQuotationEditType.High:
+                        break;
+                    case InstrumentQuotationEditType.Low:
+                        break;
+                    case InstrumentQuotationEditType.AcceptLmtVariation:
+                        break;
+                    case InstrumentQuotationEditType.AutoDQMaxLot:
+                        break;
+                    case InstrumentQuotationEditType.AlertVariation:
+                        break;
+                    case InstrumentQuotationEditType.DqQuoteMinLot:
+                        break;
+                    case InstrumentQuotationEditType.MaxDQLot:
+                        break;
+                    case InstrumentQuotationEditType.NormalWaitTime:
+                        break;
+                    case InstrumentQuotationEditType.AlertWaitTime:
+                        break;
+                    case InstrumentQuotationEditType.MaxOtherLot:
+                        break;
+                    case InstrumentQuotationEditType.CancelLmtVariation:
+                        break;
+                    case InstrumentQuotationEditType.MaxMinAdjust:
+                        break;
+                    case InstrumentQuotationEditType.PenetrationPoint:
+                        break;
+                    case InstrumentQuotationEditType.PriceValidTime:
+                        break;
+                    case InstrumentQuotationEditType.AutoCancelMaxLot:
+                        break;
+                    case InstrumentQuotationEditType.AutoAcceptMaxLot:
+                        break;
+                    case InstrumentQuotationEditType.HitPriceVariationForSTP:
+                        break;
+                    case InstrumentQuotationEditType.AutoDQDelay:
                         break;
                     default:
                         break;
@@ -264,8 +308,25 @@ namespace ManagerConsole.ViewModel
         private int _OrderTypeMask;
         private bool _AllowLimit = false;
 
-        private Scheduler _Scheduler = new Scheduler();
+        public int _AcceptLmtVariation;
+        public decimal _AutoDQMaxLot;
+        public int _AlertVariation;
+        public decimal _DqQuoteMinLot;
+        public decimal _MaxDQLot;
+        public int _NormalWaitTime;
+        public int _AlertWaitTime;
+        public decimal _MaxOtherLot;
+        public int _CancelLmtVariation;
+        public int _MaxMinAdjust;
+        public int _PenetrationPoint;
+        public int _PriceValidTime;
+        public decimal _AutoCancelMaxLot;
+        public decimal _AutoAcceptMaxLot;
+        public int _HitPriceVariationForSTP;
+        public int _AutoDQDelay;
 
+        private Scheduler _Scheduler = new Scheduler();
+        
         [Browsable(false)]
         public string ExchangeCode
         {
@@ -613,6 +674,151 @@ namespace ManagerConsole.ViewModel
             }
         }
 
+        public int AcceptLmtVariation
+        {
+            get { return _AcceptLmtVariation; }
+            set
+            {
+                _AcceptLmtVariation = value;
+                NotifyPropertyChanged("AcceptLmtVariation");
+            }
+        }
+        public decimal AutoDQMaxLot
+        {
+            get { return _AutoDQMaxLot; }
+            set
+            {
+                _AutoDQMaxLot = value;
+                NotifyPropertyChanged("AutoDQMaxLot");
+            }
+        }
+        public int AlertVariation
+        {
+            get { return _AlertVariation; }
+            set
+            {
+                _AlertVariation = value;
+                NotifyPropertyChanged("AlertVariation");
+            }
+        }
+        public decimal DqQuoteMinLot
+        {
+            get { return _DqQuoteMinLot; }
+            set
+            {
+                _DqQuoteMinLot = value;
+                NotifyPropertyChanged("DqQuoteMinLot");
+            }
+        }
+        public decimal MaxDQLot
+        {
+            get { return _MaxDQLot; }
+            set
+            {
+                _MaxDQLot = value;
+                NotifyPropertyChanged("MaxDQLot");
+            }
+        }
+        public int NormalWaitTime
+        {
+            get { return _NormalWaitTime; }
+            set
+            {
+                _NormalWaitTime = value;
+                NotifyPropertyChanged("NormalWaitTime");
+            }
+        }
+        public int AlertWaitTime
+        {
+            get { return _AlertWaitTime; }
+            set
+            {
+                _AlertWaitTime = value;
+                NotifyPropertyChanged("AlertWaitTime");
+            }
+        }
+        public decimal MaxOtherLot
+        {
+            get { return _MaxOtherLot; }
+            set
+            {
+                _MaxOtherLot = value;
+                NotifyPropertyChanged("MaxOtherLot");
+            }
+        }
+        public int CancelLmtVariation
+        {
+            get { return _CancelLmtVariation; }
+            set
+            {
+                _CancelLmtVariation = value;
+                NotifyPropertyChanged("CancelLmtVariation");
+            }
+        }
+        public int MaxMinAdjust
+        {
+            get { return _MaxMinAdjust; }
+            set
+            {
+                _MaxMinAdjust = value;
+                NotifyPropertyChanged("MaxMinAdjust");
+            }
+        }
+        public int PenetrationPoint
+        {
+            get { return _PenetrationPoint; }
+            set
+            {
+                _PenetrationPoint = value;
+                NotifyPropertyChanged("PenetrationPoint");
+            }
+        }
+        public int PriceValidTime
+        {
+            get { return _PriceValidTime; }
+            set
+            {
+                _PriceValidTime = value;
+                NotifyPropertyChanged("PriceValidTime");
+            }
+        }
+        public decimal AutoCancelMaxLot
+        {
+            get { return _AutoCancelMaxLot; }
+            set
+            {
+                _AutoCancelMaxLot = value;
+                NotifyPropertyChanged("AutoCancelMaxLot");
+            }
+        }
+        public decimal AutoAcceptMaxLot
+        {
+            get { return _AutoAcceptMaxLot; }
+            set
+            {
+                _AutoAcceptMaxLot = value;
+                NotifyPropertyChanged("AutoAcceptMaxLot");
+            }
+        }
+        public int HitPriceVariationForSTP
+        {
+            get { return _HitPriceVariationForSTP; }
+            set
+            {
+                _HitPriceVariationForSTP = value;
+                NotifyPropertyChanged("HitPriceVariationForSTP");
+            }
+        }
+        public int AutoDQDelay
+        {
+            get { return _AutoDQDelay; }
+            set
+            {
+                _AutoDQDelay = value;
+                NotifyPropertyChanged("AutoDQDelay");
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void NotifyPropertyChanged(String info)
@@ -654,7 +860,75 @@ namespace ManagerConsole.ViewModel
             instrument.IsPriceEnabled = quote.IsPriceEnabled;
             instrument.IsAutoEnablePrice = quote.IsAutoEnablePrice;
             instrument.OrderTypeMask = quote.OrderTypeMask;
+            instrument.AcceptLmtVariation = quote.AcceptLmtVariation;
+            instrument.AutoDQMaxLot = quote.AutoDQMaxLot;
+            instrument.AlertVariation = quote.AlertVariation;
+            instrument.DqQuoteMinLot = quote.DqQuoteMinLot;
+            instrument.MaxDQLot = quote.MaxDQLot;
+            instrument.NormalWaitTime = quote.NormalWaitTime;
+            instrument.AlertWaitTime = quote.AlertWaitTime;
+            instrument.MaxOtherLot = quote.MaxOtherLot;
+            instrument.CancelLmtVariation = quote.CancelLmtVariation;
+            instrument.MaxMinAdjust = quote.MaxMinAdjust;
+            instrument.PenetrationPoint = quote.PenetrationPoint;
+            instrument.PriceValidTime = quote.PriceValidTime;
+            instrument.AutoCancelMaxLot = quote.AutoCancelMaxLot;
+            instrument.AutoAcceptMaxLot = quote.AutoAcceptMaxLot;
             return instrument;
+        }
+
+        public bool IsDealerInput(InstrumentQuotationEditType type,decimal value)
+        {
+            switch (type)
+            {
+                case InstrumentQuotationEditType.PriceType:
+                    break;
+                case InstrumentQuotationEditType.AutoAdjustPoints:
+                    break;
+                case InstrumentQuotationEditType.AutoAdjustPoints2:
+                    break;
+                case InstrumentQuotationEditType.AutoAdjustPoints3:
+                    break;
+                case InstrumentQuotationEditType.AutoAdjustPoints4:
+                    break;
+                case InstrumentQuotationEditType.SpreadPoints:
+                    break;
+                case InstrumentQuotationEditType.SpreadPoints2:
+                    break;
+                case InstrumentQuotationEditType.SpreadPoints3:
+                    break;
+                case InstrumentQuotationEditType.SpreadPoints4:
+                    break;
+                case InstrumentQuotationEditType.MaxAuotAutoAdjustPointsPoints:
+                    break;
+                case InstrumentQuotationEditType.MaxSpreadPointsPoints:
+                    break;
+                case InstrumentQuotationEditType.IsOriginHiLo:
+                    break;
+                case InstrumentQuotationEditType.IsAutoFill:
+                    break;
+                case InstrumentQuotationEditType.IsPriceEnabled:
+                    break;
+                case InstrumentQuotationEditType.IsAutoEnablePrice:
+                    break;
+                case InstrumentQuotationEditType.Resume:
+                    break;
+                case InstrumentQuotationEditType.Suspend:
+                    break;
+                case InstrumentQuotationEditType.OrderTypeMask:
+                    break;
+                case InstrumentQuotationEditType.High:
+                    decimal high;
+                    decimal.TryParse(this._High, out high);
+                    return high != value;
+                case InstrumentQuotationEditType.Low:
+                    decimal low;
+                    decimal.TryParse(this._Low, out low);
+                    return low != value;
+                default:
+                    break;
+            }
+            return false;
         }
 
         private void SetPriceTrend(string propertyName, string newValue)

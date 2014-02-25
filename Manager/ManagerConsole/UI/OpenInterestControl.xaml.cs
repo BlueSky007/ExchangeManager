@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -45,21 +46,53 @@ namespace ManagerConsole.UI
         private Style _BuySummaryGroupStyle;
         private Style _SellSummaryGroupStyle;
         private Style _GroupHeadStyle;
+        private Style _SummaryGroupHeaderStyle;
+        private Style _NormalHeaderStyle;
         public OpenInterestControl()
         {
             InitializeComponent();
-            this.InitializeData();
-            //this.AttachEvent();
+            this._App = (MainWindow)Application.Current.MainWindow;
+            Thread thread = new Thread(new ThreadStart(delegate()
+            {
+                while (!this.InilizeUI())
+                {
+                    Thread.Sleep(800);
+                }
+            }));
+            thread.IsBackground = true;
+            thread.Start();
+        }
+
+        private bool InilizeUI()
+        {
+            if (this._App.ExchangeDataManager.IsInitializeCompleted)
+            {
+                this.Dispatcher.BeginInvoke((Action)delegate()
+                {
+                    this.InitializeData();
+                });
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private void InitializeData()
         {
-            this._App = (MainWindow)Application.Current.MainWindow;
             this._BuyCellStyle = this.Resources["BuyCellStyle"] as Style;
             this._SellCellStyle = this.Resources["SellCellStyle"] as Style;
             this._BuySummaryGroupStyle = this.Resources["BuySummaryGroupCellStyle"] as Style;
             this._SellSummaryGroupStyle = this.Resources["SellSummaryGroupStyle"] as Style;
             this._GroupHeadStyle = this.Resources["GroupHeaderStyle"] as Style;
+            this._SummaryGroupHeaderStyle = this.Resources["SummaryGroupHeaderStyle"] as Style;
+            this._NormalHeaderStyle = this.Resources["NormalHeaderStyle"] as Style;
+
+            this.ExchangeComboBox.ItemsSource = this._App.ExchangeDataManager.ExchangeCodes;
+            this.ExchangeComboBox.SelectedItem = this._App.ExchangeDataManager.ExchangeCodes[0];
+            this.ExchangeComboBox2.ItemsSource = this._App.ExchangeDataManager.ExchangeCodes;
+            this.ExchangeComboBox2.SelectedItem = this._App.ExchangeDataManager.ExchangeCodes[0];
             this.QueryGroupNetPosition();
         }
 
@@ -111,20 +144,24 @@ namespace ManagerConsole.UI
                     if (instrumentGNP.IsSummaryGroup)
                     {
                         row.Cells[column].Style = this._BuySummaryGroupStyle;
+                        column.HeaderText = "555";
                     }
                     continue;
                 }
-                if ((decimal)obj.Columns[index] > 0)
+                if ((decimal)obj.Columns[index] >= 0)
                 {
                     row.Cells[column].Style = instrumentGNP.IsSummaryGroup ? this._BuySummaryGroupStyle : this._BuyCellStyle;
+                    row.Cells[column].Column.HeaderStyle = instrumentGNP.IsSummaryGroup ? this._SummaryGroupHeaderStyle : this._NormalHeaderStyle;
                 }
                 else if ((decimal)obj.Columns[index] < 0)
                 {
                     row.Cells[column].Style = instrumentGNP.IsSummaryGroup ? this._SellSummaryGroupStyle : this._SellCellStyle;
+                    row.Cells[column].Column.HeaderStyle = instrumentGNP.IsSummaryGroup ? this._SummaryGroupHeaderStyle : this._NormalHeaderStyle;
                 }
                 else
                 {
                     row.Cells[column].Style = this._BuySummaryGroupStyle;
+                   
                 }
             } 
         }
@@ -132,78 +169,95 @@ namespace ManagerConsole.UI
         #region Grid Event
         private void GroupNetPositionGrid_ColumnLayoutAssigned(object sender, ColumnLayoutAssignedEventArgs e)
         {
-            if (e.ColumnLayout.Columns.Count == 4 && e.DataType == typeof(RootGNP))
+            try
             {
-                this._ColumnsList = this.GetSortedInstrumentGNPs(this._AllColumns);
-
-                foreach (InstrumentGNP de in this._ColumnsList)
+                if (e.ColumnLayout.Columns.Count == 4 && e.DataType == typeof(RootGNP))
                 {
-                    string headText = de.IsSummaryGroup ? de.SummaryGroupCode : de.InstrumentCode;
-                    //summaryColumnStyle = de.IsSummaryGroup ? this._SummaryGroupStyle : null;
-                    Debug.WriteLine(headText);
-                    string myKey = "Columns[MyColumn" + de.ColumnIndex + "]";
-                    e.ColumnLayout.Columns.Add(new TextColumn
-                    {
-                        HeaderText = headText,
-                        Key = myKey,
-                        Width = new ColumnWidth(100, false),
-                        IsReadOnly = true,
-                        //CellStyle = summaryColumnStyle,
-                    });
+                    this._ColumnsList = this.GetSortedInstrumentGNPs(this._AllColumns);
 
-                    e.ColumnLayout.Columns.ColumnLayouts["AccountGroupGNPs"].Columns.Add(new TextColumn
+                    foreach (InstrumentGNP de in this._ColumnsList)
                     {
-                        HeaderText = headText,
-                        Key = myKey,
-                        Width = new ColumnWidth(100, false),
-                        IsReadOnly = true,
-                        //CellStyle = summaryColumnStyle,
-                    });
+                        string headText = de.IsSummaryGroup ? de.SummaryGroupCode : de.InstrumentCode;
+                        Debug.WriteLine(headText);
+                        string myKey = "Columns[MyColumn" + de.ColumnIndex + "]";
+                        e.ColumnLayout.Columns.Add(new TextColumn
+                        {
+                            HeaderText = headText,
+                            Key = myKey,
+                            Width = new ColumnWidth(100, false),
+                            IsReadOnly = true,
+                            IsResizable = true,
+                            HorizontalContentAlignment = System.Windows.HorizontalAlignment.Right,
+                        });
 
-                    e.ColumnLayout.Columns.ColumnLayouts["AccountGroupGNPs"].Columns.ColumnLayouts["AccountGNPs"].Columns.Add(new TextColumn
-                    {
-                        HeaderText = headText,
-                        Key = myKey,
-                        Width = new ColumnWidth(100, false),
-                        IsReadOnly = true,
-                        //CellStyle = summaryColumnStyle,
-                    });
-                    e.ColumnLayout.Columns.ColumnLayouts["AccountGroupGNPs"].Columns.ColumnLayouts["AccountGNPs"].Columns.ColumnLayouts["DetailGNPs"].Columns.Add(new TextColumn
-                    {
-                        HeaderText = headText,
-                        Key = myKey,
-                        Width = new ColumnWidth(100, false),
-                        IsReadOnly = true,
-                       // CellStyle = summaryColumnStyle,
-                    });
+                        e.ColumnLayout.Columns.ColumnLayouts["AccountGroupGNPs"].Columns.Add(new TextColumn
+                        {
+                            HeaderText = headText,
+                            Key = myKey,
+                            Width = new ColumnWidth(100, false),
+                            IsReadOnly = true,
+                            IsResizable = true,
+                            HorizontalContentAlignment = System.Windows.HorizontalAlignment.Right,
+                        });
+
+                        e.ColumnLayout.Columns.ColumnLayouts["AccountGroupGNPs"].Columns.ColumnLayouts["AccountGNPs"].Columns.Add(new TextColumn
+                        {
+                            HeaderText = headText,
+                            Key = myKey,
+                            Width = new ColumnWidth(100, false),
+                            IsReadOnly = true,
+                            IsResizable = true,
+                            HorizontalContentAlignment = System.Windows.HorizontalAlignment.Right,
+                        });
+                        e.ColumnLayout.Columns.ColumnLayouts["AccountGroupGNPs"].Columns.ColumnLayouts["AccountGNPs"].Columns.ColumnLayouts["DetailGNPs"].Columns.Add(new TextColumn
+                        {
+                            HeaderText = headText,
+                            Key = myKey,
+                            Width = new ColumnWidth(100, false),
+                            IsReadOnly = true,
+                            IsResizable = true,
+                            HorizontalContentAlignment = System.Windows.HorizontalAlignment.Right,
+                        });
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "OpenInterestControl.GroupNetPositionGrid_ColumnLayoutAssigned Error\r\n{0}", ex.ToString());
             }
         }
 
         private void GroupNetPositionGrid_InitializeRow(object sender, InitializeRowEventArgs e)
         {
-            RootGNP rootGNP = e.Row.Data as RootGNP;
-            if (rootGNP != null)
+            try
             {
-                this.SettingGridStyle(e.Row, rootGNP);
-            }
+                RootGNP rootGNP = e.Row.Data as RootGNP;
+                if (rootGNP != null)
+                {
+                    this.SettingGridStyle(e.Row, rootGNP);
+                }
 
-            AccountGroupGNP accountGroupGNP = e.Row.Data as AccountGroupGNP;
-            if (accountGroupGNP != null)
-            {
-                this.SettingGridStyle(e.Row, accountGroupGNP);
-            }
+                AccountGroupGNP accountGroupGNP = e.Row.Data as AccountGroupGNP;
+                if (accountGroupGNP != null)
+                {
+                    this.SettingGridStyle(e.Row, accountGroupGNP);
+                }
 
-            AccountGNP accountGNP = e.Row.Data as AccountGNP;
-            if (accountGNP != null)
-            {
-                this.SettingGridStyle(e.Row, accountGNP);
-            }
+                AccountGNP accountGNP = e.Row.Data as AccountGNP;
+                if (accountGNP != null)
+                {
+                    this.SettingGridStyle(e.Row, accountGNP);
+                }
 
-            DetailGNP detailGNP = e.Row.Data as DetailGNP;
-            if (detailGNP != null)
+                DetailGNP detailGNP = e.Row.Data as DetailGNP;
+                if (detailGNP != null)
+                {
+                    this.SettingGridStyle(e.Row, detailGNP);
+                }
+            }
+            catch (Exception ex)
             {
-                this.SettingGridStyle(e.Row, detailGNP);
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "OpenInterestControl.GroupNetPositionGrid_InitializeRow Error\r\n{0}", ex.ToString());
             }
         }
 
@@ -258,35 +312,21 @@ namespace ManagerConsole.UI
         }
 
         #endregion
-        private void tabControl_SelectionChanged(object sender, RoutedEventArgs e)
+
+        private void _OpenInterestTab_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             e.Handled = true;
-            int selectedIndex = this._OpenInterestTab.TabIndex;
 
-            Infragistics.Windows.Controls.TabItemEx selectedTab = this._OpenInterestTab.SelectedItem as Infragistics.Windows.Controls.TabItemEx;
-            if (selectedTab.Name == "NetPositionItem")
+            if (this.NetPositionItem.IsSelected)
             {
                 this._SummaryToolbar.Visibility = System.Windows.Visibility.Collapsed;
                 this._NetPositionToolbar.Visibility = System.Windows.Visibility.Visible;
             }
-            else
+            if (this.SummaryItem.IsSelected)
             {
                 this._SummaryToolbar.Visibility = System.Windows.Visibility.Visible;
                 this._NetPositionToolbar.Visibility = System.Windows.Visibility.Collapsed;
             }
-        }
-
-        int index = 0;
-        void AddTable_Click(object sender, RoutedEventArgs e)
-        {
-            index++;
-            Infragistics.Windows.Controls.TabItemEx newTabItemEx = new Infragistics.Windows.Controls.TabItemEx();
-
-            newTabItemEx.CloseButtonVisibility = Infragistics.Windows.Controls.TabItemCloseButtonVisibility.Visible;
-            newTabItemEx.Header = string.Format("Net Postion", index.ToString());
-            newTabItemEx.Content = new OpenInterestControl();
-
-            this._OpenInterestTab.Items.Add(newTabItemEx);
         }
 
         private void RadioButton_Click(object sender, RoutedEventArgs e)
@@ -316,6 +356,7 @@ namespace ManagerConsole.UI
                     string key = "MyColumn" + de.ColumnIndex;
 
                     if (rootGNP.Columns[key] == null || accountGroupGNP.Columns[key] == null) continue;
+
                     decimal totalSum = (decimal)rootGNP.Columns[key];
                     decimal groupSum = (decimal)accountGroupGNP.Columns[key];
                     if (isCheck)
@@ -326,7 +367,9 @@ namespace ManagerConsole.UI
                         }
                         else
                         {
-                            rootGNP.Columns[key] = totalSum + groupSum * (newOIPercent - oldOiPercent) / 100;
+                            ColumnKeys keys = rootGNP.Columns;
+                            keys[key] = totalSum + groupSum * (newOIPercent - oldOiPercent) / 100;
+                            rootGNP.Columns = keys;
                         }
                     }
                     else
@@ -334,12 +377,13 @@ namespace ManagerConsole.UI
                         rootGNP.Columns[key] = totalSum - groupSum * newOIPercent;
                     }
                 }
-                this._GroupNetPositionGrid.ItemsSource = null;
-                this._GroupNetPositionGrid.ItemsSource = this._RootGNP;
+
+                //this._GroupNetPositionGrid.ItemsSource = null;
+                //this._GroupNetPositionGrid.ItemsSource = this._RootGNP;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Logger.AddEvent(TraceEventType.Error, "CalculateOIPercentQuantity:{0}", ex.ToString());
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "OpenInterestControl.CalculateOIPercentQuantity Error\r\n{0}", ex.ToString());
             }
         }
 
@@ -390,13 +434,17 @@ namespace ManagerConsole.UI
 
         private void QueryGroupNetPosition()
         {
-            ConsoleClient.Instance.GetGroupNetPosition(this.GetGroupNetPositionCallback);
+            bool showActualQuantity = true;
+            //string[] blotterCodeSelecteds
+            string exchangeCode = (string)this.ExchangeComboBox.SelectedItem;
+            ConsoleClient.Instance.GetGroupNetPosition(exchangeCode,showActualQuantity, null, this.GetGroupNetPositionCallback);
         }
 
         private void GetGroupNetPositionCallback(List<CommonAccountGroupGNP> accountGroupGNPs)
         {
             this.Dispatcher.BeginInvoke((Action)delegate() 
             {
+                if (accountGroupGNPs == null) return;
                 RootGNP rootGNP = new RootGNP();
                 foreach (CommonAccountGroupGNP group in accountGroupGNPs)
                 {
@@ -411,7 +459,7 @@ namespace ManagerConsole.UI
 
         private void BindingData()
         {
-            this._GroupNetPositionGrid.ItemsSource = this._RootGNP; ;
+            this._GroupNetPositionGrid.ItemsSource = this._RootGNP;
         }
 
         private void CalculateLotBalance()
@@ -425,7 +473,8 @@ namespace ManagerConsole.UI
                     DetailGNP detailGNP = new DetailGNP();
                     foreach (InstrumentGNP instrumentGNP in accountGNP.InstrumentGNPs)
                     {
-                        InstrumentClient instrument = this._App.ExchangeDataManager.GetExchangeSetting("WF01").Instruments.Values.SingleOrDefault(P => P.Id == instrumentGNP.Id);
+                        InstrumentClient instrument = this._App.ExchangeDataManager.GetExchangeSetting("CHUNG").Instruments.Values.SingleOrDefault(P => P.Id == instrumentGNP.Id);
+                        if (instrument == null) continue;
                         instrumentGNP.Instrument = instrument;
 
                         string summaryGroupCode = instrument.SummaryGroupId == null ? "Other":instrument.SummaryGroupCode;
@@ -512,22 +561,27 @@ namespace ManagerConsole.UI
 
         private void SummaryItemGrid_RowExpansionChanging(object sender, RowExpansionChangedEventArgs e)
         {
-            OpenInterestSummary openInterestSummary = e.Row.Data as OpenInterestSummary;
-            
-            string[] blotterCodes = new string[] { "123" };
-
-
-            if (openInterestSummary.Type == OpenInterestSummaryType.Instrument)
+            try
             {
-                Guid instrumentId = openInterestSummary.Id;
-                if (this._InstrumentSummaryLoadings.Contains(instrumentId)) return;
-                this.QueryAccountSummary(instrumentId, blotterCodes);
+                OpenInterestSummary openInterestSummary = e.Row.Data as OpenInterestSummary;
+
+                string[] blotterCodes = null;
+                if (openInterestSummary.Type == OpenInterestSummaryType.Instrument)
+                {
+                    Guid instrumentId = openInterestSummary.Id;
+                    if (this._InstrumentSummaryLoadings.Contains(instrumentId)) return;
+                    this.QueryAccountSummary(instrumentId, blotterCodes);
+                }
+                else if (openInterestSummary.Type == OpenInterestSummaryType.Account)
+                {
+                    Guid accountId = openInterestSummary.Id;
+                    Guid instrumentId = openInterestSummary.InstrumentId;
+                    this.QueryOrderSummary(openInterestSummary, null);
+                }
             }
-            else if (openInterestSummary.Type == OpenInterestSummaryType.Account)
+            catch (Exception ex)
             {
-                Guid accountId = openInterestSummary.Id;
-                Guid instrumentId = openInterestSummary.InstrumentId;
-                this.QueryOrderSummary(openInterestSummary, blotterCodes);
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "OpenInterestControl.SummaryItemGrid_RowExpansionChanging Error\r\n{0}", ex.ToString());
             }
         }
 
@@ -536,19 +590,22 @@ namespace ManagerConsole.UI
             this._OpenInterestSummarys.Clear();
             bool isGroupByOriginCode = this._OriginCodeRadio.IsChecked.Value;
             string[] blotterCodes = new string[] { "123"};
-            this.QueryInstrumentSummary(isGroupByOriginCode, blotterCodes);
+            this.QueryInstrumentSummary(isGroupByOriginCode, null);
         }
         private void QueryInstrumentSummary(bool isGroupByOriginCode, string[] blotterCodes)
         {
-            ConsoleClient.Instance.GetInstrumentSummary(isGroupByOriginCode,blotterCodes,this.GetInstrumentSummaryCallback);
+            string exchangeCode = (string)this.ExchangeComboBox.SelectedItem;
+            ConsoleClient.Instance.GetOpenInterestInstrumentSummary(exchangeCode,isGroupByOriginCode, blotterCodes, this.GetInstrumentSummaryCallback);
         }
         private void QueryAccountSummary(Guid instrumentId, string[] blotterCodes)
         {
-            ConsoleClient.Instance.GetAccountSummary(instrumentId, blotterCodes, this.GetAccountSummaryCallback);
+            string exchangeCode = (string)this.ExchangeComboBox.SelectedItem;
+            ConsoleClient.Instance.GetOpenInterestAccountSummary(exchangeCode,instrumentId, blotterCodes, this.GetAccountSummaryCallback);
         }
         private void QueryOrderSummary(OpenInterestSummary accountSumamry, string[] blotterCodes)
         {
-            ConsoleClient.Instance.GetOrderSummary(accountSumamry, blotterCodes, this.GetOrderSummaryCallback);
+            string exchangeCode = (string)this.ExchangeComboBox.SelectedItem;
+            ConsoleClient.Instance.GetOpenInterestOrderSummary(exchangeCode,accountSumamry, blotterCodes, this.GetOrderSummaryCallback);
         }
 
         private void GetInstrumentSummaryCallback(List<CommonOpenInterestSummary> openInterestSummarys)
@@ -568,12 +625,22 @@ namespace ManagerConsole.UI
         {
             this.Dispatcher.BeginInvoke((Action)delegate()
             {
+                string exchangeCode = (string)this.ExchangeComboBox.SelectedItem;
+                ExchangeSettingManager settingManager = this._App.ExchangeDataManager.GetExchangeSetting(exchangeCode);
                 ObservableCollection<OpenInterestSummary> accountGroupSummarys = new ObservableCollection<OpenInterestSummary>();
                 
                 foreach (CommonOpenInterestSummary openInterestSummary in openInterestSummarys)
                 {
                     OpenInterestSummary entity = new OpenInterestSummary(openInterestSummary, OpenInterestSummaryType.Account);
                     entity.InstrumentId = instrumentId;
+                    Guid accountId = entity.Id;
+
+                    Account account = settingManager.GetAccount(accountId);
+                    if (account != null)
+                    {
+                        entity.Code = account.Code;
+                    }
+
                     accountGroupSummarys.Add(entity);
                 }
 
@@ -584,8 +651,23 @@ namespace ManagerConsole.UI
                 foreach (IGrouping<string, OpenInterestSummary> group in query)
                 {
                    OpenInterestSummary groupSummary = new OpenInterestSummary(OpenInterestSummaryType.Group);
-                   groupSummary.Code = accountGroupSummarys[0].GroupCode;
-                   groupSummary.Id = accountGroupSummarys[0].GroupId;
+
+                   Guid accountId = accountGroupSummarys[0].Id;
+                   Guid accountGroupId = Guid.Empty;
+
+                   Account account = settingManager.GetAccount(accountId);
+                   if (account != null)
+                   {
+                       accountGroupId = account.GroupId;
+                   }
+
+                   AccountGroup accountGroup = settingManager.GetAccountGroup(accountGroupId);
+                   if (accountGroup != null)
+                   {
+                       groupSummary.Code = accountGroup.Code;
+                   }
+
+                   groupSummary.Id = accountGroupId;
 
                    List<OpenInterestSummary> accountSummarys = group.ToList<OpenInterestSummary>();
                    foreach (OpenInterestSummary item in accountGroupSummarys)
@@ -654,5 +736,7 @@ namespace ManagerConsole.UI
             }
         }
         #endregion
+
+        
     }
 }

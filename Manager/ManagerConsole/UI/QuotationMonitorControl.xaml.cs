@@ -275,6 +275,7 @@ namespace ManagerConsole.UI
                 }
             }
             layoutBuilder.AppendFormat("<Spliter width0=\"{0}\"/>", this.MainGrid.ColumnDefinitions[0].ActualWidth);
+            layoutBuilder.Append(ColumnWidthPersistence.GetPersistentColumnsWidthString(this.MonitorGrid));
             return layoutBuilder.ToString();
         }
 
@@ -301,6 +302,7 @@ namespace ManagerConsole.UI
                     {
                         this.MainGrid.ColumnDefinitions[0].Width = new GridLength(double.Parse(spliterElement.Attribute("width0").Value));
                     }
+                    ColumnWidthPersistence.LoadColumnsWidth(this.MonitorGrid, layout);
                 }
             }
             catch (Exception ex)

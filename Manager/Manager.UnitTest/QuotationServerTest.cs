@@ -82,10 +82,10 @@ namespace Manager.UnitTest
             ExchangeSystemSetting setting = new ExchangeSystemSetting();
             XmlSerializer serializer = new XmlSerializer(typeof(ManagerSettings));
             ManagerSettings settings = (ManagerSettings)serializer.Deserialize(new FileStream(@"D:\Teams\iExchangeCollection\iExchange3 Team\Manager\Manager.UnitTest\bin\Debug\Configuration\Manager.config", FileMode.Open));
-            setting = settings.ExchangeSystems[0]; // TODO: 初始化为适当的值
-            QuotationServer target = new QuotationServer(setting); // TODO: 初始化为适当的值
-            Token token = new Token(Guid.Empty, UserType.System, AppType.QuotationCollector); // TODO: 初始化为适当的值
-            List<GeneralQuotation> quotations = new List<GeneralQuotation>(); // TODO: 初始化为适当的值
+            setting = settings.ExchangeSystems[0]; // 初始化为适当的值
+            QuotationServer target = new QuotationServer(setting); // 初始化为适当的值
+            Token token = new Token(Guid.Empty, UserType.System, AppType.QuotationCollector); // 初始化为适当的值
+            List<GeneralQuotation> quotations = new List<GeneralQuotation>(); // 初始化为适当的值
             GeneralQuotation gene = new GeneralQuotation();
             gene.Ask = 10;
             gene.Bid = 10;
@@ -95,11 +95,11 @@ namespace Manager.UnitTest
             gene.TotalVolume = "13";
             gene.OriginCode = "XAUUSD";
             quotations.Add(gene);
-            iExchange.Common.OriginQuotation[] originQs = null; // TODO: 初始化为适当的值
-            //iExchange.Common.OriginQuotation[] originQsExpected = null; // TODO: 初始化为适当的值
-            iExchange.Common.OverridedQuotation[] overridedQs = null; // TODO: 初始化为适当的值
-            //iExchange.Common.OverridedQuotation[] overridedQsExpected = null; // TODO: 初始化为适当的值
-            bool expected = true; // TODO: 初始化为适当的值
+            iExchange.Common.OriginQuotation[] originQs = null; // 初始化为适当的值
+            //iExchange.Common.OriginQuotation[] originQsExpected = null; // 初始化为适当的值
+            iExchange.Common.OverridedQuotation[] overridedQs = null; // 初始化为适当的值
+            //iExchange.Common.OverridedQuotation[] overridedQsExpected = null; // 初始化为适当的值
+            bool expected = true; // 初始化为适当的值
             bool actual;
             actual = target.SetQuotation(token, quotations, out originQs, out overridedQs);
             //Assert.AreEqual(originQsExpected, originQs);
@@ -113,8 +113,8 @@ namespace Manager.UnitTest
         [TestMethod()]
         public void ResetTest()
         {
-            ExchangeSystemSetting setting = null; // TODO: 初始化为适当的值
-            QuotationServer target = new QuotationServer(setting); // TODO: 初始化为适当的值
+            ExchangeSystemSetting setting = null; // 初始化为适当的值
+            QuotationServer target = new QuotationServer(setting); // 初始化为适当的值
             target.Reset();
         }
 
@@ -127,9 +127,9 @@ namespace Manager.UnitTest
             ExchangeSystemSetting setting = new ExchangeSystemSetting();
             XmlSerializer serializer = new XmlSerializer(typeof(ManagerSettings));
             ManagerSettings settings = (ManagerSettings)serializer.Deserialize(new FileStream(@"D:\Teams\iExchangeCollection\iExchange3 Team\Manager\Manager.UnitTest\bin\Debug\Configuration\Manager.config", FileMode.Open));
-            setting = settings.ExchangeSystems[0]; // TODO: 初始化为适当的值
-            QuotationServer target = new QuotationServer(setting); // TODO: 初始化为适当的值
-            bool expected = true; // TODO: 初始化为适当的值
+            setting = settings.ExchangeSystems[0]; // 初始化为适当的值
+            QuotationServer target = new QuotationServer(setting); // 初始化为适当的值
+            bool expected = true; // 初始化为适当的值
             bool actual;
             actual = target.Flush();
             Assert.AreEqual(expected, actual);
@@ -144,10 +144,10 @@ namespace Manager.UnitTest
             ExchangeSystemSetting setting = new ExchangeSystemSetting();
             XmlSerializer serializer = new XmlSerializer(typeof(ManagerSettings));
             ManagerSettings settings = (ManagerSettings)serializer.Deserialize(new FileStream(@"D:\Teams\iExchangeCollection\iExchange3 Team\Manager\Manager.UnitTest\bin\Debug\Configuration\Manager.config", FileMode.Open));
-            setting = settings.ExchangeSystems[0]; // TODO: 初始化为适当的值
-            QuotationServer target = new QuotationServer(setting); // TODO: 初始化为适当的值
-            Token token = new Token(Guid.Empty, UserType.System, AppType.RiskMonitor); // TODO: 初始化为适当的值
-            string expected = string.Empty; // TODO: 初始化为适当的值
+            setting = settings.ExchangeSystems[0]; // 初始化为适当的值
+            QuotationServer target = new QuotationServer(setting); // 初始化为适当的值
+            Token token = new Token(Guid.Empty, UserType.System, AppType.RiskMonitor); // 初始化为适当的值
+            string expected = string.Empty; // 初始化为适当的值
             string actual;
             actual = target.GetQuotation(token);
             Assert.AreEqual(expected, actual);
@@ -162,15 +162,15 @@ namespace Manager.UnitTest
             ExchangeSystemSetting setting = new ExchangeSystemSetting();
             XmlSerializer serializer = new XmlSerializer(typeof(ManagerSettings));
             ManagerSettings settings = (ManagerSettings)serializer.Deserialize(new FileStream(@"D:\Teams\iExchangeCollection\iExchange3 Team\Manager\Manager.UnitTest\bin\Debug\Configuration\Manager.config", FileMode.Open));
-            setting = settings.ExchangeSystems[0]; // TODO: 初始化为适当的值
-            QuotationServer target = new QuotationServer(setting); // TODO: 初始化为适当的值
-            Token token = new Token(Guid.Empty, UserType.System, AppType.RiskMonitor); // TODO: 初始化为适当的值
-            List<GeneralQuotation> quotations = null; // TODO: 初始化为适当的值
-            iExchange.Common.OriginQuotation[] originQs = null; // TODO: 初始化为适当的值
-           // iExchange.Common.OriginQuotation[] originQsExpected = null; // TODO: 初始化为适当的值
-            iExchange.Common.OverridedQuotation[] overridedQs = null; // TODO: 初始化为适当的值
-           // iExchange.Common.OverridedQuotation[] overridedQsExpected = null; // TODO: 初始化为适当的值
-            bool expected = false; // TODO: 初始化为适当的值
+            setting = settings.ExchangeSystems[0]; // 初始化为适当的值
+            QuotationServer target = new QuotationServer(setting); // 初始化为适当的值
+            Token token = new Token(Guid.Empty, UserType.System, AppType.RiskMonitor); // 初始化为适当的值
+            List<GeneralQuotation> quotations = null; // 初始化为适当的值
+            iExchange.Common.OriginQuotation[] originQs = null; // 初始化为适当的值
+           // iExchange.Common.OriginQuotation[] originQsExpected = null; // 初始化为适当的值
+            iExchange.Common.OverridedQuotation[] overridedQs = null; // 初始化为适当的值
+           // iExchange.Common.OverridedQuotation[] overridedQsExpected = null; // 初始化为适当的值
+            bool expected = false; // 初始化为适当的值
             bool actual;
             actual = target.ReplayQuotation(token, quotations, out originQs, out overridedQs);
             //Assert.AreEqual(originQsExpected, originQs);
@@ -184,31 +184,31 @@ namespace Manager.UnitTest
         [TestMethod()]
         public void RestoreHighLowTest()
         {
-            ExchangeSystemSetting setting = null; // TODO: 初始化为适当的值
-            QuotationServer target = new QuotationServer(setting); // TODO: 初始化为适当的值
-            Token token = new Token(Guid.Empty, UserType.System, AppType.RiskMonitor); // TODO: 初始化为适当的值
-            string ip = string.Empty; // TODO: 初始化为适当的值
-            int batchProcessId = 0; // TODO: 初始化为适当的值
-            Guid instrumentId = new Guid(); // TODO: 初始化为适当的值
-            Guid instrumentIdExpected = new Guid(); // TODO: 初始化为适当的值
-            string instrumentCode = string.Empty; // TODO: 初始化为适当的值
-            string instrumentCodeExpected = string.Empty; // TODO: 初始化为适当的值
-            string newInput = string.Empty; // TODO: 初始化为适当的值
-            string newInputExpected = string.Empty; // TODO: 初始化为适当的值
-            bool isUpdateHigh = false; // TODO: 初始化为适当的值
-            bool isUpdateHighExpected = false; // TODO: 初始化为适当的值
-            bool highBid = false; // TODO: 初始化为适当的值
-            bool highBidExpected = false; // TODO: 初始化为适当的值
-            bool lowBid = false; // TODO: 初始化为适当的值
-            bool lowBidExpected = false; // TODO: 初始化为适当的值
-            DateTime minTimestamp = new DateTime(); // TODO: 初始化为适当的值
-            DateTime minTimestampExpected = new DateTime(); // TODO: 初始化为适当的值
-            iExchange.Common.OverridedQuotation[] overridedQs = null; // TODO: 初始化为适当的值
-            iExchange.Common.OverridedQuotation[] overridedQsExpected = null; // TODO: 初始化为适当的值
-            int returnValue = 0; // TODO: 初始化为适当的值
-            int returnValueExpected = 0; // TODO: 初始化为适当的值
-            string errorMessage = string.Empty; // TODO: 初始化为适当的值
-            string errorMessageExpected = string.Empty; // TODO: 初始化为适当的值
+            ExchangeSystemSetting setting = null; // 初始化为适当的值
+            QuotationServer target = new QuotationServer(setting); // 初始化为适当的值
+            Token token = new Token(Guid.Empty, UserType.System, AppType.RiskMonitor); // 初始化为适当的值
+            string ip = string.Empty; // 初始化为适当的值
+            int batchProcessId = 0; // 初始化为适当的值
+            Guid instrumentId = new Guid(); // 初始化为适当的值
+            Guid instrumentIdExpected = new Guid(); // 初始化为适当的值
+            string instrumentCode = string.Empty; // 初始化为适当的值
+            string instrumentCodeExpected = string.Empty; // 初始化为适当的值
+            string newInput = string.Empty; // 初始化为适当的值
+            string newInputExpected = string.Empty; // 初始化为适当的值
+            bool isUpdateHigh = false; // 初始化为适当的值
+            bool isUpdateHighExpected = false; // 初始化为适当的值
+            bool highBid = false; // 初始化为适当的值
+            bool highBidExpected = false; // 初始化为适当的值
+            bool lowBid = false; // 初始化为适当的值
+            bool lowBidExpected = false; // 初始化为适当的值
+            DateTime minTimestamp = new DateTime(); // 初始化为适当的值
+            DateTime minTimestampExpected = new DateTime(); // 初始化为适当的值
+            iExchange.Common.OverridedQuotation[] overridedQs = null; // 初始化为适当的值
+            iExchange.Common.OverridedQuotation[] overridedQsExpected = null; // 初始化为适当的值
+            int returnValue = 0; // 初始化为适当的值
+            int returnValueExpected = 0; // 初始化为适当的值
+            string errorMessage = string.Empty; // 初始化为适当的值
+            string errorMessageExpected = string.Empty; // 初始化为适当的值
             target.RestoreHighLow(token, ip, batchProcessId, out instrumentId, out instrumentCode, out newInput, out isUpdateHigh, out highBid, out lowBid, out minTimestamp, out overridedQs, out returnValue, out errorMessage);
             Assert.AreEqual(instrumentIdExpected, instrumentId);
             Assert.AreEqual(instrumentCodeExpected, instrumentCode);
@@ -231,19 +231,19 @@ namespace Manager.UnitTest
             ExchangeSystemSetting setting = new ExchangeSystemSetting();
             XmlSerializer serializer = new XmlSerializer(typeof(ManagerSettings));
             ManagerSettings settings = (ManagerSettings)serializer.Deserialize(new FileStream(@"D:\Teams\iExchangeCollection\iExchange3 Team\Manager\Manager.UnitTest\bin\Debug\Configuration\Manager.config", FileMode.Open));
-            setting = settings.ExchangeSystems[0]; // TODO: 初始化为适当的值
-            QuotationServer target = new QuotationServer(setting); // TODO: 初始化为适当的值
-            Token token = new Token(Guid.Empty, UserType.System, AppType.RiskMonitor); // TODO: 初始化为适当的值
-            DateTime tradeDay = new DateTime(); // TODO: 初始化为适当的值
-            string quotation = "<Local><Quotation InstrumentID='1DFB99D4-2B76-48B0-9109-0A67265F5B9F' Timestamp='2013-02-01 04:00:00.000' Origin='1.3559' Status='Modified'/></Local>"; // TODO: 初始化为适当的值
-            bool needApplyAutoAdjustPoints = false; // TODO: 初始化为适当的值
-            iExchange.Common.OriginQuotation[] originQs = null; // TODO: 初始化为适当的值
-           // iExchange.Common.OriginQuotation[] originQsExpected = null; // TODO: 初始化为适当的值
-            iExchange.Common.OverridedQuotation[] overridedQs = null; // TODO: 初始化为适当的值
-           // iExchange.Common.OverridedQuotation[] overridedQsExpected = null; // TODO: 初始化为适当的值
-            bool needBroadcastQuotation = false; // TODO: 初始化为适当的值
-           // bool needBroadcastQuotationExpected = true; // TODO: 初始化为适当的值
-            bool expected = true; // TODO: 初始化为适当的值
+            setting = settings.ExchangeSystems[0]; // 初始化为适当的值
+            QuotationServer target = new QuotationServer(setting); // 初始化为适当的值
+            Token token = new Token(Guid.Empty, UserType.System, AppType.RiskMonitor); // 初始化为适当的值
+            DateTime tradeDay = new DateTime(); // 初始化为适当的值
+            string quotation = "<Local><Quotation InstrumentID='1DFB99D4-2B76-48B0-9109-0A67265F5B9F' Timestamp='2013-02-01 04:00:00.000' Origin='1.3559' Status='Modified'/></Local>"; // 初始化为适当的值
+            bool needApplyAutoAdjustPoints = false; // 初始化为适当的值
+            iExchange.Common.OriginQuotation[] originQs = null; // 初始化为适当的值
+           // iExchange.Common.OriginQuotation[] originQsExpected = null; // 初始化为适当的值
+            iExchange.Common.OverridedQuotation[] overridedQs = null; // 初始化为适当的值
+           // iExchange.Common.OverridedQuotation[] overridedQsExpected = null; // 初始化为适当的值
+            bool needBroadcastQuotation = false; // 初始化为适当的值
+           // bool needBroadcastQuotationExpected = true; // 初始化为适当的值
+            bool expected = true; // 初始化为适当的值
             bool actual;
             actual = target.SetHistoryQuotation(token, tradeDay, quotation, needApplyAutoAdjustPoints, out originQs, out overridedQs, out needBroadcastQuotation);
             //Assert.AreEqual(originQsExpected, originQs);
@@ -258,11 +258,11 @@ namespace Manager.UnitTest
         [TestMethod()]
         public void UpdateTest()
         {
-            ExchangeSystemSetting setting = null; // TODO: 初始化为适当的值
-            QuotationServer target = new QuotationServer(setting); // TODO: 初始化为适当的值
-            Token token = new Token(Guid.Empty, UserType.System, AppType.RiskMonitor); // TODO: 初始化为适当的值
-            XmlNode update = null; // TODO: 初始化为适当的值
-            bool expected = false; // TODO: 初始化为适当的值
+            ExchangeSystemSetting setting = null; // 初始化为适当的值
+            QuotationServer target = new QuotationServer(setting); // 初始化为适当的值
+            Token token = new Token(Guid.Empty, UserType.System, AppType.RiskMonitor); // 初始化为适当的值
+            XmlNode update = null; // 初始化为适当的值
+            bool expected = false; // 初始化为适当的值
             bool actual;
             actual = target.Update(token, update);
             Assert.AreEqual(expected, actual);
@@ -274,32 +274,32 @@ namespace Manager.UnitTest
         [TestMethod()]
         public void UpdateHighLowTest()
         {
-            ExchangeSystemSetting setting = null; // TODO: 初始化为适当的值
-            QuotationServer target = new QuotationServer(setting); // TODO: 初始化为适当的值
-            Token token = new Token(Guid.Empty, UserType.System, AppType.RiskMonitor); // TODO: 初始化为适当的值
-            string ip = string.Empty; // TODO: 初始化为适当的值
-            Guid instrumentId = new Guid(); // TODO: 初始化为适当的值
-            bool isOriginHiLo = false; // TODO: 初始化为适当的值
-            string newInput = string.Empty; // TODO: 初始化为适当的值
-            bool isUpdateHigh = false; // TODO: 初始化为适当的值
-            int batchProcessId = 0; // TODO: 初始化为适当的值
-            int batchProcessIdExpected = 0; // TODO: 初始化为适当的值
-            string instrumentCode = string.Empty; // TODO: 初始化为适当的值
-            string instrumentCodeExpected = string.Empty; // TODO: 初始化为适当的值
-            bool highBid = false; // TODO: 初始化为适当的值
-            bool highBidExpected = false; // TODO: 初始化为适当的值
-            bool lowBid = false; // TODO: 初始化为适当的值
-            bool lowBidExpected = false; // TODO: 初始化为适当的值
-            DateTime updateTime = new DateTime(); // TODO: 初始化为适当的值
-            DateTime updateTimeExpected = new DateTime(); // TODO: 初始化为适当的值
-            DateTime minTimestamp = new DateTime(); // TODO: 初始化为适当的值
-            DateTime minTimestampExpected = new DateTime(); // TODO: 初始化为适当的值
-            iExchange.Common.OverridedQuotation[] overridedQs = null; // TODO: 初始化为适当的值
-            iExchange.Common.OverridedQuotation[] overridedQsExpected = null; // TODO: 初始化为适当的值
-            int returnValue = 0; // TODO: 初始化为适当的值
-            int returnValueExpected = 0; // TODO: 初始化为适当的值
-            string errorMessage = string.Empty; // TODO: 初始化为适当的值
-            string errorMessageExpected = string.Empty; // TODO: 初始化为适当的值
+            ExchangeSystemSetting setting = null; // 初始化为适当的值
+            QuotationServer target = new QuotationServer(setting); // 初始化为适当的值
+            Token token = new Token(Guid.Empty, UserType.System, AppType.RiskMonitor); // 初始化为适当的值
+            string ip = string.Empty; // 初始化为适当的值
+            Guid instrumentId = new Guid(); // 初始化为适当的值
+            bool isOriginHiLo = false; // 初始化为适当的值
+            string newInput = string.Empty; // 初始化为适当的值
+            bool isUpdateHigh = false; // 初始化为适当的值
+            int batchProcessId = 0; // 初始化为适当的值
+            int batchProcessIdExpected = 0; // 初始化为适当的值
+            string instrumentCode = string.Empty; // 初始化为适当的值
+            string instrumentCodeExpected = string.Empty; // 初始化为适当的值
+            bool highBid = false; // 初始化为适当的值
+            bool highBidExpected = false; // 初始化为适当的值
+            bool lowBid = false; // 初始化为适当的值
+            bool lowBidExpected = false; // 初始化为适当的值
+            DateTime updateTime = new DateTime(); // 初始化为适当的值
+            DateTime updateTimeExpected = new DateTime(); // 初始化为适当的值
+            DateTime minTimestamp = new DateTime(); // 初始化为适当的值
+            DateTime minTimestampExpected = new DateTime(); // 初始化为适当的值
+            iExchange.Common.OverridedQuotation[] overridedQs = null; // 初始化为适当的值
+            iExchange.Common.OverridedQuotation[] overridedQsExpected = null; // 初始化为适当的值
+            int returnValue = 0; // 初始化为适当的值
+            int returnValueExpected = 0; // 初始化为适当的值
+            string errorMessage = string.Empty; // 初始化为适当的值
+            string errorMessageExpected = string.Empty; // 初始化为适当的值
             target.UpdateHighLow(token, ip, instrumentId, isOriginHiLo, newInput, isUpdateHigh, out batchProcessId, out instrumentCode, out highBid, out lowBid, out updateTime, out minTimestamp, out overridedQs, out returnValue, out errorMessage);
             Assert.AreEqual(batchProcessIdExpected, batchProcessId);
             Assert.AreEqual(instrumentCodeExpected, instrumentCode);
@@ -318,10 +318,10 @@ namespace Manager.UnitTest
         [TestMethod()]
         public void UpdateInstrumentDealerTest()
         {
-            ExchangeSystemSetting setting = null; // TODO: 初始化为适当的值
-            QuotationServer target = new QuotationServer(setting); // TODO: 初始化为适当的值
-            Token token = new Token(Guid.Empty, UserType.System, AppType.RiskMonitor); // TODO: 初始化为适当的值
-            DataSet instrumentSettingChanges = null; // TODO: 初始化为适当的值
+            ExchangeSystemSetting setting = null; // 初始化为适当的值
+            QuotationServer target = new QuotationServer(setting); // 初始化为适当的值
+            Token token = new Token(Guid.Empty, UserType.System, AppType.RiskMonitor); // 初始化为适当的值
+            DataSet instrumentSettingChanges = null; // 初始化为适当的值
             target.UpdateInstrumentDealer(token, instrumentSettingChanges);
         }
 
@@ -331,14 +331,14 @@ namespace Manager.UnitTest
         [TestMethod()]
         public void UpdateOverridedQuotationHighLowTest()
         {
-            ExchangeSystemSetting setting = null; // TODO: 初始化为适当的值
-            QuotationServer target = new QuotationServer(setting); // TODO: 初始化为适当的值
-            Token token = new Token(Guid.Empty, UserType.System, AppType.RiskMonitor); // TODO: 初始化为适当的值
-            Guid instrumentID = new Guid(); // TODO: 初始化为适当的值
-            string quotation = string.Empty; // TODO: 初始化为适当的值
-            iExchange.Common.OverridedQuotation[] overridedQs = null; // TODO: 初始化为适当的值
-            iExchange.Common.OverridedQuotation[] overridedQsExpected = null; // TODO: 初始化为适当的值
-            bool expected = false; // TODO: 初始化为适当的值
+            ExchangeSystemSetting setting = null; // 初始化为适当的值
+            QuotationServer target = new QuotationServer(setting); // 初始化为适当的值
+            Token token = new Token(Guid.Empty, UserType.System, AppType.RiskMonitor); // 初始化为适当的值
+            Guid instrumentID = new Guid(); // 初始化为适当的值
+            string quotation = string.Empty; // 初始化为适当的值
+            iExchange.Common.OverridedQuotation[] overridedQs = null; // 初始化为适当的值
+            iExchange.Common.OverridedQuotation[] overridedQsExpected = null; // 初始化为适当的值
+            bool expected = false; // 初始化为适当的值
             bool actual;
             actual = target.UpdateOverridedQuotationHighLow(token, instrumentID, quotation, out overridedQs);
             Assert.AreEqual(overridedQsExpected, overridedQs);
@@ -351,13 +351,13 @@ namespace Manager.UnitTest
         [TestMethod()]
         public void UpdateQuotePoliciesTest()
         {
-            ExchangeSystemSetting setting = null; // TODO: 初始化为适当的值
-            QuotationServer target = new QuotationServer(setting); // TODO: 初始化为适当的值
-            Token token = new Token(Guid.Empty, UserType.System, AppType.RiskMonitor); // TODO: 初始化为适当的值
-            XmlNode quotePolicies = null; // TODO: 初始化为适当的值
-            int error = 0; // TODO: 初始化为适当的值
-            int errorExpected = 0; // TODO: 初始化为适当的值
-            bool expected = false; // TODO: 初始化为适当的值
+            ExchangeSystemSetting setting = null; // 初始化为适当的值
+            QuotationServer target = new QuotationServer(setting); // 初始化为适当的值
+            Token token = new Token(Guid.Empty, UserType.System, AppType.RiskMonitor); // 初始化为适当的值
+            XmlNode quotePolicies = null; // 初始化为适当的值
+            int error = 0; // 初始化为适当的值
+            int errorExpected = 0; // 初始化为适当的值
+            bool expected = false; // 初始化为适当的值
             bool actual;
             actual = target.UpdateQuotePolicies(token, quotePolicies, out error);
             Assert.AreEqual(errorExpected, error);
@@ -370,13 +370,13 @@ namespace Manager.UnitTest
         [TestMethod()]
         public void UpdateQuotePolicyTest()
         {
-            ExchangeSystemSetting setting = null; // TODO: 初始化为适当的值
-            QuotationServer target = new QuotationServer(setting); // TODO: 初始化为适当的值
-            Token token = new Token(Guid.Empty, UserType.System, AppType.RiskMonitor); // TODO: 初始化为适当的值
-            XmlNode quotePolicy = null; // TODO: 初始化为适当的值
-            int error = 0; // TODO: 初始化为适当的值
-            int errorExpected = 0; // TODO: 初始化为适当的值
-            bool expected = false; // TODO: 初始化为适当的值
+            ExchangeSystemSetting setting = null; // 初始化为适当的值
+            QuotationServer target = new QuotationServer(setting); // 初始化为适当的值
+            Token token = new Token(Guid.Empty, UserType.System, AppType.RiskMonitor); // 初始化为适当的值
+            XmlNode quotePolicy = null; // 初始化为适当的值
+            int error = 0; // 初始化为适当的值
+            int errorExpected = 0; // 初始化为适当的值
+            bool expected = false; // 初始化为适当的值
             bool actual;
             actual = target.UpdateQuotePolicy(token, quotePolicy, out error);
             Assert.AreEqual(errorExpected, error);
@@ -393,19 +393,19 @@ namespace Manager.UnitTest
             XmlSerializer serializer = new XmlSerializer(typeof(ManagerSettings));
             ManagerSettings settings = (ManagerSettings)serializer.Deserialize(new FileStream(@"D:\Teams\iExchangeCollection\iExchange3 Team\Manager\Manager.UnitTest\bin\Debug\Configuration\Manager.config", FileMode.Open));
             setting = settings.ExchangeSystems[0];
-            QuotationServer target = new QuotationServer(setting); // TODO: 初始化为适当的值
-            Token token = new Token(Guid.Empty, UserType.System, AppType.RiskMonitor); // TODO: 初始化为适当的值
-            string quotation = "<Local><Quotation InstrumentID='1DFB99D4-2B76-48B0-9109-0A67265F5B9F' Timestamp='2013-02-01 04:00:00.000' Origin='1.3559' Status='Modified'/></Local>"; // TODO: 初始化为适当的值
-            bool needApplyAutoAdjustPoints = false; // TODO: 初始化为适当的值
-            iExchange.Common.OriginQuotation[] originQs = null; // TODO: 初始化为适当的值
-         //   iExchange.Common.OriginQuotation[] originQsExpected = null; // TODO: 初始化为适当的值
-            iExchange.Common.OverridedQuotation[] overridedQs = null; // TODO: 初始化为适当的值
-           // iExchange.Common.OverridedQuotation[] overridedQsExpected = null; // TODO: 初始化为适当的值
-            bool needBroadcastQuotation = false; // TODO: 初始化为适当的值
-           // bool needBroadcastQuotationExpected = true; // TODO: 初始化为适当的值
-            XmlNode fixChartDatas = null; // TODO: 初始化为适当的值
-           // XmlNode fixChartDatasExpected = null; // TODO: 初始化为适当的值
-            bool expected = true; // TODO: 初始化为适当的值
+            QuotationServer target = new QuotationServer(setting); // 初始化为适当的值
+            Token token = new Token(Guid.Empty, UserType.System, AppType.RiskMonitor); // 初始化为适当的值
+            string quotation = "<Local><Quotation InstrumentID='1DFB99D4-2B76-48B0-9109-0A67265F5B9F' Timestamp='2013-02-01 04:00:00.000' Origin='1.3559' Status='Modified'/></Local>"; // 初始化为适当的值
+            bool needApplyAutoAdjustPoints = false; // 初始化为适当的值
+            iExchange.Common.OriginQuotation[] originQs = null; // 初始化为适当的值
+         //   iExchange.Common.OriginQuotation[] originQsExpected = null; // 初始化为适当的值
+            iExchange.Common.OverridedQuotation[] overridedQs = null; // 初始化为适当的值
+           // iExchange.Common.OverridedQuotation[] overridedQsExpected = null; // 初始化为适当的值
+            bool needBroadcastQuotation = false; // 初始化为适当的值
+           // bool needBroadcastQuotationExpected = true; // 初始化为适当的值
+            XmlNode fixChartDatas = null; // 初始化为适当的值
+           // XmlNode fixChartDatasExpected = null; // 初始化为适当的值
+            bool expected = true; // 初始化为适当的值
             bool actual;
             actual = target.FixOverridedQuotationHistory(token, quotation, needApplyAutoAdjustPoints, out originQs, out overridedQs, out needBroadcastQuotation, out fixChartDatas);
             //Assert.AreEqual(originQsExpected, originQs);
@@ -421,15 +421,15 @@ namespace Manager.UnitTest
         [TestMethod()]
         public void DiscardQuotationTest()
         {
-            ExchangeSystemSetting setting = null; // TODO: 初始化为适当的值
-            QuotationServer target = new QuotationServer(setting); // TODO: 初始化为适当的值
-            Token token = new Token(Guid.Empty, UserType.System, AppType.RiskMonitor); // TODO: 初始化为适当的值
-            Guid instrumentID = new Guid(); // TODO: 初始化为适当的值
-            iExchange.Common.OriginQuotation[] originQs = null; // TODO: 初始化为适当的值
-            iExchange.Common.OriginQuotation[] originQsExpected = null; // TODO: 初始化为适当的值
-            iExchange.Common.OverridedQuotation[] overridedQs = null; // TODO: 初始化为适当的值
-            iExchange.Common.OverridedQuotation[] overridedQsExpected = null; // TODO: 初始化为适当的值
-            bool expected = false; // TODO: 初始化为适当的值
+            ExchangeSystemSetting setting = null; // 初始化为适当的值
+            QuotationServer target = new QuotationServer(setting); // 初始化为适当的值
+            Token token = new Token(Guid.Empty, UserType.System, AppType.RiskMonitor); // 初始化为适当的值
+            Guid instrumentID = new Guid(); // 初始化为适当的值
+            iExchange.Common.OriginQuotation[] originQs = null; // 初始化为适当的值
+            iExchange.Common.OriginQuotation[] originQsExpected = null; // 初始化为适当的值
+            iExchange.Common.OverridedQuotation[] overridedQs = null; // 初始化为适当的值
+            iExchange.Common.OverridedQuotation[] overridedQsExpected = null; // 初始化为适当的值
+            bool expected = false; // 初始化为适当的值
             bool actual;
             actual = target.DiscardQuotation(token, instrumentID, out originQs, out overridedQs);
             Assert.AreEqual(originQsExpected, originQs);
@@ -443,7 +443,7 @@ namespace Manager.UnitTest
         [TestMethod()]
         public void QuotationServerConstructorTest()
         {
-            ExchangeSystemSetting setting = null; // TODO: 初始化为适当的值
+            ExchangeSystemSetting setting = null; // 初始化为适当的值
             QuotationServer target = new QuotationServer(setting);
         }
     }

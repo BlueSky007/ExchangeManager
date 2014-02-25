@@ -277,12 +277,7 @@ namespace ManagerConsole.UI
 
         public string GetLayout()
         {
-            StringBuilder layoutBuilder = new StringBuilder();
-            layoutBuilder.Append("<GridSettings>");
-            layoutBuilder.Append(ColumnWidthPersistence.GetGridColumnsWidthString(this._ExecutedOrderListGrid));
-            layoutBuilder.Append(ColumnWidthPersistence.GetGridColumnsWidthString(this._ExecutedOrderSummaryGrid));
-            layoutBuilder.Append("</GridSettings>");
-            return layoutBuilder.ToString();
+            return ColumnWidthPersistence.GetGridColumnsWidthString(new List<XamGrid> { this._ExecutedOrderListGrid, this._ExecutedOrderSummaryGrid });
         }
 
         public void SetLayout(XElement layout)
@@ -291,20 +286,7 @@ namespace ManagerConsole.UI
             {
                 if (layout.HasElements)
                 {
-                    IEnumerable<XElement> settings = from el in layout.Element("GridSettings").Elements() select el;
-
-                    foreach (XElement setting in settings)
-                    {
-                        switch (setting.Attribute("Name").Value)
-                        {
-                            case "_ExecutedOrderListGrid":
-                                ColumnWidthPersistence.LoadGridColumnsWidth(this._ExecutedOrderListGrid, setting);
-                                break;
-                            case "_ExecutedOrderSummaryGrid":
-                                ColumnWidthPersistence.LoadGridColumnsWidth(this._ExecutedOrderSummaryGrid, setting);
-                                break;
-                        }
-                    }
+                    ColumnWidthPersistence.LoadGridColumnsWidth(new ObservableCollection<XamGrid> { this._ExecutedOrderListGrid, this._ExecutedOrderSummaryGrid }, layout);
                 }
             }
             catch (Exception ex)

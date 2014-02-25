@@ -45,7 +45,15 @@ namespace ManagerConsole.ViewModel
 
         public void AddLmtOrder(OrderTask orderTask)
         {
-            this.OrderTasks.Add(orderTask);
+            bool isOK = OrderTaskManager.CheckExecuteOrder(orderTask);
+            if (isOK)
+            {
+                this.OrderTasks.Insert(0,orderTask);
+            }
+            else
+            {
+                this.OrderTasks.Add(orderTask);
+            }
             orderTask.SetCellDataDefine(orderTask.OrderStatus);
 
             if (this._LmtOrderForInstrument.Instrument.Id == Guid.Empty)
@@ -58,7 +66,7 @@ namespace ManagerConsole.ViewModel
             }
 
             this.LmtOrderForInstrument.UpdateSumBuySellLot(true, orderTask);
-            bool isOK = OrderTaskManager.CheckExecuteOrder(orderTask);
+            
             if (isOK && this.OnSettingFirstRowStyleEvent != null && this.SelectedInstrumentId != null && (orderTask.InstrumentId == this.SelectedInstrumentId))
             {
                 this.OnSettingFirstRowStyleEvent();
@@ -178,7 +186,7 @@ namespace ManagerConsole.ViewModel
         {
             InstrumentClient instrument = orderTask.Transaction.Instrument;
 
-            Price marketPricePrice = Price.CreateInstance(marketPrice, instrument.NumeratorUnit.Value, instrument.Denominator.Value);
+            Price marketPricePrice = Price.CreateInstance(marketPrice, instrument.NumeratorUnit, instrument.Denominator);
             marketPricePrice = marketPricePrice + acceptDQVariation;
             
             if (quotePolicyDetail.PriceType == PriceType.OriginEnable)
@@ -190,7 +198,7 @@ namespace ManagerConsole.ViewModel
                 marketPricePrice = marketPricePrice + (quotePolicyDetail.AutoAdjustPoints);
             }
 
-            Price setPrice = new Price(orderTask.SetPrice, instrument.NumeratorUnit.Value, instrument.Denominator.Value);
+            Price setPrice = new Price(orderTask.SetPrice, instrument.NumeratorUnit, instrument.Denominator);
             if (instrument.IsNormal == isBuy)
             {
                 if (marketPricePrice != null)

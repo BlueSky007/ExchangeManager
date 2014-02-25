@@ -9,15 +9,10 @@ using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Xml.Linq;
 using SettingParameterType = Manager.Common.SettingParameterType;
+using UserData = Manager.Common.UserData;
+using CommnSoundSetting = Manager.Common.Settings.SoundSetting;
 
 namespace ManagerConsole.UI
 {
@@ -29,11 +24,14 @@ namespace ManagerConsole.UI
         private MainWindow _App;
         private SettingsParameterManager _SettingsParameter;
         private MediaElement _MediaElement;
+        private List<UserData> _UserList = new List<UserData>();
         public SettingParameterControl()
         {
             InitializeComponent();
             this._App = (MainWindow)Application.Current.MainWindow;
             this._MediaElement = this._App._Media;
+
+            this.GetUserData();
 
             Thread thread = new Thread(new ThreadStart(delegate()
             {
@@ -46,6 +44,20 @@ namespace ManagerConsole.UI
             thread.Start();
            
         }
+
+        private void BindingUI()
+        {
+            this.UserListComboBox.ItemsSource = this._UserList;
+            this.UserListComboBox.DisplayMemberPath = "UserName";
+            this.UserListComboBox.SelectedIndex = 0;
+        }
+
+        private void GetUserData()
+        {
+            ConsoleClient.Instance.GetUserData(GetUserDataCallback);
+        }
+
+        
 
         private bool InilizeUI()
         {
@@ -71,27 +83,45 @@ namespace ManagerConsole.UI
             this._SoundSettingGrid.ItemsSource = this._SettingsParameter.SoundSettings;
         }
 
-        #region Update Event
-        private void OpenFileDialogBtn_Click(object sender, RoutedEventArgs e)
+        private void UpdateCopySoundSettings(List<CommnSoundSetting> newSoundSettings)
         {
-            e.Handled = true;
-            var dialog = new OpenFileDialog();
-
-            dialog.Title = "Sound Test";
-            dialog.Filter = "All Files|*.wav";
-
-            bool? isOpen = dialog.ShowDialog();
-
-            if (isOpen.HasValue && isOpen.Value)
-            {
-                this.TestSoundPathTextBox.Text = dialog.FileName;
-            }
+            this._SoundSettingGrid.ItemsSource = null;
+            this._App.ExchangeDataManager.SettingsParameterManager.UpdateCopySoundSettings(newSoundSettings);
+            this.BindingData();
         }
 
-        private void TestSoundButton_Click(object sender, RoutedEventArgs e)
+        #region Update Event
+        private void CopySoundSettingBtn_Click(object sender, RoutedEventArgs e)
         {
-            string soundSource = this.TestSoundPathTextBox.Text;
-            MediaManager.PlayMedia(this._MediaElement, soundSource);
+            UserData userData = this.UserListComboBox.SelectedItem as UserData;
+            if (userData == null) return;
+            Guid copyFromUserId = userData.UserId;
+
+            ConsoleClient.Instance.CopyFromSetting(copyFromUserId, this.CopyFromSettingCallback);
+        }
+
+        private void CopyFromSettingCallback(List<CommnSoundSetting> newSoundSettings)
+        {
+            this.Dispatcher.BeginInvoke((Action<List<CommnSoundSetting>>)delegate(List<CommnSoundSetting> soundSettings) 
+            {
+                if (soundSettings.Count > 0)
+                {
+                    this._App._CommonDialogWin.ShowDialogWin("Copy settings successfully.", "Manager");
+                    this.UpdateCopySoundSettings(soundSettings);
+                }
+            }, newSoundSettings);
+        }
+
+        private void GetUserDataCallback(List<UserData> userList)
+        {
+            this.Dispatcher.BeginInvoke((Action<List<UserData>>)delegate(List<UserData> userData)
+            {
+                this._UserList = userData;
+                UserData currentUser = this._UserList.SingleOrDefault(P => P.UserId == ConsoleClient.Instance.user.UserId);
+                this._UserList.Remove(currentUser);
+                this.BindingUI();
+
+            }, userList);
         }
 
         private void SetSoundPathButton_Click(object sender, RoutedEventArgs e)
@@ -99,6 +129,7 @@ namespace ManagerConsole.UI
             e.Handled = true;
             Button btn = sender as Button;
             SoundSetting soundSetting = ((UnboundColumnDataContext)btn.DataContext).RowData as SoundSetting;
+            //soundSetting.SoundPathFontColor = new SolidColorBrush(Colors.Black);
 
             if (soundSetting == null) return;
 
@@ -113,6 +144,18 @@ namespace ManagerConsole.UI
             {
                 soundSetting.SoundPath = dialog.FileName;
             }
+        }
+
+        private void TestSoundButton_Click(object sender, RoutedEventArgs e)
+        {
+            e.Handled = true;
+            Button btn = sender as Button;
+            SoundSetting soundSetting = ((UnboundColumnDataContext)btn.DataContext).RowData as SoundSetting;
+
+            if (soundSetting == null) return;
+
+            string path = soundSetting.SoundPath;
+            MediaManager.PlayMedia(this._MediaElement, path);
         }
 
         private void ApplySoundButton_Click(object sender, RoutedEventArgs e)

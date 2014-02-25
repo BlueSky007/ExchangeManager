@@ -73,6 +73,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Audit\LogManager.cs" />
     <Compile Include="Console\Client.cs" />
     <Compile Include="Console\ClientManager.cs" />
     <Compile Include="Console\ClientService.cs" />
@@ -128,9 +129,7 @@
     <Compile Include="SettingsTaskManager\TaskCheckManager.cs" />
     <Compile Include="SettingsTaskManager\SettingsTaskSchedulerManager.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Audit\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\Manager.Common\Manager.Common.csproj">
       <Project>{fd64b9c0-da18-46f7-8ef7-afb6b66ce932}</Project>
@@ -161,10 +160,6 @@
     <Content Include="Layout\SystemDeafult_layout.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Xml\AccountSummary.xml" />
-    <Content Include="Xml\InstrumentSummary.xml" />
-    <Content Include="Xml\NetPosition.xml" />
-    <Content Include="Xml\OrderSummary.xml" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="ManagerService.resx">

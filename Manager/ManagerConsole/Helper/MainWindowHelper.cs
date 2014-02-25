@@ -54,6 +54,20 @@ namespace ManagerConsole
             }
         }
 
+        public static void PlaySound(MediaElement mediaElement,string soundkey)
+        {
+            switch (soundkey)
+            {
+                case "Enquiry":
+                    PlayMedia(mediaElement, _EnquiryMediaSource);
+                    break;
+                default:
+                     PlayMedia(mediaElement, _EnquiryMediaSource);
+                    break;
+
+            }
+        }
+
         public class MediaSource
         {
             private Uri _Uri = null;
@@ -92,5 +106,7 @@ namespace ManagerConsole
                 }
             }
         }
+
+        
     }
 }

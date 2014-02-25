@@ -14,83 +14,65 @@
             <Setter Property="BorderThickness" Value="0,0,1,1" />
             <Setter Property="Foreground" Value="Blue"/>
         </Style>
-        <Style x:Key="BuyCellStyle" TargetType="igGrid:CellControl">
+        <Style x:Key="BuyCellStyle" TargetType="igGrid:CellControl" BasedOn="{StaticResource CellControlStyle}">
             <Setter Property="Foreground" Value="Blue"/>
         </Style>
-        <Style x:Key="SellCellStyle" TargetType="igGrid:CellControl">
+        <Style x:Key="SellCellStyle" TargetType="igGrid:CellControl" BasedOn="{StaticResource CellControlStyle}">
             <Setter Property="Foreground" Value="Red"/>
         </Style>
-        <Style x:Key="BuySummaryGroupCellStyle" TargetType="igGrid:CellControl">
+        <Style x:Key="BuySummaryGroupCellStyle" TargetType="igGrid:CellControl" BasedOn="{StaticResource CellControlStyle}">
             <Setter Property="Background" Value="#FF007ACC"/>
             <Setter Property="Foreground" Value="Blue"/>
             <Setter Property="BorderThickness" Value="0,0,0,0"/>
         </Style>
-        <Style x:Key="SellSummaryGroupStyle" TargetType="igGrid:CellControl">
+        <Style x:Key="SellSummaryGroupStyle" TargetType="igGrid:CellControl" BasedOn="{StaticResource CellControlStyle}">
             <Setter Property="Background" Value="#FF007ACC"/>
             <Setter Property="Foreground" Value="Red"/>
             <Setter Property="BorderThickness" Value="0"/>
         </Style>
-        <Style x:Key="TextStyle" TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="Hei"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-        <Style x:Key="GroupHeaderStyle" TargetType="igPrim:HeaderCellControl">
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Background" Value="#FF007ACC"/>
+        <Style x:Key="SummaryGroupHeaderStyle" TargetType="igPrim:HeaderCellControl">
+            <Setter Property="Background" Value="#FF007AAC"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="BorderBrush" Value="Black"/>
+            <Setter Property="Foreground" Value="Black"/>
+        </Style>
+        <Style x:Key="NormalHeaderStyle" TargetType="igPrim:HeaderCellControl">
+            <Setter Property="Background" Value="#FF282828"/>
+            <Setter Property="Foreground" Value="White"/>
         </Style>
     </UserControl.Resources>
-    <Grid>
+    <Grid Style="{DynamicResource DealingGridStyle}">
         <Grid.RowDefinitions>
             <RowDefinition Height="35"/>
             <RowDefinition Height="500*"/>
         </Grid.RowDefinitions>
-        <Border x:Name="_NetPositionToolbar" CornerRadius="3" Grid.Row="0">
+        <Border x:Name="_NetPositionToolbar" Style="{DynamicResource DealingBorderStyle}" CornerRadius="3" Grid.Row="0">
             <StackPanel Orientation="Horizontal" Margin="15,0,0,0">
-                <TextBlock  Margin="10,0,0,0" Text="Show Actual Quantity" Style="{StaticResource TextStyle}"/>
+                <TextBlock Style="{DynamicResource QueryOrderTextBlckStyle}" Text="ExchangeCode:" Grid.Row="0" Grid.Column="0" />
+                <ComboBox x:Name="ExchangeComboBox" Height="23" Width="100" Margin="8,0,0,0" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center"/>
+
+                <TextBlock  Margin="10,0,0,0" Style="{DynamicResource QueryOrderTextBlckStyle}" Text="Show Actual Quantity" />
                 <CheckBox x:Name="_ShowQuantityChk" VerticalAlignment="Center" Margin="8,0,0,0"/>
 
-                <Button x:Name="_BlotterSelectBtn" Content="Selection Blotter" Width="90" Height="25"  Margin="10,0,0,0" VerticalAlignment="Center"/>
-                <Button x:Name="_QueryNetPostionBtn" Click="QueryData" Content="Go" Width="25" Height="25" Margin="3,0,0,0" VerticalAlignment="Center"/>
+                <Button x:Name="_BlotterSelectBtn" Content="Blotter" Width="80" Height="25"  Margin="10,0,0,0" VerticalAlignment="Center"/>
+                <Button x:Name="_QueryNetPostionBtn" Click="QueryData" Content="Go" Width="40" Height="25" Margin="3,0,0,0" VerticalAlignment="Center"/>
             </StackPanel>
         </Border>
-        <Border x:Name="_SummaryToolbar" Visibility="Collapsed" CornerRadius="5" Background="{StaticResource BackGroundForPanel}" Grid.Row="0">
+        <Border x:Name="_SummaryToolbar" Style="{DynamicResource DealingBorderStyle}" Visibility="Collapsed"  CornerRadius="5" Grid.Row="0">
             <StackPanel Orientation="Horizontal">
+                <TextBlock Style="{DynamicResource QueryOrderTextBlckStyle}" Text="ExchangeCode:" Grid.Row="0" Grid.Column="0" />
+                <ComboBox x:Name="ExchangeComboBox2" Height="23" Width="100" Margin="8,0,0,0" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center"/>
                 <Rectangle Width="2" />
-                <RadioButton x:Name="_CodeRadio" VerticalAlignment="Center" Margin="18,0,0,0"/>
-                <TextBlock Text="Code" Style="{StaticResource TextStyle}"/>
+                <RadioButton x:Name="_CodeRadio" VerticalAlignment="Center" IsChecked="True" Margin="18,0,0,0"/>
+                <TextBlock Text="Code" Style="{DynamicResource QueryOrderTextBlckStyle}"/>
                 <RadioButton x:Name="_OriginCodeRadio" VerticalAlignment="Center" Margin="8,0,0,0"/>
-                <TextBlock Text="Origin Code" Style="{StaticResource TextStyle}"/>
-                <Button x:Name="_BlotterSelectButton" Foreground="Yellow" Background="LightGray" Content="Blotter" Width="50" Height="25" BorderBrush="Black" Margin="10,0,0,0" VerticalAlignment="Center"/>
-                <Button x:Name="_QuerySummaryBtn" Background="LightGray" Foreground="Yellow" Content="Go" Width="25" Height="25" BorderBrush="Black" Click="QuerySummaryBtn_Click"  Margin="1,0,0,0" VerticalAlignment="Center"/>
+                <TextBlock Text="Origin Code" Style="{DynamicResource QueryOrderTextBlckStyle}"/>
+                <Button x:Name="_BlotterSelectButton"  Content="Blotter" Width="80" Height="25"  Margin="10,0,0,0" VerticalAlignment="Center"/>
+                <Button x:Name="_QuerySummaryBtn" Content="Go" Width="40" Height="25" BorderBrush="Black" Click="QuerySummaryBtn_Click"  Margin="1,0,0,0" VerticalAlignment="Center"/>
             </StackPanel>
         </Border>
 
-        <igWindows:XamTabControl x:Name="_OpenInterestTab" Grid.Row="1" 
-                                 TabStripPlacement="Top"
-                                 Background="Black"
-                                 AllowTabClosing="False"
-                                 SelectionChanged="tabControl_SelectionChanged"
-                                 >
-            <igWindows:XamTabControl.PreTabItemContent>
-                <Button x:Name="_AddTable" Margin="0" Click="AddTable_Click" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Width="25" Height="25">
-                    <Button.Content>
-                       <Image Source="../Asset/Images/Add.png" ToolTipService.ToolTip="Add Tab"></Image>
-                    </Button.Content>
-                </Button>
-            </igWindows:XamTabControl.PreTabItemContent>
-            <igWindows:XamTabControl.PostTabItemContent>
-                <StackPanel Orientation="Horizontal">
-                    <Button x:Name="_PrintGroupSummaryBtn" Foreground="White" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="Print_Click" Width="25" Height="25"  >
-                        <Button.Content>
-                            <Image Source="../Asset/Images/Print.png" ToolTipService.ToolTip="Print"  Margin="1"></Image>
-                        </Button.Content>
-                    </Button>
-                </StackPanel>
-            </igWindows:XamTabControl.PostTabItemContent>
-            <igWindows:TabItemEx CloseButtonVisibility="Hidden"  Header="Group Net Position" x:Name="NetPositionItem">
+        <TabControl x:Name="_OpenInterestTab" Grid.Row="1" Margin="0,5,0,0" SelectionChanged="_OpenInterestTab_SelectionChanged" >
+            <TabItem Header="Group Net Position" x:Name="NetPositionItem" Width="100">
                 <!--#BEGIN SNIPPET#-->
                 <igGrid:XamGrid KeyboardNavigation="AllLayouts" x:Name="_GroupNetPositionGrid" FontWeight="Bold" FontFamily="hei" FontStyle="Italic" AutoGenerateColumns="false" Grid.Row="1"
                                 ColumnLayoutAssigned="GroupNetPositionGrid_ColumnLayoutAssigned" 
@@ -134,7 +116,7 @@
                                     </igGrid:TemplateColumn.ItemTemplate>
                                 </igGrid:TemplateColumn>
                                 <igGrid:TextColumn Key="OIPercent" Width="50" HorizontalContentAlignment="Center" IsReadOnly="False" HeaderText="%" />
-   
+
                             </igGrid:ColumnLayout.Columns>
                         </igGrid:ColumnLayout>
 
@@ -145,13 +127,13 @@
                     </igGrid:XamGrid.Columns>
                 </igGrid:XamGrid>
                 <!--#END SNIPPET#-->
-            </igWindows:TabItemEx>
-            <igWindows:TabItemEx Header="Net Summary" x:Name="SummaryItem" CloseButtonVisibility="Hidden">
+            </TabItem>
+            <TabItem Header="Net Summary" x:Name="SummaryItem" Width="100">
                 <!--#BEGIN SNIPPET#-->
                 <igGrid:XamGrid KeyboardNavigation="AllLayouts" x:Name="_SummaryItemGrid" FontWeight="Bold"  FontFamily="hei" FontStyle="Italic" AutoGenerateColumns="false" Grid.Row="1"
                                  RowSelectorClicked="SummaryItemGrid_RowSelectorClicked"
                                  RowExpansionChanged="SummaryItemGrid_RowExpansionChanging">
-                                <igGrid:XamGrid.RowSelectorSettings>
+                    <igGrid:XamGrid.RowSelectorSettings>
                         <igGrid:RowSelectorSettings Visibility="Collapsed"/>
                     </igGrid:XamGrid.RowSelectorSettings>
                     <igGrid:XamGrid.ColumnResizingSettings>
@@ -372,7 +354,7 @@
                     </igGrid:XamGrid.Columns>
                 </igGrid:XamGrid>
                 <!--#END SNIPPET#-->
-            </igWindows:TabItemEx>
-        </igWindows:XamTabControl>
+            </TabItem>
+        </TabControl>
     </Grid>
 </UserControl>

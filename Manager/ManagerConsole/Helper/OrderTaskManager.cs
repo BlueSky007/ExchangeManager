@@ -69,15 +69,15 @@ namespace ManagerConsole.Helper
 
         public static bool IsProblePrice(InstrumentClient instrument,string marketPrice,string executedPrice)
         {
-            Price setExecutedPrice = new Price(executedPrice, instrument.NumeratorUnit.Value, instrument.Denominator.Value);
-            Price currentPrice = new Price(marketPrice, instrument.NumeratorUnit.Value, instrument.Denominator.Value);
+            Price setExecutedPrice = new Price(executedPrice, instrument.NumeratorUnit, instrument.Denominator);
+            Price currentPrice = new Price(marketPrice, instrument.NumeratorUnit, instrument.Denominator);
 
             return (Math.Abs(currentPrice - setExecutedPrice) > instrument.AlertVariation);
         }
 
         public static bool? IsValidPrice(InstrumentClient instrument, string origin, decimal adjust)
         {
-            Price lastOriginPrice = Price.CreateInstance(origin, instrument.NumeratorUnit.Value, instrument.Denominator.Value);
+            Price lastOriginPrice = Price.CreateInstance(origin, instrument.NumeratorUnit, instrument.Denominator);
             string validInt = "^-?\\d+$";
             Price originPrice;
             if (Regex.IsMatch(adjust.ToString(), validInt))
@@ -86,7 +86,7 @@ namespace ManagerConsole.Helper
             }
             else
             {
-                originPrice = Price.CreateInstance((double)adjust, instrument.NumeratorUnit.Value, instrument.Denominator.Value);
+                originPrice = Price.CreateInstance((double)adjust, instrument.NumeratorUnit, instrument.Denominator);
             }
             if (originPrice != null)
             {
@@ -111,8 +111,8 @@ namespace ManagerConsole.Helper
 
             if (!string.IsNullOrEmpty(newPrice) && instrument.DailyMaxMove != 0)
             {
-                Price adjustPrice = new Price(newPrice, instrument.NumeratorUnit.Value, instrument.Denominator.Value);
-                Price previousClosePrice = new Price(instrument.PreviousClosePrice, instrument.NumeratorUnit.Value, instrument.Denominator.Value);
+                Price adjustPrice = new Price(newPrice, instrument.NumeratorUnit, instrument.Denominator);
+                Price previousClosePrice = new Price(instrument.PreviousClosePrice, instrument.NumeratorUnit, instrument.Denominator);
 
                 if((adjustPrice > (previousClosePrice + instrument.DailyMaxMove)) 
                     || (adjustPrice < (previousClosePrice - instrument.DailyMaxMove)))
@@ -134,7 +134,7 @@ namespace ManagerConsole.Helper
             InstrumentClient instrument = orderTask.Transaction.Instrument;
             Price ask = null;
             Price bid = null;
-            Price marketOriginPrice = new Price(origin, instrument.NumeratorUnit.Value, instrument.Denominator.Value);
+            Price marketOriginPrice = new Price(origin, instrument.NumeratorUnit, instrument.Denominator);
             marketOriginPrice = marketOriginPrice + acceptDQVariation;
             if (quotePolicyDetail.PriceType == PriceType.WatchOnly)
             {
@@ -154,7 +154,7 @@ namespace ManagerConsole.Helper
                 ask = bid + (quotePolicyDetail.SpreadPoints);
             }
 
-            Price setPrice = new Price(orderTask.SetPrice, instrument.NumeratorUnit.Value, instrument.Denominator.Value);
+            Price setPrice = new Price(orderTask.SetPrice, instrument.NumeratorUnit, instrument.Denominator);
             if(instrument.IsNormal == (orderTask.IsBuy == BuySell.Buy))
             {
                 if (ask != null)

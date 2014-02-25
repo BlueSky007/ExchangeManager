@@ -1,19 +1,10 @@
-﻿using Infragistics.Windows.Ribbon;
-using Manager.Common;
+﻿using Manager.Common;
 using ManagerConsole.FramePages;
 using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace ManagerConsole.UI
 {
@@ -22,40 +13,83 @@ namespace ManagerConsole.UI
     /// </summary>
     public partial class LogAuditControl : UserControl
     {
+        private ObservableCollection<LogAudit> _LogAuditList = new ObservableCollection<LogAudit>();
         public LogAuditControl()
         {
             InitializeComponent();
-            this.InitUI();
+            this.InitializLogData();
+            this.LogGroupComboBox.ItemsSource = System.Enum.GetNames(typeof(LogGroup));
+            this.LogGroupComboBox.SelectedIndex = 0;
+            this.SetBindingByGroup(LogGroup.TradingLog);
         }
 
-        private void InitUI()
+        public void InitializLogData()
         {
-            this._LogRibbon.Theme = "IGTheme";
+            this._LogAuditList.Add(new LogAudit(LogGroup.TradingLog, LogType.QuotePrice));
+            this._LogAuditList.Add(new LogAudit(LogGroup.TradingLog, LogType.QuoteOrder));
+            this._LogAuditList.Add(new LogAudit(LogGroup.TradingLog, LogType.SettingChange));
+            this._LogAuditList.Add(new LogAudit(LogGroup.QuotationLog, LogType.AdjustPrice));
+            this._LogAuditList.Add(new LogAudit(LogGroup.QuotationLog, LogType.SourceChange));
+            this._LogAuditList.Add(new LogAudit(LogGroup.PermisstionLog, LogType.Permisstion));
         }
 
-        private void ButtonTool_Click(object sender, RoutedEventArgs e)
+        private void SetBindingByGroup(LogGroup logGroup)
         {
-            ButtonTool clickBtn = (ButtonTool)e.OriginalSource;
-            UserControl currentLogPage = this.LogContentFrame.Content as UserControl;
-            switch (clickBtn.Id)
+            //this._LogRibbon.Theme = "IGTheme";
+            this.LogTypeComboBox.ItemsSource = this._LogAuditList.Where(P => P.LogGroup == logGroup);
+            this.LogTypeComboBox.DisplayMemberPath = "LogName";
+            this.LogTypeComboBox.SelectedIndex = 0;
+        }
+
+        private void LogGroupComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            LogGroup logGroup = (LogGroup)Enum.ToObject(typeof(LogGroup),this.LogGroupComboBox.SelectedIndex);
+            this.SetBindingByGroup(logGroup);
+            LogAudit logAudit = this.LogTypeComboBox.SelectedItem as LogAudit;
+            LogType type = logAudit.LogType;
+            //this.ShowLogFrm(logGroup, type);
+        }
+
+        private void LogTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (this.LogTypeComboBox.SelectedItem == null) return;
+            LogGroup logGroup = (LogGroup)Enum.ToObject(typeof(LogGroup), this.LogGroupComboBox.SelectedIndex);
+
+            LogAudit logAudit = this.LogTypeComboBox.SelectedItem as LogAudit;
+            LogType type = logAudit.LogType;
+            this.ShowLogFrm(logGroup, type);
+        }
+
+        private void ShowLogFrm(LogGroup logGroup,LogType logType)
+        {
+            switch (logGroup)
             {
-                case "_QuotePriceLog":
+                case LogGroup.TradingLog:
+                    this.LogContentFrame.Content = new DealingLogControl(logType);
+                    break;
+                case LogGroup.QuotationLog:
+                    this.LogContentFrame.Content = new SourceManagerLogControl(logType);
+                    break;
+                default:
                     this.LogContentFrame.Content = new DealingLogControl(LogType.QuotePrice);
                     break;
-                case "_QuoteOrderLog":
-                    this.LogContentFrame.Content = new DealingLogControl(LogType.QuoteOrder);
-                    break;
-                case "_SettingChangeLog":
-                    this.LogContentFrame.Content = new DealingLogControl(LogType.SettingChange);
-                    break;
-                case "_AdjustPriceLog":
-                    this.LogContentFrame.Content = new SourceManagerLogControl(LogType.AdjustPrice);
-                    break;
-                case "_SourceChangeLog":
-                    this.LogContentFrame.Content = new SourceManagerLogControl(LogType.SourceChange);
-                    break;
-
             }
+        }
+    }
+
+    public class LogAudit
+    {
+        public LogAudit(LogGroup logGroup,LogType logType)
+        {
+            this.LogGroup = logGroup;
+            this.LogType = logType;
+        }
+        public LogGroup LogGroup { get; set; }
+        public LogType LogType { get; set; }
+
+        public string LogName
+        {
+            get { return System.Enum.GetName(typeof(LogType), this.LogType); }
         }
     }
 }

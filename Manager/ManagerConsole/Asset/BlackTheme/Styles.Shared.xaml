@@ -4,6 +4,7 @@
     xmlns:System="clr-namespace:System;assembly=mscorlib"
     xmlns:igPrim="http://schemas.infragistics.com/xaml/primitives"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:igOB="http://infragistics.com/OutlookBar"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d">
 
     <!-- *********************************  RESOURCES  ********************************* -->
@@ -870,7 +871,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-
+    
     <!-- *********************************  ListBoxItem Style  ********************************* -->
     <Style x:Key="ListBoxItemStyle" TargetType="ListBoxItem">
         <Setter Property="Background" Value="{StaticResource ListBoxItemBackgroundBrush}"/>
@@ -968,8 +969,20 @@
         <Setter Property="CornerRadius" Value="3"/>
         <Setter Property="BorderThickness" Value="1"/>
     </Style>
+    <Style x:Key="StackPanelBackgroundStyle" TargetType="StackPanel">
+        <Setter Property="Background" Value="Black"/>
+    </Style>
     <Style x:Key="DealingDQTextBlockStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FontWeight" Value="Black"/>
+        <Setter Property="FontFamily" Value="hei"/>
+        <Setter Property="Margin" Value="5,0,0,0"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style x:Key="QueryOrderTextBlckStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12"/>
         <Setter Property="Foreground" Value="White"/>
         <Setter Property="FontWeight" Value="Black"/>
         <Setter Property="FontFamily" Value="hei"/>
@@ -980,4 +993,6 @@
     <Style x:Key="DealingGridStyle" TargetType="Grid">
         <Setter Property="Background" Value="Black"/>
     </Style>
+   
+    <Style BasedOn="{StaticResource ListBoxItemStyle}" TargetType="{x:Type ListBoxItem}"/>
 </ResourceDictionary>

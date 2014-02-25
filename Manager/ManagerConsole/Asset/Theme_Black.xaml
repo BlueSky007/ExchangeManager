@@ -1,13 +1,17 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:ig="http://schemas.infragistics.com/xaml"
-                    xmlns:pg="clr-namespace:Xceed.Wpf.Toolkit.PropertyGrid;assembly=Xceed.Wpf.Toolkit"
+                    xmlns:igWPF="http://schemas.infragistics.com/xaml/wpf"
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="BlackTheme/BaseControl_Black.xaml"/>
         <ResourceDictionary Source="BlackTheme/Office2010Black.xamGrid.xaml"/>
         <ResourceDictionary Source="BlackTheme/XamComboEditor_Black.xaml"/>
         <ResourceDictionary Source="BlackTheme/XamInput_BlackTheme.xaml"/>
+        <ResourceDictionary Source="BlackTheme/XamDateTimeInput_Black.xaml"/>
         <ResourceDictionary Source="BlackTheme/XamMenu_BlackTheme.xaml"/>
     </ResourceDictionary.MergedDictionaries>
+    <Style TargetType="igWPF:ContentPane">
+        <Setter Property="Background" Value="#FF303030"/>
+    </Style>
 </ResourceDictionary>

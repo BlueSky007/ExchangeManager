@@ -336,15 +336,15 @@ namespace ManagerConsole.ViewModel
 
         internal void UpdateMarketPrice(bool isBuy)
         {
-            if (!this._Instrument.NumeratorUnit.HasValue) return;
+            //if (!this._Instrument.NumeratorUnit.HasValue) return;
             if (isBuy)
             {
-                Price bid = new Price(this.Bid, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+                Price bid = new Price(this.Bid, this._Instrument.NumeratorUnit, this._Instrument.Denominator);
                 this.MarketPrice = bid;
             }
             else
             {
-                Price ask = new Price(this.Ask, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+                Price ask = new Price(this.Ask, this._Instrument.NumeratorUnit, this._Instrument.Denominator);
                 this.MarketPrice = ask;
             }
         }
@@ -357,14 +357,14 @@ namespace ManagerConsole.ViewModel
             }
             else
             {
-                this.CustomerPrice = new Price(this._SetPrice, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+                this.CustomerPrice = new Price(this._SetPrice, this._Instrument.NumeratorUnit, this._Instrument.Denominator);
             }
         }
 
         internal void SetCustomerPrice()
         {
-            Price ask = new Price(this.Ask, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
-            Price bid = new Price(this.Bid, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+            Price ask = new Price(this.Ask, this._Instrument.NumeratorUnit, this._Instrument.Denominator);
+            Price bid = new Price(this.Bid, this._Instrument.NumeratorUnit, this._Instrument.Denominator);
             if (this._Instrument.IsNormal ^ (this.BuySell == BuySell.Buy))
             {
                 this.CustomerPrice = this.MarketPrice + 1;

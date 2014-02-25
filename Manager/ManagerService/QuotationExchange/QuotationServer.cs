@@ -338,6 +338,14 @@ namespace ManagerService.QuotationExchange
             }
         }
 
+        public bool UpdateQuotePolicy(XmlNode quotePolicy)
+        {
+            Guid quotePolicyID = XmlConvert.ToGuid(quotePolicy.Attributes["QuotePolicyID"].Value);
+            Guid instrumentID = XmlConvert.ToGuid(quotePolicy.Attributes["InstrumentID"].Value);
+            QuotePolicyDetail quotePolicy2 = this.quotePolicyDetails[new Guids(quotePolicyID, instrumentID)];
+            return quotePolicy2.Update(quotePolicy);
+        }
+
         public bool UpdateQuotePolicies(Token token, XmlNode quotePolicies, out int error)
         {
             this.rwLock.AcquireWriterLock(Timeout.Infinite);

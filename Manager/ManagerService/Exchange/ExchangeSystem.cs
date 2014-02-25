@@ -96,6 +96,10 @@ namespace ManagerService.Exchange
                     message.OverridedQs = overridedQs.ToList();
                     MainService.ClientManager.Dispatch(message);
                 }
+                //foreach (OverridedQuotation item in collection)
+                //{
+                    
+                //}
             }
             catch (Exception e)
             {
@@ -103,6 +107,38 @@ namespace ManagerService.Exchange
                 return false;
             }
             return true;
+        }
+
+        public bool UpdateQuotationServer(string xmlUpdateStr)
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(xmlUpdateStr);
+            return this._QuotationServer.UpdateQuotePolicy(doc.FirstChild);
+        }
+
+        public UpdateHighLowBatchProcessInfo UpdateHighLow(Guid instrumentId, bool isOriginHiLo, string newInput, bool isUpdateHigh)
+        {
+            UpdateHighLowBatchProcessInfo info = new UpdateHighLowBatchProcessInfo();
+            int batchProcessId; 
+            string instrumentCode; 
+            bool highBid ;
+            bool lowBid; 
+            DateTime updateTime; 
+            DateTime minTimestamp; 
+            iExchange.Common.OverridedQuotation[] overridedQs; 
+            int returnValue; 
+            string errorMessage;
+            this._QuotationServer.UpdateHighLow(new Token(), "", instrumentId, isOriginHiLo, newInput, isUpdateHigh, out batchProcessId, out instrumentCode, out highBid, out lowBid, out updateTime, out minTimestamp, out overridedQs, out returnValue, out errorMessage);
+            this._StateServer.BroadcastQuotation(new Token(Guid.Empty, UserType.System, AppType.QuotationServer), null, overridedQs);
+            info.BatchProcessId = batchProcessId;
+            info.InstrumentId = instrumentId;
+            info.InstrumentCode = instrumentCode;
+            info.IsHigh = isUpdateHigh;
+            info.NewInput = newInput;
+            info.StateCode = returnValue;
+            info.ErrorMessage = errorMessage;
+            info.UpdateTime = updateTime;
+            return info;
         }
 
         public void SwitchPriceState(string[] originCodes, bool enable)
@@ -239,7 +275,7 @@ namespace ManagerService.Exchange
             TransactionError errorCode = TransactionError.OK;
             try
             {
-                Token token = new Token(Guid.Empty, UserType.System, AppType.Manager);
+                Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
                 errorCode = this._StateServer.CancelPlace(token, transactionId);
             }
             catch (Exception ex)
@@ -255,7 +291,7 @@ namespace ManagerService.Exchange
             TransactionError errorCode = TransactionError.OK;
             try
             {
-                Token token = new Token(Guid.Empty, UserType.System, AppType.Manager);
+                Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
                 TransactionError transactionError = this._StateServer.Cancel(token, transactionId, cancelReason);
             }
             catch (Exception ex)
@@ -325,24 +361,65 @@ namespace ManagerService.Exchange
         #endregion
 
         #region Report
-        public List<AccountGroupGNP> GetGroupNetPosition()
+        public List<AccountGroupGNP> GetGroupNetPosition(bool showActualQuantity, string[] blotterCodeSelecteds)
         {
-            return NetGroupManager.GetNetPosition();
+            try
+            {
+                Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
+                token.UserID = new Guid("525BBBC6-0E94-4991-BAC1-0CF1D31BBC17");
+                return this._StateServer.GetGroupNetPosition(token, "Access1", null, null, showActualQuantity, blotterCodeSelecteds);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "ExchangeSystem.GetGroupNetPosition Error:\r\n" + ex.ToString());
+                return null;
+            }
         }
 
-        public List<OpenInterestSummary> GetInstrumentSummary(bool isGroupByOriginCode, string[] blotterCodeSelecteds)
+        public List<OpenInterestSummary> GetOpenInterestInstrumentSummary(bool isGroupByOriginCode, string[] blotterCodeSelecteds)
         {
-            return NetGroupManager.GetInstrumentSummary();
+            try
+            {
+                Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
+                token.UserID = new Guid("525BBBC6-0E94-4991-BAC1-0CF1D31BBC17");
+                return this._StateServer.GetOpenInterestInstrumentSummary(token, false, blotterCodeSelecteds);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "ExchangeSystem.GetGroupNetPosition Error:\r\n" + ex.ToString());
+                return null;
+            }
         }
 
-        public List<OpenInterestSummary> GetAccountSummary(Guid instrumentId,string[] blotterCodeSelecteds)
+        public List<OpenInterestSummary> GetOpenInterestAccountSummary(Guid[] accountIDs, Guid[] instrumentIDs, string[] blotterCodeSelecteds)
         {
-            return NetGroupManager.GetAccountSummary();
+            try
+            {
+                Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
+                token.UserID = new Guid("525BBBC6-0E94-4991-BAC1-0CF1D31BBC17");
+                return this._StateServer.GetOpenInterestAccountSummary(token, accountIDs, instrumentIDs, blotterCodeSelecteds);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "ExchangeSystem.GetOpenInterestAccountSummary Error:\r\n" + ex.ToString());
+                return null;
+            }
         }
 
-        public List<OpenInterestSummary> GetOrderSummary(Guid instrumentId, Guid accountId,iExchange.Common.AccountType accountType, string[] blotterCodeSelecteds)
+        public List<OpenInterestSummary> GetOpenInterestOrderSummary(Guid accountId,iExchange.Common.AccountType accountType, Guid instrumentId, string[] blotterCodeSelecteds)
         {
-            return NetGroupManager.GetOrderSummary(accountType);
+            try
+            {
+                Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
+                Guid[] instruments = new Guid[] { instrumentId };
+                token.UserID = new Guid("525BBBC6-0E94-4991-BAC1-0CF1D31BBC17");
+                return this._StateServer.GetOpenInterestOrderSummary(token, accountId, accountType, instruments, blotterCodeSelecteds);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "ExchangeSystem.GetOpenInterestOrderSummary Error:\r\n" + ex.ToString());
+                return null;
+            }
         }
         #endregion
         private void HandleEngineException(Exception ex)

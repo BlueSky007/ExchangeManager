@@ -1,5 +1,6 @@
 ﻿using Manager.Common;
 using Manager.Common.LogEntities;
+using ManagerConsole.Model;
 using ManagerConsole.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -20,8 +21,8 @@ namespace ManagerConsole.Helper
             IPAddress localaddr = localhost.AddressList[0];
             logEntity.IP = localaddr.ToString();
 
-            //logEntity.UserId = client.userId;
-            //logEntity.UserName = client.user.UserName;
+            logEntity.UserId = ConsoleClient.Instance.user.UserId;
+            logEntity.UserName = ConsoleClient.Instance.user.UserName;
             logEntity.Event = objectId;// "ExecuteOrder";
             logEntity.ExchangeCode = orderTask.ExchangeCode;
             logEntity.OperationType = operationType;

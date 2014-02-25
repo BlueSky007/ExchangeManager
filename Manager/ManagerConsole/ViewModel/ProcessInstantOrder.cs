@@ -156,7 +156,7 @@ namespace ManagerConsole.ViewModel
         {
             InstrumentClient instrument = orderTask.Transaction.Instrument;
 
-            Price marketPricePrice = Price.CreateInstance(marketPrice, instrument.NumeratorUnit.Value, instrument.Denominator.Value);
+            Price marketPricePrice = Price.CreateInstance(marketPrice, instrument.NumeratorUnit, instrument.Denominator);
             marketPricePrice = marketPricePrice + acceptDQVariation;
             
             if (quotePolicyDetail.PriceType == PriceType.OriginEnable)
@@ -168,7 +168,7 @@ namespace ManagerConsole.ViewModel
                 marketPricePrice = marketPricePrice + (quotePolicyDetail.AutoAdjustPoints);
             }
 
-            Price setPrice = new Price(orderTask.SetPrice, instrument.NumeratorUnit.Value, instrument.Denominator.Value);
+            Price setPrice = new Price(orderTask.SetPrice, instrument.NumeratorUnit, instrument.Denominator);
             if (instrument.IsNormal == isBuy)
             {
                 if (marketPricePrice != null)

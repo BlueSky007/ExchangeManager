@@ -62,6 +62,23 @@ namespace ManagerConsole.Model
         public bool IsAutoEnablePrice;
 
         public int OrderTypeMask;
+        //        instrument
+        public int AcceptLmtVariation;
+        public decimal AutoDQMaxLot;
+        public int AlertVariation;
+        public decimal DqQuoteMinLot;
+        public decimal MaxDQLot;
+        public int NormalWaitTime;
+        public int AlertWaitTime;
+        public decimal MaxOtherLot;
+        public int CancelLmtVariation;
+        public int MaxMinAdjust;
+        public int PenetrationPoint;
+        public int PriceValidTime;
+        public decimal AutoCancelMaxLot;
+        public decimal AutoAcceptMaxLot;
+        public int HitPriceVariationForSTP;
+        public int AutoDQDelay;
 
         public ExchangeQuotation()
         {
@@ -89,6 +106,20 @@ namespace ManagerConsole.Model
             this.IsPriceEnabled = instrument.IsPriceEnabled;
             this.IsAutoEnablePrice = instrument.IsAutoEnablePrice;
             this.OrderTypeMask = instrument.OrderTypeMask;
+            this.AcceptLmtVariation = instrument.AcceptLmtVariation;
+            this.AutoDQMaxLot = instrument.AutoDQMaxLot;
+            this.AlertVariation = instrument.AlertVariation;
+            this.DqQuoteMinLot = instrument.DqQuoteMinLot;
+            this.MaxDQLot = instrument.MaxDQLot;
+            this.NormalWaitTime = instrument.NormalWaitTime;
+            this.AlertWaitTime = instrument.AlertWaitTime;
+            this.MaxOtherLot = instrument.MaxOtherLot;
+            this.CancelLmtVariation = instrument.CancelLmtVariation;
+            this.MaxMinAdjust = instrument.MaxMinAdjust;
+            this.PenetrationPoint = instrument.PenetrationPoint;
+            this.PriceValidTime = instrument.PriceValidTime;
+            this.AutoCancelMaxLot = instrument.AutoCancelMaxLot;
+            this.AutoAcceptMaxLot = instrument.AutoAcceptMaxLot; 
         }
 
         public void Update(Dictionary<string, string> fieldAndValues,string exchangeCode)

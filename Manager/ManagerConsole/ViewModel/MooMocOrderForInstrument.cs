@@ -188,11 +188,14 @@ namespace ManagerConsole.ViewModel
             {
                 return PriceTrend.Up;
             }
-            else
+            else if (newPrice > oldPrice)
             {
                 return PriceTrend.Down;
             }
-            return PriceTrend.NoChange;
+            else
+            {
+                return PriceTrend.NoChange;
+            }
         }
 
         private void ResetTrendState(object sender, object actionArgs)

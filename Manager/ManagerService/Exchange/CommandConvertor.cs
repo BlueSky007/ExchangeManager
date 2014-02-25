@@ -119,7 +119,7 @@ namespace ManagerService.Exchange
             Order[] orders;
             OrderRelation[] orderRelations;
 
-            CommandConvertor.Parse(transactionNode, out transactions, out orders, out orderRelations);
+            CommandConvertor.Parse(exchangeCode,transactionNode, out transactions, out orders, out orderRelations);
             PlaceMessage placeMessage = new PlaceMessage(exchangeCode,transactions, orders, orderRelations);
             placeMessage.AccountID = placeCommand.AccountID;
             placeMessage.InstrumentID = placeCommand.InstrumentID;
@@ -134,7 +134,7 @@ namespace ManagerService.Exchange
             Order[] orders;
             OrderRelation[] orderRelations;
             //Not Need AccountNode
-            CommandConvertor.Parse(transactionNode, out transactions, out orders, out orderRelations);
+            CommandConvertor.Parse(exchangeCode,transactionNode, out transactions, out orders, out orderRelations);
             ExecuteMessage executeMessage = new ExecuteMessage(exchangeCode, transactions, orders, orderRelations);
             return executeMessage;
         }
@@ -147,7 +147,7 @@ namespace ManagerService.Exchange
             Order[] orders;
             OrderRelation[] orderRelations;
             //Not Need AccountNode
-            CommandConvertor.Parse(transactionNode, out transactions, out orders, out orderRelations);
+            CommandConvertor.Parse(exchangeCode,transactionNode, out transactions, out orders, out orderRelations);
             Execute2Message execute2Message = new Execute2Message(exchangeCode, transactions, orders, orderRelations);
             return execute2Message;
         }
@@ -160,7 +160,7 @@ namespace ManagerService.Exchange
             Order[] orders;
             OrderRelation[] orderRelations;
 
-            CommandConvertor.Parse(transactionNode, out transactions, out orders, out orderRelations);
+            CommandConvertor.Parse(exchangeCode,transactionNode, out transactions, out orders, out orderRelations);
             CutMessage cutMessage = new CutMessage { ExchangeCode = exchangeCode, Transactions = transactions, Orders = orders, OrderRelations = orderRelations };
             return cutMessage;
         }
@@ -197,7 +197,7 @@ namespace ManagerService.Exchange
                     Order[] orders;
                     OrderRelation[] orderRelations;
 
-                    CommandConvertor.Parse(transactionNode, out transactions, out orders, out orderRelations);
+                    CommandConvertor.Parse(exchangeCode,transactionNode, out transactions, out orders, out orderRelations);
                     transactionList.AddRange(transactions);
                     orderList.AddRange(orders);
                     orderRelationList.AddRange(orderRelations);
@@ -223,20 +223,20 @@ namespace ManagerService.Exchange
         #endregion
 
 
-        internal static void Parse(XmlNode transactionNode, out Transaction[] transactions,out Order[] orders, out OrderRelation[] orderRelations)
+        internal static void Parse(string exchangeCode,XmlNode transactionNode, out Transaction[] transactions,out Order[] orders, out OrderRelation[] orderRelations)
         {
             List<Transaction> transactionList = new List<Transaction>();
             List<Order> orderList = new List<Order>();
             List<OrderRelation> orderRelationList = new List<OrderRelation>();
 
-            CommandConvertor.Parse(transactionNode,transactionList, orderList,orderRelationList);
+            CommandConvertor.Parse(exchangeCode,transactionNode, transactionList, orderList, orderRelationList);
 
             transactions = transactionList.ToArray();
             orders = orderList.ToArray();
             orderRelations = orderRelationList.ToArray();
         }
 
-        internal static void Parse(XmlNode transactionNode, List<Transaction> transactions, List<Order> orders, List<OrderRelation> orderRelations)
+        internal static void Parse(string exchangeCode,XmlNode transactionNode, List<Transaction> transactions, List<Order> orders, List<OrderRelation> orderRelations)
         {
             Transaction transaction = new Transaction();
             transaction.Initialize(transactionNode);
@@ -261,7 +261,7 @@ namespace ManagerService.Exchange
                     }
                     else
                     {
-                        openOrderPrice = ExchangeData.GetOrderRelationOpenPrice("CHUNG", openOrderID);
+                        openOrderPrice = ExchangeData.GetOrderRelationOpenPrice(exchangeCode, openOrderID);
                         _OrderRelationOpenPrics.Add(openOrderID, openOrderPrice);
                     }
 
@@ -841,9 +841,7 @@ namespace ManagerService.Exchange
                 else if (nodeName == "EndTime")
                 {
                     transaction.EndTime = DateTime.Parse(nodeValue);
-                    DateTime oSystemTime = DateTime.Now;
-                    int orderValidDuration = DateDiff(transaction.EndTime, oSystemTime);
-                    transaction.OrderValidDuration = orderValidDuration;
+                    transaction.OrderValidDuration = (int)(transaction.EndTime - DateTime.Now).TotalSeconds;
                     continue;
                 }
                 else if (nodeName == "ExpireType")
@@ -977,16 +975,6 @@ namespace ManagerService.Exchange
                     continue;
                 }
             }
-        }
-
-        internal static int DateDiff(DateTime DateTime1, DateTime DateTime2)
-        {
-            int dateDiff = 0;
-            TimeSpan ts1 = new TimeSpan(DateTime1.Ticks);
-            TimeSpan ts2 = new TimeSpan(DateTime2.Ticks);
-            TimeSpan ts = ts1.Subtract(ts2).Duration();
-            dateDiff = int.Parse(ts.Seconds.ToString()) + int.Parse(ts.Minutes.ToString()) * 60;
-            return dateDiff;
         }
 
         internal static bool IsNullOrEmpty(this ICollection collection)

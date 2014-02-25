@@ -20,7 +20,7 @@
 
     <SolidColorBrush x:Key="ItemsBoxWatermarkForegroundBrush" Color="{StaticResource Color_003}"/>
     <SolidColorBrush x:Key="WatermarkForegroundBrush" Color="{StaticResource Color_002}"/>
-
+    <SolidColorBrush x:Key="DynamicBackGround" Color="White"/>
     <LinearGradientBrush x:Key="EditingIndicatorFillBrush" StartPoint="0.666,-0.043" EndPoint="-0.066,0.949">
         <GradientStop Offset="0.751" Color="{StaticResource Color_026}"/>
         <GradientStop Offset="0.754" Color="{StaticResource Color_029}"/>

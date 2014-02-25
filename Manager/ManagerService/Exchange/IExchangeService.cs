@@ -58,5 +58,17 @@ namespace ManagerService.Exchange
 
         [OperationContract]
         AccountInformation GetAcountInfo(Token token, Guid tranID);
+
+        [OperationContract]
+        List<AccountGroupGNP> GetGroupNetPosition(Token token, string permissionName, Guid[] accountIDs, Guid[] instrumentIDs, bool showActualQuantity, string[] blotterCodeSelecteds);
+
+        [OperationContract]
+        List<OpenInterestSummary> GetOpenInterestInstrumentSummary(Token token, bool isGroupByOriginCode, string[] blotterCodeSelecteds);
+
+        [OperationContract]
+        List<OpenInterestSummary> GetOpenInterestAccountSummary(Token token, Guid[] accountIDs, Guid[] instrumentIDs, string[] blotterCodeSelecteds);
+
+        [OperationContract]
+        List<OpenInterestSummary> GetOpenInterestOrderSummary(Token token, Guid accountId, AccountType accountType, Guid[] instrumentIDs, string[] blotterCodeSelecteds);
     }
 }

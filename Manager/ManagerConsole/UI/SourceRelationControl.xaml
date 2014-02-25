@@ -27,8 +27,8 @@
             <ig:XamGrid.Columns>
                 <ig:TextColumn Key="QuotationSource.Name" HeaderText="Source" IsReadOnly="True" />
                 <ig:TextColumn Key="Timestamp" HeaderText="Timestamp" IsReadOnly="True" FormatString="{}{0:HH:mm:ss}" />
-                <ig:TextColumn Key="Ask" HeaderText="Ask" IsReadOnly="True" HorizontalContentAlignment="Right" />
                 <ig:TextColumn Key="Bid" HeaderText="Bid" IsReadOnly="True" HorizontalContentAlignment="Right" />
+                <ig:TextColumn Key="Ask" HeaderText="Ask" IsReadOnly="True" HorizontalContentAlignment="Right" />
                 <ig:TextColumn Key="ActiveState" HeaderText="State" IsReadOnly="True"/>
                 <ig:TemplateColumn Key="AdjustPoints" HeaderText="AdjustPoints" IsReadOnly="True" HorizontalContentAlignment="Center">
                     <ig:TemplateColumn.ItemTemplate>

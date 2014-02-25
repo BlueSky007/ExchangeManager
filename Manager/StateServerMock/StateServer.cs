@@ -58,6 +58,26 @@ namespace iExchange.StateServer.Manager
         {
             throw new NotImplementedException();
         }
+
+        internal XmlNode GetGroupNetPosition(Token token, string permissionName, Guid[] accountIDs, Guid[] instrumentIDs, bool showActualQuantity, string[] blotterCodeSelecteds)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal XmlNode GetOpenInterestInstrumentSummary(Token token, bool isGroupByOriginCode, string[] blotterCodeSelecteds)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal XmlNode GetOpenInterestSummary(Token token, Guid[] accountIDs, Guid[] instrumentIDs, string[] blotterCodeSelecteds)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal XmlNode GetOpenInterestSummaryOrderList(Token token, Guid accountId, Guid[] instrumentIDs, string[] blotterCodeSelecteds)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class ManagerHelper
@@ -139,6 +159,26 @@ namespace iExchange.StateServer.Manager
         }
 
         internal static ExecutedTransaction GetExecutedTransaction(XmlNode xmlTran)
+        {
+            return null;
+        }
+
+        public static List<AccountGroupGNP> GetGroupNetPosition(XmlNode groupGNPXml)
+        {
+            return null;
+        }
+
+        internal static List<OpenInterestSummary> GetOpenInterestInstrumentSummary(XmlNode summaryXmlNode)
+        {
+            return null;
+        }
+
+        internal static List<OpenInterestSummary> GetOpenInterestAccountSummary(XmlNode summaryXmlNode)
+        {
+            return null;
+        }
+
+        internal static List<OpenInterestSummary> GetOpenInterestOrderSummary(XmlNode summaryXmlNode,AccountType accountType)
         {
             return null;
         }

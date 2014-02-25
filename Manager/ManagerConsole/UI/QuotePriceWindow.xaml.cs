@@ -87,7 +87,7 @@ namespace ManagerConsole.UI
 
         private void AttachEvent()
         {
-            ConsoleClient.Instance.MessageClient.QuotePriceToDealerEvent += this.MessageClient_QuotePriceReceived;
+            //ConsoleClient.Instance.MessageClient.QuotePriceToDealerEvent += this.MessageClient_QuotePriceReceived;
             this._QuotePriceClientModel.OnBindingQuotePriceUIEvent += this.BindingQuotePriceUI;
         }
 
@@ -171,6 +171,22 @@ namespace ManagerConsole.UI
 
         #endregion
 
+        public void ShowQuotePriceWindow()
+        {
+            this.WindowState = Infragistics.Controls.Interactions.WindowState.Normal;
+            this.Height = 650;
+            this.Width = 650;
+            if (!this.isBingdingGrid)
+            {
+                this.BindGridData();
+                this.isBingdingGrid = true;
+            }
+            if (!this._QuoteTimer.IsEnabled)
+            {
+                this._QuoteTimer.Start();
+            }
+        }
+
         private void MessageClient_QuotePriceReceived(QuoteMessage quoteMessage)
         {
             this.Dispatcher.BeginInvoke((Action)delegate()
@@ -179,7 +195,7 @@ namespace ManagerConsole.UI
                 this.Height = 650;
                 this.Width = 650;
                 if (!this.isBingdingGrid)
-                { 
+                {
                     this.BindGridData();
                     this.isBingdingGrid = true;
                 }

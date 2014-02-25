@@ -6,8 +6,11 @@ using CommonDealingOrderParameter = Manager.Common.Settings.DealingOrderParamete
 using CommonSetValueSetting = Manager.Common.Settings.SetValueSetting;
 using CommonSoundSetting = Manager.Common.Settings.SoundSetting;
 using FieldSetting = Manager.Common.Settings.FieldSetting;
+using SoundOption = Manager.Common.SoundOption;
 using ManagerConsole.Helper;
 using System.Collections.Generic;
+using System.Windows.Media;
+using System.Linq;
 
 namespace ManagerConsole.ViewModel
 {
@@ -30,7 +33,7 @@ namespace ManagerConsole.ViewModel
             this.Initailize(commonSettingsParameter);
         }
 
-        internal  SettingsParameterManager Clone()
+        public SettingsParameterManager Clone()
         {
             return new SettingsParameterManager()
             {
@@ -50,7 +53,7 @@ namespace ManagerConsole.ViewModel
             return cloneSoundSettings;
         }
 
-        internal void Initailize(CommonSettingsParameter commonSettingsParameter)
+        public void Initailize(CommonSettingsParameter commonSettingsParameter)
         {
             this.DealingOrderParameter = new DealingOrderParameter(commonSettingsParameter.DealingOrderParameter);
             this.SetValueSetting = new SetValueSetting(commonSettingsParameter.SetValueSetting);
@@ -69,8 +72,27 @@ namespace ManagerConsole.ViewModel
             {
                 if (setting.SoundPath != setting.OriginSoundSetting.SoundPath)
                 {
-                    this.UpdateSoundPathFileds.Add(setting.SoundKey, setting.SoundPath);
+                    this.UpdateSoundPathFileds.Add(setting.SoundKey.ToString(), setting.SoundPath);
                 }
+            }
+        }
+
+        public string GetSoundPath(SoundOption soundkey)
+        {
+            SoundSetting soundSetting = this.SoundSettings.SingleOrDefault(P => P.SoundKey == soundkey);
+
+            return (soundSetting == null ? string.Empty : soundSetting.SoundPath);
+        }
+
+        //Copy Sound Setting Update
+        public void UpdateCopySoundSettings(List<CommonSoundSetting> newSoundSettings)
+        {
+            if (newSoundSettings.Count <= 0) return;
+            this.SoundSettings.Clear();
+            foreach (CommonSoundSetting commonSoundSetting in newSoundSettings)
+            {
+                SoundSetting soundSetting = new SoundSetting(commonSoundSetting);
+                this.SoundSettings.Add(soundSetting);
             }
         }
     }
@@ -211,15 +233,22 @@ namespace ManagerConsole.ViewModel
     public class SoundSetting : PropertyChangedNotifier
     {
         private string _SoundPath;
+        private SolidColorBrush _SoundPathFontColor = SolidColorBrushes.LightBlue;
         private SoundSetting _OriginSoundSetting;
         public Guid SettingDetailId { get; set; }
         public Guid SettingId { get; set; }
         public SoundType SoundType { get; set; }
-        public string SoundKey { get; set; }
+        public SoundOption SoundKey { get; set; }
         public string SoundPath
         {
             get { return this._SoundPath; }
             set { this._SoundPath = value; this.OnPropertyChanged("SoundPath"); }
+        }
+
+        public SolidColorBrush SoundPathFontColor
+        {
+            get { return this._SoundPathFontColor; }
+            set { this._SoundPathFontColor = value; this.OnPropertyChanged("SoundPathFontColor"); }
         }
         public Dictionary<string, object> UpdateFileds { get; set; }
 
@@ -253,7 +282,6 @@ namespace ManagerConsole.ViewModel
                 SoundPath = this.SoundPath,
             };
         }
-
     }
 
     public class SetValueSetting : PropertyChangedNotifier

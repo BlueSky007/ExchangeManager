@@ -151,5 +151,17 @@ namespace ManagerService.Exchange
             }
             return isSuccess;
         }
+
+        public bool UpdateQuotationServer(string exchangeCode,string xmlUpdateStr)
+        {
+            bool isSuccess = false;
+            isSuccess = this._ExchangeSystems[exchangeCode].UpdateQuotationServer(xmlUpdateStr);
+            return isSuccess;
+        }
+
+        public UpdateHighLowBatchProcessInfo UpdateHighLow(string exchangeCode, Guid instrumentId, bool isOriginHiLo, string newInput, bool isUpdateHigh)
+        {
+            return this._ExchangeSystems[exchangeCode].UpdateHighLow(instrumentId, isOriginHiLo, newInput, isUpdateHigh);
+        }
     }
 }

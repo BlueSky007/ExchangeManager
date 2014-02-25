@@ -32,7 +32,7 @@
             <RowDefinition />
             <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal" Background="{StaticResource BackGroundForPanel}" Grid.Row="0">
+        <StackPanel Orientation="Horizontal"  Grid.Row="0">
             <Button x:Name="_QueryButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"  Click="ToolBar_Click" Width="25" Height="25" Margin="2" >
                 <Button.Content>
                     <Image Source="../Asset/Images/Search.png" ToolTipService.ToolTip="Query Log"  Margin="1"/>

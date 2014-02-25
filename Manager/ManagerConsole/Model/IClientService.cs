@@ -15,6 +15,8 @@ using AccountGroupGNP = iExchange.Common.Manager.AccountGroupGNP;
 using AccountType = iExchange.Common.AccountType;
 using OpenInterestSummary = iExchange.Common.Manager.OpenInterestSummary;
 using TransactionError = iExchange.Common.TransactionError;
+using OrderQueryEntity = Manager.Common.ReportEntities.OrderQueryEntity;
+using SoundSetting = Manager.Common.Settings.SoundSetting;
 using System.Collections.ObjectModel;
 using iExchange.Common.Manager;
 using iExchange.Common;
@@ -141,6 +143,10 @@ namespace ManagerConsole.Model
 
         #region Setting Manager
         [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginCopyFromSetting(Guid copyUserId, AsyncCallback callback, object asyncState);
+        List<SoundSetting> EndCopyFromSetting(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginLoadSettingsParameters(AsyncCallback callback, object asyncState);
         SettingsParameter EndLoadSettingsParameters(IAsyncResult result);
 
@@ -178,25 +184,25 @@ namespace ManagerConsole.Model
 
         #region Report
         [OperationContract(AsyncPattern = true)]
-        IAsyncResult BeginGetOrderByInstrument(Guid instrumentId, Guid accountGroupId, OrderType orderType,
+        IAsyncResult BeginGetOrderByInstrument(string exchangeCode,Guid instrumentId, Guid accountGroupId, OrderType orderType,
             bool isExecute, DateTime fromDate, DateTime toDate, AsyncCallback callback, object asyncState);
         List<OrderQueryEntity> EndGetOrderByInstrument(IAsyncResult result);
 
         [OperationContract(AsyncPattern = true)]
-        IAsyncResult BeginGetGroupNetPosition(AsyncCallback callback, object asyncState);
+        IAsyncResult BeginGetGroupNetPosition(string exchangeCode,bool showActualQuantity, string[] blotterCodeSelecteds,AsyncCallback callback, object asyncState);
         List<AccountGroupGNP> EndGetGroupNetPosition(IAsyncResult result);
 
         [OperationContract(AsyncPattern = true)]
-        IAsyncResult BeginGetInstrumentSummary(bool isGroupByOriginCode, string[] blotterCodeSelecteds, AsyncCallback callback, object asyncState);
-        List<OpenInterestSummary> EndGetInstrumentSummary(IAsyncResult result);
+        IAsyncResult BeginGetOpenInterestInstrumentSummary(string exchangeCode,bool isGroupByOriginCode, string[] blotterCodeSelecteds, AsyncCallback callback, object asyncState);
+        List<OpenInterestSummary> EndGetOpenInterestInstrumentSummary(IAsyncResult result);
 
         [OperationContract(AsyncPattern = true)]
-        IAsyncResult BeginGetAccountSummary(Guid instrumentId, string[] blotterCodeSelecteds, AsyncCallback callback, object asyncState);
-        List<OpenInterestSummary> EndGetAccountSummary(IAsyncResult result);
+        IAsyncResult BeginGetOpenInterestAccountSummary(string exchangeCode,Guid instrumentId, string[] blotterCodeSelecteds, AsyncCallback callback, object asyncState);
+        List<OpenInterestSummary> EndGetOpenInterestAccountSummary(IAsyncResult result);
 
         [OperationContract(AsyncPattern = true)]
-        IAsyncResult BeginGetOrderSummary(Guid instrumentId, Guid accountId, AccountType accountType, string[] blotterCodeSelecteds, AsyncCallback callback, object asyncState);
-        List<OpenInterestSummary> EndGetOrderSummary(IAsyncResult result);
+        IAsyncResult BeginGetOpenInterestOrderSummary(string exchangeCode,Guid instrumentId, Guid accountId, AccountType accountType, string[] blotterCodeSelecteds, AsyncCallback callback, object asyncState);
+        List<OpenInterestSummary> EndGetOpenInterestOrderSummary(IAsyncResult result);
 
         #endregion
 
@@ -294,6 +300,14 @@ namespace ManagerConsole.Model
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginExchangeSuspendResume(Dictionary<string, List<Guid>> instruments, bool resume, AsyncCallback callback, object asyncState);
         bool EndExchangeSuspendResume(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginGetOriginQuotationForModifyAskBidHistory(string exchangeCode, Guid instrumentID, DateTime beginDateTime, string origin, AsyncCallback callback, object asyncState);
+        List<HistoryQuotationData> EndGetOriginQuotationForModifyAskBidHistory(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginUpdateHighLow(string exchangeCode, Guid instrumentId, bool isOriginHiLo, string newInput, bool isUpdateHigh, AsyncCallback callback, object asyncState);
+        UpdateHighLowBatchProcessInfo EndUpdateHighLow(IAsyncResult result);
     }
 
     [ServiceContract]

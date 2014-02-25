@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+using System.Collections.ObjectModel;
 
 namespace ManagerConsole.UI
 {
@@ -24,53 +25,68 @@ namespace ManagerConsole.UI
 
         public static void LoadColumnsWidth(XamGrid xamGrid, XElement xml)
         {
-            string widthData = xml.Attribute("Data").Value;
-            string[] allWidth = widthData.Split(',');
-            int i = 0;
-            foreach (string widthStr in allWidth)
+            XElement widthElement = xml.Element("ColumnsWidth");
+            if (widthElement != null)
             {
-                if (!string.IsNullOrEmpty(widthStr))
+                string widthData = widthElement.Attribute("Data").Value;
+                string[] allWidth = widthData.Split(',');
+                int i = 0;
+                foreach (string widthStr in allWidth)
                 {
-                    double width = 0;
-                    if (double.TryParse(widthStr, out width))
+                    if (!string.IsNullOrEmpty(widthStr))
                     {
-                        xamGrid.Columns.DataColumns[i].Width = new ColumnWidth(width, false);
+                        double width = 0;
+                        if (double.TryParse(widthStr, out width))
+                        {
+                            xamGrid.Columns.DataColumns[i].Width = new ColumnWidth(width, false);
+                        }
                     }
+                    i++;
                 }
-                i++;
             }
         }
 
-        public static string GetGridColumnsWidthString(XamGrid xamGrid)
+        public static string GetGridColumnsWidthString(List<XamGrid> xamGrids)
         {
+
             StringBuilder str = new StringBuilder();
-            string settingStr = string.Format("<GridSetting Name=\"{0}\" ColumnsWidth=\"", xamGrid.Name);
-            str.Append(settingStr);
-            foreach (var item in xamGrid.Columns.DataColumns)
+            foreach (XamGrid xamGrid in xamGrids)
             {
-                str.Append(item.ActualWidth);
-                str.Append(",");
+                string settingStr = string.Format("<GridSetting Name=\"{0}\" ColumnsWidth=\"", xamGrid.Name);
+                str.Append(settingStr);
+                foreach (var item in xamGrid.Columns.DataColumns)
+                {
+                    str.Append(item.ActualWidth);
+                    str.Append(",");
+                }
+                str.Append("\"/>");
             }
-            str.Append("\"/>");
             return str.ToString();
         }
 
-        public static void LoadGridColumnsWidth(XamGrid xamGrid, XElement xml)
+        public static void LoadGridColumnsWidth(ObservableCollection<XamGrid> xamGrids, XElement xml)
         {
-            string widthData = xml.Attribute("ColumnsWidth").Value;
-            string[] allWidth = widthData.Split(',');
-            int i = 0;
-            foreach (string widthStr in allWidth)
+            foreach (XElement widthElement in xml.Elements("GridSetting"))
             {
-                if (!string.IsNullOrEmpty(widthStr))
+                if (widthElement != null)
                 {
-                    double width = 0;
-                    if (double.TryParse(widthStr, out width))
+                    string widthData = widthElement.Attribute("ColumnsWidth").Value;
+                    string[] allWidth = widthData.Split(',');
+                    string gridName = widthElement.Attribute("Name").Value;
+                    int i = 0;
+                    foreach (string widthStr in allWidth)
                     {
-                        xamGrid.Columns.DataColumns[i].Width = new ColumnWidth(width, false);
+                        if (!string.IsNullOrEmpty(widthStr))
+                        {
+                            double width = 0;
+                            if (double.TryParse(widthStr, out width))
+                            {
+                                xamGrids.SingleOrDefault(x => x.Name == gridName).Columns.DataColumns[i].Width = new ColumnWidth(width, false);
+                            }
+                        }
+                        i++;
                     }
                 }
-                i++;
             }
         }
     }

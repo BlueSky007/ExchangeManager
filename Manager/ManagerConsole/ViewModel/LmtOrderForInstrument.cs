@@ -26,8 +26,8 @@ namespace ManagerConsole.ViewModel
         private string _Ask;
         private string _Bid;
         private string _Origin;
-        private string _CustomerBidPrice; //客定Bid价
-        private string _CustomerAskPrice; //客定Ask价
+        private Decimal _CustomerBidPrice; //客定Bid价
+        private Decimal _CustomerAskPrice; //客定Ask价
         private int _BidDiff;
         private int _AskDiff;
         private string _OpenAvgPrice;
@@ -127,7 +127,7 @@ namespace ManagerConsole.ViewModel
             set { this._Bid = value; this.OnPropertyChanged("Bid"); }
         }
 
-        public string CustomerBidPrice
+        public decimal CustomerBidPrice
         {
             get { return this._CustomerBidPrice; }
             set
@@ -138,7 +138,7 @@ namespace ManagerConsole.ViewModel
             }
         }
 
-        public string CustomerAskPrice
+        public Decimal CustomerAskPrice
         {
             get { return this._CustomerAskPrice; }
             set
@@ -268,8 +268,8 @@ namespace ManagerConsole.ViewModel
             this.OpenAvgPrice = orderTask.Transaction.GetOpenOrderAvgPrice(this.OrderId);
 
             this.UpdateBrush();
-            this.CustomerAskPrice = this.Ask;
-            this.CustomerBidPrice = this.Bid;
+            this.CustomerAskPrice = decimal.Parse(this.Ask);
+            this.CustomerBidPrice = decimal.Parse(this.Bid);
             this.UpdateDiff();
 
             this.GetPriceFormating();
@@ -277,7 +277,7 @@ namespace ManagerConsole.ViewModel
 
         internal void GetPriceFormating()
         {
-            this.IncrementPoint = (decimal)this.Instrument.NumeratorUnit.Value / (decimal)this.Instrument.Denominator.Value;
+            this.IncrementPoint = (decimal)this.Instrument.NumeratorUnit / (decimal)this.Instrument.Denominator;
 
             if (this.IncrementPoint < 1)
             {
@@ -308,8 +308,8 @@ namespace ManagerConsole.ViewModel
             this.BuySell = BuySell.Buy;
             this.Lot = decimal.Zero;
             this.OpenAvgPrice = string.Empty;
-            this.CustomerAskPrice = string.Empty;
-            this.CustomerBidPrice = string.Empty;
+            this.CustomerAskPrice = decimal.Zero;
+            this.CustomerBidPrice = decimal.Zero;
             this.BuyOrderCount = 0;
             this.SellOrderCount = 0;
 
@@ -322,11 +322,11 @@ namespace ManagerConsole.ViewModel
         {
             if (isBuy)
             {
-                this.CustomerBidPrice = this.Bid;
+                this.CustomerBidPrice = decimal.Parse(this.Bid);
             }
             else
             {
-                this.CustomerAskPrice = this.Ask;
+                this.CustomerAskPrice = decimal.Parse(this.Ask);
             }
         }
 
@@ -391,11 +391,11 @@ namespace ManagerConsole.ViewModel
 
         internal void SetCustomerPrice(bool isBuy)
         {
-            string pricString = isBuy ? this.CustomerBidPrice : this.CustomerAskPrice;
-            Price price = new Price(pricString, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+            string pricString = isBuy ? this.CustomerBidPrice.ToString() : this.CustomerAskPrice.ToString();
+            Price price = new Price(pricString, this._Instrument.NumeratorUnit, this._Instrument.Denominator);
 
-            Price ask = new Price(this.Ask, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
-            Price bid = new Price(this.Bid, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+            Price ask = new Price(this.Ask, this._Instrument.NumeratorUnit, this._Instrument.Denominator);
+            Price bid = new Price(this.Bid, this._Instrument.NumeratorUnit, this._Instrument.Denominator);
 
             Price marketPrice = isBuy ? ask : bid;
             if (this._Instrument.IsNormal ^ (this.BuySell == BuySell.Buy))
@@ -411,10 +411,10 @@ namespace ManagerConsole.ViewModel
         internal void UpdateDiff()
         {
             if (this.CustomerBidPrice == null || this.CustomerAskPrice == null || this._Instrument.NumeratorUnit == null) return;
-            Price customerAskPrice = new Price(this.CustomerAskPrice, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
-            Price customerBidPrice = new Price(this.CustomerBidPrice, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
-            Price ask = new Price(this.Ask, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
-            Price bid = new Price(this.Bid, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+            Price customerAskPrice = new Price((double)this.CustomerAskPrice, this._Instrument.NumeratorUnit, this._Instrument.Denominator);
+            Price customerBidPrice = new Price((double)this.CustomerBidPrice, this._Instrument.NumeratorUnit, this._Instrument.Denominator);
+            Price ask = new Price(this.Ask, this._Instrument.NumeratorUnit, this._Instrument.Denominator);
+            Price bid = new Price(this.Bid, this._Instrument.NumeratorUnit, this._Instrument.Denominator);
             this.AskDiff = ask - customerAskPrice;
             this.BidDiff = bid - customerBidPrice;
         }

@@ -20,13 +20,14 @@ using ManagerService.Quotation;
 using TransactionError = iExchange.Common.TransactionError;
 using OrderType = iExchange.Common.OrderType;
 using CancelReason = iExchange.Common.CancelReason;
+using ManagerService.Audit;
 
 namespace ManagerService.Console
 {
     public class Client
     {
         private string _SessionId;
-        private string _IP;
+        public  string _IP;
         private User _User;
         private IClientProxy _ClientProxy;
         private RelayEngine<Message> _MessageRelayEngine;
@@ -537,6 +538,7 @@ namespace ManagerService.Console
                 //Write Log
                 if (transactionError == TransactionError.OK)
                 {
+                    logEntity.IP = this._IP;
                     WriteLogManager.WriteQuoteOrderLog(logEntity);
                 }
             }
@@ -575,6 +577,7 @@ namespace ManagerService.Console
 
                 if (transactionResult.TransactionError == TransactionError.OK)
                 {
+                    logEntity.IP = this._IP;
                     WriteLogManager.WriteQuoteOrderLog(logEntity);
                 }
             }
@@ -596,6 +599,7 @@ namespace ManagerService.Console
 
                 if (transactionError == TransactionError.OK)
                 {
+                    logEntity.IP = this._IP;
                     WriteLogManager.WriteQuoteOrderLog(logEntity);
                 }
             }
@@ -651,6 +655,20 @@ namespace ManagerService.Console
 
 
         #region Setting Manager
+        public List<SoundSetting> CopyFromSetting(Guid copyUserId)
+        {
+            List<SoundSetting> newSoundSettings = new List<SoundSetting>();
+            try
+            {
+                newSoundSettings = SettingManagerData.CopyFromSetting(this.userId,copyUserId);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "ManagerService.Console.Client/CopyFromSetting.\r\n{0}", ex.ToString());
+            }
+            return newSoundSettings;
+        }
+
         public List<ParameterDefine> LoadParameterDefine()
         {
             List<ParameterDefine> parameterDefines = new List<ParameterDefine>();
@@ -762,7 +780,7 @@ namespace ManagerService.Console
         {
             try
             {
-                return SettingManagerData.UpdateManagerSettings(settingId,type, fieldAndValues);
+                return SettingManagerData.UpdateManagerSettings(this.userId,settingId,type, fieldAndValues);
             }
             catch (Exception ex)
             {
@@ -773,23 +791,21 @@ namespace ManagerService.Console
         #endregion
 
         #region Report
-        internal List<OrderQueryEntity> GetOrderByInstrument(Guid instrumentId, Guid accountGroupId, OrderType orderType,
+        internal List<OrderQueryEntity> GetOrderByInstrument(string exchangeCode,Guid instrumentId, Guid accountGroupId, OrderType orderType,
            bool isExecute, DateTime fromDate, DateTime toDate)
         {
-            string exchangeCode = "CHUNG";
             HashSet<Guid> accounts = this._OwnAccounts[exchangeCode];
             HashSet<Guid> instruments = this._OwnInstruments[exchangeCode];
-            return ExchangeData.GetOrderByInstrument(this.userId,instrumentId, accountGroupId, orderType, isExecute, fromDate, toDate);
+            return ExchangeData.GetOrderByInstrument(exchangeCode, accounts,instruments, instrumentId, accountGroupId, orderType, isExecute, fromDate, toDate);
         }
 
-        internal List<AccountGroupGNP> GetGroupNetPosition()
+        internal List<AccountGroupGNP> GetGroupNetPosition(string exchangeCode,bool showActualQuantity, string[] blotterCodeSelecteds)
         {
-            string exchangeCode = "WF01";
             List<AccountGroupGNP> accountGroupGNPs = null;
             try
             {
                 ExchangeSystem exchangeSystem = MainService.ExchangeManager.GetExchangeSystem(exchangeCode);
-                accountGroupGNPs = exchangeSystem.GetGroupNetPosition();
+                accountGroupGNPs = exchangeSystem.GetGroupNetPosition(showActualQuantity, blotterCodeSelecteds);
 
             }
             catch (Exception ex)
@@ -799,50 +815,47 @@ namespace ManagerService.Console
             return accountGroupGNPs;
         }
 
-        internal List<OpenInterestSummary> GetInstrumentSummary(bool isGroupByOriginCode, string[] blotterCodeSelecteds)
+        internal List<OpenInterestSummary> GetOpenInterestInstrumentSummary(string exchangeCode,bool isGroupByOriginCode, string[] blotterCodeSelecteds)
         {
-            string exchangeCode = "WF01";
             List<OpenInterestSummary> openInterestSummarys = null;
             try
             {
                 ExchangeSystem exchangeSystem = MainService.ExchangeManager.GetExchangeSystem(exchangeCode);
-                openInterestSummarys = exchangeSystem.GetInstrumentSummary(isGroupByOriginCode, blotterCodeSelecteds);
+                openInterestSummarys = exchangeSystem.GetOpenInterestInstrumentSummary(isGroupByOriginCode, blotterCodeSelecteds);
             }
             catch (Exception ex)
             {
-                Logger.AddEvent(TraceEventType.Error, "Client.GetInstrumentSummary error:\r\n{0}", ex.ToString());
+                Logger.AddEvent(TraceEventType.Error, "Client.GetOpenInterestInstrumentSummary error:\r\n{0}", ex.ToString());
             }
             return openInterestSummarys;
         }
 
-        internal List<OpenInterestSummary> GetAccountSummary(Guid instrumentId, string[] blotterCodeSelecteds)
+        internal List<OpenInterestSummary> GetOpenInterestAccountSummary(string exchangeCode, Guid[] accountIDs, Guid[] instrumentIDs, string[] blotterCodeSelecteds)
         {
-            string exchangeCode = "WF01";
             List<OpenInterestSummary> openInterestSummarys = null;
             try
             {
                 ExchangeSystem exchangeSystem = MainService.ExchangeManager.GetExchangeSystem(exchangeCode);
-                openInterestSummarys = exchangeSystem.GetAccountSummary(instrumentId,blotterCodeSelecteds);
+                openInterestSummarys = exchangeSystem.GetOpenInterestAccountSummary(accountIDs, instrumentIDs, blotterCodeSelecteds);
             }
             catch (Exception ex)
             {
-                Logger.AddEvent(TraceEventType.Error, "Client.GetAccountSummary error:\r\n{0}", ex.ToString());
+                Logger.AddEvent(TraceEventType.Error, "Client.GetOpenInterestAccountSummary error:\r\n{0}", ex.ToString());
             }
             return openInterestSummarys;
         }
 
-        internal List<OpenInterestSummary> GetOrderSummary(Guid instrumentId, Guid accountId, iExchange.Common.AccountType accountType, string[] blotterCodeSelecteds)
+        internal List<OpenInterestSummary> GetOpenInterestOrderSummary(string exchangeCode,Guid instrumentId, Guid accountId, iExchange.Common.AccountType accountType, string[] blotterCodeSelecteds)
         {
-            string exchangeCode = "WF01";
             List<OpenInterestSummary> openInterestSummarys = null;
             try
             {
                 ExchangeSystem exchangeSystem = MainService.ExchangeManager.GetExchangeSystem(exchangeCode);
-                openInterestSummarys = exchangeSystem.GetOrderSummary(instrumentId, accountId, accountType, blotterCodeSelecteds);
+                openInterestSummarys = exchangeSystem.GetOpenInterestOrderSummary(accountId, accountType, instrumentId, blotterCodeSelecteds);
             }
             catch (Exception ex)
             {
-                Logger.AddEvent(TraceEventType.Error, "Client.GetOrderSummary error:\r\n{0}", ex.ToString());
+                Logger.AddEvent(TraceEventType.Error, "Client.GetOpenInterestOrderSummary error:\r\n{0}", ex.ToString());
             }
             return openInterestSummarys;
         }
@@ -958,6 +971,10 @@ namespace ManagerService.Console
             isSuccess = QuotationData.UpdateQuotationPolicy(set.ExchangeCode, xmlUpdateStr);            
             if (isSuccess)
             {
+                if (set.type == InstrumentQuotationEditType.AutoAdjustPoints || set.type == InstrumentQuotationEditType.SpreadPoints || set.type == InstrumentQuotationEditType.PriceType || set.type == InstrumentQuotationEditType.IsOriginHiLo)
+                {
+                    MainService.ExchangeManager.UpdateQuotationServer(set.ExchangeCode, xmlUpdateStr);
+                }
                 List<InstrumentQuotationSet> quotePolicyDetails = new List<InstrumentQuotationSet>();
                 quotePolicyDetails.Add(set);
                 UpdateInstrumentQuotationMessage message = new UpdateInstrumentQuotationMessage(quotePolicyDetails);
@@ -981,6 +998,19 @@ namespace ManagerService.Console
         public bool ExchangeSuspendResume(Dictionary<string, List<Guid>> instruments, bool resume)
         {
             return MainService.ExchangeManager.ExchangeSuspendResume(instruments, resume);   
+        }
+
+        public List<HistoryQuotationData> GetOriginQuotationForModifyAskBidHistory(string exchangeCode, Guid instrumentID, DateTime beginDateTime, string origin)
+        {
+            return QuotationData.GetOriginQuotationForModifyAskBidHistory(exchangeCode, instrumentID, beginDateTime, origin);
+        }
+
+        public UpdateHighLowBatchProcessInfo UpdateHighLow(string exchangeCode, Guid instrumentId, bool isOriginHiLo, string newInput, bool isUpdateHigh)
+        {
+            UpdateHighLowBatchProcessInfo info = new UpdateHighLowBatchProcessInfo();
+            info = MainService.ExchangeManager.UpdateHighLow(exchangeCode, instrumentId, isOriginHiLo, newInput, isUpdateHigh);
+            info.ExchangeCode = exchangeCode;
+            return info;
         }
 
         public bool AddNewRelation(Guid id, string code, List<int> instruments)
@@ -1072,14 +1102,7 @@ namespace ManagerService.Console
             PrimitiveQuotation primitiveQuotation;
             MainService.QuotationManager.SendQuotation(instrumentSourceRelationId, ask, bid, out primitiveQuotation);
 
-            LogEntity logEntity = new LogEntity() { Id = Guid.NewGuid(), UserId = this.userId, UserName = this.user.UserName, IP = this._IP, ExchangeCode = string.Empty, Event = "SendQuotation", Timestamp = DateTime.Now };
-            LogPrice logPrice = new LogPrice(logEntity);
-            logPrice.InstrumentId = primitiveQuotation.InstrumentId;
-            logPrice.InstrumentCode = MainService.QuotationManager.ConfigMetadata.Instruments[primitiveQuotation.InstrumentId].Code;
-            logPrice.OperationType = PriceOperationType.SendPrice;
-            string format = string.Format("F{0}", MainService.QuotationManager.ConfigMetadata.Instruments[primitiveQuotation.InstrumentId].DecimalPlace);
-            logPrice.Ask = ask.ToString(format);
-            logPrice.Bid = bid.ToString(format);
+            LogPrice logPrice = LogManager.Instance.GetLogPriceEntity(this,ask, bid, primitiveQuotation.InstrumentId);
             WriteLogManager.WritePriceLog(logPrice);
         }
 
@@ -1094,15 +1117,7 @@ namespace ManagerService.Console
             ConfirmResult confirmResult = MainService.QuotationManager.AbnormalQuotationManager.Confirm(instrumentId, confirmId, accepted);
             if (confirmResult.Confirmed)
             {
-                LogEntity logEntity = new LogEntity() { Id = Guid.NewGuid(), UserId = this.userId, UserName = this.user.UserName, IP = this._IP, ExchangeCode = string.Empty, Event = "SendQuotation", Timestamp = DateTime.Now };
-                LogPrice logPrice = new LogPrice(logEntity);
-                logPrice.InstrumentId = confirmResult.SourceQuotation.InstrumentId;
-                logPrice.InstrumentCode = confirmResult.SourceQuotation.InstrumentCode;
-                logPrice.OperationType = accepted ? PriceOperationType.OutOfRangeAccept : PriceOperationType.OutOfRangeReject;
-                logPrice.OutOfRangeType = confirmResult.SourceQuotation.OutOfRangeType;
-                logPrice.Bid = confirmResult.SourceQuotation.PrimitiveQuotation.Ask;
-                logPrice.Ask = confirmResult.SourceQuotation.PrimitiveQuotation.Bid;
-                logPrice.Diff = confirmResult.SourceQuotation.DiffPoints.ToString();
+                LogPrice logPrice = LogManager.Instance.GetLogPriceEntity(this, instrumentId, confirmId, accepted, confirmResult);
                 WriteLogManager.WritePriceLog(logPrice);
             }
         }
@@ -1113,5 +1128,7 @@ namespace ManagerService.Console
             // TODO: Write audit log here
 
         }
+
+        
     }
 }

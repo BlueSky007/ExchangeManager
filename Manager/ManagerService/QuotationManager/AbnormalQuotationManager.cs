@@ -163,7 +163,9 @@ namespace ManagerService.Quotation
                 if (waitEndTime < this._WaitingEndTime)
                 {
                     this._WaitingEndTime = waitEndTime;
-                    this._Timer.Change(this._WaitingEndTime - DateTime.Now, TimeSpan.Zero);
+                    TimeSpan timeSpan = this._WaitingEndTime - DateTime.Now;
+                    if (timeSpan < TimeSpan.Zero) timeSpan = TimeSpan.Zero;
+                    this._Timer.Change(timeSpan, TimeSpan.Zero);
                 }
             }
         }

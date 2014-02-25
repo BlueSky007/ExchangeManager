@@ -28,14 +28,7 @@ namespace ManagerConsole.UI
     /// ExchangeQuotationControl.xaml 的交互逻辑
     /// </summary>
     public partial class ExchangeQuotationControl : UserControl, IControlLayout
-    {
-        //private bool _IsChange = false;
-        //private string _Value;
-        //private string _DisplayName;
-        //private InstrumentQuotation _ChangeQuotation;
-
-        //private Dictionary<string, ExchangeQuotationViewModel> _ExchangeQuotationViews;
-        
+    {        
         public ExchangeQuotationControl()
         {
             InitializeComponent();
@@ -63,6 +56,7 @@ namespace ManagerConsole.UI
                         this.QuotationGrid.ItemsSource = ExchangeQuotationViewModel.Instance.Exchanges;
                         InstrumentQuotation ins = new InstrumentQuotation();
                         this.QuotationProperty.SetSource(ExchangeQuotationViewModel.Instance.Exchanges[0]);
+                        this.InitExchangeSystemComboBox();
                     });
                     return true;
                 }
@@ -145,7 +139,6 @@ namespace ManagerConsole.UI
 
         public string GetLayout()
         {
-           
             StringBuilder layoutBuilder = new StringBuilder();
             layoutBuilder.Append("<ExchangeQuotationFilter>");
             if (this.QuotationGrid.FilteringSettings.RowFiltersCollection.Count > 0)
@@ -197,7 +190,7 @@ namespace ManagerConsole.UI
                     {
                         this.MainGrid.ColumnDefinitions[0].Width = new GridLength(double.Parse(spliterElement.Attribute("Width").Value));
                     }
-                    XElement columnWidthElement = layout.Element("ExchangeQuotationFilter").Element("ColumnsWidth");
+                    XElement columnWidthElement = layout.Element("ExchangeQuotationFilter");
                     if (columnWidthElement !=null)
                     {
                         ColumnWidthPersistence.LoadColumnsWidth(this.QuotationGrid, columnWidthElement);
@@ -224,11 +217,17 @@ namespace ManagerConsole.UI
                 button.Content = "Resume";
                 resume = false;
             }
-            InstrumentQuotation instrumentQuotations = button.Tag as InstrumentQuotation;
+            InstrumentQuotation instrumentQuotation = button.Tag as InstrumentQuotation;
             Dictionary<string ,List<Guid>> instruments = new Dictionary<string,List<Guid>>();
             List<Guid> ids = new List<Guid>();
-            ids.Add(instrumentQuotations.InstruemtnId);
-            instruments.Add(instrumentQuotations.ExchangeCode,ids);
+            ids.Add(instrumentQuotation.InstruemtnId);
+            instruments.Add(instrumentQuotation.ExchangeCode,ids);
+            IEnumerable<InstrumentQuotation> instrumentQuotations = ExchangeQuotationViewModel.Instance.Exchanges.Where(i => i.ExchangeCode == instrumentQuotation.ExchangeCode && i.InstruemtnId == instrumentQuotation.InstruemtnId);
+            foreach (InstrumentQuotation item in instrumentQuotations)
+            {
+                ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == item.ExchangeCode && i.QuotationPolicyId == item.QuotationPolicyId && i.InstruemtnId == item.InstruemtnId).IsPriceEnabled = resume;
+                ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == item.ExchangeCode && i.QuotationPolicyId == item.QuotationPolicyId && i.InstruemtnId == item.InstruemtnId).IsAutoEnablePrice = resume;
+            }
             ConsoleClient.Instance.ExchangeSuspendResume(instruments, resume);
         }
 
@@ -320,9 +319,173 @@ namespace ManagerConsole.UI
             set.Value = value;
             ConsoleClient.Instance.UpdateInstrument(set);
         }
-        //private void SRHeader_Click(object sender, RoutedEventArgs e)
-        //{
 
-        //}
+        private void QuotePolicyApply_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.ExchangeSystem.SelectedIndex != -1 && this.QuotePolicyCode.SelectedIndex != -1 && this.QuoteParameter.SelectedIndex != -1)
+            {
+                string exchangeCode = this.ExchangeSystem.SelectedItem.ToString();
+                string quotePolicyCode = this.QuotePolicyCode.SelectedItem.ToString();
+                ComboBoxItem combox = this.QuoteParameter.SelectedItem as ComboBoxItem;
+                if (combox != null)
+                {
+                    int parameter = int.Parse(combox.Content.ToString());
+                    switch (parameter)
+                    {
+                        case 1:
+                            foreach (InstrumentQuotation item in ExchangeQuotationViewModel.Instance.Exchanges.Where(ec => ec.ExchangeCode == exchangeCode && ec.QuotationPolicyCode == quotePolicyCode))
+                            {
+                                item.AutoAdjustPoints = item.AutoAdjustPoints2;
+                                item.SpreadPoints = item.SpreadPoints2;
+                                ConsoleClient.Instance.UpdateExchangeQuotation(new InstrumentQuotationSet { ExchangeCode = item.ExchangeCode, InstrumentId = item.InstruemtnId, QoutePolicyId = item.QuotationPolicyId, type = InstrumentQuotationEditType.AutoAdjustPoints, Value = item.AutoAdjustPoints2 });
+                                ConsoleClient.Instance.UpdateExchangeQuotation(new InstrumentQuotationSet { ExchangeCode = item.ExchangeCode, InstrumentId = item.InstruemtnId, QoutePolicyId = item.QuotationPolicyId, type = InstrumentQuotationEditType.SpreadPoints, Value = item.SpreadPoints2 });
+                            }
+                            break;
+                        case 2:
+                            foreach (InstrumentQuotation item in ExchangeQuotationViewModel.Instance.Exchanges.Where(ec => ec.ExchangeCode == exchangeCode && ec.QuotationPolicyCode == quotePolicyCode))
+                            {
+                                item.AutoAdjustPoints = item.AutoAdjustPoints3;
+                                item.SpreadPoints = item.SpreadPoints3;
+                                ConsoleClient.Instance.UpdateExchangeQuotation(new InstrumentQuotationSet { ExchangeCode = item.ExchangeCode, InstrumentId = item.InstruemtnId, QoutePolicyId = item.QuotationPolicyId, type = InstrumentQuotationEditType.AutoAdjustPoints, Value = item.AutoAdjustPoints3 });
+                                ConsoleClient.Instance.UpdateExchangeQuotation(new InstrumentQuotationSet { ExchangeCode = item.ExchangeCode, InstrumentId = item.InstruemtnId, QoutePolicyId = item.QuotationPolicyId, type = InstrumentQuotationEditType.SpreadPoints, Value = item.SpreadPoints3 });
+                            }
+                            break;
+                        case 3:
+                            foreach (InstrumentQuotation item in ExchangeQuotationViewModel.Instance.Exchanges.Where(ec => ec.ExchangeCode == exchangeCode && ec.QuotationPolicyCode == quotePolicyCode))
+                            {
+                                item.AutoAdjustPoints = item.AutoAdjustPoints4;
+                                item.SpreadPoints = item.SpreadPoints4;
+                                ConsoleClient.Instance.UpdateExchangeQuotation(new InstrumentQuotationSet { ExchangeCode = item.ExchangeCode, InstrumentId = item.InstruemtnId, QoutePolicyId = item.QuotationPolicyId, type = InstrumentQuotationEditType.AutoAdjustPoints, Value = item.AutoAdjustPoints4 });
+                                ConsoleClient.Instance.UpdateExchangeQuotation(new InstrumentQuotationSet { ExchangeCode = item.ExchangeCode, InstrumentId = item.InstruemtnId, QoutePolicyId = item.QuotationPolicyId, type = InstrumentQuotationEditType.SpreadPoints, Value = item.SpreadPoints4 });
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show(App.MainFrameWindow, "部分参数未选择", "Warning", MessageBoxButton.OK);
+            }
+        }
+
+        private void ExchangeSystem_Selected(object sender, RoutedEventArgs e)
+        {
+            if (this.ExchangeSystem.SelectedIndex == -1)
+            {
+                return;
+            }
+            this.InitQuotePolicyCodeComboBox(this.ExchangeSystem.Items[this.ExchangeSystem.SelectedIndex].ToString());
+        }
+
+        private void InitExchangeSystemComboBox()
+        {
+            this.ExchangeSystem.Items.Clear();
+            foreach (InstrumentQuotation instrument in ExchangeQuotationViewModel.Instance.Exchanges)
+            {
+
+                if (!this.ExchangeSystem.Items.Contains(instrument.ExchangeCode))
+                {
+                    this.ExchangeSystem.Items.Add(instrument.ExchangeCode);
+                }
+            }
+            this.ExchangeSystem.SelectedIndex = -1;
+        }
+
+        private void InitQuotePolicyCodeComboBox(string exchangeCode)
+        {
+            List<string> strs = new List<string>();
+            this.QuotePolicyCode.Items.Clear();
+            IEnumerable<InstrumentQuotation> exchanges ;
+            exchanges = ExchangeQuotationViewModel.Instance.Exchanges.Where(e => e.ExchangeCode == exchangeCode);
+            foreach (InstrumentQuotation instrument in exchanges)
+            {
+                if (!strs.Contains(instrument.QuotationPolicyCode))
+                {
+                    strs.Add(instrument.QuotationPolicyCode);
+                    this.QuotePolicyCode.Items.Add(instrument);
+                }
+            }
+        }
+
+        private void ModifyHistoty_Click(object sender, RoutedEventArgs e)
+        {
+            //ExchangeQuotationViewModel.Instance.Exchanges[0].High = "10.000";
+            UpdateExchangeHistoryQuotationControl dialog = new UpdateExchangeHistoryQuotationControl();
+            this.MainGrid.Children.Add(dialog);
+            dialog.IsModal = true;
+            dialog.Show();
+            dialog.BringToFront();
+        }
+
+        private void HighTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+            InstrumentQuotation iq = textBox.Tag as InstrumentQuotation;
+            if (iq == null) return;
+            decimal editValue;
+            if (!decimal.TryParse(textBox.Text, out editValue))
+            {
+                textBox.Text = iq.High;
+                return;
+            }
+            if (iq.IsDealerInput(InstrumentQuotationEditType.High, editValue))
+            {
+                if (!iq.IsOriginHiLo)
+                {
+                    decimal high = decimal.Parse(iq.High);
+                    if (high > editValue)
+                    {
+                        ConsoleClient.Instance.UpdateHighLow(iq.ExchangeCode, iq.InstruemtnId, iq.IsOriginHiLo, textBox.Text, true, this.UpdateHighLowCallBack);
+                    }
+                }
+            }
+        }
+
+        private void LowTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+            InstrumentQuotation iq = textBox.Tag as InstrumentQuotation;
+            if (iq == null) return;
+            decimal editValue;
+            if (!decimal.TryParse(textBox.Text, out editValue)) return;
+            if (iq.IsDealerInput(InstrumentQuotationEditType.Low, editValue))
+            {
+                if (!iq.IsOriginHiLo)
+                {
+                    decimal low = decimal.Parse(iq.Low);
+                    if (low < editValue)
+                    {
+                        ConsoleClient.Instance.UpdateHighLow(iq.ExchangeCode, iq.InstruemtnId, iq.IsOriginHiLo, textBox.Text, false, this.UpdateHighLowCallBack);
+                    }
+                }
+            }
+        }
+
+        private void UpdateHighLowCallBack(UpdateHighLowBatchProcessInfo info)
+        {
+            
+            this.Dispatcher.BeginInvoke((Action)delegate()
+            {
+                if (info.StateCode == 0)
+                {
+                    ExchangeQuotationViewModel.Instance.HighLowBatchProcessInfos.Add(info);
+                    string message = string.Format("Success to update {0} at {1}.\r\nBatchProcessId:{2}",info.IsHigh? "High":"Low",info.UpdateTime,info.BatchProcessId);
+                    MessageBox.Show(App.MainFrameWindow, message, "", MessageBoxButton.OK);
+                }
+                else
+                {
+                    string message = string.Format("Update {0} failed.\r\n ErrorMessage:{1}", info.IsHigh ? "High" : "Low", info.ErrorMessage);
+                    MessageBox.Show(App.MainFrameWindow, message, "", MessageBoxButton.OK);
+                }
+            }, null);
+            
+        }
+
+        private void QuotationGrid_SelectedCellsCollectionChanged(object sender, SelectionCollectionChangedEventArgs<SelectedCellsCollection> e)
+        {
+            
+        }
     }
 }

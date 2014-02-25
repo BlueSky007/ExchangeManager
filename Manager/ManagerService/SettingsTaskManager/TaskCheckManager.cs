@@ -22,30 +22,32 @@ namespace ManagerService.SettingsTaskManager
             if (recurDay == 0) return true;
             DateTime currentDate = DateTime.Now;
 
-            int dateDiff = this.DateDiff(beginTime, currentDate);
+            //int dateDiff = this.DateDiff(beginTime, currentDate);
+            int dateDiff = (int)(beginTime - currentDate).TotalDays;
 
             return (dateDiff % recurDay == 0);
         }
 
-        public static TimeSpan[] GetWeekTaskRunInterval(string weekSN)
+        public static int[] GetWeekTaskRunInterval(string weekSN)
         {
-            List<TimeSpan> weekIntervals = new List<TimeSpan>();
+            weekSN = weekSN.Remove(weekSN.LastIndexOf(","), 1);
+            List<int> weekIntervals = new List<int>();
             string[] weeks = weekSN.Split(',');
 
             foreach(string week in weeks)
             {
-                int currentWeek = GetCurrentDayOfWeek();
-                TimeSpan interval = TimeSpan.FromDays((Math.Abs(currentWeek - int.Parse(week))));
+                int currentWeek = GetCurrentDayOfWeek(DateTime.Now);
+                int diffWeek = int.Parse(week) - currentWeek;
+                int interval = diffWeek > 0 ? diffWeek : diffWeek + 7;
 
                 weekIntervals.Add(interval);
             }
             return weekIntervals.ToArray();
         }
 
-        private static int GetCurrentDayOfWeek()
+        private static int GetCurrentDayOfWeek(DateTime dateTime)
         {
-            DateTime now = DateTime.Now;
-            switch (now.DayOfWeek)
+            switch (dateTime.DayOfWeek)
             {
                 case DayOfWeek.Monday:
                     return 1;

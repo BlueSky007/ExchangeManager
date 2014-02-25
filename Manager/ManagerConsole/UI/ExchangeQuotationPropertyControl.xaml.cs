@@ -27,7 +27,7 @@ namespace ManagerConsole.UI
     {
         private InstrumentQuotation _Source = null;
         private bool _IsInit = false;
-        private Action<InstrumentQuotation> _SetInstrumentQuotation;
+        //private Action<InstrumentQuotation> _SetInstrumentQuotation;
         
         public ExchangeQuotationPropertyControl()
         {
@@ -35,11 +35,11 @@ namespace ManagerConsole.UI
             this.priceType.ItemsSource = Enum.GetNames(typeof(PriceType));
         }
 
-        public ExchangeQuotationPropertyControl( Action<InstrumentQuotation> setInstrumentQuotation)
-        {
-            InitializeComponent();
-            this._SetInstrumentQuotation = setInstrumentQuotation;
-        }
+        //public ExchangeQuotationPropertyControl( Action<InstrumentQuotation> setInstrumentQuotation)
+        //{
+        //    InitializeComponent();
+        //    this._SetInstrumentQuotation = setInstrumentQuotation;
+        //}
 
         public void SetSource(InstrumentQuotation source)
         {
@@ -93,9 +93,55 @@ namespace ManagerConsole.UI
             Binding IsPriceEnabled = new Binding("IsPriceEnabled");
             IsPriceEnabled.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
             this.IsEnablePrice.SetBinding(CheckBox.IsCheckedProperty, IsPriceEnabled);
-            Binding isAutoEnablePrice = new Binding("IsAutoEnablePrice");
-            isAutoEnablePrice.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
-            this.IsAutoEnablePrice.SetBinding(CheckBox.IsCheckedProperty, isAutoEnablePrice);
+
+            Binding acceptLmtVariation = new Binding("AcceptLmtVariation");
+            acceptLmtVariation.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.AcceptLmtVariation.SetBinding(XamNumericInput.ValueProperty, acceptLmtVariation);
+            Binding autoDQMaxLot = new Binding("AutoDQMaxLot");
+            autoDQMaxLot.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.AutoDQMaxLot.SetBinding(XamNumericInput.ValueProperty, autoDQMaxLot);
+            Binding alertVariation = new Binding("AlertVariation");
+            alertVariation.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.AlertVariation.SetBinding(XamNumericInput.ValueProperty, alertVariation);
+            Binding dqQuoteMinLot = new Binding("DqQuoteMinLot");
+            dqQuoteMinLot.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.DqQuoteMinLot.SetBinding(XamNumericInput.ValueProperty, dqQuoteMinLot);
+            Binding maxDQLot = new Binding("MaxDQLot");
+            maxDQLot.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.MaxDQLot.SetBinding(XamNumericInput.ValueProperty, maxDQLot);
+            Binding normalWaitTime = new Binding("NormalWaitTime");
+            normalWaitTime.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.NormalWaitTime.SetBinding(XamNumericInput.ValueProperty, normalWaitTime);
+            Binding alertWaitTime = new Binding("AlertWaitTime");
+            alertWaitTime.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.AlertWaitTime.SetBinding(XamNumericInput.ValueProperty, alertWaitTime);
+            Binding maxOtherLot = new Binding("MaxOtherLot");
+            maxOtherLot.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.MaxOtherLot.SetBinding(XamNumericInput.ValueProperty, maxOtherLot);
+            Binding cancelLmtVariation = new Binding("CancelLmtVariation");
+            cancelLmtVariation.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.CancelLmtVariation.SetBinding(XamNumericInput.ValueProperty, cancelLmtVariation);
+            Binding maxMinAdjust = new Binding("MaxMinAdjust");
+            maxMinAdjust.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.MaxMinAdjust.SetBinding(XamNumericInput.ValueProperty, maxMinAdjust);
+            Binding penetrationPoint = new Binding("PenetrationPoint");
+            penetrationPoint.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.PenetrationPoint.SetBinding(XamNumericInput.ValueProperty, penetrationPoint);
+            Binding priceValidTime = new Binding("PriceValidTime");
+            priceValidTime.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.PriceValidTime.SetBinding(XamNumericInput.ValueProperty, priceValidTime);
+            Binding autoCancelMaxLot = new Binding("AutoCancelMaxLot");
+            autoCancelMaxLot.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.AutoCancelMaxLot.SetBinding(XamNumericInput.ValueProperty, autoCancelMaxLot);
+            Binding autoAcceptMaxLot = new Binding("AutoAcceptMaxLot");
+            autoAcceptMaxLot.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.AutoAcceptMaxLot.SetBinding(XamNumericInput.ValueProperty, autoAcceptMaxLot);
+            Binding hitPriceVariationForSTP = new Binding("HitPriceVariationForSTP");
+            hitPriceVariationForSTP.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.HitPriceVariationForSTP.SetBinding(XamNumericInput.ValueProperty, hitPriceVariationForSTP);
+            Binding autoDQDelay = new Binding("AutoDQDelay");
+            autoDQDelay.Source = ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == source.ExchangeCode && i.QuotationPolicyId == source.QuotationPolicyId && i.InstruemtnId == source.InstruemtnId);
+            this.AutoDQDelay.SetBinding(XamNumericInput.ValueProperty, autoDQDelay);
             this._IsInit = true;
         }
 
@@ -276,25 +322,7 @@ namespace ManagerConsole.UI
 
         private void IsAutoEnablePrice_Click(object sender, RoutedEventArgs e)
         {
-            if (this._IsInit)
-            {
-                int value;
-                if (this.IsAutoEnablePrice.IsChecked == true)
-                {
-                    value = 1;
-                }
-                else
-                {
-                    value = 0;
-                }
-                IEnumerable<InstrumentQuotation> instruments = ExchangeQuotationViewModel.Instance.Exchanges.Where(i => i.ExchangeCode == this._Source.ExchangeCode && i.InstruemtnId == this._Source.InstruemtnId);
-                foreach (InstrumentQuotation item in instruments)
-                {
-                    ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == item.ExchangeCode && i.QuotationPolicyId == item.QuotationPolicyId && i.InstruemtnId == item.InstruemtnId).IsAutoEnablePrice = (this.IsAutoEnablePrice.IsChecked == true);
-                }
-                //ExchangeQuotationViewModel.Instance.Exchanges.SingleOrDefault(i => i.ExchangeCode == this._Source.ExchangeCode && i.QuotationPolicyId == this._Source.QuotationPolicyId && i.InstruemtnId == this._Source.InstruemtnId).IsAutoEnablePrice = (this.IsAutoEnablePrice.IsChecked == true);
-                this.SetInstrument(InstrumentQuotationEditType.IsAutoEnablePrice, value);
-            }
+            
         }
 
         private void AllowLomit_Click(object sender, RoutedEventArgs e)
@@ -312,14 +340,97 @@ namespace ManagerConsole.UI
             }
         }
 
-        private void SetInstrument(InstrumentQuotationEditType type, int value)
+        private void SetInstrument(InstrumentQuotationEditType type, object value)
         {
-            InstrumentQuotationSet set = new InstrumentQuotationSet();
-            set.ExchangeCode = this._Source.ExchangeCode;
-            set.InstrumentId = this._Source.InstruemtnId;
-            set.Value = value;
-            set.type = type;
-            ConsoleClient.Instance.UpdateInstrument(set);
+            if (this._IsInit)
+            {
+                InstrumentQuotationSet set = new InstrumentQuotationSet();
+                set.ExchangeCode = this._Source.ExchangeCode;
+                set.InstrumentId = this._Source.InstruemtnId;
+                set.Value = value;
+                set.type = type;
+                ConsoleClient.Instance.UpdateInstrument(set);
+            }
+        }
+
+        private void AcceptLmtVariation_ValueChanged(object sender, EventArgs e)
+        {
+            this.SetInstrument(InstrumentQuotationEditType.AcceptLmtVariation, int.Parse(this.AcceptLmtVariation.Value.ToString()));
+        }
+
+        private void AutoDQMaxLot_ValueChanged(object sender, EventArgs e)
+        {
+            this.SetInstrument(InstrumentQuotationEditType.AutoDQMaxLot, decimal.Parse(this.AutoDQMaxLot.Value.ToString()));
+        }
+
+        private void AlertVariation_ValueChanged(object sender, EventArgs e)
+        {
+            this.SetInstrument(InstrumentQuotationEditType.AlertVariation, int.Parse(this.AlertVariation.Value.ToString()));
+        }
+
+        private void DqQuoteMinLot_ValueChanged(object sender, EventArgs e)
+        {
+            this.SetInstrument(InstrumentQuotationEditType.DqQuoteMinLot, decimal.Parse(this.DqQuoteMinLot.Value.ToString()));
+        }
+
+        private void MaxDQLot_ValueChanged(object sender, EventArgs e)
+        {
+            this.SetInstrument(InstrumentQuotationEditType.MaxDQLot, decimal.Parse(this.MaxDQLot.Value.ToString()));
+        }
+
+        private void NormalWaitTime_ValueChanged(object sender, EventArgs e)
+        {
+            this.SetInstrument(InstrumentQuotationEditType.NormalWaitTime, int.Parse(this.NormalWaitTime.Value.ToString()));
+        }
+
+        private void AlertWaitTime_ValueChanged(object sender, EventArgs e)
+        {
+            this.SetInstrument(InstrumentQuotationEditType.AlertWaitTime, int.Parse(this.AlertWaitTime.Value.ToString()));
+        }
+
+        private void MaxOtherLot_ValueChanged(object sender, EventArgs e)
+        {
+            this.SetInstrument(InstrumentQuotationEditType.MaxOtherLot, decimal.Parse(this.MaxOtherLot.Value.ToString()));
+        }
+
+        private void CancelLmtVariation_ValueChanged(object sender, EventArgs e)
+        {
+            this.SetInstrument(InstrumentQuotationEditType.CancelLmtVariation, int.Parse(this.CancelLmtVariation.Value.ToString()));
+        }
+
+        private void MaxMinAdjust_ValueChanged(object sender, EventArgs e)
+        {
+            this.SetInstrument(InstrumentQuotationEditType.MaxMinAdjust, int.Parse(this.MaxMinAdjust.Value.ToString()));
+        }
+
+        private void PenetrationPoint_ValueChanged(object sender, EventArgs e)
+        {
+            this.SetInstrument(InstrumentQuotationEditType.PenetrationPoint, int.Parse(this.PenetrationPoint.Value.ToString()));
+        }
+
+        private void PriceValidTime_ValueChanged(object sender, EventArgs e)
+        {
+            this.SetInstrument(InstrumentQuotationEditType.PriceValidTime, int.Parse(this.PriceValidTime.Value.ToString()));
+        }
+
+        private void AutoCancelMaxLot_ValueChanged(object sender, EventArgs e)
+        {
+            this.SetInstrument(InstrumentQuotationEditType.AutoCancelMaxLot, decimal.Parse(this.AutoCancelMaxLot.Value.ToString()));
+        }
+
+        private void AutoAcceptMaxLot_ValueChanged(object sender, EventArgs e)
+        {
+            this.SetInstrument(InstrumentQuotationEditType.AutoAcceptMaxLot, decimal.Parse(this.AutoAcceptMaxLot.Value.ToString()));
+        }
+
+        private void HitPriceVariationForSTP_ValueChanged(object sender, EventArgs e)
+        {
+            this.SetInstrument(InstrumentQuotationEditType.HitPriceVariationForSTP, int.Parse(this.HitPriceVariationForSTP.Value.ToString()));
+        }
+
+        private void AutoDQDelay_ValueChanged(object sender, EventArgs e)
+        {
+            this.SetInstrument(InstrumentQuotationEditType.AutoDQDelay, int.Parse(this.AutoDQDelay.Value.ToString()));
         }
 
        

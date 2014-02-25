@@ -6,6 +6,9 @@
              xmlns:igGrid="http://schemas.infragistics.com/xaml"
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="800">
+    <UserControl.Resources>
+        <ResourceDictionary Source="../../Asset/Icons.xaml" />
+    </UserControl.Resources>
     <Grid x:Name="LayoutRoot">
         <Grid.Resources>
 
@@ -23,7 +26,8 @@
                 <DatePicker Width="120" x:Name="_ToDatePicker" Margin="2,0,0,0" Height="25"></DatePicker>
                 <Button x:Name="_QueryButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"  Click="ToolBar_Click" Width="25" Height="25" Margin="2" >
                     <Button.Content>
-                        <Image Source="../Asset/Images/Search.png" ToolTipService.ToolTip="Query Log"  Margin="1"/>
+                        <StackPanel x:Name="QueryImg"/>
+                        <!--<Image Source="../Asset/Images/Search.png" ToolTipService.ToolTip="Query Log"  Margin="1"/>-->
                     </Button.Content>
                 </Button>
             </StackPanel>
@@ -49,7 +53,9 @@
 
                 <igGrid:TextColumn Key="InstrumentCode" Width="80" HorizontalContentAlignment="Center" HeaderText="Item" IsFilterable="False"/>
                 <igGrid:TextColumn Key="OperationType" Width="100" HorizontalContentAlignment="Center" HeaderText="Operation Type" IsFilterable="True"/>
-                <igGrid:TextColumn Key="Price" Width="200" HorizontalContentAlignment="Center" HeaderText="Price" IsFilterable="False"/>
+                <igGrid:TextColumn Key="OutOfRangeType" Width="100" HorizontalContentAlignment="Center" HeaderText="OutOfRange Type" IsFilterable="True"/>
+                <igGrid:TextColumn Key="Bid" Width="60" HorizontalContentAlignment="Center" HeaderText="Bid" IsFilterable="False"/>
+                <igGrid:TextColumn Key="Ask" Width="60" HorizontalContentAlignment="Center" HeaderText="Ask" IsFilterable="False"/>
                 <igGrid:TextColumn Key="Diff" Width="60" HorizontalContentAlignment="Center" HeaderText="Diff" IsFilterable="False"/>
                 <igGrid:TextColumn Key="Timestamp" Width="100" HorizontalContentAlignment="Center" HeaderText="Timestamp" IsFilterable="False"/>
             </igGrid:XamGrid.Columns>

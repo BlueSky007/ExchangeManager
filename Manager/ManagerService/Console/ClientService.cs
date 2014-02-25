@@ -93,6 +93,7 @@ namespace ManagerService.Console
                 initializeData.ConfigParameter = new ConfigParameter()
                 {
                     AllowModifyOrderLot = MainService.ManagerSettings.AllowModifyOrderLot,
+                    IsTaskSchedulerRunNotify = MainService.ManagerSettings.IsTaskSchedulerRunNotify,
                 };
                 Dictionary<string, List<Guid>> accountPermissions = new Dictionary<string, List<Guid>>();
                 Dictionary<string, List<Guid>> instrumentPermissions = new Dictionary<string, List<Guid>>();
@@ -308,6 +309,11 @@ namespace ManagerService.Console
         #endregion
 
         #region Setting Manager
+        public List<SoundSetting> CopyFromSetting(Guid copyUserId)
+        {
+            return this._Client.CopyFromSetting(copyUserId);
+        }
+
         public List<ParameterDefine> LoadParameterDefine()
         {
             return this._Client.LoadParameterDefine();
@@ -354,12 +360,12 @@ namespace ManagerService.Console
         #endregion
 
         #region Report
-        public List<OrderQueryEntity> GetOrderByInstrument(Guid instrumentId, Guid accountGroupId, OrderType orderType,
+        public List<OrderQueryEntity> GetOrderByInstrument(string exchangeCode,Guid instrumentId, Guid accountGroupId, OrderType orderType,
             bool isExecute, DateTime fromDate, DateTime toDate)
         {
             try
             {
-                return this._Client.GetOrderByInstrument(instrumentId, accountGroupId, orderType, isExecute, fromDate, toDate);
+                return this._Client.GetOrderByInstrument(exchangeCode,instrumentId, accountGroupId, orderType, isExecute, fromDate, toDate);
             }
             catch (Exception ex)
             {
@@ -368,24 +374,25 @@ namespace ManagerService.Console
             }
         }
 
-        public List<AccountGroupGNP> GetGroupNetPosition()
+        public List<AccountGroupGNP> GetGroupNetPosition(string exchangeCode, bool showActualQuantity,string[] blotterCodeSelecteds)
         {
-            return this._Client.GetGroupNetPosition();
+            return this._Client.GetGroupNetPosition(exchangeCode,showActualQuantity, blotterCodeSelecteds);
         }
 
-        public List<OpenInterestSummary> GetInstrumentSummary(bool isGroupByOriginCode, string[] blotterCodeSelecteds)
+        public List<OpenInterestSummary> GetOpenInterestInstrumentSummary(string exchangeCode,bool isGroupByOriginCode, string[] blotterCodeSelecteds)
         {
-            return this._Client.GetInstrumentSummary(isGroupByOriginCode, blotterCodeSelecteds);
+            return this._Client.GetOpenInterestInstrumentSummary(exchangeCode,isGroupByOriginCode, blotterCodeSelecteds);
         }
 
-        public List<OpenInterestSummary> GetAccountSummary(Guid instrumentId,string[] blotterCodeSelecteds)
+        public List<OpenInterestSummary> GetOpenInterestAccountSummary(string exchangeCode,Guid instrumentId,string[] blotterCodeSelecteds)
         {
-            return this._Client.GetAccountSummary(instrumentId,blotterCodeSelecteds);
+            Guid[] instruments = new Guid[] { instrumentId };
+            return this._Client.GetOpenInterestAccountSummary(exchangeCode,null, instruments, blotterCodeSelecteds);
         }
 
-        public List<OpenInterestSummary> GetOrderSummary(Guid instrumentId, Guid accountId,iExchange.Common.AccountType accountType, string[] blotterCodeSelecteds)
+        public List<OpenInterestSummary> GetOpenInterestOrderSummary(string exchangeCode,Guid instrumentId, Guid accountId,iExchange.Common.AccountType accountType, string[] blotterCodeSelecteds)
         {
-            return this._Client.GetOrderSummary(instrumentId, accountId, accountType, blotterCodeSelecteds);
+            return this._Client.GetOpenInterestOrderSummary(exchangeCode,instrumentId, accountId, accountType, blotterCodeSelecteds);
         }
         #endregion
 
@@ -653,6 +660,35 @@ namespace ManagerService.Console
                 Logger.AddEvent(TraceEventType.Error,
                     "ClientService.SuspendResume instrumentIds:{0}, resume:{1}\r\n{2}",
                     string.Join(",", instrumentIds), resume, exception);
+            }
+        }
+
+        public List<HistoryQuotationData> GetOriginQuotationForModifyAskBidHistory(string exchangeCode, Guid instrumentID, DateTime beginDateTime, string origin)
+        {
+            try
+            {
+                return this._Client.GetOriginQuotationForModifyAskBidHistory(exchangeCode, instrumentID, beginDateTime, origin);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "GetOriginQuotationForModifyAskBidHistory Error.\r\n{0}", ex.ToString());
+                return new List<HistoryQuotationData>();
+            }
+        }
+
+        public UpdateHighLowBatchProcessInfo UpdateHighLow(string exchangeCode, Guid instrumentId, bool isOriginHiLo, string newInput, bool isUpdateHigh)
+        {
+            try
+            {
+               return this._Client.UpdateHighLow(exchangeCode, instrumentId, isOriginHiLo, newInput, isUpdateHigh);
+            }
+            catch (Exception ex)
+            {
+                UpdateHighLowBatchProcessInfo info = new UpdateHighLowBatchProcessInfo();
+                info.StateCode = -10;
+                info.ErrorMessage = ex.Message;
+                Logger.TraceEvent(TraceEventType.Error, "UpdateHighLow Failed\r\n{0}", ex.ToString());
+                return info;
             }
         }
     }

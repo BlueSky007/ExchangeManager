@@ -38,7 +38,7 @@ namespace ManagerConsole.FramePages
         {
             this._FromDatePicker.SelectedDate = DateTime.Today.AddDays(-(DateTime.Now.Day) + 1);
             this._ToDatePicker.SelectedDate = DateTime.Today.AddDays(1).AddSeconds(-1);
-
+            this.QueryImg.Children.Add((UIElement)this.Resources["LogAuditQuery"]);
         }
         
         //Query

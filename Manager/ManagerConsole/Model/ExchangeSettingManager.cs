@@ -441,7 +441,12 @@ namespace ManagerConsole.Model
 
         internal Account GetAccount(Guid id)
         {
-            return this._Accounts[id];
+            return this._Accounts.ContainsKey(id) ? this._Accounts[id] : null; 
+        }
+
+        internal AccountGroup GetAccountGroup(Guid id)
+        {
+            return this._AccountGroups.ContainsKey(id) ? this._AccountGroups[id] : null; 
         }
 
         internal Customer GetCustomer(Guid id)

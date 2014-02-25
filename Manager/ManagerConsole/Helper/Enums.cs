@@ -99,4 +99,9 @@ namespace ManagerConsole
         Down
     }
 
+    public enum SettingTaskType
+    {
+        InstrumentParameter = 3,
+    }
+
 }

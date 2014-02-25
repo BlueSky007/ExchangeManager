@@ -50,10 +50,10 @@ namespace ManagerConsole.UI
 
         private void AttachEvent()
         {
-            ConsoleClient.Instance.MessageClient.OnSettingTaskRunEvent += new MessageClient.SettingTaskRunEventHandler(this.MessageClient_OnSettingTaskRunEvent);
+            //ConsoleClient.Instance.MessageClient.OnSettingTaskRunEvent += new MessageClient.SettingTaskRunEventHandler(this.MessageClient_OnSettingTaskRunEvent);
         }
 
-        private void MessageClient_OnSettingTaskRunEvent(UpdateSettingParameterMessage message)
+        private void MessageClient_OnSettingTaskRunEvent(TaskSchedulerRunMessage message)
         {
             this.Dispatcher.BeginInvoke((Action)delegate()
             {

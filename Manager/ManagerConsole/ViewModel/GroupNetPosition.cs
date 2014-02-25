@@ -367,12 +367,31 @@ namespace ManagerConsole.ViewModel
         }
     }
 
-    public class InstrumentColumn
+    public class InstrumentColumn : DynamicObject, INotifyPropertyChanged
     {
         public object EmptyColumn1 { get; set; }
         public object EmptyColumn2 { get; set; }
         private ColumnKeys _Keys = new ColumnKeys();
-        public ColumnKeys Columns { get { return _Keys; } }
+        public ColumnKeys Columns 
+        { 
+            get 
+            {
+                return _Keys; 
+            }
+            set 
+            {
+                this._Keys = value;
+                this.OnPropertyChanged("Columns");
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void OnPropertyChanged(string propertyName)
+        {
+            if (this.PropertyChanged != null)
+                this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 
     public class ColumnKeys : DynamicObject, INotifyPropertyChanged

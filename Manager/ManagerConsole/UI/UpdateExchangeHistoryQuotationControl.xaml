@@ -1,0 +1,52 @@
+﻿<ig:XamDialogWindow x:Class="ManagerConsole.UI.UpdateExchangeHistoryQuotationControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:ig="http://schemas.infragistics.com/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800" CloseButtonVisibility="Hidden">
+    <Grid x:Name="HistoryFrame">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="350*"/>
+            <RowDefinition Height="50*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Background="Transparent">
+            <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Begin Time:" TextAlignment="Center" VerticalAlignment="Center" Width="70"/>
+            <ig:XamMaskedInput x:Name="BeginTime" HorizontalAlignment="Left" Mask="yyyy-mm-dd hh:mm"  VerticalAlignment="Center" Width="120"/>
+            <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Exchange:" TextAlignment="Center" VerticalAlignment="Center" Width="70"/>
+            <ComboBox x:Name="Exchange" SelectionChanged="Exchange_SelectionChanged" ></ComboBox>
+            <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Instrument:" VerticalAlignment="Center" TextAlignment="Center" Width="70"/>
+            <ComboBox x:Name="Instrument" SelectionChanged="Instrument_SelectionChanged" DisplayMemberPath="InstrumentCode" ></ComboBox>
+            <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Origin:" TextAlignment="Center" VerticalAlignment="Center" Width="60"/>
+            <ig:XamMaskedInput HorizontalAlignment="Left" x:Name="Origin"  VerticalAlignment="Center" Width="90"/>
+            <Button Content="Search" Height="20" VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Click="SearchButton_Click"/>
+            <Button Content="Add" Height="20" VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Click="AddButton_Click"/>
+        </StackPanel>
+        <ig:XamGrid Grid.Row="1" x:Name="HistotyQuotation" RowHeight="20" CellEnteredEditMode="HistotyQuotation_CellEnteredEditMode" CellExitedEditMode="HistotyQuotation_CellExitedEditMode">
+            <ig:XamGrid.EditingSettings>
+                <ig:EditingSettings AllowEditing="Cell" IsMouseActionEditingEnabled="DoubleClick" IsEnterKeyEditingEnabled="True" IsF2EditingEnabled="False" ></ig:EditingSettings>
+            </ig:XamGrid.EditingSettings>
+            <ig:XamGrid.Columns>
+                <ig:TemplateColumn Key="InstrumentId" HeaderText="Action">
+                    <ig:TemplateColumn.ItemTemplate>
+                        <DataTemplate>
+                            <Button Tag="{Binding InstrumentId}"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"  Click="DeleteButton_Click">
+                                <Button.Content>
+                                    <Image Source="../Asset/Images/delete.png" Width="14" Height="14" ToolTipService.ToolTip="Delete"/>
+                                </Button.Content>
+                            </Button>
+                        </DataTemplate>
+                    </ig:TemplateColumn.ItemTemplate>
+                </ig:TemplateColumn>
+                <ig:TextColumn Key="InstrumentCode" HeaderText="Code" IsReadOnly="True"></ig:TextColumn>
+                <ig:TextColumn Key="Time" HeaderText="Time" IsReadOnly="True"></ig:TextColumn>
+                <ig:TextColumn Key="Origin" HeaderText="Origin"></ig:TextColumn>
+            </ig:XamGrid.Columns>
+        </ig:XamGrid>
+        <StackPanel Grid.Row="2" Orientation="Horizontal">
+            
+        </StackPanel>
+    </Grid>
+</ig:XamDialogWindow>

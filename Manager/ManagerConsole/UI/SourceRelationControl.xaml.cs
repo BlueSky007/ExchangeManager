@@ -16,13 +16,14 @@ using Infragistics.Controls.Grids;
 using Manager.Common.QuotationEntities;
 using ManagerConsole.Model;
 using Manager.Common;
+using System.Xml.Linq;
 
 namespace ManagerConsole.UI
 {
     /// <summary>
     /// Interaction logic for SourceRelationControl.xaml
     /// </summary>
-    public partial class SourceRelationControl : UserControl
+    public partial class SourceRelationControl : UserControl, IControlLayout
     {
         public SourceRelationControl()
         {
@@ -158,6 +159,16 @@ namespace ManagerConsole.UI
                 window.IsModal = true;
                 window.Show();
             }
+        }
+
+        public string GetLayout()
+        {
+            return ColumnWidthPersistence.GetPersistentColumnsWidthString(this.RelationGrid);
+        }
+
+        public void SetLayout(XElement layout)
+        {
+            ColumnWidthPersistence.LoadColumnsWidth(this.RelationGrid, layout);
         }
     }
 }

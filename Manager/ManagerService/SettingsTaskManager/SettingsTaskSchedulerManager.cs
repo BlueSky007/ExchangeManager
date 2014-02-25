@@ -6,6 +6,7 @@ using ManagerService.DataAccess;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -61,39 +62,49 @@ namespace ManagerService.SettingsTaskManager
 
         public void AddTaskScheduler(TaskScheduler taskScheduler)
         {
-            TaskScheduler task = this.GetTaskScheduler(taskScheduler.Id);
-            if (taskScheduler.RunTime <= DateTime.Now) return;
-
-            switch (taskScheduler.ActionType)
+            try
             {
-                case ActionType.OneTime:
-                    taskScheduler.ScheduleID = this.Scheduler.Add(this._UpdateSettingAction, taskScheduler, taskScheduler.RunTime);
-                    break;
-                case ActionType.Daily:
-                    taskScheduler.ScheduleID = this.Scheduler.Add(this._UpdateSettingAction, taskScheduler, taskScheduler.RunTime, DateTime.MaxValue, TimeSpan.FromSeconds(taskScheduler.Interval));
-                    break;
-                case ActionType.Weekly:
-                    string weekSN = taskScheduler.WeekDaySN;
-                    TimeSpan[] weekIntervals = TaskCheckManager.GetWeekTaskRunInterval(weekSN);
+                TaskScheduler task = this.GetTaskScheduler(taskScheduler.Id);
+                if (taskScheduler.RunTime <= DateTime.Now) return;
 
-                    foreach (TimeSpan interval in weekIntervals)
-                    {
-                        string schedulerId = this.Scheduler.Add(this._UpdateSettingAction, taskScheduler, DateTime.Now + interval);
-                        taskScheduler.ScheduleIDs.Add(schedulerId);
-                    }
-                    break;
-                default:
-                    taskScheduler.ScheduleID = this.Scheduler.Add(this._UpdateSettingAction, taskScheduler, taskScheduler.RunTime);
-                    break;
+                switch (taskScheduler.ActionType)
+                {
+                    case ActionType.OneTime:
+                        taskScheduler.ScheduleID = this.Scheduler.Add(this._UpdateSettingAction, taskScheduler, taskScheduler.RunTime);
+                        break;
+                    case ActionType.Daily:
+                        taskScheduler.ScheduleID = this.Scheduler.Add(this._UpdateSettingAction, taskScheduler, taskScheduler.RunTime);
+                        break;
+                    case ActionType.Weekly:
+                        DateTime startRunDate = taskScheduler.RunTime.Date;
+                        TimeSpan startRunDiff = taskScheduler.RunTime - startRunDate;
+                        string weekSN = taskScheduler.WeekDaySN;
+                        int[] dayDiffs = TaskCheckManager.GetWeekTaskRunInterval(weekSN);
+
+                        foreach (int dayDiff in dayDiffs)
+                        {
+                            DateTime runTaskTime = DateTime.Now + TimeSpan.FromDays(dayDiff) + startRunDiff;
+                            string schedulerId = this.Scheduler.Add(this._UpdateSettingAction,taskScheduler, runTaskTime, DateTime.MaxValue, TimeSpan.FromDays(7));
+                            taskScheduler.ScheduleIDs.Add(schedulerId);
+                        }
+                        break;
+                    default:
+                        taskScheduler.ScheduleID = this.Scheduler.Add(this._UpdateSettingAction, taskScheduler, taskScheduler.RunTime);
+                        break;
+                }
+
+                if (task == null)
+                {
+                    this._TaskSchedulers.Add(taskScheduler);
+                }
+                else
+                {
+                    task.ScheduleID = taskScheduler.ScheduleID;
+                }
             }
-
-            if (task == null)
+            catch (Exception ex)
             {
-                this._TaskSchedulers.Add(taskScheduler);
-            }
-            else
-            {
-                task.ScheduleID = taskScheduler.ScheduleID;
+                Logger.TraceEvent(TraceEventType.Error, "SettingsTaskSchedulerManager.AddTaskScheduler\r\n{0}", ex.ToString());
             }
         }
 
@@ -130,6 +141,34 @@ namespace ManagerService.SettingsTaskManager
             }
         }
 
+        private void TaskSchedulerCompleted(TaskScheduler taskScheduler)
+        {
+            this._TaskSchedulers.Remove(taskScheduler);
+            switch (taskScheduler.ActionType)
+            {
+                case ActionType.OneTime:
+                    break;
+                case ActionType.Daily:
+                    taskScheduler.LastRunTime = taskScheduler.RunTime;
+                    taskScheduler.RunTime = DateTime.Now + TimeSpan.FromDays(1);
+                    this._TaskSchedulers.Add(taskScheduler);
+                    break;
+                case ActionType.Weekly:
+                    taskScheduler.LastRunTime = DateTime.Now;
+                    taskScheduler.RunTime = DateTime.Now + TimeSpan.FromDays(7);
+                    this._TaskSchedulers.Add(taskScheduler);
+                   
+                    break;
+                case ActionType.Monthly:
+                    break;
+                default:
+                    break;
+            }
+            bool isSucceed = SettingManagerData.UpdateSettingsParameter(taskScheduler);
+            TaskSchedulerRunMessage message = new TaskSchedulerRunMessage(taskScheduler, isSucceed);
+            MainService.ClientManager.Dispatch(message);
+        }
+
         #region Action 
         private void CheckTaskDateAction(object sender, object Args)
         {
@@ -157,6 +196,8 @@ namespace ManagerService.SettingsTaskManager
                 default:
                     break;
             }
+
+            this.TaskSchedulerCompleted(taskScheduler);
         }
 
         private void UpdateSettingParameter(TaskScheduler taskScheduler)
@@ -168,13 +209,6 @@ namespace ManagerService.SettingsTaskManager
                 ParameterUpdateTask updateSettings = SettingManagerData.GetExchangeParametersTask(taskScheduler);
                 bool isOk = exchangeSystem.UpdateInstrument(updateSettings);
             }
-           
-            bool isUpdate = SettingManagerData.UpdateSettingsParameter(taskScheduler);
-            if (!isUpdate) return;
-            UpdateSettingParameterMessage message = new UpdateSettingParameterMessage(taskScheduler);
-            MainService.ClientManager.Dispatch(message);
-
-            this._TaskSchedulers.Remove(taskScheduler);
         }
         #endregion
     }

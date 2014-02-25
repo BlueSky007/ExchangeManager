@@ -24,6 +24,7 @@ namespace ManagerConsole
 
         private HashSet<string> _IgnorePaneNames = new HashSet<string>();
         private Action<ModuleType, UserControl> _OnAddContentPane;
+        private ThemeManager _ThemeManager;
 
         public LayoutManager(MainWindow mainWindow, Action<ModuleType, UserControl> onAddContentPane)
         {
@@ -36,6 +37,8 @@ namespace ManagerConsole
             this._MultipleOpenModuleMaxSuffixes.Add(ModuleType.DQOrderProcess, 0);
         }
 
+        public ThemeManager ThemeManager { get { return this._ThemeManager; } }
+        
         public bool IsMultipleOpenModule(ModuleType moduleType)
         {
             return this._MultipleOpenModuleMaxSuffixes.ContainsKey(moduleType);
@@ -53,6 +56,10 @@ namespace ManagerConsole
                 StringBuilder contentStringBuilder = new StringBuilder();
                 contentStringBuilder.Append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
                 contentStringBuilder.Append("<Content>");
+
+                // Save theme
+                contentStringBuilder.AppendFormat("<Theme IsWhite=\"{0}\"/>", this.ThemeManager.IsWhite);
+
                 var contentPanes = this._MainWindow.DockManager.GetPanes(PaneNavigationOrder.VisibleOrder);
                 foreach (ContentPane item in contentPanes)
                 {
@@ -79,6 +86,18 @@ namespace ManagerConsole
 
         public void LoadLayout(string dockLayout, string contentLayout)
         {
+            XDocument contentXDocument = XDocument.Parse(contentLayout);
+            if (this._ThemeManager == null)
+            {
+                bool isWhite = false;
+                try
+                {
+                    isWhite = bool.Parse(contentXDocument.Element("Content").Element("Theme").Attribute("IsWhite").Value);
+                }
+                catch { }
+                this._ThemeManager = new ThemeManager(isWhite);
+            }
+
             XDocument xdocument = XDocument.Parse(dockLayout);
             var layoutPanes = xdocument.Element("xamDockManager").Element("contentPanes").Elements("contentPane");
             // close excess panes
@@ -103,8 +122,7 @@ namespace ManagerConsole
             }
 
             // add new panes and apply contentLayout
-            XDocument xdocument2 = XDocument.Parse(contentLayout);
-            var contentPaneLayouts = xdocument2.Element("Content").Elements("ContentPane");
+            var contentPaneLayouts = contentXDocument.Element("Content").Elements("ContentPane");
             foreach (XElement pane in layoutPanes)
             {
                 string paneName = pane.Attribute("name").Value;
@@ -194,10 +212,6 @@ namespace ManagerConsole
                     return new UserManagerControl();
                 case ModuleType.RoleManager:
                     return new RoleManagerControl();
-                case ModuleType.InstrumentManager:
-                    break;
-                case ModuleType.QuotePolicy:
-                    break;
                 case ModuleType.SettingScheduler:
                     return new SettingSchedulerControl();
                 case ModuleType.SettingParameter:
@@ -218,8 +232,8 @@ namespace ManagerConsole
                     return new SourceRelationControl();
                 case ModuleType.Quote:
                 //return new QutePriceControl();
-                case ModuleType.OrderProcess:
-                    return new OrderTaskControl();
+                //case ModuleType.OrderProcess:
+                //    return new OrderTaskControl();
                 case ModuleType.LimitBatchProcess:
                     return new DealingLmtOrder();
                 case ModuleType.MooMocProcess:

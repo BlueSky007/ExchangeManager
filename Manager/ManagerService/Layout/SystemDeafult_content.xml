@@ -1,1 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?><Content><ContentPane Name="FunctionTreePane"></ContentPane><ContentPane Name="SourceRelation"></ContentPane><ContentPane Name="ExchangeQuotation_1"></ContentPane><ContentPane Name="SourceQuotation"></ContentPane><ContentPane Name="QuotationMonitor_2"><Fitler LogicalOperator="1"></Fitler><Spliter width0="976"/></ContentPane><ContentPane Name="FloatPane"></ContentPane></Content>
+<?xml version="1.0" encoding="utf-8"?>
+<Content>
+  <Theme IsWhite="False"/>
+  <ContentPane Name="FunctionTreePane"></ContentPane>
+  <ContentPane Name="SourceRelation"></ContentPane>
+  <ContentPane Name="ExchangeQuotation_1"></ContentPane>
+  <ContentPane Name="SourceQuotation"></ContentPane>
+  <ContentPane Name="QuotationMonitor_2">
+    <Fitler LogicalOperator="1"></Fitler>
+    <Spliter width0="976"/>
+  </ContentPane>
+  <ContentPane Name="FloatPane"></ContentPane>
+</Content>

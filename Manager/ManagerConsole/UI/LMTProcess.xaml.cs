@@ -39,7 +39,7 @@ namespace ManagerConsole.UI
 
         private void AttachEvent()
         {
-            this._App.ExchangeDataManager.OnOrderHitPriceNotifyEvent += new ExchangeDataManager.OrderHitPriceNotifyHandler(this.ReceivedNotifyOnOrderHitPrice);
+            //this._App.ExchangeDataManager.OnOrderHitPriceNotifyEvent += new ExchangeDataManager.OrderHitPriceNotifyHandler(this.ReceivedNotifyOnOrderHitPrice);
             this._App.OrderHandle.OnOrderWaitNofityEvent += new OrderHandle.WaitOrderNotifyHandler(this.ReceivedNotifyOnOrderWaite);
             this._App.OrderHandle.OnExecuteOrderNotifyEvent += new OrderHandle.ExecuteOrderNotifyHandler(this.ReceivedNotifyOnOrderExecute);
         }

@@ -2,6 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:ig="http://schemas.infragistics.com/xaml"
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                    xmlns:igPrim="http://schemas.infragistics.com/xaml/primitives"
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
     <system:Double x:Key="DividerWith">1.4</system:Double>
     <SolidColorBrush x:Key="TextBrush" Color="#FFFFFFFF" />
@@ -46,12 +47,6 @@
         <Setter Property="Margin" Value="3,0,3,0" />
         <Setter Property="Width" Value="70" />
     </Style>
-    
-    <LinearGradientBrush x:Key="BackGroundForPanel" EndPoint="0.5,1" StartPoint="0.5,0">
-        <GradientStop Color="#FF9D9FA9" Offset="0"/>
-        <GradientStop Color="#FFBDC1D0" Offset="1"/>
-        <GradientStop Color="#FF4F5570" Offset="0.263"/>
-    </LinearGradientBrush>
 
     <LinearGradientBrush x:Key="TableItemPanel" EndPoint="0.5,1" StartPoint="0.5,0">
         <GradientStop Color="#FF9D9FA9" Offset="0"/>
@@ -685,4 +680,89 @@
         </Setter>
     </Style>
 
+    <Style TargetType="igPrim:PagerCellControl" >
+        <Setter Property="Background" Value="Red"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="igPrim:PagerCellControl">
+                    <igPrim:PagerControl x:Name="PagerItemControl">
+                        <ig:Commanding.Commands>
+                            <ig:CommandSourceCollection>
+                                <ig:XamGridPagingCommandSource  AllowEventHandling="True" EventName="FirstPage"  CommandType="FirstPage" >
+                                </ig:XamGridPagingCommandSource>
+                                <ig:XamGridPagingCommandSource AllowEventHandling="True" EventName="LastPage"  CommandType="LastPage" >
+                                </ig:XamGridPagingCommandSource>
+                                <ig:XamGridPagingCommandSource AllowEventHandling="True" EventName="PreviousPage"  CommandType="PreviousPage" >
+                                </ig:XamGridPagingCommandSource>
+                                <ig:XamGridPagingCommandSource  AllowEventHandling="True" EventName="NextPage"  CommandType="NextPage" >
+                                </ig:XamGridPagingCommandSource>
+                                <ig:XamGridPagingCommandSource  AllowEventHandling="True" EventName="GoToPage"  CommandType="GoToPage" >
+                                </ig:XamGridPagingCommandSource>
+                            </ig:CommandSourceCollection>
+                        </ig:Commanding.Commands>
+                        <igPrim:PagerControl.Style>
+                            <Style TargetType="igPrim:PagerControl">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="igPrim:PagerControl">
+                                            <Grid Height="20" Background="{TemplateBinding Background}" Width="AUTO">
+                                                <StackPanel Orientation="Horizontal" Background="{TemplateBinding Background}" HorizontalAlignment="Right">
+                                                    <Button x:Name="PreviouspageButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" >
+                                                        <Button.Content>
+                                                            <Path Data="M0,0.5 L10,10 10,0Z" Fill="DarkGray" RenderTransformOrigin="0.5,0.5">
+                                                                <Path.RenderTransform>
+                                                                    <TransformGroup>
+                                                                        <ScaleTransform/>
+                                                                        <SkewTransform/>
+                                                                        <RotateTransform Angle="-134"/>
+                                                                        <TranslateTransform/>
+                                                                    </TransformGroup>
+                                                                </Path.RenderTransform>
+                                                            </Path>
+                                                            <!--<Image Source="../Asset/Images/back.png" ToolTipService.ToolTip="Prev"/>-->
+                                                        </Button.Content>
+                                                        <ig:Commanding.Command>
+                                                            <ig:XamGridPagingControlsCommandSource EventName="Click" CommandType="PreviousPage"  ></ig:XamGridPagingControlsCommandSource>
+                                                        </ig:Commanding.Command>
+                                                    </Button>
+                                                    <ComboBox x:Name="PagerItems" >
+                                                        <ComboBox.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <TextBlock TextAlignment="Center" Text="{Binding}"></TextBlock>
+                                                            </DataTemplate>
+                                                        </ComboBox.ItemTemplate>
+                                                        <ig:Commanding.Command>
+                                                            <ig:XamGridPagingControlsCommandSource EventName="SelectionChanged" CommandType="GoToPage"  ></ig:XamGridPagingControlsCommandSource>
+                                                        </ig:Commanding.Command>
+                                                    </ComboBox>
+                                                    <Button x:Name="NextPageButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                                                        <Button.Content>
+                                                            <Path Data="M0,0.5 L10,10 10,0Z" Fill="DarkGray" RenderTransformOrigin="0.5,0.5">
+                                                                <Path.RenderTransform>
+                                                                    <TransformGroup>
+                                                                        <ScaleTransform/>
+                                                                        <SkewTransform/>
+                                                                        <RotateTransform Angle="45"/>
+                                                                        <TranslateTransform/>
+                                                                    </TransformGroup>
+                                                                </Path.RenderTransform>
+                                                            </Path>
+                                                            <!--<Image Source="../Asset/Images/forward.png" ToolTipService.ToolTip="Next"/>-->
+                                                        </Button.Content>
+                                                        <ig:Commanding.Command>
+                                                            <ig:XamGridPagingControlsCommandSource EventName="Click" CommandType="NextPage"  ></ig:XamGridPagingControlsCommandSource>
+                                                        </ig:Commanding.Command>
+                                                    </Button>
+                                                </StackPanel>
+                                            </Grid>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </igPrim:PagerControl.Style>
+                    </igPrim:PagerControl>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>

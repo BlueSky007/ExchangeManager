@@ -73,6 +73,19 @@ namespace ManagerConsole.UI
             this._ParameterSettingGrid.ItemsSource = currentTaskScheduler.ParameterSettings;
             this._TaskTypeComboBox.SelectedIndex = (int)currentTaskScheduler.TaskType;
             this._ActionTypeComboBox.SelectedIndex = (int)currentTaskScheduler.ActionType;
+            this.ExchangeTextBox.Text = currentTaskScheduler.ExchangeCode;
+            if (currentTaskScheduler.ExchangInstruments.Count > 0)
+            {
+                this._InstrumentListBox.Visibility = Visibility.Visible;
+                this.InstrumentCaption.Visibility = Visibility.Visible;
+                
+                this._InstrumentListBox.ItemsSource = currentTaskScheduler.ExchangInstruments;
+            }
+            else
+            {
+                this._InstrumentListBox.Visibility = Visibility.Collapsed;
+                this.InstrumentCaption.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void SettingSchedulerGrid_CellDoubleClicked(object sender, CellClickedEventArgs e)
@@ -236,35 +249,14 @@ namespace ManagerConsole.UI
 
         public string GetLayout()
         {
-            StringBuilder layoutBuilder = new StringBuilder();
-            layoutBuilder.Append("<GridSettings>");
-            layoutBuilder.Append(ColumnWidthPersistence.GetGridColumnsWidthString(this._SettingSchedulerGrid));
-            layoutBuilder.Append(ColumnWidthPersistence.GetGridColumnsWidthString(this._ParameterSettingGrid));
-            layoutBuilder.Append("</GridSettings>");
-            return layoutBuilder.ToString();
+            return ColumnWidthPersistence.GetGridColumnsWidthString(new List<XamGrid> { this._SettingSchedulerGrid, this._ParameterSettingGrid });
         }
 
         public void SetLayout(XElement layout)
         {
             try
             {
-                if (layout.HasElements)
-                {
-                    IEnumerable<XElement> settings = from el in layout.Element("GridSettings").Elements() select el;
-
-                    foreach(XElement setting in settings)
-                    {
-                        switch (setting.Attribute("Name").Value)
-                        {
-                            case "_SettingSchedulerGrid":
-                                ColumnWidthPersistence.LoadGridColumnsWidth(this._SettingSchedulerGrid, setting);
-                                break;
-                            case "_ParameterSettingGrid":
-                                ColumnWidthPersistence.LoadGridColumnsWidth(this._ParameterSettingGrid, setting);
-                                break;
-                        }
-                    }    
-                }
+                ColumnWidthPersistence.LoadGridColumnsWidth(new ObservableCollection<XamGrid> { this._SettingSchedulerGrid, this._ParameterSettingGrid }, layout);
             }
             catch (Exception ex)
             {

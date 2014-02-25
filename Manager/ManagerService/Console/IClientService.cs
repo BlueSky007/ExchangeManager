@@ -104,6 +104,9 @@ namespace ManagerService.Console
 
         #region Setting Manager
         [OperationContract(IsInitiating = false)]
+        List<SoundSetting> CopyFromSetting(Guid copyUserId);
+
+        [OperationContract(IsInitiating = false)]
         SettingsParameter LoadSettingsParameters();
 
         [OperationContract(IsInitiating = false)]
@@ -150,20 +153,20 @@ namespace ManagerService.Console
 
         #region Report
         [OperationContract(IsInitiating = false)]
-        List<OrderQueryEntity> GetOrderByInstrument(Guid instrumentId, Guid accountGroupId, OrderType orderType,
+        List<OrderQueryEntity> GetOrderByInstrument(string exchangeCode,Guid instrumentId, Guid accountGroupId, OrderType orderType,
             bool isExecute, DateTime fromDate, DateTime toDate);
 
         [OperationContract(IsInitiating = false)]
-        List<AccountGroupGNP> GetGroupNetPosition();
+        List<AccountGroupGNP> GetGroupNetPosition(string exchangeCode,bool showActualQuantity, string[] blotterCodeSelecteds);
 
         [OperationContract(IsInitiating = false)]
-        List<OpenInterestSummary> GetInstrumentSummary(bool isGroupByOriginCode, string[] blotterCodeSelecteds);
+        List<OpenInterestSummary> GetOpenInterestInstrumentSummary(string exchangeCode,bool isGroupByOriginCode, string[] blotterCodeSelecteds);
 
         [OperationContract(IsInitiating = false)]
-        List<OpenInterestSummary> GetAccountSummary(Guid instrumentId,string[] blotterCodeSelecteds);
+        List<OpenInterestSummary> GetOpenInterestAccountSummary(string exchangeCode,Guid instrumentId,string[] blotterCodeSelecteds);
 
         [OperationContract(IsInitiating = false)]
-        List<OpenInterestSummary> GetOrderSummary(Guid instrumentId, Guid accountId,AccountType accountType, string[] blotterCodeSelecteds);
+        List<OpenInterestSummary> GetOpenInterestOrderSummary(string exchangeCode,Guid instrumentId, Guid accountId,AccountType accountType, string[] blotterCodeSelecteds);
         #endregion
 
         #region QuotationManager
@@ -217,6 +220,12 @@ namespace ManagerService.Console
 
         [OperationContract(IsInitiating = false)]
         bool ExchangeSuspendResume(Dictionary<string, List<Guid>> instruments, bool resume);
+
+        [OperationContract(IsInitiating = false)]
+        List<HistoryQuotationData> GetOriginQuotationForModifyAskBidHistory(string exchangeCode, Guid instrumentID, DateTime beginDateTime, string origin);
+
+        [OperationContract(IsInitiating = false)]
+        UpdateHighLowBatchProcessInfo UpdateHighLow(string exchangeCode, Guid instrumentId, bool isOriginHiLo, string newInput, bool isUpdateHigh);
         #endregion
     }
 

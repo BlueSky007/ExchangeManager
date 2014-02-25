@@ -19,11 +19,15 @@ using iExchange.Common.Manager;
 using OrderType = iExchange.Common.OrderType;
 using TransactionType = iExchange.Common.TransactionType;
 using CancelReason = iExchange.Common.CancelReason;
+using System.IO;
 
 namespace ManagerConsole.Model
 {
     public class OrderHandle
     {
+        private const string returnLine = "\r\n";
+        private static string _DealingOrderPath = @"D:\DealingOrder.txt";
+
         public delegate void WaitOrderNotifyHandler(OrderTask orderTask);
         public event WaitOrderNotifyHandler OnOrderWaitNofityEvent;
 
@@ -59,31 +63,40 @@ namespace ManagerConsole.Model
 
         public void OnOrderAccept(OrderTask orderTask)
         {
-            SystemParameter systemParameter = this._App.ExchangeDataManager.GetExchangeSetting(orderTask.ExchangeCode).SystemParameter;
-            ConfigParameter configParameter = this._App.ExchangeDataManager.ConfigParameter;
-            bool allowModifyOrderLot = configParameter.AllowModifyOrderLot;
-            systemParameter.CanDealerViewAccountInfo = true;
-            bool isOK = OrderTaskManager.CheckDQOrder(orderTask, systemParameter, configParameter);
-            isOK = true;
-
-            if (isOK)
+            try
             {
-                if (OrderTaskManager.IsNeedDQMaxMove(orderTask))
+                SystemParameter systemParameter = this._App.ExchangeDataManager.GetExchangeSetting(orderTask.ExchangeCode).SystemParameter;
+                ConfigParameter configParameter = this._App.ExchangeDataManager.ConfigParameter;
+                bool allowModifyOrderLot = configParameter.AllowModifyOrderLot;
+                systemParameter.CanDealerViewAccountInfo = true;
+                bool isOK = OrderTaskManager.CheckDQOrder(orderTask, systemParameter, configParameter);
+                isOK = true;
+
+                if (isOK)
                 {
-                    this.Commit(orderTask, orderTask.SetPrice, (decimal)orderTask.Lot);
+                    if (OrderTaskManager.IsNeedDQMaxMove(orderTask))
+                    {
+                        this.Commit(orderTask, orderTask.SetPrice, (decimal)orderTask.Lot);
+                    }
+                    else
+                    {
+                        this.Commit(orderTask, string.Empty, (decimal)orderTask.Lot);
+                    }
                 }
                 else
                 {
-                    this.Commit(orderTask, string.Empty, (decimal)orderTask.Lot);
+                    if (systemParameter.CanDealerViewAccountInfo)
+                    {
+                        this.ShowConfirmOrderFrm(systemParameter.CanDealerViewAccountInfo, orderTask, HandleAction.OnOrderAccept);
+                        return;
+                    }
                 }
             }
-            else
+            catch (Exception ex)
             {
-                if (systemParameter.CanDealerViewAccountInfo)
-                {
-                    this.ShowConfirmOrderFrm(systemParameter.CanDealerViewAccountInfo, orderTask, HandleAction.OnOrderAccept);
-                    return;
-                }
+                string logData = "OrderHandle.OnOrderAccept:Error:" + returnLine;
+                logData += ex.ToString();
+                this.WriteLog(logData);
             }
         }
 
@@ -175,19 +188,28 @@ namespace ManagerConsole.Model
 
         public void OnOrderWait(OrderTask orderTask)
         {
-            if (orderTask.OrderStatus == OrderStatus.WaitOutPriceLMT 
-                || orderTask.OrderStatus == OrderStatus.WaitOutLotLMT
-                || orderTask.OrderStatus == OrderStatus.WaitOutLotLMTOrigin)
+            try
             {
-                orderTask.ChangeStatus(OrderStatus.WaitNextPrice);
-                orderTask.ResetHit();
-                Guid[] orderIds = new Guid[] { orderTask.OrderId };
-                ConsoleClient.Instance.ResetHit(orderTask.ExchangeCode,orderIds);
-
-                if (this.OnOrderWaitNofityEvent != null)
+                if (orderTask.OrderStatus == OrderStatus.WaitOutPriceLMT
+                    || orderTask.OrderStatus == OrderStatus.WaitOutLotLMT
+                    || orderTask.OrderStatus == OrderStatus.WaitOutLotLMTOrigin)
                 {
-                    this.OnOrderWaitNofityEvent(orderTask);
+                    orderTask.ChangeStatus(OrderStatus.WaitNextPrice);
+                    orderTask.ResetHit();
+                    Guid[] orderIds = new Guid[] { orderTask.OrderId };
+                    ConsoleClient.Instance.ResetHit(orderTask.ExchangeCode, orderIds);
+
+                    if (this.OnOrderWaitNofityEvent != null)
+                    {
+                        this.OnOrderWaitNofityEvent(orderTask);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                string logData = "OrderHandle.OnOrderWait:Error:" + returnLine;
+                logData += ex.ToString();
+                this.WriteLog(logData);
             }
         }
 
@@ -289,7 +311,7 @@ namespace ManagerConsole.Model
                 if (isBuy != (orderTask.IsBuy == BuySell.Buy)) continue;
                 if (!OrderTaskManager.CheckExecuteOrder(orderTask)) continue;
 
-                string executedPrice = isBuy ? processLmtOrder.LmtOrderForInstrument.CustomerBidPrice : processLmtOrder.LmtOrderForInstrument.CustomerAskPrice;
+                string executedPrice = isBuy ? processLmtOrder.LmtOrderForInstrument.CustomerBidPrice.ToString() : processLmtOrder.LmtOrderForInstrument.CustomerAskPrice.ToString();
                 string marketPrice = isBuy ? processLmtOrder.LmtOrderForInstrument.Ask : processLmtOrder.LmtOrderForInstrument.Bid;
 
                 if (!string.IsNullOrEmpty(marketPrice))
@@ -770,6 +792,8 @@ namespace ManagerConsole.Model
             }
             this._App.ExchangeDataManager.ProcessInstantOrder.RemoveInstanceOrder(instanceOrders);
             this._App.ExchangeDataManager.ProcessLmtOrder.RemoveLmtOrder(lmtOrders);
+            if (mooMocOrderForInstrument == null) return;
+
             mooMocOrderForInstrument.RemoveMooMocOrder(mooMocOrders);
 
             if (mooMocOrderForInstrument.OrderTasks.Count == 0)
@@ -777,6 +801,35 @@ namespace ManagerConsole.Model
                 this._App.ExchangeDataManager.MooMocOrderForInstrumentModel.RemoveMooMocOrderForInstrument(mooMocOrderForInstrument);
             }
         }
+
+
+        #region 辅助方法
+        private void WriteLog(string data)
+        {
+            try
+            {
+                using (StreamWriter sw = File.AppendText(_DealingOrderPath))
+                {
+                    if (data != returnLine)
+                    {
+                        sw.Write(DateTime.Now);
+                        sw.Write(":  ");
+                        sw.Write(data);
+                    }
+                    else
+                    {
+                        sw.Write(data);
+                    }
+                    sw.Flush();
+                    sw.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                Manager.Common.Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "WriteLog.\r\n{0}", ex.ToString());
+            }
+        }
+        #endregion
 
     }
 }

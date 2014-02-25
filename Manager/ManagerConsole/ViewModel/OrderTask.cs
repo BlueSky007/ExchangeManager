@@ -444,8 +444,8 @@ namespace ManagerConsole.ViewModel
             if ((this._IsBuy == BuySell.Buy && string.Equals(askBid, "Ask")
                 || (this._IsBuy == BuySell.Sell && string.Equals(askBid, "Bid"))))
             {
-                Price setPrice = Price.CreateInstance(this._SetPrice, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
-                Price refPrice = Price.CreateInstance(newPrice, this._Instrument.NumeratorUnit.Value, this._Instrument.Denominator.Value);
+                Price setPrice = Price.CreateInstance(this._SetPrice, this._Instrument.NumeratorUnit, this._Instrument.Denominator);
+                Price refPrice = Price.CreateInstance(newPrice, this._Instrument.NumeratorUnit, this._Instrument.Denominator);
                 if (refPrice != null && setPrice != null)
                 {
                     this._DiffPrice = Math.Abs(refPrice - setPrice);
