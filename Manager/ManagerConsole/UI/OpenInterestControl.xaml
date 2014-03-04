@@ -51,9 +51,9 @@
                 <ComboBox x:Name="ExchangeComboBox" Height="23" Width="100" Margin="8,0,0,0" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center"/>
 
                 <TextBlock  Margin="10,0,0,0" Style="{DynamicResource QueryOrderTextBlckStyle}" Text="Show Actual Quantity" />
-                <CheckBox x:Name="_ShowQuantityChk" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                <CheckBox x:Name="_ShowQuantityChk" VerticalAlignment="Center" Margin="8,0,0,0" IsChecked="True"/>
 
-                <Button x:Name="_BlotterSelectBtn" Content="Blotter" Width="80" Height="25"  Margin="10,0,0,0" VerticalAlignment="Center"/>
+                <Button x:Name="_BlotterSelectBtn" Content="Blotter" Width="80" Height="25"  Margin="10,0,0,0" VerticalAlignment="Center" Click="_BlotterSelectBtn_Click"/>
                 <Button x:Name="_QueryNetPostionBtn" Click="QueryData" Content="Go" Width="40" Height="25" Margin="3,0,0,0" VerticalAlignment="Center"/>
             </StackPanel>
         </Border>
@@ -82,7 +82,7 @@
                     <igGrid:XamGrid.ColumnResizingSettings>
                         <igGrid:ColumnResizingSettings
                             AllowCellAreaResizing="False"
-                            AllowColumnResizing="Disabled"
+                            AllowColumnResizing="Immediate"
                             AllowDoubleClickToSize="False"
                             AllowMultipleColumnResize="False" />
                     </igGrid:XamGrid.ColumnResizingSettings>

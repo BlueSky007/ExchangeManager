@@ -18,6 +18,7 @@ using ManagerConsole.Model;
 using System.Configuration;
 using Manager.Common;
 using System.Diagnostics;
+using ManagerConsole.UI;
 
 namespace ManagerConsole
 {
@@ -27,11 +28,12 @@ namespace ManagerConsole
     public partial class LoginWindow : XamDialogWindow
     {
         private Action<LoginResult> _LoginSuccssAction;
-
+        private HintMessage _HintMessage;
         public LoginWindow(Action<LoginResult> loginSuccssAction)
         {
             InitializeComponent();
             this._LoginSuccssAction = loginSuccssAction;
+            this._HintMessage = new HintMessage(this.HintMessageTextBlock);
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -49,49 +51,100 @@ namespace ManagerConsole
 
         private void Login_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: Call Update Service client here, Pass server address(IP,Port) to update service client
-            //       and then wait until the update client process terminated.
-            //       If there're no updates, then continue to login. otherwise the update client will terminate the Manager process.
-            if (this.UILanguage.SelectedItem != null)
+            try
             {
-                this.LoginButton.IsEnabled = false;
-                string server;
-                int? port;
-                string updateServicePort = ConfigurationManager.AppSettings["UpdateServicePort"];
-                string defaultServicePort = ConfigurationManager.AppSettings["DefaultServicePort"];
-                if (this.TryGetServerAndPort(out server, out port))
+                if (this.UILanguage.SelectedItem != null)
                 {
-                    if (!port.HasValue) port = int.Parse(defaultServicePort);
-                    ConsoleClient.Instance.Login(this.EndLogin, server, port.Value, this.UserNameTextBox.Text, this.PasswordTextBox.Password, (Language)this.UILanguage.SelectedItem);
+                    this.LoginButton.IsEnabled = false;
+                    string server;
+                    int? port;
+                    string updateServicePort = ConfigurationManager.AppSettings["UpdateServicePort"];
+                    string defaultServicePort = ConfigurationManager.AppSettings["DefaultServicePort"];
+
+                    if (!this.IsValidPort(updateServicePort))
+                    {
+                        this._HintMessage.ShowError("Invalid UpdateServicePort, Please check configuration file.");
+                        return;
+                    }
+
+                    if (this.TryGetServerAndPort(out server, out port))
+                    {
+                        if (port == null && !this.IsValidPort(defaultServicePort))
+                        {
+                            this._HintMessage.ShowError("Please provider server port, or set valid DefaultServicePort in configuration file.");
+                            this.LoginButton.IsEnabled = true;
+                            return;
+                        }
+                        Updater updater = new Updater(server, updateServicePort, delegate(bool checkVersionSuccess)
+                        {
+                            this.Dispatcher.BeginInvoke((Action<bool>)delegate(bool checkSuccess)
+                            {
+                                try
+                                {
+                                    string hintMessage = checkSuccess ? string.Empty : "Check version failed,";
+                                    this._HintMessage.ShowMessage(hintMessage + "Begin login...");
+                                    if (!port.HasValue) port = int.Parse(defaultServicePort);
+                                    ConsoleClient.Instance.Login(this.EndLogin, server, port.Value, this.UserNameTextBox.Text, this.PasswordTextBox.Password, (Language)this.UILanguage.SelectedItem);
+                                }
+                                catch (Exception exception)
+                                {
+                                    this._HintMessage.ShowMessage("Login error:" + exception.Message);
+                                    Logger.TraceEvent(TraceEventType.Error, "Login_Click, login failed.\r\n{0}", exception);
+                                }
+                            }, checkVersionSuccess);
+                        });
+                        updater.CheckUpdate();
+                        this._HintMessage.ShowMessage("Checking for new version...");
+                    }
+                    else
+                    {
+                        this._HintMessage.ShowError("Invalid server.");
+                    }
                 }
                 else
                 {
-                    this.HintMessage.Text = "Invalid server.";
+                    this._HintMessage.ShowError("Please Select Language");
                 }
             }
-            else
+            catch (Exception exception)
             {
-                this.HintMessage.Text = "Please Select Language";
+                Logger.TraceEvent(TraceEventType.Error, "Login_Click exception\r\n{0}", exception);
+                this._HintMessage.ShowError(exception.ToString());
             }
+        }
+
+        private bool IsValidPort(string portString)
+        {
+            int port;
+            return !string.IsNullOrEmpty(portString) && int.TryParse(portString, out port);
         }
 
         private void EndLogin(LoginResult loginResult, string errorMessage)
         {
             this.Dispatcher.BeginInvoke((Action<LoginResult>)delegate(LoginResult result)
             {
-                if (result != null && result.Succeeded)
+                try
                 {
-                    this.SaveServerSettings();
-                    this._LoginSuccssAction(result);
-                    this.LoginButton.IsEnabled = true;
-                    this.Close();
+                    if (result != null && result.Succeeded)
+                    {
+                        App.MainFrameWindow.StatusBar.ShowStatusText("Login successful,Begin Initializing...");
+                        this.SaveServerSettings();
+                        this._LoginSuccssAction(result);
+                        this.LoginButton.IsEnabled = true;
+                        this.Close();
+                    }
+                    else
+                    {
+                        this._HintMessage.ShowError(errorMessage);
+                        this.LoginButton.IsEnabled = true;
+                    }
                 }
-                else
+                catch (Exception exception)
                 {
-                    this.HintMessage.Text = errorMessage;
-                    this.LoginButton.IsEnabled = true;
+                    this._HintMessage.ShowError(exception.ToString());
+                    Logger.TraceEvent(TraceEventType.Error, "EndLogin exception\r\n{0}", exception);
                 }
-            }, loginResult
+              }, loginResult
             );
         }
 

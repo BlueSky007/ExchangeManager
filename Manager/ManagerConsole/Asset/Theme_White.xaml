@@ -7,7 +7,6 @@
         <ResourceDictionary Source="WhiteTheme/Office2010Blue.xamGrid.xaml"/>
         <ResourceDictionary Source="WhiteTheme/XamInput_whiteTheme.xaml"/>
     </ResourceDictionary.MergedDictionaries>
-    
     <Style x:Key="BorderStyle" TargetType="Border">
         <Setter Property="BorderBrush" Value="Black"/>
     </Style>

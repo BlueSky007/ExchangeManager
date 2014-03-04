@@ -169,8 +169,9 @@ namespace ManagerService.QuotationExchange
                 decimal price = System.Convert.ToDecimal(price1) * System.Convert.ToDecimal(price2) * priceConvertFactor;
                 return price.ToString();
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
+                Manager.Common.Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "Instrument.Multiply Error\r\n{0}", ex.ToString());
                 return null;
             }
         }
@@ -182,8 +183,9 @@ namespace ManagerService.QuotationExchange
                 decimal price = System.Convert.ToDecimal(price1) / System.Convert.ToDecimal(price2) * priceConvertFactor;
                 return price.ToString();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Manager.Common.Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "Instrument.Divide Error\r\n{0}", ex.ToString());
                 return null;
             }
         }

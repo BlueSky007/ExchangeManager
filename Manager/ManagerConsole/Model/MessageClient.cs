@@ -10,33 +10,6 @@ namespace ManagerConsole.Model
 {
     public class MessageClient : IClientProxy
     {
-        //#region Message Event
-        //public delegate void ExchangeQuotationUpdateHandler(OverridedQuotationMessage overidedQuotationMessage);
-        //public event ExchangeQuotationUpdateHandler ExchangeQuotationUpdateEvent;
-
-        //public delegate void QuotePriceToDealerEventHandler(QuoteMessage quoteMessage);
-        //public event QuotePriceToDealerEventHandler QuotePriceToDealerEvent;
-
-        //public delegate void QuoteOrderToDealerEventHandler(PlaceMessage placeMessage);
-        //public event QuoteOrderToDealerEventHandler QuoteOrderToDealerEvent;
-
-        //public delegate void ExecutedOrderEventHandler(ExecuteMessage executeMessage);
-        //public event ExecutedOrderEventHandler ExecutedOrderToDealerEvent;
-
-        //public delegate void HitPriceEventHandler(HitMessage hitMessage);
-        //public event HitPriceEventHandler HitPriceEvent;
-
-        //public delegate void DeletedOrderEventHandler(DeleteMessage deleteMessage);
-        //public event DeletedOrderEventHandler DeletedOrderEvent;
-
-        //public delegate void SettingTaskRunEventHandler(TaskSchedulerRunMessage message);
-        //public event SettingTaskRunEventHandler OnSettingTaskRunEvent;
-
-        //public delegate void UpdateExchangeSettingHandler(UpdateMessage updateMessage);
-        //public event UpdateExchangeSettingHandler UpdateExchangeSettingEvent;
-
-        //#endregion
-
         private RelayEngine<Message> _MessageRelayEngine;
 
         private QuotationMessageProcessor _QuotationMessageProcessor = QuotationMessageProcessor.Instance;
@@ -52,6 +25,11 @@ namespace ManagerConsole.Model
         public void SendMessage(Message message)
         {
             this._MessageRelayEngine.AddItem(message);
+        }
+
+        public void Suspend()
+        {
+            this._MessageRelayEngine.Suspend();
         }
 
         public void StartMessageProcess()
@@ -224,7 +202,7 @@ namespace ManagerConsole.Model
                 {
                     if (Principal.Instance.User.UserId == message.UserId)
                     {
-                        App.MainFrameWindow.KickOut();
+                            App.MainFrameWindow.KickOut();
                     }
                 }
                 catch (Exception ex)

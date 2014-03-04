@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="gb2312"?>
+<Language>
+  <Item key="AutoUpdate" value="AutoUpdateClient"></Item>
+  <Item key="DownLoaded: " value="Process: "></Item>
+  <Item key="Current File: " value="Current File: "></Item>
+  <Item key="The Program " value="The Program "></Item>
+  <Item key=" Running!" value=" has aready been running!"></Item>
+  <Item key="Update Now?" value="Do you want to update now?"></Item>
+  <Item key="Update Success!" value="Update completed and success!"></Item>
+  <Item key="Stop Program " value="Stop the Program "></Item>
+  <Item key="DownLoad Success,But Update to LocalSystem Failed!" value="Download the needed update files success!\nBut update to local Failed!"></Item>
+  <Item key="Backup To LocalSystem Failed!" value="Backup the local files failed!"></Item>
+  <Item key="Update to LocalSystem Failed!" value="Update to local failed!"></Item>
+  <Item key="Updating File " value="Update the file "></Item>
+  <Item key=" Failed!" value=" failed!"></Item>
+  <Item key="Open the file " value="Open the file "></Item>
+  <Item key="Create socket error!" value="The client's socket created failed!"></Item>
+  <Item key="Socket version error!" value="The version of the socket error!"></Item>
+  <Item key="One or more params are invalid!" value="One or more params are set invalid!"></Item>
+  <Item key="Connect the server failed!" value="Connect failed with server!"></Item>
+  <Item key="Clear UpdateTmp floder failed!" value="Clear the UpdateTmp failed!"></Item>
+  <Item key="Authentication failed!" value="The identity authentication with server failed!"></Item>
+  <Item key="File list is empty!" value="The file list is empty! server error!"></Item>
+  <Item key="Public file list is empty!" value="The public file list is empty! server error!"></Item>
+  <Item key="Organization file list is empty!" value="The organize file list is empty! server error!"></Item>
+  <Item key="Need not to Update!" value="It is the newest version! need not to update!"></Item>
+  <Item key="Download files success!" value="Download files success! \nUpdate to local will be start!\nAnd need to close the program!"></Item>
+  <Item key="Download files uncompletly!" value="You have some files have not been updated!"></Item>
+  <Item key="Update failed!" value="Update failed!"></Item>
+  <Item key="Recive the file " value="Recive the file "></Item>
+  <Item key="File size: " value="  /File Size: "></Item>
+  <Item key="Initializating..." value="Connecting and Initializating,waiting please..."></Item>
+  <Item key="Param error!" value="Params exist error! Please check them and restart the Application."></Item>
+  <Item key="Init Exception!" value="Init Failed and Exception was thrown!"></Item>
+  <Item key="Update Exception!" value="Update Failed and Exception was thrown!"></Item>
+  <Item key="Ip address param error!" value ="The IpAddress param error!"></Item>
+  <Item key="Port param error!" value ="The Port param error!"></Item>
+  <Item key="Port's value out of range!" value ="The Port value overstep the range!"></Item>
+  <Item key="The reTranslateTimes param error!" value ="The reTranslateTimes param error!"></Item>
+  <Item key="The reTranslateTimes's value out of range!" value ="The reTranslateTimes value overstep the range!"></Item>
+  <Item key="Create Directory " value="Create Directory "></Item>
+  <Item key="Socket failed with:" value="Socket failed with: "></Item>
+  <Item key="Remove file: " value="Remove file: "></Item>
+  <Item key="May be it is running!" value="\nMay be it is running!"></Item>
+  <Item key="Send the Command Error!" value="Send the Command Error!"></Item>
+  <Item key="Clear Directory " value="Clear Directory "></Item>
+  <Item key="Get the current path Failed!" value="Get the current path Failed!"></Item>
+</Language>

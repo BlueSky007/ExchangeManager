@@ -21,7 +21,7 @@ namespace ManagerConsole.UI
             this._MessageBlock.Text = message;
         }
 
-        public void ShowSucess(string message)
+        public void ShowMessage(string message)
         {
             this._MessageBlock.Foreground = Brushes.Green;
             this._MessageBlock.Text = message;

@@ -410,7 +410,6 @@ namespace ManagerConsole.ViewModel
 
         internal void UpdateDiff()
         {
-            if (this.CustomerBidPrice == null || this.CustomerAskPrice == null || this._Instrument.NumeratorUnit == null) return;
             Price customerAskPrice = new Price((double)this.CustomerAskPrice, this._Instrument.NumeratorUnit, this._Instrument.Denominator);
             Price customerBidPrice = new Price((double)this.CustomerBidPrice, this._Instrument.NumeratorUnit, this._Instrument.Denominator);
             Price ask = new Price(this.Ask, this._Instrument.NumeratorUnit, this._Instrument.Denominator);

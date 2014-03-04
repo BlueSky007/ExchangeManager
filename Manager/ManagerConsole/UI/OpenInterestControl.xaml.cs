@@ -9,17 +9,10 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Xml.Linq;
 using CommonAccountGroupGNP = iExchange.Common.Manager.AccountGroupGNP;
 using CommonOpenInterestSummary = iExchange.Common.Manager.OpenInterestSummary;
@@ -32,7 +25,9 @@ namespace ManagerConsole.UI
     /// </summary>
     public partial class OpenInterestControl : UserControl, IControlLayout
     {
-        private ObservableCollection<RootGNP> _RootGNP = new ObservableCollection<RootGNP>();
+        private ReportDataManager _ReportDataManager;
+        private GroupNetPositionModel _GroupNetPositionModel;
+        //private ObservableCollection<RootGNP> _RootGNP;
         private ObservableCollection<OpenInterestSummary> _OpenInterestSummarys = new ObservableCollection<OpenInterestSummary>();
         private static IComparer<InstrumentGNP> _InstrumentGNPSummaryCompare = new InstrumentGNPSummaryCompare();
         private static IComparer<InstrumentGNP> _InstrumentGNPCompare = new InstrumentGNPCompare();
@@ -52,6 +47,7 @@ namespace ManagerConsole.UI
         {
             InitializeComponent();
             this._App = (MainWindow)Application.Current.MainWindow;
+            
             Thread thread = new Thread(new ThreadStart(delegate()
             {
                 while (!this.InilizeUI())
@@ -93,6 +89,10 @@ namespace ManagerConsole.UI
             this.ExchangeComboBox.SelectedItem = this._App.ExchangeDataManager.ExchangeCodes[0];
             this.ExchangeComboBox2.ItemsSource = this._App.ExchangeDataManager.ExchangeCodes;
             this.ExchangeComboBox2.SelectedItem = this._App.ExchangeDataManager.ExchangeCodes[0];
+
+            this._ReportDataManager = this._App.ExchangeDataManager.ReportDataManager;
+            this._GroupNetPositionModel = this._ReportDataManager.GetGroupNetPositionModel(this._App.ExchangeDataManager.ExchangeCodes[0]);
+
             this.QueryGroupNetPosition();
         }
 
@@ -127,8 +127,9 @@ namespace ManagerConsole.UI
         {
             foreach (InstrumentGNP instrumentGNP in this._ColumnsList)
             {
-                string key = "Columns[MyColumn" + instrumentGNP.ColumnIndex + "]";
-                string index = "MyColumn" + instrumentGNP.ColumnIndex;
+                string columnCode = instrumentGNP.IsSummaryGroup ? instrumentGNP.SummaryGroupCode : instrumentGNP.InstrumentCode;
+                string key = "Columns[Item" + columnCode + "]";
+                string index = "Item" + columnCode;
 
                 Column column = row.Columns[key] as Column;
 
@@ -144,7 +145,6 @@ namespace ManagerConsole.UI
                     if (instrumentGNP.IsSummaryGroup)
                     {
                         row.Cells[column].Style = this._BuySummaryGroupStyle;
-                        column.HeaderText = "555";
                     }
                     continue;
                 }
@@ -179,12 +179,12 @@ namespace ManagerConsole.UI
                     {
                         string headText = de.IsSummaryGroup ? de.SummaryGroupCode : de.InstrumentCode;
                         Debug.WriteLine(headText);
-                        string myKey = "Columns[MyColumn" + de.ColumnIndex + "]";
+                        string myKey = "Columns[Item" + headText + "]";
                         e.ColumnLayout.Columns.Add(new TextColumn
                         {
                             HeaderText = headText,
                             Key = myKey,
-                            Width = new ColumnWidth(100, false),
+                            Width = new ColumnWidth(150, false),
                             IsReadOnly = true,
                             IsResizable = true,
                             HorizontalContentAlignment = System.Windows.HorizontalAlignment.Right,
@@ -194,7 +194,7 @@ namespace ManagerConsole.UI
                         {
                             HeaderText = headText,
                             Key = myKey,
-                            Width = new ColumnWidth(100, false),
+                            Width = new ColumnWidth(150, false),
                             IsReadOnly = true,
                             IsResizable = true,
                             HorizontalContentAlignment = System.Windows.HorizontalAlignment.Right,
@@ -204,7 +204,7 @@ namespace ManagerConsole.UI
                         {
                             HeaderText = headText,
                             Key = myKey,
-                            Width = new ColumnWidth(100, false),
+                            Width = new ColumnWidth(150, false),
                             IsReadOnly = true,
                             IsResizable = true,
                             HorizontalContentAlignment = System.Windows.HorizontalAlignment.Right,
@@ -213,7 +213,7 @@ namespace ManagerConsole.UI
                         {
                             HeaderText = headText,
                             Key = myKey,
-                            Width = new ColumnWidth(100, false),
+                            Width = new ColumnWidth(150, false),
                             IsReadOnly = true,
                             IsResizable = true,
                             HorizontalContentAlignment = System.Windows.HorizontalAlignment.Right,
@@ -329,11 +329,6 @@ namespace ManagerConsole.UI
             }
         }
 
-        private void RadioButton_Click(object sender, RoutedEventArgs e)
-        {
-            e.Handled = true;
-        }
-
         private void SelectChk_Click(object sender, RoutedEventArgs e)
         {
             //this.CalculateLotBalance();
@@ -350,10 +345,11 @@ namespace ManagerConsole.UI
                 bool isCheck = accountGroupGNP.IsSelected;
                 decimal newOIPercent = accountGroupGNP.OIPercent;
 
-                RootGNP rootGNP = this._RootGNP[0];
+                RootGNP rootGNP = this._GroupNetPositionModel.RootGNPs[0];
                 foreach (InstrumentGNP de in this._AllColumns.Values)
                 {
-                    string key = "MyColumn" + de.ColumnIndex;
+                    string columnCode = de.IsSummaryGroup ? de.SummaryGroupCode : de.InstrumentCode;
+                    string key = "Item" + columnCode;
 
                     if (rootGNP.Columns[key] == null || accountGroupGNP.Columns[key] == null) continue;
 
@@ -377,9 +373,6 @@ namespace ManagerConsole.UI
                         rootGNP.Columns[key] = totalSum - groupSum * newOIPercent;
                     }
                 }
-
-                //this._GroupNetPositionGrid.ItemsSource = null;
-                //this._GroupNetPositionGrid.ItemsSource = this._RootGNP;
             }
             catch (Exception ex)
             {
@@ -427,7 +420,7 @@ namespace ManagerConsole.UI
 
         private void Reset()
         {
-            this._RootGNP = new ObservableCollection<RootGNP>();
+            //this._RootGNP = new ObservableCollection<RootGNP>();
             this._SummaryColumns.Clear();
             this._AllColumns.Clear();
         }
@@ -451,38 +444,90 @@ namespace ManagerConsole.UI
                     AccountGroupGNP accountGroupGNP = new AccountGroupGNP(group);
                     rootGNP.AccountGroupGNPs.Add(accountGroupGNP);
                 }
-                this._RootGNP.Add(rootGNP);
-                this.CalculateLotBalance();
+                this._GroupNetPositionModel.RootGNPs.Add(rootGNP);
+                string exchangeCode = this.ExchangeComboBox.SelectedItem.ToString();
+                this.CalculateLotBalance(exchangeCode);
                 this.BindingData();
+                if (!this._ReportDataManager.GroupNetPositionModels.ContainsKey(exchangeCode))
+                {
+                    this._ReportDataManager.GroupNetPositionModels.Add(exchangeCode, this._GroupNetPositionModel);
+                }
             });
         }
 
         private void BindingData()
         {
-            this._GroupNetPositionGrid.ItemsSource = this._RootGNP;
+            this._GroupNetPositionGrid.ItemsSource = this._GroupNetPositionModel.RootGNPs;
         }
 
-        private void CalculateLotBalance()
+        private void AddOrderToGroupNetPosition(OrderTask orderTask)
+        {
+            //orderTask.Account.Id = new Guid("3B0F0B69-AFB3-4B1C-A7F0-B3D186F06F08");
+            Guid accountId = new Guid("3B0F0B69-AFB3-4B1C-A7F0-B3D186F06F08");
+            string exchangeCode = orderTask.ExchangeCode;
+            // 判断是否是当前exchangeCode
+            string key = "ItemOther";
+            RootGNP rootGNP = this._GroupNetPositionModel.RootGNPs[0];
+            ColumnKeys keys = rootGNP.Columns;
+            keys[key] = decimal.Parse(keys[key].ToString()) + orderTask.Lot;
+            rootGNP.Columns = keys;
+
+            //ExchangeSettingManager settingManager = this._App.ExchangeDataManager.GetExchangeSetting(exchangeCode);
+            Guid groupId = new Guid("7E40A5A1-ABC9-4EA6-9700-10FE4C896C44");
+
+            AccountGroupGNP accountGroupGNP = rootGNP.AccountGroupGNPs.SingleOrDefault(P => P.Id == groupId);
+            if (accountGroupGNP == null) return;
+
+            ColumnKeys groupKeys = accountGroupGNP.Columns;
+            groupKeys[key] = decimal.Parse(groupKeys[key].ToString()) + orderTask.Lot;
+            accountGroupGNP.Columns = groupKeys;
+
+            AccountGNP accountGNP = accountGroupGNP.AccountGNPs.SingleOrDefault(P => P.Id == accountId);
+            if (accountGNP == null) return;
+
+            string jpykey = "ItemJPY";
+            ColumnKeys accountKeys = accountGNP.Columns;
+            accountKeys[jpykey] = decimal.Parse(accountKeys[jpykey].ToString()) + orderTask.Lot;
+            accountGNP.Columns = accountKeys;
+
+            Guid instrumentId = new Guid("2E42C798-97E7-4702-AFBA-0E6ABA0575D6");
+            InstrumentGNP instrumentGNP = accountGNP.InstrumentGNPs.SingleOrDefault(P => P.Instrument.Id == instrumentId);
+            string detailString = instrumentGNP.Detail;
+            instrumentGNP.BuyQuantity = 555;
+            instrumentGNP.LotBalance = 333;
+            instrumentGNP.Detail = instrumentGNP.GetDetailDisPlay();
+
+            DetailGNP detailGNP = accountGNP.DetailGNPs.SingleOrDefault(P => P.AccountId == accountId && P.InstrumentId == instrumentId);
+            if (detailGNP == null) return;
+
+            ColumnKeys detailKeys = detailGNP.Columns;
+            detailKeys[jpykey] = instrumentGNP.GetDetailDisPlay();
+            detailGNP.Columns = detailKeys;
+        }
+
+        private void CalculateLotBalance(string exchangeCode)
         {
             int i = 0;
-            RootGNP rootGNP = this._RootGNP[0];
-            foreach (AccountGroupGNP groupGNP in this._RootGNP[0].AccountGroupGNPs)
+            RootGNP rootGNP = this._GroupNetPositionModel.RootGNPs[0];
+            foreach (AccountGroupGNP groupGNP in this._GroupNetPositionModel.RootGNPs[0].AccountGroupGNPs)
             {
                 foreach (AccountGNP accountGNP in groupGNP.AccountGNPs)
                 {
                     DetailGNP detailGNP = new DetailGNP();
+                    detailGNP.AccountId = accountGNP.Id;
                     foreach (InstrumentGNP instrumentGNP in accountGNP.InstrumentGNPs)
                     {
-                        InstrumentClient instrument = this._App.ExchangeDataManager.GetExchangeSetting("CHUNG").Instruments.Values.SingleOrDefault(P => P.Id == instrumentGNP.Id);
+                        InstrumentClient instrument = this._App.ExchangeDataManager.GetExchangeSetting(exchangeCode).Instruments.Values.SingleOrDefault(P => P.Id == instrumentGNP.Id);
                         if (instrument == null) continue;
                         instrumentGNP.Instrument = instrument;
+                        detailGNP.InstrumentId = instrument.Id;
 
                         string summaryGroupCode = instrument.SummaryGroupId == null ? "Other":instrument.SummaryGroupCode;
 
                         if (!this._AllColumns.Contains(instrumentGNP.InstrumentCode))
                         {
-                            string key = "MyColumn" + i;
-                            decimal totalSum = this._RootGNP[0].Columns[key] == null ? decimal.Zero : (decimal)this._RootGNP[0].Columns[key];
+                            string key = "Item" + instrumentGNP.InstrumentCode;
+                            decimal totalSum = this._GroupNetPositionModel.RootGNPs[0].Columns[key] == null ? decimal.Zero : (decimal)this._GroupNetPositionModel.RootGNPs[0].Columns[key];
                             decimal groupSum = groupGNP.Columns[key] == null ? decimal.Zero : (decimal)groupGNP.Columns[key];
 
                             rootGNP.Columns[key] = totalSum + instrumentGNP.LotBalance;
@@ -498,7 +543,7 @@ namespace ManagerConsole.UI
                         else
                         {
                             InstrumentGNP item = (InstrumentGNP)this._AllColumns[instrumentGNP.InstrumentCode];
-                            string key = "MyColumn" + item.ColumnIndex;
+                            string key = "Item" + item.InstrumentCode;
                             decimal totalSum = rootGNP.Columns[key] == null ? decimal.Zero : (decimal)rootGNP.Columns[key];
                             decimal groupSum = groupGNP.Columns[key] == null ? decimal.Zero : (decimal)groupGNP.Columns[key];
 
@@ -517,7 +562,7 @@ namespace ManagerConsole.UI
                             summaryGNP.ColumnIndex = i;
                             summaryGNP.SummaryGroupCode = summaryGroupCode;
 
-                            string key = "MyColumn" + i;
+                            string key = "Item" + summaryGNP.SummaryGroupCode;
                             decimal totalSum = rootGNP.Columns[key] == null ? decimal.Zero : (decimal)rootGNP.Columns[key];
                             decimal groupSum = groupGNP.Columns[key] == null ? decimal.Zero : (decimal)groupGNP.Columns[key];
 
@@ -532,7 +577,7 @@ namespace ManagerConsole.UI
                         else
                         {
                             InstrumentGNP summaryGNP = (InstrumentGNP)this._SummaryColumns[summaryGroupCode];
-                            string key = "MyColumn" + summaryGNP.ColumnIndex;
+                            string key = "Item" + summaryGroupCode;
                             decimal totalSum = rootGNP.Columns[key] == null ? decimal.Zero : (decimal)rootGNP.Columns[key];
                             decimal groupSum = groupGNP.Columns[key] == null ? decimal.Zero : (decimal)groupGNP.Columns[key];
 
@@ -700,6 +745,16 @@ namespace ManagerConsole.UI
         }
         #endregion
 
+        private void _BlotterSelectBtn_Click(object sender, RoutedEventArgs e)
+        {
+            //just test
+            OrderTask order = new OrderTask();
+            order.Lot = 1;
+            order.IsBuy = BuySell.Buy;
+
+            this.AddOrderToGroupNetPosition(order);
+        }
+
         #region 布局
         /// <summary>
         /// Layout format:
@@ -736,7 +791,5 @@ namespace ManagerConsole.UI
             }
         }
         #endregion
-
-        
     }
 }

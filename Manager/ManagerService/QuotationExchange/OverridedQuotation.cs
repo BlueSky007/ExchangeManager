@@ -315,6 +315,7 @@ namespace ManagerService.QuotationExchange
                     }
                     catch (Exception ex)
                     {
+                        Manager.Common.Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "OverridedQuotation.OverridedQuotation Error\r\n{0}", ex.ToString());
                         this.ask = this.bid;
                     }
                 }

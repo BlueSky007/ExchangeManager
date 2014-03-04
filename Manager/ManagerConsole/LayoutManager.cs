@@ -84,6 +84,16 @@ namespace ManagerConsole
             return false;
         }
 
+        public void Reset()
+        {
+            foreach(ContentPane pane in this._MainWindow.DockManager.GetPanes(PaneNavigationOrder.ActivationOrder))
+            {
+                if (this._IgnorePaneNames.Contains(pane.Name)) continue;
+                pane.CloseAction = PaneCloseAction.RemovePane;
+                pane.ExecuteCommand(ContentPaneCommands.Close);
+            }
+        }
+
         public void LoadLayout(string dockLayout, string contentLayout)
         {
             XDocument contentXDocument = XDocument.Parse(contentLayout);

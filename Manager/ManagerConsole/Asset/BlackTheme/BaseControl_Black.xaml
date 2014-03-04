@@ -86,7 +86,7 @@
     <Color x:Key="Color_2001">#FF373723</Color>
     <Color x:Key="Color_2002">#FF233923</Color>
     <Color x:Key="Color_2003">#FF28353D</Color>
-
+    
     <SolidColorBrush x:Key="DynamicBackGround" Color="Black"/>
     <SolidColorBrush x:Key="AutoFillBackgroudBrush" Color="{StaticResource Color_2001}"/>
     <SolidColorBrush x:Key="AllowLimitBackgroudBrush" Color="{StaticResource Color_2002}"/>
@@ -2674,6 +2674,5 @@
         <Setter Property="Background" Value="#FF1B1B1B"/>
         <Setter Property="Foreground" Value="White"/>
     </Style>
-
     
 </ResourceDictionary>

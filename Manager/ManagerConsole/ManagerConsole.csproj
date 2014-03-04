@@ -77,71 +77,69 @@
     <Reference Include="iExchange.Common">
       <HintPath>..\..\iExchange3\Common\bin\Debug\iExchange.Common.dll</HintPath>
     </Reference>
-    <Reference Include="infragisticswpf4.controls.charts.xamdatachart.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
-      <Private>True</Private>
-    </Reference>
     <Reference Include="InfragisticsWPF4.Controls.Editors.XamCalendar.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>E:\ToolsForSofteWare\InfragisticsWPF\NetAdvantage 2013.1\WPF\CLR4.0\Bin - Signed\InfragisticsWPF4.Controls.Editors.XamCalendar.v13.1.dll</HintPath>
+      <HintPath>..\..\..\..\References\DotNet\Infragistics2013\InfragisticsWPF4.Controls.Editors.XamCalendar.v13.1.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="infragisticswpf4.controls.editors.xamcomboeditor.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\References\DotNet\Infragistics2013\infragisticswpf4.controls.editors.xamcomboeditor.v13.1.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="InfragisticsWPF4.Controls.Editors.XamDateTimeInput.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>E:\ToolsForSofteWare\InfragisticsWPF\NetAdvantage 2013.1\WPF\CLR4.0\Bin - Signed\InfragisticsWPF4.Controls.Editors.XamDateTimeInput.v13.1.dll</HintPath>
+      <HintPath>..\..\..\..\References\DotNet\Infragistics2013\InfragisticsWPF4.Controls.Editors.XamDateTimeInput.v13.1.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="InfragisticsWPF4.Controls.Editors.XamMaskedInput.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>E:\ToolsForSofteWare\InfragisticsWPF\NetAdvantage 2013.1\WPF\CLR4.0\Bin - Signed\InfragisticsWPF4.Controls.Editors.XamMaskedInput.v13.1.dll</HintPath>
+      <HintPath>..\..\..\..\References\DotNet\Infragistics2013\InfragisticsWPF4.Controls.Editors.XamMaskedInput.v13.1.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="infragisticswpf4.controls.grids.xamgrid.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\References\DotNet\Infragistics2013\infragisticswpf4.controls.grids.xamgrid.v13.1.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="infragisticswpf4.controls.interactions.xamdialogwindow.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="infragisticswpf4.controls.layouts.xamtilemanager.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\References\DotNet\Infragistics2013\infragisticswpf4.controls.interactions.xamdialogwindow.v13.1.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="infragisticswpf4.controls.menus.xamdatatree.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\References\DotNet\Infragistics2013\infragisticswpf4.controls.menus.xamdatatree.v13.1.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="infragisticswpf4.controls.menus.xammenu.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\References\DotNet\Infragistics2013\infragisticswpf4.controls.menus.xammenu.v13.1.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="InfragisticsWPF4.DataManager.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="infragisticswpf4.datapresenter.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="InfragisticsWPF4.DataVisualization.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\References\DotNet\Infragistics2013\InfragisticsWPF4.DataManager.v13.1.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="infragisticswpf4.dockmanager.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="InfragisticsWPF4.DragDrop.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="InfragisticsWPF4.Editors.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\References\DotNet\Infragistics2013\infragisticswpf4.dockmanager.v13.1.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="InfragisticsWPF4.OutlookBar.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>E:\ToolsForSofteWare\InfragisticsWPF\NetAdvantage 2013.1\WPF\CLR4.0\Bin\WPFOnly\InfragisticsWPF4.OutlookBar.v13.1.dll</HintPath>
+      <HintPath>..\..\..\..\References\DotNet\Infragistics2013\InfragisticsWPF4.OutlookBar.v13.1.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="InfragisticsWPF4.Reporting.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>E:\ToolsForSofteWare\InfragisticsWPF\NetAdvantage 2013.1\WPF\CLR4.0\Bin\WPFOnly\InfragisticsWPF4.Reporting.v13.1.dll</HintPath>
+      <HintPath>..\..\..\..\References\DotNet\Infragistics2013\InfragisticsWPF4.Reporting.v13.1.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="InfragisticsWPF4.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\References\DotNet\Infragistics2013\InfragisticsWPF4.v13.1.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="PresentationFramework.Classic" />
@@ -227,6 +225,7 @@
     <Compile Include="UI\TaskSchedulerNotify.xaml.cs">
       <DependentUpon>TaskSchedulerNotify.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Updater.cs" />
     <Compile Include="UI\UpdateExchangeHistoryQuotationControl.xaml.cs">
       <DependentUpon>UpdateExchangeHistoryQuotationControl.xaml</DependentUpon>
     </Compile>
@@ -326,6 +325,7 @@
     <Compile Include="ViewModel\ProcessInstantOrder.cs" />
     <Compile Include="ViewModel\ProcessLmtOrder.cs" />
     <Compile Include="ViewModel\QuotePriceClient.cs" />
+    <Compile Include="ViewModel\ReportDataManager.cs" />
     <Compile Include="ViewModel\SettingsParameterManager.cs" />
     <Compile Include="ViewModel\TaskSchedulerManager.cs" />
     <Compile Include="ViewModel\VmAbnormalQuotation.cs" />
@@ -683,12 +683,18 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="arrange.bat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Asset\Media\AlertPrice1.wma" />
     <None Include="Asset\Media\Enquiry.wma" />
     <None Include="Asset\Media\LMTOrderConfirmed.wma" />
     <None Include="Asset\Media\LMTOrderPlacing.wma" />
     <None Include="Asset\Media\SPTOrderConfirmed.wma" />
     <None Include="Asset\Media\SPTOrderPlacing.wma" />
+    <None Include="AutoUpdateBin\MutiLanguages.lib">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="ManagerConsole_TemporaryKey.pfx" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -778,7 +784,36 @@
     <Resource Include="Asset\Images\connected2.png" />
     <Resource Include="Asset\Images\connect_no2.png" />
   </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <None Include="AutoUpdateBin\AutoUpdateClient.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AutoUpdateBin\CHS.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AutoUpdateBin\CHT.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AutoUpdateBin\ENG.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AutoUpdateBin\MutiLanguages.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="AutoUpdateBin\Setting.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

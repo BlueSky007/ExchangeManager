@@ -101,11 +101,11 @@ namespace ManagerConsole.UI
                             VmQuotationManager.Instance.Add(this._InstrumentData.WeightedPriceRule.Clone());
 
                             this.CancelButton.Content = "Close";
-                            this._HintMessage.ShowSucess("Add Instrument successfully.");
+                            this._HintMessage.ShowMessage("Add Instrument successfully.");
                         }
                         else
                         {
-                            this._HintMessage.ShowSucess("Add Instrument failed.");
+                            this._HintMessage.ShowMessage("Add Instrument failed.");
                         }
                     }, instrumentId);
                 });
@@ -165,7 +165,7 @@ namespace ManagerConsole.UI
                                 if (rangeRuleUpdates.Count > 0) this._vmInstrument.VmPriceRangeCheckRule.ApplyChangeToUI(rangeRuleUpdates);
                                 if (weightRuleUpdates.Count > 0) this._vmInstrument.VmWeightedPriceRule.ApplyChangeToUI(weightRuleUpdates);
                                 this.CancelButton.Content = "Close";
-                                this._HintMessage.ShowSucess("Update Instrument successfully.");
+                                this._HintMessage.ShowMessage("Update Instrument successfully.");
                             }
                             else
                             {

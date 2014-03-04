@@ -12,6 +12,9 @@
     <StatusBarItem>
         <Image x:Name="UserConnectStateImage"  MouseDown="UserConnectStateImage_MouseDown" />
     </StatusBarItem>
+    <StatusBarItem>
+        <TextBlock x:Name="StatusTextBlock"/>
+    </StatusBarItem>
     <StatusBarItem HorizontalAlignment="Right">
         <StackPanel Orientation="Horizontal">
             <ItemsControl x:Name="ExchangeConnectionStateControl" Background="#FF181818" Padding="3,0,3,0">

@@ -102,7 +102,7 @@
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
                                     <Button x:Name="DecButton" Content="-"  Width="20" Tag="{Binding}" Style="{StaticResource RedButtonStyle}" Click="AdjustButton_Click"/>
-                                    <TextBox Text="{Binding AdjustPoints}" TextAlignment="Right" Width="60" KeyDown="TextBox_KeyDown"/>
+                                    <TextBox Text="{Binding AdjustPoints}" TextAlignment="Right" Width="40" KeyDown="TextBox_KeyDown"/>
                                     <Button x:Name="IncButton" Content="+"  Width="20" Tag="{Binding}" Style="{StaticResource GreenButtonStyle}" Click="AdjustButton_Click" />
                                 </StackPanel>
                             </DataTemplate>

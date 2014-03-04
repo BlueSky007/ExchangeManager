@@ -49,6 +49,7 @@ namespace ManagerService.Exchange
                 IStateServerWebService stateServer = ChannelFactory<IStateServerWebService>.CreateChannel(binding, address);
                 stateServer.NotifyManagerStarted(MainService.ManagerSettings.ServiceAddressForExchange, exchangeSystemCode);
                 callFailed = false;
+                Logger.AddEvent(TraceEventType.Information, "NotifyExchangeToConnect success: exchangeSystemCode:{0}, stateServerUrl:{1}", exchangeSystemCode, stateServerUrl);
             }
             catch (EndpointNotFoundException)
             {

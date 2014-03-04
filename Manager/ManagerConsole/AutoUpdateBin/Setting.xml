@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="gb2312"?>
+<Setting>
+  <!--服务器IP地址-->
+  <ip>127.0.0.1</ip>
+
+  <!--端口号-->
+  <port>8888</port>
+
+  <!--重传次数(可自由设置),如下,为4-1=3次-->
+  <ResendTimes>4</ResendTimes>
+
+  <!--组织简称，如果是非组织性质的,以下参数不起作用-->
+  <Organization>UPS</Organization>
+</Setting>

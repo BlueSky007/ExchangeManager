@@ -105,11 +105,11 @@ namespace ManagerConsole.UI
                             VmQuotationManager.Instance.Add(this._InstrumentData.DerivativeRelation.Clone());
 
                             this.CancelButton.Content = "Close";
-                            this._HintMessage.ShowSucess("Add Instrument successfully.");
+                            this._HintMessage.ShowMessage("Add Instrument successfully.");
                         }
                         else
                         {
-                            this._HintMessage.ShowSucess("Add Instrument failed.");
+                            this._HintMessage.ShowMessage("Add Instrument failed.");
                         }
                     }, instrumentId);
                 });
@@ -153,7 +153,7 @@ namespace ManagerConsole.UI
                                 if (instrumentUpdates.Count > 0) this._vmInstrument.ApplyChangeToUI(instrumentUpdates);
                                 if (derivativeRelationUpdates.Count > 0) this._vmInstrument.VmDerivativeRelation.ApplyChangeToUI(derivativeRelationUpdates);
                                 this.CancelButton.Content = "Close";
-                                this._HintMessage.ShowSucess("Update Instrument successfully.");
+                                this._HintMessage.ShowMessage("Update Instrument successfully.");
                             }
                             else
                             {

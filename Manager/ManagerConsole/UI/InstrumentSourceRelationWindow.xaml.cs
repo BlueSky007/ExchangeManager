@@ -119,7 +119,7 @@ namespace ManagerConsole.UI
                             VmQuotationManager.Instance.Add(this._Relation.Clone());
                             this.BindSourcesComboBox();
                             this.CancelButton.Content = "Close";
-                            this._HintMessage.ShowSucess("Add Instrument Source Relation successfully.");
+                            this._HintMessage.ShowMessage("Add Instrument Source Relation successfully.");
                         }
                         else
                         {
@@ -168,7 +168,7 @@ namespace ManagerConsole.UI
                                     this._originRelation.ApplyChangeToUI(fieldAndValues);
                                     currentDefaultRelation.ApplyChangeToUI(isDefaultfieldAndValues);
                                     this.CancelButton.Content = "Close";
-                                    this._HintMessage.ShowSucess("Update Instrument Source Relation successfully.");
+                                    this._HintMessage.ShowMessage("Update Instrument Source Relation successfully.");
                                 }
                                 else
                                 {
@@ -188,7 +188,7 @@ namespace ManagerConsole.UI
                                 {
                                     this._originRelation.ApplyChangeToUI(fieldAndValues);
                                     this.CancelButton.Content = "Close";
-                                    this._HintMessage.ShowSucess("Update Instrument Source Relation successfully.");
+                                    this._HintMessage.ShowMessage("Update Instrument Source Relation successfully.");
                                 }
                                 else
                                 {

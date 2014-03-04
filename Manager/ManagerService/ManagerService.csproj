@@ -40,7 +40,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -89,7 +89,6 @@
     <Compile Include="Exchange\ConnectionManager.cs" />
     <Compile Include="Exchange\ExchangeSystem.cs" />
     <Compile Include="Exchange\IExchangeService.cs" />
-    <Compile Include="Exchange\NetGroupManager.cs" />
     <Compile Include="Exchange\QuotationGenerator.cs" />
     <Compile Include="Exchange\ExchangeService.cs" />
     <Compile Include="Helper.cs" />

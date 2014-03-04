@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="gb2312"?>
+<Language>
+  <Item key="AutoUpdate" value="自动更新客户端"></Item>
+  <Item key="DownLoaded: " value="下载进度:"></Item>
+  <Item key="Current File: " value="当前文件:"></Item>
+  <Item key="The Program " value="程序 "></Item>
+  <Item key=" Running!" value=" 已在运行！"></Item>
+  <Item key="Update Now?" value="存在最新版本，是否现在更新？"></Item>
+  <Item key="Update Success!" value="更新成功！"></Item>
+  <Item key="Stop Program " value="中止应用程序 "></Item>
+  <Item key="DownLoad Success,But Update to LocalSystem Failed!" value="更新文件已成功下载，但更新至本地时失败！"></Item>
+  <Item key="Backup To LocalSystem Failed!" value="备份本地文件时失败！"></Item>
+  <Item key="Update to LocalSystem Failed!" value="更新至本地时失败！"></Item>
+  <Item key="Updating File " value="更新文件 "></Item>
+  <Item key=" Failed!" value=" 时失败！"></Item>
+  <Item key="Open the file " value="打开文件 "></Item>
+  <Item key="Create socket error!" value="Socket参数创建失败！"></Item>
+  <Item key="Socket version error!" value="Socket版本信息错误！"></Item>
+  <Item key="One or more params are invalid!" value="存在无效参数！"></Item>
+  <Item key="Connect the server failed!" value="连接服务器失败！"></Item>
+  <Item key="Clear UpdateTmp floder failed!" value="清空文件夹UpdateTmp时失败！\n其中可能存在打开的文件！"></Item>
+  <Item key="Authentication failed!" value="与服务器的身份验证失败！"></Item>
+  <Item key="File list is empty!" value="更新文件列表为空，可能服务器出错！"></Item>
+  <Item key="Public file list is empty!" value="公共更新文件列表为空，可能服务器出错！"></Item>
+  <Item key="Organization file list is empty!" value="组织更新文件列表为空，可能服务器出错！"></Item>
+  <Item key="Need not to Update!" value="此为最新版本，无需更新！"></Item>
+  <Item key="Download files success!" value="下载成功,即将进行本地更新,需关闭此应用程序！"></Item>
+  <Item key="Download files uncompletly!" value="下载更新文件尚未完全成功，存在未更新的文件！"></Item>
+  <Item key="Update failed!" value="更新失败！"></Item>
+  <Item key="Recive the file " value="接收文件 "></Item>
+  <Item key="File size: " value="  /文件大小: "></Item>
+  <Item key="Initializating..." value="正在连接并初始化环境，请等待..."></Item>
+  <Item key="Param error!" value="传入的参数错误，请核实正确后再重启应用程序！"></Item>
+  <Item key="Init Exception!" value="初始化自动更新之环境出现异常！"></Item>
+  <Item key="Update Exception!" value="自动更新时出现异常！"></Item>
+  <Item key="Ip address param error!" value ="IP地址参数错误！"></Item>
+  <Item key="Port param error!" value ="Port参数错误！"></Item>
+  <Item key="Port's value out of range!" value ="Port参数值越界！"></Item>
+  <Item key="The reTranslateTimes param error!" value ="重传参数错误！"></Item>
+  <Item key="The reTranslateTimes's value out of range!" value ="重传参数值越界！"></Item>
+  <Item key="Create Directory " value="创建目录 "></Item>
+  <Item key="Socket failed with:" value="Socket 出错: "></Item>
+  <Item key="Remove file: " value="删除文件: "></Item>
+  <Item key="May be it is running!" value="\n可能正在运行！"></Item>
+  <Item key="Send the Command Error!" value="发送指令出错！"></Item>
+  <Item key="Clear Directory " value="清空目录 "></Item>
+  <Item key="Get the current path Failed!" value="获取当前路径时出错！"></Item>
+</Language>
+

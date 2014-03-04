@@ -16,6 +16,52 @@ using ManagerConsole.Helper;
 
 namespace ManagerConsole.ViewModel
 {
+    public class GroupNetPositionModel
+    {
+        public ObservableCollection<RootGNP> RootGNPs { get; set; }
+
+        public GroupNetPositionModel()
+        {
+            this.RootGNPs = new ObservableCollection<RootGNP>();
+        }
+
+        public void AddOrderToGroupNetPosition(Order executedOrder)
+        {
+            Guid accountId = executedOrder.Transaction.Account.Id;
+            Guid accountGroupId = executedOrder.Transaction.Account.GroupId;
+            Guid instrumentId = executedOrder.Transaction.Instrument.Id;
+
+            string exchangeCode = executedOrder.ExchangeCode;
+            string key = "Item" + executedOrder.Transaction.Instrument.Code;
+
+            RootGNP rootGNP = this.RootGNPs[0];
+            ColumnKeys rootKeys = rootGNP.Columns;
+            rootKeys[key] = decimal.Parse(rootKeys[key].ToString()) + executedOrder.LotBalance;
+            rootGNP.Columns = rootKeys;
+
+            AccountGroupGNP accountGroupGNP = rootGNP.AccountGroupGNPs.SingleOrDefault(P => P.Id == accountGroupId);
+            if (accountGroupGNP == null) return;
+            ColumnKeys groupKeys = accountGroupGNP.Columns;
+            groupKeys[key] = decimal.Parse(groupKeys[key].ToString()) + executedOrder.LotBalance;
+            accountGroupGNP.Columns = groupKeys;
+
+            AccountGNP accountGNP = accountGroupGNP.AccountGNPs.SingleOrDefault(P => P.Id == accountId);
+            if (accountGNP == null) return;
+            ColumnKeys accountKeys = accountGNP.Columns;
+            accountKeys[key] = decimal.Parse(accountKeys[key].ToString()) + executedOrder.LotBalance;
+            accountGNP.Columns = accountKeys;
+
+            InstrumentGNP instrumentGNP = accountGNP.InstrumentGNPs.SingleOrDefault(P => P.Instrument.Id == instrumentId);
+
+            DetailGNP detailGNP = accountGNP.DetailGNPs.SingleOrDefault(P => P.AccountId == accountId && P.InstrumentId == instrumentId);
+            if (detailGNP == null) return;
+
+            ColumnKeys detailKeys = detailGNP.Columns;
+            detailKeys[key] = instrumentGNP.GetDetailDisPlay();
+            detailGNP.Columns = detailKeys;
+        }
+    }
+
     public class RootGNP : InstrumentColumn
     {
         private Guid _Id = Guid.Empty;
@@ -121,13 +167,6 @@ namespace ManagerConsole.ViewModel
                 this._AccountGNPs.Add(accountGNP);
             }
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged(string propertyName)
-        {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 
     public class AccountGNP : InstrumentColumn
@@ -209,6 +248,7 @@ namespace ManagerConsole.ViewModel
         private string _SellAveragePrice;
         private bool _IsSummaryGroup = false;
         private string _SummaryGroupCode;
+        private string _Detail;
         private int _SortIndex = 0;
 
         public InstrumentGNP() { }
@@ -308,7 +348,8 @@ namespace ManagerConsole.ViewModel
 
         public string Detail
         {
-            get { return this.GetDetailDisPlay(); }
+            get { return this._Detail; }
+            set { this._Detail = value; }
         }
 
         public int SortIndex
@@ -329,6 +370,7 @@ namespace ManagerConsole.ViewModel
             this._SellMultiplyValue = instrumentGNP.SellMultiplyValue;
             this._BuyAveragePrice = instrumentGNP.BuyAveragePrice;
             this._SellAveragePrice = instrumentGNP.SellAveragePrice;
+            this._Detail = this.GetDetailDisPlay();
         }
 
         public void AddLotBalance(decimal value)
@@ -359,7 +401,8 @@ namespace ManagerConsole.ViewModel
 
     public class DetailGNP : InstrumentColumn
     {
-        public Guid Id { get; set; }
+        public Guid AccountId { get; set; }
+        public Guid InstrumentId { get; set; }
         public string Code { get; set; }
         public string OrderRelation
         {

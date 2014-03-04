@@ -20,6 +20,11 @@ namespace ManagerConsole.ViewModel
             this._Timer = new Timer(this.CheckAbnormalQuotations, null, Timeout.Infinite, Timeout.Infinite);
         }
 
+        public void Reset()
+        {
+            this._AbnormalQuotations.Clear();
+        }
+
         public VmAbnormalQuotation FirstItem
         {
             get

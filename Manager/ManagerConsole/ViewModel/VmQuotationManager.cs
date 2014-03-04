@@ -14,7 +14,7 @@ namespace ManagerConsole.ViewModel
     {
         public static VmQuotationManager Instance = new VmQuotationManager();
 
-        private bool _MetadataNotLoaded = true;
+        //private bool _MetadataNotLoaded = true;
         private ObservableCollection<VmQuotationSource> _QuotationSources = new ObservableCollection<VmQuotationSource>();
         private ObservableCollection<VmInstrument> _Instruments = new ObservableCollection<VmInstrument>();
         private VmAbnormalQuotationManager _abnormalQuotationManager = new VmAbnormalQuotationManager();
@@ -25,10 +25,10 @@ namespace ManagerConsole.ViewModel
         {
             get
             {
-                if (this._MetadataNotLoaded)
-                {
-                    this.LoadMetadata();
-                }
+                //if (this._MetadataNotLoaded)
+                //{
+                //    this.LoadMetadata();
+                //}
                 return this._QuotationSources;
             }
         }
@@ -37,27 +37,35 @@ namespace ManagerConsole.ViewModel
         {
             get
             {
-                if (this._MetadataNotLoaded)
-                {
-                    this.LoadMetadata();
-                }
+                //if (this._MetadataNotLoaded)
+                //{
+                //    this.LoadMetadata();
+                //}
                 return this._Instruments;
             }
         }
 
         public VmAbnormalQuotationManager AbnormalQuotationManager { get { return this._abnormalQuotationManager; } }
 
+        public void Reset()
+        {
+            this._QuotationSources.Clear();
+            this._Instruments.Clear();
+            this._abnormalQuotationManager.Reset();
+            //this._MetadataNotLoaded = false;
+        }
+
         public void AddAbnormalQuotation(AbnormalQuotationMessage message)
         {
             this._abnormalQuotationManager.AddAbnormalQuotation(message);
         }
 
-        private void LoadMetadata()
+        public void Initialize()
         {
             try
             {
-                if (this._MetadataNotLoaded)
-                {
+                //if (this._MetadataNotLoaded)
+                //{
                     ConfigMetadata metadata = ConsoleClient.Instance.GetConfigMetadata();
                     
                     this._QuotationSources.Clear();
@@ -108,8 +116,8 @@ namespace ManagerConsole.ViewModel
                         }
 
                         this._Instruments.Add(vmInstrument);
-                    }
-                    this._MetadataNotLoaded = false;
+                    //}
+                    //this._MetadataNotLoaded = false;
                 }
             }
             catch(Exception exception)

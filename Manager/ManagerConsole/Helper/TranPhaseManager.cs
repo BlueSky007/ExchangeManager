@@ -42,6 +42,7 @@ namespace ManagerConsole.Helper
                     case Phase.Executed:
                         order.Status = OrderStatus.Executed;
                         this.AddExecutedOrder(order);
+                        this.AddOrderToGroupNetPosition(order);
                         break;
                     case Phase.Canceled:
                         order.Status = OrderStatus.Canceled;
@@ -87,6 +88,12 @@ namespace ManagerConsole.Helper
         {
             this._ExchangeDataManager.ExecutedOrders.Add(order);
             this._ExchangeDataManager.AddExecutedOrderSummaryItem(order);
+        }
+
+        public void AddOrderToGroupNetPosition(Order executedOrder)
+        {
+            GroupNetPositionModel groupNetPostionModel = this._ExchangeDataManager.ReportDataManager.GetGroupNetPositionModel(executedOrder.ExchangeCode);
+            groupNetPostionModel.AddOrderToGroupNetPosition(executedOrder);
         }
 
         public void DeletedExecutedOrderSummaryItem(Order order)

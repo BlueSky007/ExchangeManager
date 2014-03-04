@@ -45,6 +45,7 @@ namespace ManagerConsole
         private SourceQuotationControl _SourceQuotationControl;
         private SourceRelationControl _SourceRelationControl;
         private LayoutManager _LayoutManager;
+        private Dictionary<string, TreeViewItem> _FunctionTreeItems = new Dictionary<string, TreeViewItem>();
 
         public Dictionary<ModuleType, Module> AuthorizedModules = new Dictionary<ModuleType, Module>();
         public MainWindow()
@@ -165,12 +166,17 @@ namespace ManagerConsole
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            this.ShowLoginWindow();
+            App.MainFrameWindow = this;
+        }
+
+        private void ShowLoginWindow()
+        {
             LoginWindow loginWindow = new LoginWindow(this.HandleSuccessLogin);
             this.MainFrame.Children.Add(loginWindow);
             loginWindow.IsModal = true;
             loginWindow.Show();
             loginWindow.BringToFront();
-            App.MainFrameWindow = this;  
         }
 
         private void AddQuotePriceFrm()
@@ -216,6 +222,7 @@ namespace ManagerConsole
             try
             {
                 this.InitializeUI(result);
+                VmQuotationManager.Instance.Initialize();
                 this.StatusBar.HandleSuccessLogin(result);
                 ConsoleClient.Instance.LoadSettingsParameters(this.LoadSettingsParametersCallback);
                 ConsoleClient.Instance.GetInitializeData(this.GetInitializeDataCallback);
@@ -235,7 +242,11 @@ namespace ManagerConsole
 
         private void GetInitializeDataCallback(InitializeData initalizeData)
         {
-            this.ExchangeDataManager.Initialize(initalizeData);
+            this.Dispatcher.BeginInvoke((Action)delegate()
+            {
+                this.ExchangeDataManager.Initialize(initalizeData);
+                App.MainFrameWindow.StatusBar.ShowStatusText(string.Empty);
+            });
         }
 
         private void InitializeUI(LoginResult result)
@@ -278,18 +289,25 @@ namespace ManagerConsole
                     this.FunctionTree.Items.Add(catalogNode);
                     typeTreeViewItems.Add(module.Category, catalogNode);
                 }
-                TreeViewItem functionNode = new TreeViewItem() { Tag = module.Type };
+
                 string iconName = module.Type.ToString();
-                if (this.Resources.Contains(iconName))
+                TreeViewItem functionNode;
+                if (!this._FunctionTreeItems.TryGetValue(iconName, out functionNode))
                 {
-                    StackPanel headerPanel = new StackPanel() { Orientation = Orientation.Horizontal };
-                    headerPanel.Children.Add((UIElement)this.Resources[iconName]);
-                    headerPanel.Children.Add(new TextBlock() { Text = module.ModuleDescription, Margin = new Thickness(3, 0, 0, 0) });
-                    functionNode.Header = headerPanel;
-                }
-                else
-                {
-                    functionNode.Header = module.ModuleDescription;
+                    functionNode = new TreeViewItem() { Tag = module.Type };
+                    if (this.Resources.Contains(iconName))
+                    {
+                        StackPanel headerPanel;
+                        headerPanel = new StackPanel() { Orientation = Orientation.Horizontal };
+                        headerPanel.Children.Add((UIElement)this.Resources[iconName]);
+                        headerPanel.Children.Add(new TextBlock() { Text = module.ModuleDescription, Margin = new Thickness(3, 0, 0, 0) });
+                        functionNode.Header = headerPanel;
+                    }
+                    else
+                    {
+                        functionNode.Header = module.ModuleDescription;
+                    }
+                    this._FunctionTreeItems.Add(iconName, functionNode);
                 }
                 functionNode.MouseDoubleClick += treeViewItem_MouseDoubleClick;
                 catalogNode.Items.Add(functionNode);
@@ -324,9 +342,12 @@ namespace ManagerConsole
             {
                 ConsoleClient.Instance.Logout();
                 this.AuthorizedModules.Clear();
+                foreach (TreeViewItem item in this.FunctionTree.Items) item.Items.Clear(); // When the tree reaches three-layer need to be replaced with the recursive algorithm
                 this.FunctionTree.Items.Clear();
                 this.ExchangeDataManager.Clear();
-                this.Window_Loaded(null, null);
+                VmQuotationManager.Instance.Reset();
+                this._LayoutManager.Reset();
+                this.ShowLoginWindow();
             }
             catch(Exception exception)
             {
@@ -337,9 +358,8 @@ namespace ManagerConsole
 
         public void KickOut()
         {
-            this.SaveLayoutAndLogout();
-            MessageBox.Show(App.MainFrameWindow, "用户已被登出！", "", MessageBoxButton.OK, MessageBoxImage.Asterisk, MessageBoxResult.OK);
-            this.Window_Loaded(null, null);
+            this.Logout_Click(null, null);
+            this.StatusBar.ShowStatusText("用户已被登出！");
         }
 
         private void ChangePassword_Click(object sender, EventArgs e)
@@ -397,7 +417,6 @@ namespace ManagerConsole
                 {
                     this._LayoutManager.LoadLayout(dockLayout, contentLayout);
                 }, layout, content);
-                //this.LoadLayout(layout, content);
             }
             catch (Exception ex)
             {

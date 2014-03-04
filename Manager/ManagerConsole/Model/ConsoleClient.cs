@@ -152,6 +152,7 @@ namespace ManagerConsole.Model
                 this._IsLoggedIn = false;
                 this._ServiceProxy.Logout();
                 App.MainFrameWindow.StatusBar.ShowUserConnectionState(ConnectionState.Disconnected);
+                this._MessageClient.Suspend();
             }
         }
 

@@ -1,10 +1,8 @@
 ﻿using ManagerConsole.Model;
-using ManagerConsole.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using TransactionError = iExchange.Common.TransactionError;
 using CommonTransaction = iExchange.Common.Manager.Transaction;
 using CommonOrder = iExchange.Common.Manager.Order;
@@ -17,7 +15,6 @@ using DeleteMessage = Manager.Common.DeleteMessage;
 using ExecuteMessage = Manager.Common.ExecuteMessage;
 using UpdateMessage = Manager.Common.UpdateMessage;
 using ManagerConsole.Helper;
-using SettingSet = Manager.Common.SettingSet;
 using InitializeData = Manager.Common.InitializeData;
 using ConfigParameter = Manager.Common.Settings.ConfigParameter;
 using Phase = iExchange.Common.OrderPhase;
@@ -27,7 +24,6 @@ using SettingsParameter = Manager.Common.Settings.SettingsParameter;
 using ExchangeInitializeData = Manager.Common.ExchangeInitializeData;
 using Scheduler = iExchange.Common.Scheduler;
 using OrderType = iExchange.Common.OrderType;
-using Manager.Common.QuotationEntities;
 using System.Windows.Controls;
 using SoundOption = Manager.Common.SoundOption;
 
@@ -67,9 +63,7 @@ namespace ManagerConsole.ViewModel
         private Scheduler Scheduler = new Scheduler();
         private Scheduler.Action _RemoveTransactionWhenTimeOver;
 
-        private MediaElement 
-            _SoundMedia;
-
+        private MediaElement _SoundMedia;
 
         //询价
         private QuotePriceClientModel _QuotePriceClientModel = new QuotePriceClientModel();
@@ -82,6 +76,12 @@ namespace ManagerConsole.ViewModel
         {
             get { return this._SettingsParameterManager; }
             set { this._SettingsParameterManager = value; }
+        }
+
+        public ReportDataManager ReportDataManager
+        {
+            get;
+            set;
         }
 
         public ObservableCollection<string> ExchangeCodes
@@ -177,11 +177,6 @@ namespace ManagerConsole.ViewModel
             set { this._ExecutedOrders = value; }
         }
 
-        //public Dictionary<string, List<ExchangeQuotation>> ExchangeQuotations
-        //{
-        //    get { return this._ExchangeQuotations; }
-        //    set { this._ExchangeQuotations = value; }
-        //}
         #endregion
 
         public ExchangeDataManager(MediaElement mediaElement)
@@ -190,8 +185,10 @@ namespace ManagerConsole.ViewModel
             this.SettingsManager = new SettingsManager();
             this.ExchangeSettingManagers = new Dictionary<string, ExchangeSettingManager>();
             this.ExchangeTradingManagers = new Dictionary<string, ExchangeTradingManager>();
-            this._TranPhaseManager = new TranPhaseManager(this);
+            
             this._RemoveTransactionWhenTimeOver = new Scheduler.Action(this.RemoveTransactionWhenTimeOver);
+            this._TranPhaseManager = new TranPhaseManager(this);
+            this.ReportDataManager = new ReportDataManager(this);
         }
 
         #region Initialize Data
@@ -368,32 +365,35 @@ namespace ManagerConsole.ViewModel
 
         public void ProcessExecuteMessage(ExecuteMessage executeMessage)
         {
+            string exchangeCode = executeMessage.ExchangeCode;
+            bool oDisablePopup = this._SettingsParameterManager.DealingOrderParameter.DisablePopup;
             foreach (CommonTransaction commonTransaction in executeMessage.Transactions)
             {
                 if (commonTransaction.Error != null && commonTransaction.Error.Value != TransactionError.OK)
                 { 
-                    //...
+                    //...ErrorMessage
                 }
-                if(this._Transactions.ContainsKey(commonTransaction.Id) && this._Transactions[commonTransaction.Id].Phase == Phase.Executed)
+                else if(this._Transactions.ContainsKey(commonTransaction.Id) 
+                    && this._Transactions[commonTransaction.Id].Phase == Phase.Executed)
                 {
                     continue;
+                }
+                else if (this._Transactions.ContainsKey(commonTransaction.Id))
+                {
+                    Transaction tran = this._Transactions[commonTransaction.Id];
+                    this.TranPhaseManager.UpdateTransaction(tran);
                 }
                 else
                 {
                     this.ProcessTransaction(executeMessage.ExchangeCode, commonTransaction);
                 }
             }
+
             //Sound.PlayExecute()
             foreach (CommonOrder commonOrder in executeMessage.Orders)
             {
                 commonOrder.ExchangeCode = executeMessage.ExchangeCode;
                 this.Process(commonOrder, false);
-            }
-
-            foreach (CommonTransaction commonTransaction in executeMessage.Transactions)
-            {
-                Transaction tran = this._Transactions[commonTransaction.Id];
-                this.TranPhaseManager.UpdateTransaction(tran);
             }
         }
 

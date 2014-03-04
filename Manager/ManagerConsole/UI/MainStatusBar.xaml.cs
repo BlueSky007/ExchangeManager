@@ -51,6 +51,11 @@ namespace ManagerConsole.UI
             this._ExchangeConnectionStates = new ObservableCollection<ExchangeConnectionState>();
         }
 
+        public void ShowStatusText(string statusText)
+        {
+            this.StatusTextBlock.Text = statusText;
+        }
+
         public void ShowUserConnectionState(ConnectionState connectionState)
         {
             this.Dispatcher.BeginInvoke((Action<ConnectionState>)delegate(ConnectionState state)
