@@ -5,6 +5,8 @@
     xmlns:igPrim="http://schemas.infragistics.com/xaml/primitives"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:igOB="http://infragistics.com/OutlookBar"
+    xmlns:ig="http://schemas.infragistics.com/xaml"
+    xmlns:localUI="clr-namespace:ManagerConsole.UI"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d">
 
     <!-- *********************************  RESOURCES  ********************************* -->
@@ -993,6 +995,188 @@
     <Style x:Key="DealingGridStyle" TargetType="Grid">
         <Setter Property="Background" Value="Black"/>
     </Style>
-   
+    <!--Account Status Grid Expand Style-->
+    <Style x:Key="TradingSummaryControlStyle" TargetType="localUI:TradingSummaryControl">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="localUI:TradingSummaryControl">
+                    <ig:XamGrid AutoGenerateColumns="False" HeaderVisibility="Collapsed" Padding="3" BorderThickness="1,1,0,1"  BorderBrush="#FF26355D"
+                                x:Name="TradingSummaryGrid">
+                        <ig:XamGrid.RowSelectorSettings>
+                            <ig:RowSelectorSettings Visibility="Collapsed"/>
+                        </ig:XamGrid.RowSelectorSettings>
+                        <ig:XamGrid.ColumnChooserSettings>
+                            <ig:ColumnChooserSettings AllowHiddenColumnIndicator="False" AllowHideColumnIcon="False" />
+                        </ig:XamGrid.ColumnChooserSettings>
+                        <ig:XamGrid.SortingSettings>
+                            <ig:SortingSettings AllowMultipleColumnSorting="False" AllowSorting="False"/>
+                        </ig:XamGrid.SortingSettings>
+                        <ig:XamGrid.FilteringSettings>
+                            <ig:FilteringSettings AllowFiltering="None" FilterMenuCustomFilteringButtonVisibility="Collapsed"/>
+                        </ig:XamGrid.FilteringSettings>
+                        <ig:XamGrid.ColumnMovingSettings>
+                            <ig:ColumnMovingSettings AllowColumnMoving="Disabled"/>
+                        </ig:XamGrid.ColumnMovingSettings>
+                        <ig:XamGrid.AddNewRowSettings>
+                            <ig:AddNewRowSettings AllowAddNewRow="None"/>
+                        </ig:XamGrid.AddNewRowSettings>
+                        <ig:XamGrid.ExpansionIndicatorSettings>
+                            <ig:ExpansionIndicatorSettings Visibility="Visible" Style="{DynamicResource TradingSummaryGridExpansionStyle}">
+                            </ig:ExpansionIndicatorSettings>
+                        </ig:XamGrid.ExpansionIndicatorSettings>
+                        <ig:XamGrid.Columns>
+                            <ig:TemplateColumn Key="Name" Width="120">
+                                <ig:TemplateColumn.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock VerticalAlignment="Center" FontWeight="Bold" FontFamily="hei" FontSize="12" Text="{Binding Name, Mode=OneWay}"/>
+                                    </DataTemplate>
+                                </ig:TemplateColumn.ItemTemplate>
+                            </ig:TemplateColumn>
+                            <ig:TemplateColumn HorizontalContentAlignment="Right"  Key="Value" Width="150">
+                                <ig:TemplateColumn.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock FontSize="12" VerticalAlignment="Center" Foreground="Green" Text="{Binding Value, Mode=OneWay}" TextAlignment="Right"/>
+                                    </DataTemplate>
+                                </ig:TemplateColumn.ItemTemplate>
+                            </ig:TemplateColumn>
+
+                            <ig:ColumnLayout Key="SubItemsView" HeaderVisibility="Collapsed">
+                                <ig:ColumnLayout.Columns>
+                                    <ig:TemplateColumn Key="Currency.Code"  HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Width="120">
+                                        <ig:TemplateColumn.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock  FontSize="12" VerticalAlignment="Center" FontWeight="Bold" FontFamily="hei" Text="{Binding Currency.Code, Mode=OneWay}" HorizontalAlignment="Right" TextWrapping="Wrap" />
+                                            </DataTemplate>
+                                        </ig:TemplateColumn.ItemTemplate>
+                                    </ig:TemplateColumn>
+
+                                    <ig:TemplateColumn Key="Value" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Width="150">
+                                        <ig:TemplateColumn.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock FontSize="12" VerticalAlignment="Center" Foreground="Green" Text="{Binding Value, Mode=OneWay}" TextWrapping="Wrap"  TextAlignment="Right"/>
+                                            </DataTemplate>
+                                        </ig:TemplateColumn.ItemTemplate>
+                                    </ig:TemplateColumn>
+                                </ig:ColumnLayout.Columns>
+                            </ig:ColumnLayout>
+
+                        </ig:XamGrid.Columns>
+                    </ig:XamGrid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="TradingSummaryGridExpansionStyle" TargetType="igPrim:ExpansionIndicatorCellControl">
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Background" Value="Black"/>
+        <Setter Property="BorderBrush" Value="#FFDEDEDE" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="igPrim:ExpansionIndicatorCellControl">
+                    <Grid Background="Black">
+                        <Border 
+                        x:Name="border" 
+                        BorderBrush="{TemplateBinding BorderBrush}" 
+                        BorderThickness="{TemplateBinding BorderThickness}" 
+                        Background="{TemplateBinding Background}" />
+                        <ContentPresenter 
+                        Margin="{TemplateBinding Padding}" 
+                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
+                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" />
+                        <igPrim:ExpansionIndicator 
+                        x:Name="Indicator" 
+                        Visibility="Collapsed" 
+                        Margin="{TemplateBinding Padding}" 
+                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
+                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                        Cursor="Hand">
+                            <igPrim:ExpansionIndicator.Style>
+                                <Style TargetType="igPrim:ExpansionIndicator">
+                                    <Setter Property="Foreground" Value="#ff333333" />
+                                    <Setter Property="Width" Value="20" />
+                                    <Setter Property="Height" Value="20" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="igPrim:ExpansionIndicator">
+                                                <Grid Background="Black">
+                                                    <VisualStateManager.VisualStateGroups>
+                                                        <VisualStateGroup x:Name="ExpansionStates">
+                                                            <VisualStateGroup.Transitions>
+                                                                <VisualTransition 
+                                                      From="Collapsed" 
+                                                      To="Expanded" 
+                                                      GeneratedDuration="00:00:00.2000000">
+                                                                </VisualTransition>
+                                                                <VisualTransition 
+                                                      From="Expanded" 
+                                                      To="Collapsed" 
+                                                      GeneratedDuration="00:00:00.2000000">
+                                                                </VisualTransition>
+                                                            </VisualStateGroup.Transitions>
+                                                            <VisualState x:Name="Expanded" />
+                                                            <VisualState x:Name="Collapsed">
+                                                                <Storyboard>
+                                                                    <DoubleAnimationUsingKeyFrames 
+                                                         BeginTime="00:00:00" 
+                                                         Storyboard.TargetName="ExpandGlyph" 
+                                                         Storyboard.TargetProperty="(UIElement.Opacity)">
+                                                                        <EasingDoubleKeyFrame KeyTime="00:00:00.1500000" Value="1" />
+                                                                    </DoubleAnimationUsingKeyFrames>
+                                                                </Storyboard>
+                                                            </VisualState>
+                                                        </VisualStateGroup>
+                                                    </VisualStateManager.VisualStateGroups>
+                                                    <Grid 
+                                             x:Name="ExpansionIndicator" 
+                                             Background="#00000000" 
+                                             HorizontalAlignment="Center" 
+                                             VerticalAlignment="Center">
+                                                        <Rectangle 
+                                                Width="9" 
+                                                Height="9" 
+                                                Stroke="#b2c3d2" 
+                                                StrokeThickness="1">
+                                                            <Rectangle.Fill>
+                                                                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                                                                    <LinearGradientBrush.GradientStops>
+                                                                        <GradientStopCollection>
+                                                                            <GradientStop Offset="0" Color="#FFfcfdfd" />
+                                                                            <GradientStop Offset="1" Color="#FFdbe3e9" />
+                                                                        </GradientStopCollection>
+                                                                    </LinearGradientBrush.GradientStops>
+                                                                </LinearGradientBrush>
+                                                            </Rectangle.Fill>
+                                                        </Rectangle>
+                                                        <Rectangle 
+                                                x:Name="ExpandGlyph" 
+                                                Width="1" 
+                                                Height="5" 
+                                                Fill="#333333" 
+                                                Opacity="0" 
+                                                HorizontalAlignment="Center" 
+                                                VerticalAlignment="Center" />
+                                                        <Rectangle 
+                                                x:Name="CollapseGlyph" 
+                                                Width="5" 
+                                                Height="1" 
+                                                Fill="#FF333333" 
+                                                HorizontalAlignment="Center" 
+                                                VerticalAlignment="Center" />
+                                                    </Grid>
+                                                </Grid>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </igPrim:ExpansionIndicator.Style>
+                        </igPrim:ExpansionIndicator>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style BasedOn="{StaticResource ListBoxItemStyle}" TargetType="{x:Type ListBoxItem}"/>
 </ResourceDictionary>

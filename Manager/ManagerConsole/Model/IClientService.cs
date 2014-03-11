@@ -17,6 +17,7 @@ using OpenInterestSummary = iExchange.Common.Manager.OpenInterestSummary;
 using TransactionError = iExchange.Common.TransactionError;
 using OrderQueryEntity = Manager.Common.ReportEntities.OrderQueryEntity;
 using SoundSetting = Manager.Common.Settings.SoundSetting;
+using BlotterSelection = Manager.Common.ReportEntities.BlotterSelection;
 using System.Collections.ObjectModel;
 using iExchange.Common.Manager;
 using iExchange.Common;
@@ -204,6 +205,15 @@ namespace ManagerConsole.Model
         IAsyncResult BeginGetOpenInterestOrderSummary(string exchangeCode,Guid instrumentId, Guid accountId, AccountType accountType, string[] blotterCodeSelecteds, AsyncCallback callback, object asyncState);
         List<OpenInterestSummary> EndGetOpenInterestOrderSummary(IAsyncResult result);
 
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginGetBlotterList(string exchangeCode, AsyncCallback callback, object asyncState);
+        List<BlotterSelection> EndGetBlotterList(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginGetAccountReportData(string exchangeCode, string selectedPrice, Guid accountId, AsyncCallback callback, object asyncState);
+        AccountStatusQueryResult EndGetAccountReportData(IAsyncResult result);
+        
+
         #endregion
 
         #region Log Audit
@@ -308,6 +318,14 @@ namespace ManagerConsole.Model
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginUpdateHighLow(string exchangeCode, Guid instrumentId, bool isOriginHiLo, string newInput, bool isUpdateHigh, AsyncCallback callback, object asyncState);
         UpdateHighLowBatchProcessInfo EndUpdateHighLow(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginFixOverridedQuotationHistory(Dictionary<string, string> quotations, bool needApplyAutoAdjustPoints, AsyncCallback callback, object asyncState);
+        bool EndFixOverridedQuotationHistory(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginRestoreHighLow(string exchangeCode, int batchProcessId, AsyncCallback callback, object asyncState);
+        bool EndRestoreHighLow(IAsyncResult result);
     }
 
     [ServiceContract]

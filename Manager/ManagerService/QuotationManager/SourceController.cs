@@ -8,6 +8,7 @@ using Manager.Common;
 using ManagerService.DataAccess;
 using Manager.Common.LogEntities;
 using ManagerService.Audit;
+using System.Diagnostics;
 
 namespace ManagerService.Quotation
 {
@@ -249,8 +250,8 @@ namespace ManagerService.Quotation
                     quotation.Ask = (quotation.Ask * rule.AskAskWeight + quotation.Bid * rule.BidAskWeight + (quotation.Last.HasValue ? quotation.Last.Value * rule.AskLastWeight : 0) + (quotation.Ask + quotation.Bid) / 2 * rule.AskAverageWeight + (double)rule.AskAdjust) * (double)rule.Multiplier;
                     quotation.Bid = (quotation.Ask * rule.BidAskWeight + quotation.Bid * rule.BidBidWeight + (quotation.Last.HasValue ? quotation.Last.Value * rule.BidLastWeight : 0) + (quotation.Ask + quotation.Bid) / 2 * rule.BidAverageWeight + (double)rule.BidAdjust) * (double)rule.Multiplier;
                 }
-                quotation.Ask += this._Agio + Helper.GetAdjustValue(this._Relations[quotation.SourceId].AdjustPoints, this._Instrument.DecimalPlace);
-                quotation.Bid += this._Agio + Helper.GetAdjustValue(this._Relations[quotation.SourceId].AdjustPoints, this._Instrument.DecimalPlace);
+                quotation.Ask += this._Agio + CommonHelper.GetAdjustValue(this._Relations[quotation.SourceId].AdjustPoints, this._Instrument.DecimalPlace);
+                quotation.Bid += this._Agio + CommonHelper.GetAdjustValue(this._Relations[quotation.SourceId].AdjustPoints, this._Instrument.DecimalPlace);
 
                 this._LastActiveTime = DateTime.Now;
                 if (!this._IsPriceEnabled)
@@ -278,19 +279,32 @@ namespace ManagerService.Quotation
 
         private void CheckInactiveTime(object state)
         {
-            this._Timer.Change(Timeout.Infinite, Timeout.Infinite);
-            TimeSpan inactiveTimeSpan = TimeSpan.FromSeconds(this._Instrument.InactiveTime.Value);
-
-            if(DateTime.Now - this._LastActiveTime > inactiveTimeSpan)
+            try
             {
-                if (this._IsPriceEnabled)
-                {
-                    MainService.ExchangeManager.SwitchPriceEnableState(this._Instrument.Id, false);
-                    this._IsPriceEnabled = false;
-                }
-            }
+                this._Timer.Change(Timeout.Infinite, Timeout.Infinite);
+                TimeSpan inactiveTimeSpan = TimeSpan.FromSeconds(this._Instrument.InactiveTime.Value);
 
-            this._Timer.Change(inactiveTimeSpan, inactiveTimeSpan);
+                if (DateTime.Now - this._LastActiveTime > inactiveTimeSpan)
+                {
+                    if (this._IsPriceEnabled)
+                    {
+                        try
+                        {
+                            MainService.ExchangeManager.SwitchPriceEnableState(this._Instrument.Id, false);
+                        }
+                        catch (Exception exception)
+                        {
+                            Logger.AddEvent(TraceEventType.Warning, "SourceInstrument.CheckInactiveTime try SwitchPriceEnableState\r\n{0}", exception);
+                        }
+                        this._IsPriceEnabled = false;
+                    }
+                }
+                this._Timer.Change(inactiveTimeSpan, inactiveTimeSpan);
+            }
+            catch (Exception exception)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "SourceInstrument.CheckInactiveTime exception\r\n{0}", exception);
+            }
         }
 
         private void SwitchActiveSource(int newSourceId)
@@ -369,6 +383,15 @@ namespace ManagerService.Quotation
             {
                 TimeSpan minTimeSpan = this._SourceInstruments.Values.Select(s => s.ActiveSourceTimeoutSpan).Min();
                 this._Timer = new Timer(this.TimerCallback, null, minTimeSpan, SourceController.Infinite);
+            }
+        }
+
+        public void Stop()
+        {
+            this._Timer.Change(Timeout.Infinite, Timeout.Infinite);
+            foreach (SourceInstrument sourceInstrument in this._SourceInstruments.Values)
+            {
+                sourceInstrument.Stop();
             }
         }
 

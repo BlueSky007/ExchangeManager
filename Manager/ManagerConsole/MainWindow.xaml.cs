@@ -129,38 +129,45 @@ namespace ManagerConsole
 
         private void treeViewItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            TreeViewItem moduleNode = sender as TreeViewItem;
-            ModuleType moduleType = (ModuleType)(int)moduleNode.Tag;
+            try
+            {
+                TreeViewItem moduleNode = sender as TreeViewItem;
+                ModuleType moduleType = (ModuleType)(int)moduleNode.Tag;
 
-            if (moduleType == ModuleType.AbnormalQuotation)
-            {
-                this.ShowAbnormalQuotationPane();
-            }
-            else if (moduleType == ModuleType.Quote)
-            {
-                this.ShowQuotePricePane();
-            }
-            else
-            {
-                if (this._LayoutManager.IsMultipleOpenModule(moduleType))
+                if (moduleType == ModuleType.AbnormalQuotation)
                 {
-                    this._LayoutManager.AddContentPane(moduleType).Activate();
+                    this.ShowAbnormalQuotationPane();
+                }
+                else if (moduleType == ModuleType.Quote)
+                {
+                    this.ShowQuotePricePane();
                 }
                 else
                 {
-                    string paneName = this._LayoutManager.GetPaneName(moduleType);
-                    ContentPane contentPane = this.DockManager.GetPanes(PaneNavigationOrder.ActivationOrder).Where(p => p.Name == paneName).SingleOrDefault();
-
-                    if (contentPane == null)
+                    if (this._LayoutManager.IsMultipleOpenModule(moduleType))
                     {
                         this._LayoutManager.AddContentPane(moduleType).Activate();
                     }
                     else
                     {
-                        contentPane.Visibility = Visibility.Visible;
-                        contentPane.Activate();
+                        string paneName = this._LayoutManager.GetPaneName(moduleType);
+                        ContentPane contentPane = this.DockManager.GetPanes(PaneNavigationOrder.ActivationOrder).Where(p => p.Name == paneName).SingleOrDefault();
+
+                        if (contentPane == null)
+                        {
+                            this._LayoutManager.AddContentPane(moduleType).Activate();
+                        }
+                        else
+                        {
+                            contentPane.Visibility = Visibility.Visible;
+                            contentPane.Activate();
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "OpenModule  treeViewItem_MouseDoubleClick.\r\n{0}", ex.ToString());
             }
         }
 
@@ -179,7 +186,7 @@ namespace ManagerConsole
             loginWindow.BringToFront();
         }
 
-        private void AddQuotePriceFrm()
+        private void AddQuotePriceFrm() 
         {
             this.QuotePriceWindow = new QuotePriceWindow();
             this.MainFrame.Children.Add(this.QuotePriceWindow);

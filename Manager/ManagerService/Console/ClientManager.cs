@@ -8,6 +8,7 @@ using System.Diagnostics;
 using Manager.Common;
 using ManagerService.DataAccess;
 using System.Xml;
+using System.ServiceModel.Description;
 
 namespace ManagerService.Console
 {
@@ -24,10 +25,25 @@ namespace ManagerService.Console
         public void Start(string serviceAddress)
         {
             this._ConsoleServiceHost = new ServiceHost(typeof(ClientService));
-            NetTcpBinding binding = new NetTcpBinding(SecurityMode.None) { ReceiveTimeout = TimeSpan.FromHours(10) };
+            NetTcpBinding binding = new NetTcpBinding(SecurityMode.None) { ReceiveTimeout = TimeSpan.MaxValue };
             this._ConsoleServiceHost.AddServiceEndpoint("ManagerService.Console.IClientService", binding, serviceAddress);
+
+            foreach (OperationDescription operation in this._ConsoleServiceHost.Description.Endpoints[0].Contract.Operations)
+            {
+                operation.Behaviors.Find<DataContractSerializerOperationBehavior>().MaxItemsInObjectGraph = int.MaxValue;
+            }
+            ServiceHelper.AddWcfErrorLog(this._ConsoleServiceHost);
             this._ConsoleServiceHost.Open();
             this._ConnectionCheckTimer = new Timer(this.DisconnectedClientCheck);
+        }
+
+        public void Stop()
+        {
+            this._ConsoleServiceHost.Close();
+            foreach (Client client in this._Clients.Values)
+            {
+                client.Stop();
+            }
         }
 
         public Client AddClient(string sessionId, User user, IClientProxy clientProxy, Language language, List<DataPermission> dataPermissions)

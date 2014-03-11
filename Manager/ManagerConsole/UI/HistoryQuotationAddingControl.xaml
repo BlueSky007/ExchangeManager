@@ -4,31 +4,25 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
               xmlns:ig="http://schemas.infragistics.com/xaml"
-             mc:Ignorable="d" CloseButtonVisibility="Hidden" MinimizeButtonVisibility="Hidden" MaximizeButtonVisibility="Hidden" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             mc:Ignorable="d" CloseButtonVisibility="Hidden" MinimizeButtonVisibility="Hidden" MaximizeButtonVisibility="Hidden" IsModal="True"
+             d:DesignHeight="200" d:DesignWidth="300">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
-            <RowDefinition Height="30"/>
             <RowDefinition Height="30"/>
             <RowDefinition Height="20"/>
             <RowDefinition Height="40"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="60*"/>
+            <ColumnDefinition Width="40*"/>
             <ColumnDefinition Width="90*"/>
         </Grid.ColumnDefinitions>
-        <TextBlock Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="20" Width="90" Text="Exhcange System:"></TextBlock>
-        <TextBlock Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="20" Width="90" Text="Instrument"></TextBlock>
-        <TextBlock Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="20" Width="90" Text="Time Span:"></TextBlock>
-        <TextBlock Grid.Row="4" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="20" Width="90" Text="Origin:"></TextBlock>
-        <ComboBox x:Name="Exchange" VerticalAlignment="Center" Grid.Column="1" Grid.Row="0" SelectionChanged="Exchange_SelectionChanged"></ComboBox>
-        <ComboBox x:Name="Instument" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" SelectionChanged="Instument_SelectionChanged"></ComboBox>
-        <ig:XamMaskedInput x:Name="TimeSpan" Grid.Column="1" Grid.Row="2" Mask="yyyy-mm-dd hh:mm" VerticalAlignment="Center"></ig:XamMaskedInput>
-        <TextBlock x:Name="TimeMessage" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left" Text="Value must less than"></TextBlock>
-        <ig:XamMaskedInput x:Name="Origin" Grid.Column="1" Grid.Row="4" VerticalAlignment="Center"></ig:XamMaskedInput>
-        <Button Grid.ColumnSpan="2" Content="OK" HorizontalAlignment="Left" Margin="90,20,0,0" Grid.Row="5" VerticalAlignment="Top" Width="75" Click="OKButton_Click"/>
-        <Button Grid.ColumnSpan="2" Content="Cancel" HorizontalAlignment="Left" Margin="195,20,0,0" Grid.Row="5" VerticalAlignment="Top" Width="75" Click="CancelButton_Click"/>
+        <TextBlock Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="20" Width="70" Text="Time Span:"></TextBlock>
+        <TextBlock Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="20" Width="70" Text="Origin:"></TextBlock>
+        <ig:XamMaskedInput x:Name="TimeSpan" Grid.Column="1" Grid.Row="0" Mask="hh:mm:ss" VerticalAlignment="Center" Width="180"></ig:XamMaskedInput>
+        <TextBlock x:Name="TimeMessage" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Text="Value must less than"></TextBlock>
+        <ig:XamMaskedInput x:Name="Origin" Grid.Column="1" Grid.Row="2" VerticalAlignment="Center" Width="180"></ig:XamMaskedInput>
+        <Button Grid.ColumnSpan="2" Content="OK" HorizontalAlignment="Left" Margin="90,20,0,0" Grid.Row="3" VerticalAlignment="Top" Width="75" Click="OKButton_Click"/>
+        <Button Grid.ColumnSpan="2" Content="Cancel" HorizontalAlignment="Left" Margin="195,20,0,0" Grid.Row="3" VerticalAlignment="Top" Width="75" Click="CancelButton_Click"/>
     </Grid>
 </ig:XamDialogWindow>

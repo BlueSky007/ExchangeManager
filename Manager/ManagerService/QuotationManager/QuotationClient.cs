@@ -74,6 +74,23 @@ namespace ManagerService.Quotation
             receiveDataThread.Start();
         }
 
+        public void Stop()
+        {
+            try
+            {
+                this._QuotationRelayEngine.Stop();
+                this._TcpClient.Close();
+            }
+            finally
+            {
+                if (!string.IsNullOrEmpty(this._SourceName))
+                {
+                    QuotationClient._Sources.Remove(this._SourceName);
+                    this._QuotationManager.NofitySourceConnectionStatus(this._SourceName, ConnectionState.Disconnected);
+                }
+            }
+        }
+
         private void Process(byte[] buffer)
         {
             string packet = ASCIIEncoding.ASCII.GetString(buffer);
@@ -153,23 +170,6 @@ namespace ManagerService.Quotation
                 this._TcpClient.GetStream().WriteByte(0);
                 Logger.AddEvent(TraceEventType.Information, "QuotationReceiver.ProcessAuthentication Connection from {0} is closed for authentication failed", this._SourceName);
                 this.Stop();
-            }
-        }
-
-        private void Stop()
-        {
-            try
-            {
-                this._QuotationRelayEngine.Stop();
-                this._TcpClient.Close();
-            }
-            finally
-            {
-                if (!string.IsNullOrEmpty(this._SourceName))
-                {
-                    QuotationClient._Sources.Remove(this._SourceName);
-                    this._QuotationManager.NofitySourceConnectionStatus(this._SourceName, ConnectionState.Disconnected);
-                }
             }
         }
 

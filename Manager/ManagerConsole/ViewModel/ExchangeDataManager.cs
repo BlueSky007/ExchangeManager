@@ -304,7 +304,8 @@ namespace ManagerConsole.ViewModel
         
         public void ProcessQuoteMessage(QuoteMessage quoteMessage)
         {
-            int waiteTime = 50; // this.SettingsManager.GetSettingsParameter(quoteMessage.ExchangeCode).ParameterSetting.EnquiryWaitTime;
+            int waiteTime = this._SettingsParameterManager.DealingOrderParameter.EnquiryWaitTime;
+
             string exhcangeCode = quoteMessage.ExchangeCode;
             Guid customerId = quoteMessage.CustomerID;
 
@@ -644,14 +645,7 @@ namespace ManagerConsole.ViewModel
         {
             string soundPath = this._SettingsParameterManager.GetSoundPath(soundkey);
 
-            if (!string.IsNullOrEmpty(soundPath))
-            {
-                MediaManager.PlayMedia(this._SoundMedia, soundPath);
-            }
-            else
-            {
-                MediaManager.PlayMedia(this._SoundMedia, soundPath);
-            }
+            MediaManager.PlayMedia(this._SoundMedia, soundPath);
         }
         #endregion
 

@@ -23,7 +23,6 @@ namespace ManagerService
 #if(DEBUG)
         public void Start()
         {
-            //return;
             this.OnStart(null);
         }
 #endif

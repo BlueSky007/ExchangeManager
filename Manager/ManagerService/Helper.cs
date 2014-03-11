@@ -60,5 +60,13 @@ namespace ManagerService
             return string.Format("{0}:{1}", endpoint.Address, endpoint.Port);
         }
 
+        public static void AddWcfErrorLog(ServiceHost serviceHost)
+        {
+            int logWcfError;
+            if (int.TryParse(System.Configuration.ConfigurationManager.AppSettings["LogWcfError"], out logWcfError))
+            {
+                if (logWcfError == 1) serviceHost.Description.Behaviors.Add(new ErrorHandlerBehavior());
+            }
+        }
     }
 }

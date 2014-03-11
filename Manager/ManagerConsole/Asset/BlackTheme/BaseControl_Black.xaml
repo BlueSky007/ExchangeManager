@@ -86,7 +86,7 @@
     <Color x:Key="Color_2001">#FF373723</Color>
     <Color x:Key="Color_2002">#FF233923</Color>
     <Color x:Key="Color_2003">#FF28353D</Color>
-    
+
     <SolidColorBrush x:Key="DynamicBackGround" Color="Black"/>
     <SolidColorBrush x:Key="AutoFillBackgroudBrush" Color="{StaticResource Color_2001}"/>
     <SolidColorBrush x:Key="AllowLimitBackgroudBrush" Color="{StaticResource Color_2002}"/>
@@ -772,8 +772,8 @@
         <Setter Property="FontFamily" Value="Segoe UI" />
         <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}" />
         <Setter Property="BorderBrush" Value="{StaticResource ComboBoxToggleButtonBorderBrush}" />
-        <Setter Property="MinWidth" Value="20" />
-        <Setter Property="MinHeight" Value="20" />
+        <Setter Property="MinWidth" Value="10" />
+        <Setter Property="MinHeight" Value="10" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Padding" Value="2" />
         <Setter Property="Cursor" Value="Hand" />
@@ -828,7 +828,7 @@
                         </VisualStateManager.VisualStateGroups>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition />
-                            <ColumnDefinition Width="30" />
+                            <ColumnDefinition Width="20" />
                         </Grid.ColumnDefinitions>
                         <Rectangle x:Name="Bd" Fill="{StaticResource TransparentBrush}" Grid.ColumnSpan="2" />
                         <Grid Grid.Column="1">
@@ -960,7 +960,7 @@
 
     <!-- *********************************  ComboBox Style  ********************************* -->
     <Style x:Key="ComboBoxStyle" TargetType="{x:Type ComboBox}">
-        <Setter Property="Padding" Value="6,0,6,0" />
+        <Setter Property="Padding" Value="3,0,3,0" />
         <Setter Property="Margin" Value="0" />
         <Setter Property="FontSize" Value="12" />
         <Setter Property="FontFamily" Value="Segoe UI" />
@@ -2674,5 +2674,17 @@
         <Setter Property="Background" Value="#FF1B1B1B"/>
         <Setter Property="Foreground" Value="White"/>
     </Style>
-    
+    <Style TargetType="local:ExchangeQuotationControl">
+        <Setter Property="Background" Value="#FF1B1B1B"/>
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+    <Style TargetType="local:SettingSchedulerControl">
+        <Setter Property="Background" Value="#FF1B1B1B"/>
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+    <Style TargetType="local:AccountStatusQuery">
+        <Setter Property="Background" Value="#FF1B1B1B"/>
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+
 </ResourceDictionary>

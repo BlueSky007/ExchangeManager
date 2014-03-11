@@ -38,6 +38,12 @@ namespace ManagerService.Quotation
             this._QuotationReceiver.Start(this);
         }
 
+        public void Stop()
+        {
+            this._QuotationReceiver.Stop();
+            this._SourceController.Stop();
+        }
+
         public ConfigMetadata ConfigMetadata { get { return this._ConfigMetadata; } }
 
         public Dictionary<string, ConnectionState> SourceConnectionStates { get { return this._SourceConnectionStates; } }
@@ -104,8 +110,8 @@ namespace ManagerService.Quotation
             foreach (GeneralQuotation gq in quotations)
             {
                 Instrument instrument = this._ConfigMetadata.Instruments[gq.InstrumentId];
-                gq.Ask += Helper.GetAdjustValue(instrument.AdjustPoints, instrument.DecimalPlace);
-                gq.Bid += Helper.GetAdjustValue(instrument.AdjustPoints, instrument.DecimalPlace);
+                gq.Ask += CommonHelper.GetAdjustValue(instrument.AdjustPoints, instrument.DecimalPlace);
+                gq.Bid += CommonHelper.GetAdjustValue(instrument.AdjustPoints, instrument.DecimalPlace);
             }
             this._LastQuotationManager.LastAccepted.Accept(quotations);
 

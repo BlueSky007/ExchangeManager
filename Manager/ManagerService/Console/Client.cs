@@ -67,6 +67,10 @@ namespace ManagerService.Console
         public DateTime ChannelBrokenTime { get { return this._ChannelBrokenTime; } }
         public ConnectionState ConnectionState { get { return this._ConnectionState; } }
 
+        public void Stop()
+        {
+            this._MessageRelayEngine.Stop();
+        }
         public void Replace(string sessionId, IClientProxy clientProxy)
         {
             this._SessionId = sessionId;
@@ -859,6 +863,68 @@ namespace ManagerService.Console
             }
             return openInterestSummarys;
         }
+
+        internal List<BlotterSelection> GetBlotterList(string exchangeCode)
+        {
+            try
+            {
+                return ExchangeData.GetBlotterList(exchangeCode);
+            }
+            catch (Exception ex)
+            {
+                Logger.AddEvent(TraceEventType.Error, "Client.GetBlotterList error:\r\n{0}", ex.ToString());
+            }
+            return null;
+        }
+
+        internal AccountStatusQueryResult GetAccountReportData(string exchangeCode, string selectedPrice, Guid accountId)
+        {
+            AccountStatusQueryResult accountStatusData = null;
+            try
+            {
+                HashSet<Guid> instrumentIds = this._OwnInstruments[exchangeCode];
+                ExchangeSystem exchangeSystem = MainService.ExchangeManager.GetExchangeSystem(exchangeCode);
+
+                string accountXml = exchangeSystem.GetStateServerAccount(new Guid[] { accountId });
+                if(!string.IsNullOrEmpty(accountXml))
+                {
+                    accountXml = this.GetAccountInfo(accountXml, accountId);
+                }
+
+                accountStatusData = ExchangeData.GetAccountReportData(exchangeCode, accountId, selectedPrice, accountXml, instrumentIds);
+            }
+            catch (Exception ex)
+            {
+                Logger.AddEvent(TraceEventType.Error, "Client.GetOpenInterestOrderSummary error:\r\n{0}", ex.ToString());
+            }
+            return accountStatusData;
+        }
+
+        private string GetAccountInfo(string accountXml, Guid accountId)
+        {
+            if (accountXml.Trim() == "" || accountXml == string.Empty)
+            {
+                XmlDocument doc = new XmlDocument();
+                XmlElement root = doc.CreateElement("Accounts");
+
+                XmlElement accountNode = doc.CreateElement("Account");
+                accountNode.SetAttribute("ID", XmlConvert.ToString(accountId));
+
+                accountNode.SetAttribute("Balance", "0.0");
+                accountNode.SetAttribute("Necessary", "0.0");
+                accountNode.SetAttribute("InterestPLNotValued", "0.0");
+                accountNode.SetAttribute("StoragePLNotValued", "0.0");
+                accountNode.SetAttribute("TradePLNotValued", "0.0");
+                accountNode.SetAttribute("InterestPLFloat", "0.0");
+                accountNode.SetAttribute("StoragePLFloat", "0.0");
+                accountNode.SetAttribute("TradePLFloat", "0.0");
+
+                root.AppendChild(accountNode);
+
+                accountXml = root.OuterXml;
+            }
+            return accountXml;
+        }
         #endregion
 
         #region Log Audit
@@ -1011,6 +1077,25 @@ namespace ManagerService.Console
             info = MainService.ExchangeManager.UpdateHighLow(exchangeCode, instrumentId, isOriginHiLo, newInput, isUpdateHigh);
             info.ExchangeCode = exchangeCode;
             return info;
+        }
+
+        public bool FixOverridedQuotationHistory(Dictionary<string, string> quotations, bool needApplyAutoAdjustPoints)
+        {
+            bool isSuccess = true;
+            foreach (string exchangeCode in quotations.Keys)
+            {
+                if (!MainService.ExchangeManager.FixOverridedQuotationHistory(exchangeCode, quotations[exchangeCode], needApplyAutoAdjustPoints))
+                {
+                    isSuccess = false;
+                }
+            }
+            return isSuccess;
+        }
+
+        public bool RestoreHighLow(string exchangeCode, int batchProcessId)
+        {
+            string errorMessage;
+            return MainService.ExchangeManager.RestoreHighLow(exchangeCode, batchProcessId, out errorMessage);
         }
 
         public bool AddNewRelation(Guid id, string code, List<int> instruments)

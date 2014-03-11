@@ -139,7 +139,7 @@ namespace ManagerConsole.ViewModel
         internal void Initailize(CommonDealingOrderParameter commonTradingParameter)
         {
             this.InactiveWaitTime = commonTradingParameter.InactiveWaitTime;
-            this.EnquiryWaitTime = commonTradingParameter.EnquiryWaitTime;
+            this.EnquiryWaitTime = commonTradingParameter.EnquiryWaitTime < 10 ? 10 : commonTradingParameter.EnquiryWaitTime;
             this.PriceOrderSetting = commonTradingParameter.PriceOrderSetting;
             this.DisablePopup = commonTradingParameter.DisablePopup;
             this.AutoConfirm = commonTradingParameter.AutoConfirm;

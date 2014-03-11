@@ -35,6 +35,7 @@ namespace ManagerConsole
             this._MultipleOpenModuleMaxSuffixes.Add(ModuleType.QuotationMonitor, 0);
             this._MultipleOpenModuleMaxSuffixes.Add(ModuleType.ExchangeQuotation, 0);
             this._MultipleOpenModuleMaxSuffixes.Add(ModuleType.DQOrderProcess, 0);
+            this._ThemeManager = new ThemeManager(false);
         }
 
         public ThemeManager ThemeManager { get { return this._ThemeManager; } }
@@ -58,7 +59,7 @@ namespace ManagerConsole
                 contentStringBuilder.Append("<Content>");
 
                 // Save theme
-                contentStringBuilder.AppendFormat("<Theme IsWhite=\"{0}\"/>", this.ThemeManager.IsWhite);
+                contentStringBuilder.AppendFormat("<Theme IsWhite=\"{0}\"/>", this._ThemeManager.IsWhite);
 
                 var contentPanes = this._MainWindow.DockManager.GetPanes(PaneNavigationOrder.VisibleOrder);
                 foreach (ContentPane item in contentPanes)
@@ -97,16 +98,18 @@ namespace ManagerConsole
         public void LoadLayout(string dockLayout, string contentLayout)
         {
             XDocument contentXDocument = XDocument.Parse(contentLayout);
-            if (this._ThemeManager == null)
+            try
             {
-                bool isWhite = false;
-                try
+                bool isWhite;
+                if (bool.TryParse(contentXDocument.Element("Content").Element("Theme").Attribute("IsWhite").Value, out isWhite))
                 {
-                    isWhite = bool.Parse(contentXDocument.Element("Content").Element("Theme").Attribute("IsWhite").Value);
+                    if (this._ThemeManager.IsWhite != isWhite)
+                    {
+                        this._ThemeManager.SwitchTheme();
+                    }
                 }
-                catch { }
-                this._ThemeManager = new ThemeManager(isWhite);
             }
+            catch { }
 
             XDocument xdocument = XDocument.Parse(dockLayout);
             var layoutPanes = xdocument.Element("xamDockManager").Element("contentPanes").Elements("contentPane");
@@ -258,6 +261,8 @@ namespace ManagerConsole
                     return new ExecutedOrders();
                 case ModuleType.OpenInterest:
                     return new OpenInterestControl();
+                case ModuleType.AccountStatus:
+                    return new AccountStatusQuery();
                 default:
                     break;
             }

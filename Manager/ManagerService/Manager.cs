@@ -56,7 +56,19 @@ namespace ManagerService
 
         public void Stop()
         {
-            Logger.TraceEvent(TraceEventType.Information, "Manager Service stopped.");
+            try
+            {
+                MainService.QuotationManager.Stop();
+                MainService.ExchangeManager.Stop();
+                MainService.ClientManager.Stop();
+                MainService.SettingsTaskSchedulerManager.Stop();
+                Logger.TraceEvent(TraceEventType.Information, "Manager Service stopped.");
+            }
+            catch (Exception exception)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "MainService.Stop exception\r\n{0}", exception);
+            }
+  
         }
     }
 }

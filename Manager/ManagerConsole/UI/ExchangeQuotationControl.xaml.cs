@@ -157,7 +157,7 @@ namespace ManagerConsole.UI
                     layoutBuilder.Append("</Fitler>");
                 }
             }
-            layoutBuilder.AppendFormat("<Spliter Width=\"{0}\"/>", this.MainGrid.ColumnDefinitions[0].ActualWidth);
+            layoutBuilder.AppendFormat("<Spliter Width=\"{0}\"/>", this.SplitGrid.ColumnDefinitions[0].ActualWidth);
             layoutBuilder.Append(ColumnWidthPersistence.GetPersistentColumnsWidthString(this.QuotationGrid));
             layoutBuilder.Append("</ExchangeQuotationFilter>");
             //string layout = "";
@@ -188,7 +188,7 @@ namespace ManagerConsole.UI
                     XElement spliterElement = layout.Element("ExchangeQuotationFilter").Element("Spliter");
                     if (spliterElement != null)
                     {
-                        this.MainGrid.ColumnDefinitions[0].Width = new GridLength(double.Parse(spliterElement.Attribute("Width").Value));
+                        this.SplitGrid.ColumnDefinitions[0].Width = new GridLength(double.Parse(spliterElement.Attribute("Width").Value));
                     }
                     XElement columnWidthElement = layout.Element("ExchangeQuotationFilter");
                     if (columnWidthElement !=null)

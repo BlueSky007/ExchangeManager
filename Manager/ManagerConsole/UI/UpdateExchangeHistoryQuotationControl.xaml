@@ -5,8 +5,8 @@
              xmlns:ig="http://schemas.infragistics.com/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="800" CloseButtonVisibility="Hidden">
-    <Grid x:Name="HistoryFrame">
+             d:DesignHeight="600" d:DesignWidth="800" Height="600" Width="800" IsResizable="False" CloseButtonVisibility="Hidden" x:Name="HistoryFrame">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
             <RowDefinition Height="350*"/>
@@ -25,28 +25,97 @@
             <Button Content="Add" Height="20" VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Click="AddButton_Click"/>
         </StackPanel>
         <ig:XamGrid Grid.Row="1" x:Name="HistotyQuotation" RowHeight="20" CellEnteredEditMode="HistotyQuotation_CellEnteredEditMode" CellExitedEditMode="HistotyQuotation_CellExitedEditMode">
+            <ig:XamGrid.Resources>
+                <Style TargetType="ig:CellControl">
+                    <Setter Property="FontSize" Value="11"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                    <Setter Property="Foreground" Value="{DynamicResource CellItemForegroundBrush}"/>
+                    <Setter Property="Background" Value="{DynamicResource CellItemBackgroundBrush}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource CellItemBorderBrush}"/>
+                    <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                    <Setter Property="Padding" Value="1"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ig:CellControl">
+                                <Grid>
+                                    <VisualStateManager.VisualStateGroups>
+                                        <VisualStateGroup x:Name="CommonStates">
+                                            <VisualState x:Name="Normal"/>
+                                            <VisualState x:Name="MouseOver"/>
+                                            <VisualState x:Name="Alternate"/>
+                                        </VisualStateGroup>
+                                        <VisualStateGroup x:Name="SelectedStates">
+                                            <VisualState x:Name="NotSelected"/>
+                                            <VisualState x:Name="Selected">
+                                                <Storyboard>
+                                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="rowSelected" Storyboard.TargetProperty="Visibility">
+                                                        <DiscreteObjectKeyFrame KeyTime="00:00:00">
+                                                            <DiscreteObjectKeyFrame.Value>
+                                                                <Visibility>Visible
+                                                                </Visibility>
+                                                            </DiscreteObjectKeyFrame.Value>
+                                                        </DiscreteObjectKeyFrame>
+                                                    </ObjectAnimationUsingKeyFrames>
+                                                </Storyboard>
+                                            </VisualState>
+                                        </VisualStateGroup>
+                                        <VisualStateGroup x:Name="ActiveStates">
+                                            <VisualState x:Name="InActive"/>
+                                            <VisualState x:Name="Active">
+                                                <Storyboard>
+                                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ActiveSelected" Storyboard.TargetProperty="Visibility">
+                                                        <DiscreteObjectKeyFrame KeyTime="00:00:00">
+                                                            <DiscreteObjectKeyFrame.Value>
+                                                                <Visibility>Visible
+                                                                </Visibility>
+                                                            </DiscreteObjectKeyFrame.Value>
+                                                        </DiscreteObjectKeyFrame>
+                                                    </ObjectAnimationUsingKeyFrames>
+                                                </Storyboard>
+                                            </VisualState>
+                                        </VisualStateGroup>
+                                    </VisualStateManager.VisualStateGroups>
+                                    <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" x:Name="Root"/>
+                                    <Border x:Name="rowSelected" Background="{DynamicResource CellItemSelectedBackgroundBrush}" Visibility="Collapsed" Margin="{TemplateBinding BorderThickness}"/>
+                                    <Border x:Name="ActiveSelected" Background="{DynamicResource CellItemActiveBackgroundBrush}" BorderBrush="{DynamicResource CellItemActiveBorderBrush}" BorderThickness="2" Visibility="Collapsed"/>
+                                    <ContentPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}"/>
+                                </Grid>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Cell.Row.Data.Status}" Value="Modified">
+                            <Setter Property="Background" Value="{DynamicResource EnablePriceBackgroudBrush}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Cell.Row.Data.Status}" Value="Inserted">
+                            <Setter Property="Background" Value="{DynamicResource AutoFillBackgroudBrush}"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ig:XamGrid.Resources>
             <ig:XamGrid.EditingSettings>
                 <ig:EditingSettings AllowEditing="Cell" IsMouseActionEditingEnabled="DoubleClick" IsEnterKeyEditingEnabled="True" IsF2EditingEnabled="False" ></ig:EditingSettings>
             </ig:XamGrid.EditingSettings>
             <ig:XamGrid.Columns>
-                <ig:TemplateColumn Key="InstrumentId" HeaderText="Action">
-                    <ig:TemplateColumn.ItemTemplate>
-                        <DataTemplate>
-                            <Button Tag="{Binding InstrumentId}"  Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"  Click="DeleteButton_Click">
-                                <Button.Content>
-                                    <Image Source="../Asset/Images/delete.png" Width="14" Height="14" ToolTipService.ToolTip="Delete"/>
-                                </Button.Content>
-                            </Button>
-                        </DataTemplate>
-                    </ig:TemplateColumn.ItemTemplate>
-                </ig:TemplateColumn>
+                <ig:TextColumn Key="ExchangeCode" HeaderText="ExchangeCode" IsReadOnly="True"/>
                 <ig:TextColumn Key="InstrumentCode" HeaderText="Code" IsReadOnly="True"></ig:TextColumn>
                 <ig:TextColumn Key="Time" HeaderText="Time" IsReadOnly="True"></ig:TextColumn>
                 <ig:TextColumn Key="Origin" HeaderText="Origin"></ig:TextColumn>
+                <ig:TextColumn Key="InstrumentId" Visibility="Hidden"></ig:TextColumn>
+                <ig:TextColumn Key="Status" Visibility="Hidden"></ig:TextColumn>
             </ig:XamGrid.Columns>
         </ig:XamGrid>
-        <StackPanel Grid.Row="2" Orientation="Horizontal">
-            
+        <StackPanel Grid.Row="2" Orientation="Vertical" Margin="0,5,0,0">
+            <StackPanel Orientation="Horizontal">
+            <TextBlock Text="Restore Before:" Height="25" Width="90" TextAlignment="Center" VerticalAlignment="Center" />
+                <ComboBox x:Name="RestoreProcess" Height="25" Width="500" DisplayMemberPath="ProcessMessage" SelectionChanged="RestoreProcess_SelectionChanged"></ComboBox>
+                <Button Content="Restore" Click="ResoreButton_Click" Height="25" Width="60" Margin="10,0,0,0"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                <Button Content="Confirm" Click="Confirm_Click" HorizontalAlignment="Center" Height="25" Width="90"/>
+                <Button Content="Cancel" Click="Cancel_Click" Margin="10,0,0,0" Height="25" HorizontalAlignment="Center" Width="90"/>
+            </StackPanel>
         </StackPanel>
     </Grid>
 </ig:XamDialogWindow>

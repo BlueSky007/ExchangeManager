@@ -9,7 +9,7 @@
              xmlns:igWPF="http://infragistics.com/DockManager" xmlns:ig="http://schemas.infragistics.com/xaml" xmlns:ManagerConsole="clr-namespace:ManagerConsole" x:Class="ManagerConsole.UI.ExchangeQuotationControl" 
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="800">
-    <Grid>
+    <Grid x:Name="MainGrid">
         <Grid.Resources>
             <Style x:Key="TrendHighLight" TargetType="Border">
                 <Setter Property="Width" Value="{Binding ActualWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=Grid}}"/>
@@ -48,7 +48,7 @@
                 <igWPF:SplitPane igWPF:XamDockManager.InitialLocation="DockedLeft">
                     <igWPF:TabGroupPane>
                         <igWPF:ContentPane Header="ExhcangeQuotation" AllowClose="False" >-->
-        <Grid x:Name="MainGrid">
+        <Grid x:Name="SplitGrid">
             <Grid.RowDefinitions>
                 <RowDefinition Height="25"/>
                 <RowDefinition Height="*"/>

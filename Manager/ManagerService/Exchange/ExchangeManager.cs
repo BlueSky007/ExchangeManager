@@ -7,6 +7,7 @@ using System.ServiceModel.Description;
 using System.Text;
 using Manager.Common;
 using Manager.Common.QuotationEntities;
+using System.Xml;
 
 namespace ManagerService.Exchange
 {
@@ -34,8 +35,18 @@ namespace ManagerService.Exchange
             this._ServiceHost = new ServiceHost(typeof(ExchangeService));
             NetTcpBinding binding = new NetTcpBinding(SecurityMode.None) { ReceiveTimeout = TimeSpan.FromHours(10) };
             this._ServiceHost.AddServiceEndpoint("ManagerService.Exchange.IExchangeService", binding, serviceAddress);
+            ServiceHelper.AddWcfErrorLog(this._ServiceHost);
             this._ServiceHost.Open();
             this.NotifyExchangeManagerStarted();
+        }
+
+        public void Stop()
+        {
+            this._ServiceHost.Close();
+            foreach (ExchangeSystem exchangeSystem in this._ExchangeSystems.Values)
+            {
+                exchangeSystem.Stop();
+            }
         }
 
         public void NotifyExchangeManagerStarted()
@@ -117,7 +128,16 @@ namespace ManagerService.Exchange
             instruments[0] = set.InstrumentId;
             iExchange.Common.Manager.ParameterUpdateTask task = new iExchange.Common.Manager.ParameterUpdateTask();
             task.Instruments = instruments;
-            task.ExchangeSettings.Add(new iExchange.Common.Manager.ExchangeSetting { Id = set.InstrumentId, ParameterKey = Enum.GetName(typeof(InstrumentQuotationEditType), set.type), ParameterValue = set.Value.ToString() });
+            string value = string.Empty;
+            if (set.type == InstrumentQuotationEditType.IsPriceEnabled || set.type == InstrumentQuotationEditType.IsOriginHiLo || set.type == InstrumentQuotationEditType.IsAutoFill || set.type == InstrumentQuotationEditType.IsAutoEnablePrice)
+            {
+                value = XmlConvert.ToString((bool)set.Value);
+            }
+            else
+            {
+                value = set.Value.ToString();
+            }
+            task.ExchangeSettings.Add(new iExchange.Common.Manager.ExchangeSetting { Id = set.InstrumentId, ParameterKey = Enum.GetName(typeof(InstrumentQuotationEditType), set.type), ParameterValue = value });
             return this._ExchangeSystems[set.ExchangeCode].UpdateInstrument(task);
         }
 
@@ -133,7 +153,7 @@ namespace ManagerService.Exchange
                     iExchange.Common.Manager.ExchangeSetting set = new iExchange.Common.Manager.ExchangeSetting();
                     set.Id = id;
                     set.ParameterKey = "IsPriceEnabled";
-                    set.ParameterValue = resume.ToString();
+                    set.ParameterValue = XmlConvert.ToString(resume);
                     task.ExchangeSettings.Add(set);
                 }
                 foreach (Guid id in instruments[system])
@@ -141,7 +161,7 @@ namespace ManagerService.Exchange
                     iExchange.Common.Manager.ExchangeSetting set = new iExchange.Common.Manager.ExchangeSetting();
                     set.Id = id;
                     set.ParameterKey = "IsAutoEnablePrice";
-                    set.ParameterValue = resume.ToString();
+                    set.ParameterValue = XmlConvert.ToString(resume);
                     task.ExchangeSettings.Add(set);
                 }
                 if (!this._ExchangeSystems[system].UpdateInstrument(task))
@@ -162,6 +182,20 @@ namespace ManagerService.Exchange
         public UpdateHighLowBatchProcessInfo UpdateHighLow(string exchangeCode, Guid instrumentId, bool isOriginHiLo, string newInput, bool isUpdateHigh)
         {
             return this._ExchangeSystems[exchangeCode].UpdateHighLow(instrumentId, isOriginHiLo, newInput, isUpdateHigh);
+        }
+
+        public bool FixOverridedQuotationHistory(string exchangeCode, string quotation, bool needApplyAutoAdjustPoints)
+        {
+            iExchange.Common.OriginQuotation[] originQs;
+            iExchange.Common.OverridedQuotation[] overridedQs;
+            bool needBroadcastQuotation;
+            XmlNode fixChartDatas;
+            return this._ExchangeSystems[exchangeCode].FixOverridedQuotationHistory(new iExchange.Common.Token(), quotation, needApplyAutoAdjustPoints, out originQs, out overridedQs, out needBroadcastQuotation, out fixChartDatas);
+        }
+
+        public bool RestoreHighLow(string exchangeCode, int batchProcessId,out string errorMessage)
+        {
+            return this._ExchangeSystems[exchangeCode].RestoreHighLow(batchProcessId, out errorMessage);
         }
     }
 }

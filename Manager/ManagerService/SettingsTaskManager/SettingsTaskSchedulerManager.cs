@@ -49,6 +49,11 @@ namespace ManagerService.SettingsTaskManager
             }
         }
 
+        public void Stop()
+        {
+            this.Scheduler.Reset();
+        }
+
         private void InitailizedTaskSchedulerData()
         {
             this.TaskSchedulers = SettingManagerData.InitailizedTaskSchedulers();

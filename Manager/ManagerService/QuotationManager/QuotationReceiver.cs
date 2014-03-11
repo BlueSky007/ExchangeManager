@@ -16,6 +16,8 @@ namespace ManagerService.Quotation
         private TcpListener _Listener;
         private Thread _ListeningThread;
         private QuotationManager _QuotationManager;
+        private List<QuotationClient> _QuotationClients = new List<QuotationClient>();
+        private bool _Running = true;
 
         public QuotationReceiver(int listenPort)
         {
@@ -40,13 +42,14 @@ namespace ManagerService.Quotation
                     return;
                 }
 
-                while (true)
+                while (this._Running)
                 {
                     try
                     {
                         TcpClient client = this._Listener.AcceptTcpClient();
                         QuotationClient quotationClient = new QuotationClient(client, this._QuotationManager);
                         quotationClient.Start();
+                        this._QuotationClients.Add(quotationClient);
                     }
                     catch (Exception exception)
                     {
@@ -66,13 +69,16 @@ namespace ManagerService.Quotation
         {
             try
             {
-                if (this._Listener != null)
+                this._Running = false;
+                foreach (QuotationClient client in this._QuotationClients)
                 {
-                    this._Listener.Stop();
+                    client.Stop();
                 }
+                this._Listener.Stop();
             }
-            catch
+            catch(Exception exception)
             {
+                Logger.AddEvent(TraceEventType.Information, "Quotation receiver stop error:\r\n{0}", exception);
             }
             finally
             {

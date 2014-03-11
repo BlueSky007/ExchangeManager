@@ -51,6 +51,7 @@ namespace ManagerService.Exchange
                 List<ExchangeUpdateData> exchangeUpdateDatas = new List<ExchangeUpdateData>();
                 exchangeUpdateDatas = CommandConvertor.ToExchangeUpdateDatas(modifyElement);
                 updateMessage.ExchangeUpdateDatas = exchangeUpdateDatas.ToArray();
+                
             }
             return updateMessage;
         }
@@ -167,7 +168,7 @@ namespace ManagerService.Exchange
 
         private static Message Convert(string exchangeCode, CancelCommand cancelCommand)
         {
-            CancelMessage cancelMessage = new CancelMessage(cancelCommand.TransactionID,
+            CancelMessage cancelMessage = new CancelMessage(exchangeCode,cancelCommand.TransactionID,
                 (TransactionError)cancelCommand.ErrorCode, (iExchange.Common.CancelReason)cancelCommand.CancelReason);
             return cancelMessage;
         }

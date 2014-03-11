@@ -1,6 +1,8 @@
 ﻿using iExchange.Common;
 using iExchange.Common.Manager;
 using Manager.Common;
+using Manager.Common.ExchangeEntities;
+using Manager.Common.ReportEntities;
 using Manager.Common.Settings;
 using System;
 using System.Collections.Generic;
@@ -311,6 +313,118 @@ namespace ManagerService.DataAccess
             overridedQuotations.High = dr["High"].ToString();
             overridedQuotations.Low = dr["Low"].ToString();
             overridedQuotations.Origin = dr["Origin"].ToString();
+        }
+    }
+
+    public class AccountReportDataHelper
+    {
+        public static void ConvertReportEntity(AccountStatusEntity entity, SqlDataReader dr)
+        {
+            entity.OrganizationCode = (string)dr["OrganizationCode"];
+            entity.AccountCode = (string)dr["AccountCode"];
+            entity.AccountName = (string)dr["AaccountName"];
+            entity.CurrencyCode = (string)dr["CurrencyCode"];
+            entity.IsMultiCurrency = (bool)dr["IsMultiCurrency"];
+            entity.Credit = (decimal)dr["Credit"];
+            entity.CrLot = (decimal)dr["CrLot"];
+            entity.StartDate = (DateTime)dr["StartDate"];
+            entity.SaleCode = (string)dr["SaleCode"];
+            entity.AccountGroupCode = (string)dr["AccountGroupCode"];
+            entity.SMAmount = (decimal)dr["SMAmount"];
+            entity.AccountDescription = (string)dr["AccountDescription"];
+        }
+
+        public static void ConvertReportEntity(AccountHedgingLevel entity, SqlDataReader dr)
+        {
+            if (dr.FieldCount == 1)
+            {
+                entity.HedgingLevelString = (string)dr["HedgingLevel"];
+                return;
+            }
+            entity.InstrumentID = (Guid)dr["InstrumentID"];
+            entity.InstrumentCode = (string)dr["InstrumentCode"];
+            entity.PLTrade = (decimal)dr["PLTrade"];
+            entity.NetLot = (decimal)dr["NetLot"];
+            entity.BuyLotBalance = (decimal)dr["BuyLotBalance"];
+            entity.SellLotBalance = (decimal)dr["SellLotBalance"];
+            entity.AverageBuyPrice = (decimal)dr["AverageBuyPrice"];
+            entity.AverageSellPrice = (decimal)dr["AverageSellPrice"];
+            entity.CallPriceString = (string)dr["CallPriceString"];
+            entity.CutPriceString = (string)dr["CutPriceString"];
+            entity.RateIn = (decimal)(double)dr["RateIn"];
+            entity.RateOut = (decimal)(double)dr["RateOut"];
+        }
+
+        public static void ConvertReportEntity(TradingSummary accountTradingSummary,List<AccountCurrency> accountCurrencies, SqlDataReader dr)
+        {
+            Currency currency = new Currency();
+            currency.Id = (Guid)dr["CurrencyID"];
+            currency.Code = (string)dr["CurrencyCode"];
+
+            if (accountTradingSummary != null)
+            {
+                accountTradingSummary.Floating = (decimal)dr["AccFloating"];
+                accountTradingSummary.Balance = (decimal)dr["AccBalance"];
+                accountTradingSummary.NotValue = (decimal)dr["AccNotValue"];
+                accountTradingSummary.Equity = (decimal)dr["AccEquity"];
+                accountTradingSummary.Necessary = (decimal)dr["AccNecessary"];
+                accountTradingSummary.Usable = (decimal)dr["AccUsable"];
+                accountTradingSummary.Ratio = (decimal)dr["AccRatio"];
+                if (dr["AccOverNightNecessary"] == DBNull.Value)
+                {
+                    accountTradingSummary.OverNightNecessary = decimal.Zero;
+                }
+                else
+                {
+                    accountTradingSummary.OverNightNecessary = (decimal)(double)dr["AccOverNightNecessary"];
+                }
+                accountTradingSummary.OverNightUsable = (decimal)(double)dr["AccOverNightUsable"];
+                // accountTradingSummary.Deposit = (decimal)dr["AccDeposit"];
+                accountTradingSummary.ValueAsMargin = (decimal)dr["AccValueAsMargin"];
+                accountTradingSummary.TotalPaidAmount = (decimal)dr["AccTotalPaidAmount"];
+                accountTradingSummary.PartialPaymentPhysicalNecessary = (decimal)dr["AccPartialPaymentPhysicalNecessary"];
+            }
+
+            TradingSummary currencyTradingSummary = new TradingSummary();
+            currencyTradingSummary.Floating = (decimal)dr["CurFloating"];
+            currencyTradingSummary.Balance = (decimal)dr["CurBalance"];
+            currencyTradingSummary.NotValue = (decimal)dr["CurNotValue"];
+            currencyTradingSummary.Equity = (decimal)dr["CurEquity"];
+            currencyTradingSummary.Necessary = (decimal)dr["CurNecessary"];
+            currencyTradingSummary.Usable = (decimal)dr["CurUsable"];
+            currencyTradingSummary.Ratio = (decimal)dr["CurRatio"];
+            currencyTradingSummary.OverNightNecessary = (decimal)dr["CurOverNightNecessary"];
+            currencyTradingSummary.OverNightUsable = (decimal)dr["CurOverNightUsable"];
+            currencyTradingSummary.Deposit = (decimal)dr["CurDeposit"];
+            currencyTradingSummary.Adjustment = dr.GetItemValue<decimal>("CurAdjustment", decimal.Zero);
+            currencyTradingSummary.ValueAsMargin = (decimal)dr["CurValueAsMargin"];
+            currencyTradingSummary.TotalPaidAmount = (decimal)dr["CurTotalPaidAmount"];
+
+            AccountCurrency accountCurrency = new AccountCurrency() { Currency = currency,CurrencyTradingSummary = currencyTradingSummary};
+            accountCurrencies.Add(accountCurrency);
+        }
+
+        public static void ConvertReportEntity(List<AccountStatusOrder> accountOpenPostions, SqlDataReader dr)
+        {
+            AccountStatusOrder entity = new AccountStatusOrder();
+            entity.TradeDay = (string)dr["TradeDay"];
+            entity.OrderCode = (string)dr["OrderCode"];
+            //entity.Phase = (decimal)dr["Phase"];
+            entity.InstrumentCode = (string)dr["Item"];
+            entity.IsBuyString = (string)dr["BS"];
+            entity.Lot = (string)dr["Lot"];
+            entity.Price = (decimal)(double)dr["Price"];
+            entity.MktPrice = (string)dr["MktPrice"];
+            entity.CommissionSum = (decimal)dr["CommissionSum"];
+            entity.LevySum = (decimal)dr["LevySum"];
+            entity.RateIn = (decimal)(double)dr["RateIn"];
+            entity.RateOut = (decimal)(double)dr["RateOut"];
+            entity.Interest = (decimal)dr["Interest"];
+            entity.Storage = (decimal)dr["Storage"];
+            entity.FloatTrade = (decimal)dr["FloatTrade"];
+            entity.Decimals = (short)dr["Decimals"];
+
+            accountOpenPostions.Add(entity);
         }
     }
 }

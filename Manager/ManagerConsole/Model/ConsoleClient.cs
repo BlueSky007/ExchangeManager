@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.ServiceModel;
+using System.ServiceModel.Description;
 using System.Xml;
 using System.Threading;
 using Manager.Common;
@@ -14,6 +15,7 @@ using Manager.Common.Settings;
 using TransactionError = iExchange.Common.TransactionError;
 using CancelReason = iExchange.Common.CancelReason;
 using SoundSetting = Manager.Common.Settings.SoundSetting;
+using BlotterSelection = Manager.Common.ReportEntities.BlotterSelection;
 using iExchange.Common;
 
 namespace ManagerConsole.Model
@@ -29,8 +31,12 @@ namespace ManagerConsole.Model
                 return ConsoleClient._Instance;
             }
         }
-        public User user;
+
+        private string _Server;
+        private int _Port;
         private IClientService _ServiceProxy;
+
+        private User _User;
         private MessageClient _MessageClient = null;
         private string _SessionId;
         private Timer _RecoverTimer;
@@ -43,6 +49,7 @@ namespace ManagerConsole.Model
         }
 
         public bool IsLoggedIn { get { return this._IsLoggedIn; } }
+        public User User { get { return this._User; } }
 
         public void Login(Action<LoginResult, string> endLogin, string server, int port, string userName, string password, Language language)
         {
@@ -51,28 +58,25 @@ namespace ManagerConsole.Model
                 this._MessageClient = new MessageClient();
             }
 
-            EndpointAddress address = new EndpointAddress(string.Format("net.tcp://{0}:{1}/Service", server, port));
-            NetTcpBinding binding = new NetTcpBinding(SecurityMode.None) { MaxReceivedMessageSize = Int32.MaxValue };
-            binding.OpenTimeout = TimeSpan.FromSeconds(20);
-            binding.SendTimeout = binding.ReceiveTimeout = TimeSpan.FromSeconds(20);
-            DuplexChannelFactory<IClientService> factory = new DuplexChannelFactory<IClientService>(this._MessageClient, binding, address);
-            this._ServiceProxy = factory.CreateChannel();
+            this._Server = server;
+            this._Port = port;
+            this.CreateChannel();
             this._ServiceProxy.BeginLogin(userName, password, language, delegate(IAsyncResult ar)
             {
                 try
                 {
                     LoginResult result = this._ServiceProxy.EndLogin(ar);
-                    this.user = result.User;
+                    this._User = result.User;
                     Principal.Instance.User = result.User;
                     if (result.Succeeded)
                     {
                         App.MainFrameWindow.StatusBar.ShowUserConnectionState(ConnectionState.Connected);
-                        App.MainFrameWindow.StatusBar.ShowLoginUser(this.user.UserName);
+                        App.MainFrameWindow.StatusBar.ShowLoginUser(this._User.UserName);
                         this._IsLoggedIn = true;
                         ICommunicationObject communicationObject = this._ServiceProxy as ICommunicationObject;
                         communicationObject.Faulted += communicationObject_Faulted;
                         this._SessionId = result.SessionId;
-                        if (this.user.IsAdmin)
+                        if (this._User.IsAdmin)
                         {
                             Principal.Instance.UserPermission = new UserPermission();
                         }
@@ -99,6 +103,23 @@ namespace ManagerConsole.Model
             }, null);
         }
 
+        private void CreateChannel()
+        {
+            EndpointAddress address = new EndpointAddress(string.Format("net.tcp://{0}:{1}/Service", this._Server, this._Port));
+            NetTcpBinding binding = new NetTcpBinding(SecurityMode.None) { MaxReceivedMessageSize = Int32.MaxValue };
+            binding.OpenTimeout = TimeSpan.FromSeconds(20);
+            binding.SendTimeout = TimeSpan.FromSeconds(60);
+            binding.MaxReceivedMessageSize = int.MaxValue;
+            DuplexChannelFactory<IClientService> factory = new DuplexChannelFactory<IClientService>(this._MessageClient, binding, address);
+
+            foreach (OperationDescription operation in factory.Endpoint.Contract.Operations)
+            {
+                operation.Behaviors.Find<DataContractSerializerOperationBehavior>().MaxItemsInObjectGraph = int.MaxValue;
+            }
+            this._ServiceProxy = factory.CreateChannel();
+            Logger.TraceEvent(TraceEventType.Information, "CreateChannel Created.");
+        }
+
         private void communicationObject_Faulted(object sender, EventArgs e)
         {
             if (this._IsLoggedIn)
@@ -123,10 +144,21 @@ namespace ManagerConsole.Model
         {
             try
             {
+                this.CreateChannel();
                 this._ServiceProxy.BeginRecoverConnection(this._SessionId, delegate(IAsyncResult result)
                 {
                     bool recovered = this._ServiceProxy.EndRecoverConnection(result);
                     this._IsLoggedIn = recovered;
+                    if (recovered)
+                    {
+                        ICommunicationObject communicationObject = this._ServiceProxy as ICommunicationObject;
+                        communicationObject.Faulted += communicationObject_Faulted;
+                        Logger.AddEvent(TraceEventType.Information, "ConsoleClient.RecoverConnection Success");
+                    }
+                    else
+                    {
+                        Logger.AddEvent(TraceEventType.Information, "ConsoleClient.RecoverConnection Failed");
+                    }
                     App.MainFrameWindow.StatusBar.ShowUserConnectionState(recovered ? ConnectionState.Connected : ConnectionState.Disconnected);
                 }, null);
             }
@@ -178,9 +210,17 @@ namespace ManagerConsole.Model
             {
                 this._ServiceProxy.BeginGetInitializeData(delegate(IAsyncResult result)
                 {
-                    InitializeData initializeData = this._ServiceProxy.EndGetInitializeData(result);
-                    processInitializeData(initializeData);
-                    this._MessageClient.StartMessageProcess();
+                    try
+                    {
+                        InitializeData initializeData = this._ServiceProxy.EndGetInitializeData(result);
+                        processInitializeData(initializeData);
+                        this._MessageClient.StartMessageProcess();
+                    }
+                    catch (Exception exception)
+                    {
+                        Logger.TraceEvent(TraceEventType.Error, "EndGetInitializeData exception\r\n{0}", exception);
+                    }
+  
                 }, null);
             }
             catch(Exception ex)
@@ -188,18 +228,6 @@ namespace ManagerConsole.Model
                 Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "GetInitializeData.\r\n{0}", ex.ToString());
             }
         }
-
-        //public bool HasPermission(ModuleCategoryType category, ModuleType module, string operationCode)
-        //{
-        //    if (this.user.IsAdmin)
-        //    {
-        //        return true;
-        //    }
-        //    else
-        //    {
-        //        return this._AccessPermissions.HasPermission(category, module, operationCode);
-        //    }
-        //}
 
         public FunctionTree GetFunctionTree()
         {
@@ -571,6 +599,24 @@ namespace ManagerConsole.Model
                 EndGetOpenInterestOrderSummary(accountSumamry,openInterestSummarys);
             }, null);
         }
+
+        public void GetBlotterList(string exchangeCode, Action<List<BlotterSelection>> EndGetBlotterList)
+        {
+            this._ServiceProxy.BeginGetBlotterList(exchangeCode, delegate(IAsyncResult result)
+            {
+                List<BlotterSelection> blotterSelectionList = this._ServiceProxy.EndGetBlotterList(result);
+                EndGetBlotterList(blotterSelectionList);
+            }, null);
+        }
+
+        public void GetAccountReportData(string exchangeCode,string selectedPrice,Guid accountId, Action<AccountStatusQueryResult> EndGetAccountReportData)
+        {
+            this._ServiceProxy.BeginGetAccountReportData(exchangeCode, selectedPrice, accountId, delegate(IAsyncResult result)
+            {
+                AccountStatusQueryResult queryResult = this._ServiceProxy.EndGetAccountReportData(result);
+                EndGetAccountReportData(queryResult);
+            }, null);
+        }
         #endregion
 
         #region Log Audit
@@ -789,6 +835,24 @@ namespace ManagerConsole.Model
             {
                 UpdateHighLowBatchProcessInfo batchInfo = this._ServiceProxy.EndUpdateHighLow(ar);
                 callback(batchInfo);
+            }, null);
+        }
+        // -----------Dictionary<string,string> key =ExchangeCode, Value quotation
+        public void FixOverridedQuotationHistory(Dictionary<string,string> quotations, bool needApplyAutoAdjustPoints, Action<bool> callBack)
+        {
+            this._ServiceProxy.BeginFixOverridedQuotationHistory(quotations, needApplyAutoAdjustPoints, delegate(IAsyncResult ar)
+            {
+                bool result = this._ServiceProxy.EndFixOverridedQuotationHistory(ar);
+                callBack(result);
+            }, null);
+        }
+
+        public void RestoreHighLow(string exchangeCode, int batchProcessId,Action<bool> callback)
+        {
+            this._ServiceProxy.BeginRestoreHighLow(exchangeCode, batchProcessId, delegate(IAsyncResult ar)
+            {
+                bool result = this._ServiceProxy.EndRestoreHighLow(ar);
+                callback(result);
             }, null);
         }
         #endregion

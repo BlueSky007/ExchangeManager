@@ -117,7 +117,7 @@ namespace ManagerConsole.UI
             this.Dispatcher.BeginInvoke((Action<List<UserData>>)delegate(List<UserData> userData)
             {
                 this._UserList = userData;
-                UserData currentUser = this._UserList.SingleOrDefault(P => P.UserId == ConsoleClient.Instance.user.UserId);
+                UserData currentUser = this._UserList.SingleOrDefault(P => P.UserId == ConsoleClient.Instance.User.UserId);
                 this._UserList.Remove(currentUser);
                 this.BindingUI();
 

@@ -59,16 +59,23 @@ namespace ManagerConsole
         {
             try
             {
-                //if (this._roles == null)
-                //{
-                ConsoleClient.Instance.GetRoles(delegate(List<RoleData> roles)
-                {
-                    foreach (RoleData roleData in roles) this._roles.Add(roleData);
-                });
+                
+                    ConsoleClient.Instance.GetRoles(delegate(List<RoleData> roles)
+                    {
+                        if (this._roles.Count == 0)
+                        {
+                            foreach (RoleData roleData in roles)
+                            {
+                                if (!this._roles.Contains(roleData))
+                                {
+                                    this._roles.Add(roleData);
+                                }
+                            }
+                        }
+                    });
 
-                ConsoleClient.Instance.GetUserData(this.InitUserTile);
-                this.DataContext = this;
-                //}
+                    ConsoleClient.Instance.GetUserData(this.InitUserTile);
+                    this.DataContext = this;
             }
             catch (Exception ex)
             {

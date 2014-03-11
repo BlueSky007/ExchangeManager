@@ -115,14 +115,15 @@ namespace ManagerConsole.UI
                             else
                             {
                                 PriceHelper.GetSendPrice(adjustPriceText, instrument.DecimalPlace, instrument.Ask, instrument.Bid, out sendAsk, out sendBid);
-                                sendAsk -= (decimal)(Manager.Common.Helper.GetAdjustValue(instrument.AdjustPoints + relation.AdjustPoints, instrument.DecimalPlace));
-                                sendBid -= (decimal)(Manager.Common.Helper.GetAdjustValue(instrument.AdjustPoints + relation.AdjustPoints, instrument.DecimalPlace));
+                                sendAsk -= (decimal)(Manager.Common.CommonHelper.GetAdjustValue(instrument.AdjustPoints + relation.AdjustPoints, instrument.DecimalPlace));
+                                sendBid -= (decimal)(Manager.Common.CommonHelper.GetAdjustValue(instrument.AdjustPoints + relation.AdjustPoints, instrument.DecimalPlace));
                                 ConsoleClient.Instance.SendQuotation(relation.Id, (double)sendAsk, (double)sendBid);
                             }
                         }
-                        catch
+                        catch(Exception exception)
                         {
                             priceTextBox.BorderBrush = Brushes.Red;
+                            Logger.AddEvent(System.Diagnostics.TraceEventType.Error, "AdjustPrice_KeyDown:\r\n{0}", exception);
                         }
                     }
                     else

@@ -268,6 +268,22 @@ namespace ManagerConsole.UI
             }
         }
 
+        private void _ExecutedOrderTab_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            e.Handled = true;
+
+            if (this._ExecutedOrderListItem.IsSelected)
+            {
+                this._SummaryToolbar.Visibility = System.Windows.Visibility.Collapsed;
+                this._ListToolbar.Visibility = System.Windows.Visibility.Visible;
+            }
+            if (this._OrderSummaryItem.IsSelected)
+            {
+                this._SummaryToolbar.Visibility = System.Windows.Visibility.Visible;
+                this._ListToolbar.Visibility = System.Windows.Visibility.Collapsed;
+            }
+        }
+
         #region 布局
         /// <summary>
         /// Layout format:
@@ -295,5 +311,7 @@ namespace ManagerConsole.UI
             }
         }
         #endregion
+
+        
     }
 }

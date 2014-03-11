@@ -1,5 +1,6 @@
 ﻿using Infragistics.Controls.Interactions;
 using Manager.Common.QuotationEntities;
+using ManagerConsole.Model;
 using ManagerConsole.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -25,52 +26,38 @@ namespace ManagerConsole.UI
         private HistoryQuotationData _HistoryQuotationData;
         private Action<HistoryQuotationData> _AddHistoryQuotation;
 
-        public HistoryQuotationAddingControl(Action<HistoryQuotationData> addHistoryQuotation)
+        public HistoryQuotationAddingControl(InstrumentQuotation instrumentQuotation,Action<HistoryQuotationData> addHistoryQuotation)
         {
             InitializeComponent();
-            foreach (InstrumentQuotation instrument in ExchangeQuotationViewModel.Instance.Exchanges)
-            {
-
-                if (!this.Exchange.Items.Contains(instrument.ExchangeCode))
-                {
-                    this.Exchange.Items.Add(instrument.ExchangeCode);
-                }
-            }
-            this.Exchange.SelectedIndex = -1;
             this._HistoryQuotationData = new HistoryQuotationData();
             this._AddHistoryQuotation = addHistoryQuotation;
+
+            this._HistoryQuotationData.InstrumentId = instrumentQuotation.InstruemtnId;
+            this._HistoryQuotationData.InstrumentCode = instrumentQuotation.InstrumentCode;
+            this._HistoryQuotationData.ExchangeCode = instrumentQuotation.ExchangeCode;
+            this._HistoryQuotationData.Time = instrumentQuotation.TimeSpan;
+            InstrumentClient instrument = App.MainFrameWindow.ExchangeDataManager.ExchangeSettingManagers[instrumentQuotation.ExchangeCode].Instruments[instrumentQuotation.InstruemtnId];
+            HistoryQuotationInfo info = new HistoryQuotationInfo();
+            info.NumeratorUnit = instrument.NumeratorUnit;
+            info.Denominator = instrument.Denominator;
+            this.Origin.Mask = info.GetMask();
+            this.TimeSpan.Value = instrumentQuotation.TimeSpan;
+            this.Origin.Value = instrumentQuotation.Origin;
+            this.TimeMessage.Text = string.Format("Value must less than {0}", instrumentQuotation.TimeSpan);
         }
 
         private void OKButton_Click(object sender, RoutedEventArgs e)
         {
+            if (DateTime.Parse(this.TimeSpan.Value.ToString()) > DateTime.Parse(this._HistoryQuotationData.Time)) return;
+            this._HistoryQuotationData.Time = this.TimeSpan.Value.ToString();
+            this._HistoryQuotationData.Origin = this.Origin.Value.ToString();
             this._AddHistoryQuotation(this._HistoryQuotationData);
+            this.Close();
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-
-        }
-
-        private void Exchange_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (this.Exchange.SelectedIndex != -1)
-            {
-                List<Guid> strs = new List<Guid>();
-                foreach (InstrumentQuotation instrument in ExchangeQuotationViewModel.Instance.Exchanges)
-                {
-
-                    if (!strs.Contains(instrument.InstruemtnId))
-                    {
-                        strs.Add(instrument.InstruemtnId);
-                        this.Instument.Items.Add(instrument);
-                    }
-                }
-            }
-        }
-
-        private void Instument_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
+            this.Close();
         }
     }
 }

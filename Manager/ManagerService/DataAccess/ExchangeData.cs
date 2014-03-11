@@ -1,5 +1,6 @@
 ﻿using iExchange.Common;
 using Manager.Common;
+using Manager.Common.ExchangeEntities;
 using Manager.Common.ReportEntities;
 using Manager.Common.Settings;
 using System;
@@ -128,13 +129,95 @@ namespace ManagerService.DataAccess
             return dataPermissions;
         }
 
-        //public static ConfigParameters GetSettingParameters(ExchangeSystemSetting exchangeSystemSetting)
-        //{
-        //    ConfigParameters settings = new ConfigParameters();
-        //    settings.AllowModifyOrderLot = exchangeSystemSetting.AllowModifyOrderLot;
-        //    settings.ConfirmRejectDQOrder = exchangeSystemSetting.ConfirmRejectDQOrder;
-        //    return settings;
-        //}
+        public static AccountStatusQueryResult GetAccountReportData(string exchangeCode, Guid accountId, string selectedPrice, string accountXml, HashSet<Guid> instrumentIds)
+        {
+            string instrumentXmlString = GetInstrumentPermisstionString(instrumentIds);
+            AccountStatusQueryResult queryResult = new AccountStatusQueryResult();
+            string sql = string.Format("exec dbo.P_ReportAccountStatusAllDataForManager @accountId='{0}',@xmlAccounts='{1}',@xmlInstruments='{2}',@queryType='{3}'", accountId, accountXml, instrumentXmlString, selectedPrice);
+            DataAccess.GetInstance(exchangeCode).ExecuteReader(sql, CommandType.Text, delegate(SqlDataReader reader)
+            {
+                while (reader.Read()) 
+                {
+                    decimal uncleared = Decimal.Zero;
+                    Decimal.TryParse(reader["Uncleared"].ToString(), out uncleared);
+                    queryResult.AccountStatusEntity.Uncleared = uncleared;
+                }
+                reader.NextResult();
+                while (reader.Read())
+                {
+                    AccountReportDataHelper.ConvertReportEntity(queryResult.AccountStatusEntity, reader);
+                }
+                reader.NextResult();
+                while (reader.Read())
+                {
+                    queryResult.AccountStatusEntity.TradeDay = (string)reader["TradeDay"];
+                }
+                reader.NextResult();
+                int i = 0;
+                while (reader.Read())
+                {
+                    if (i < 1)
+                    {
+                        AccountReportDataHelper.ConvertReportEntity(queryResult.AccountTradingSummary, queryResult.AccountCurrencies, reader);
+                    }
+                    else
+                    {
+                        AccountReportDataHelper.ConvertReportEntity(null, queryResult.AccountCurrencies, reader);
+                    }
+                    i++;
+                }
+                reader.NextResult();
+                while (reader.Read())
+                {
+                    if (reader["OverNightNecessary"] == DBNull.Value)
+                    {
+                        queryResult.AccountStatusEntity.OverNightNecessary = decimal.Zero;
+                    }
+                    else
+                    {
+                        queryResult.AccountStatusEntity.OverNightNecessary = (decimal)(double)reader["OverNightNecessary"];
+                    }
+                }
+                reader.NextResult();
+                while (reader.Read()) 
+                {
+                    AccountReportDataHelper.ConvertReportEntity(queryResult.AccountHedgingLevel, reader);
+                }
+                reader.NextResult();
+                while (reader.Read())
+                {
+                    queryResult.AccountStatusEntity.AccDeposit = (decimal)reader["AccDeposit"];
+                    queryResult.AccountTradingSummary.Deposit = queryResult.AccountStatusEntity.AccDeposit;
+                }
+                reader.NextResult();
+                while (reader.Read())
+                {
+                    queryResult.AccountStatusEntity.AccAdjustment = (decimal)reader["AccAdjustment"];
+                    queryResult.AccountTradingSummary.Adjustment = queryResult.AccountStatusEntity.AccAdjustment;
+                }
+                reader.NextResult();
+                //Order Data
+                List<AccountStatusOrder> accountOpenLists = new List<AccountStatusOrder>();
+                while (reader.Read())
+                {
+                    AccountReportDataHelper.ConvertReportEntity(accountOpenLists, reader);
+                }
+                queryResult.AccountOpenPostions = accountOpenLists;
+                reader.NextResult();
+                while (reader.Read())
+                {
+                    AccountReportDataHelper.ConvertReportEntity(accountOpenLists, reader);
+                }
+                reader.NextResult();
+                while (reader.Read())
+                {
+                    
+                }
+                reader.NextResult();
+            });
+            
+            return queryResult;
+        }
 
         public static ExchangeInitializeData GetInitData(string exchangeCode, Guid userId, List<DataPermission> permissions,
             bool accountDeafultStatus, bool instrumentDeafuleStatus, out List<Guid> validAccounts, out List<Guid> validInstruments)
@@ -355,6 +438,24 @@ namespace ManagerService.DataAccess
             return setPrice;
         }
 
+        public static List<BlotterSelection> GetBlotterList(string exchangeCode)
+        {
+            List<BlotterSelection> blotterSelections = new List<BlotterSelection>();
+
+            string sql = @"SELECT ID,Code FROM dbo.Blotter ORDER BY Code";
+            DataAccess.GetInstance(exchangeCode).ExecuteReader(sql, CommandType.Text, delegate(SqlDataReader reader)
+            {
+                while (reader.Read())
+                {
+                    BlotterSelection blotter = new BlotterSelection();
+                    blotter.Id = (Guid)reader["ID"];
+                    blotter.Code = (string)reader["Code"];
+                    blotterSelections.Add(blotter);
+                }
+            });
+            return blotterSelections;
+        }
+
         public static Tuple<string, Guid, string> GetAccountGroup(string exchangeCode, Guid accountId)
         {
             Tuple<string, Guid, string> group = null;
@@ -443,7 +544,7 @@ namespace ManagerService.DataAccess
             xml.Append("<Instruments>");
             foreach (Guid id in ids)
             {
-                xml.AppendFormat("<Instrument Id='{0}'/>", id);
+                xml.AppendFormat("<Instrument Id=\"{0}\"/>", id);
             }
             xml.Append("</Instruments>");
             return xml.ToString();

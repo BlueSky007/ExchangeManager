@@ -52,7 +52,7 @@
                 </igWPF:DocumentContentHost>
             </igWPF:XamDockManager>
             <UI:MainStatusBar Grid.Row="2" x:Name="StatusBar" />
-            <MediaElement x:Name="_Media" Volume="1" Grid.Row="2" LoadedBehavior="Manual" UnloadedBehavior="Stop" Stretch="Fill"/>
+            <MediaElement x:Name="_Media" Volume="1" Grid.Row="2" LoadedBehavior="Manual" UnloadedBehavior="Stop" Width="20" />
 
         </Grid>
     </Grid>

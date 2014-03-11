@@ -167,6 +167,12 @@ namespace ManagerService.Console
 
         [OperationContract(IsInitiating = false)]
         List<OpenInterestSummary> GetOpenInterestOrderSummary(string exchangeCode,Guid instrumentId, Guid accountId,AccountType accountType, string[] blotterCodeSelecteds);
+
+        [OperationContract(IsInitiating = false)]
+        List<BlotterSelection> GetBlotterList(string exchangeCode);
+
+        [OperationContract(IsInitiating = false)]
+        AccountStatusQueryResult GetAccountReportData(string exchangeCode, string selectedPrice, Guid accountId);
         #endregion
 
         #region QuotationManager
@@ -226,6 +232,12 @@ namespace ManagerService.Console
 
         [OperationContract(IsInitiating = false)]
         UpdateHighLowBatchProcessInfo UpdateHighLow(string exchangeCode, Guid instrumentId, bool isOriginHiLo, string newInput, bool isUpdateHigh);
+
+        [OperationContract(IsInitiating = false)]
+        bool FixOverridedQuotationHistory(Dictionary<string, string> quotations, bool needApplyAutoAdjustPoints);
+
+        [OperationContract(IsInitiating = false)]
+        bool RestoreHighLow(string exchangeCode, int batchProcessId);
         #endregion
     }
 

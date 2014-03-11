@@ -80,7 +80,7 @@ namespace ManagerConsole.ViewModel
                 instrument.Bid = value.Bid;
                 instrument.High = value.High;
                 instrument.Low = value.Low;
-                instrument.TimeSpan = value.Timestamp.ToShortTimeString();
+                instrument.TimeSpan = value.Timestamp.ToLongTimeString();
             }
             return true;
         }
@@ -128,7 +128,7 @@ namespace ManagerConsole.ViewModel
                         instrumentQuotation.Ask = item.Ask;
                         instrumentQuotation.High = item.High;
                         instrumentQuotation.Low = item.Low;
-                        instrumentQuotation.TimeSpan = item.Timestamp.ToShortTimeString();
+                        instrumentQuotation.TimeSpan = item.Timestamp.ToLongTimeString();
                         //instrumentQuotation.TotalVolume = item.TotalVolume;
                         //instrumentQuotation.Volume = item.Volume;
                     }
@@ -466,6 +466,8 @@ namespace ManagerConsole.ViewModel
                 NotifyPropertyChanged("TimeSpan");
             }
         }
+
+            
         //public string TotalVolume { get; set; }
         //public string Volume { get; set; }
         [Category("Quotation")]

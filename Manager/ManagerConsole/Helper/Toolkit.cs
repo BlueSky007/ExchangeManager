@@ -45,6 +45,11 @@ namespace ManagerConsole
             return regex.IsMatch(input);
         }
 
+        public static string GetMoney(object o)
+        {
+            return String.Format("{0:###,###,###,##0.00}", o);
+        }
+
         internal static void AddDictionary<T>(Guid key, T value, Dictionary<Guid, T> values)
         where T:new()
         {

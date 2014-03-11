@@ -1,7 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<DeployItems>
-  <!--ClientUpdate 为服务器端存储的客户端运行目录及所有文件-->
-  <File Name="ManagerConsole.exe" Location="\" Version="1"></File>
-  <File Name="alert.wav" Location="\sound\" Version="1"></File>
-  <File Name="logo.png" Location="\image\" Version="1"></File>
-</DeployItems>

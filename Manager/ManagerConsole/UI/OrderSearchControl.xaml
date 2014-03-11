@@ -37,7 +37,7 @@
             </ColorAnimationUsingKeyFrames>
         </Storyboard>
     </UserControl.Resources>
-    <Grid>
+    <Grid x:Name="_PirintContentGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="80"/>
             <RowDefinition Height="500*"/>

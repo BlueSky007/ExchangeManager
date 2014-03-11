@@ -88,6 +88,7 @@ namespace ManagerConsole.Model
         private void Process(AbnormalQuotationMessage abnormalQuotationMessage)
         {
             this._QuotationMessageProcessor.Process(abnormalQuotationMessage);
+            App.MainFrameWindow.ExchangeDataManager.PlaySound(SoundOption.OutOfRange);
         }
 
         private void Process(OverridedQuotationMessage overidedQuotationMessage)

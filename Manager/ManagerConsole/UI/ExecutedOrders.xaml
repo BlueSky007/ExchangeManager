@@ -60,8 +60,8 @@
             </StackPanel>
         </Border>
 
-        <TabControl x:Name="_ExecutedOrderTab" TabStripPlacement="Bottom" Grid.Row="1">
-            <TabItem x:Name="_ExecutedOrderListItem"  Header="Group Net Position" >
+        <TabControl x:Name="_ExecutedOrderTab" TabStripPlacement="Bottom" Grid.Row="1" SelectionChanged="_ExecutedOrderTab_SelectionChanged">
+            <TabItem x:Name="_ExecutedOrderListItem"  Header="Executed Order List" Width="110">
                 <igGrid:XamGrid x:Name="_ExecutedOrderListGrid" Grid.Row="1" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto"
                                 InitializeRow="ExecutedOrderListGrid_InitializeRow">
                     <igGrid:XamGrid.FixedColumnSettings>
@@ -90,7 +90,7 @@
                     </igGrid:XamGrid.Columns>
                 </igGrid:XamGrid>
             </TabItem>
-            <TabItem Header="Net Summary" x:Name="_OrderSummaryItem">
+            <TabItem Header="Exected Order Sumamry" x:Name="_OrderSummaryItem" Width="120">
                 <igGrid:XamGrid x:Name="_ExecutedOrderSummaryGrid" FontFamily="hei" Grid.Row="1" AutoGenerateColumns="False" RowHeight="25" ColumnWidth="Auto" InitializeRow="ExecutedOrderSummaryGrid_InitializeRow">
                     <igGrid:XamGrid.FixedColumnSettings>
                         <igGrid:FixedColumnSettings AllowFixedColumns="DropArea"/>

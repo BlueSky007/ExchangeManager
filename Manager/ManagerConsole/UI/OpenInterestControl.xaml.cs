@@ -43,9 +43,17 @@ namespace ManagerConsole.UI
         private Style _GroupHeadStyle;
         private Style _SummaryGroupHeaderStyle;
         private Style _NormalHeaderStyle;
+
+        private BlotterSelectionControl _BlotterSelectionWind;
+        private string _CurrentExchangeCode;
+        private string[] _SelectedBlotterCodes;
+        private Button _BlotterButton;
+        private Button _PrintButton;
+        private ComboBox _ExchangeComboBox;
         public OpenInterestControl()
         {
             InitializeComponent();
+            this.InilizeContrl();
             this._App = (MainWindow)Application.Current.MainWindow;
             
             Thread thread = new Thread(new ThreadStart(delegate()
@@ -57,6 +65,37 @@ namespace ManagerConsole.UI
             }));
             thread.IsBackground = true;
             thread.Start();
+        }
+
+        private void InilizeContrl()
+        {
+            this._ExchangeComboBox = new ComboBox() 
+            {
+                Height = 23,
+                Width = 100,
+                Margin = new Thickness(8,0,0,0),
+                VerticalAlignment = VerticalAlignment.Center, 
+            };
+            this._BlotterButton = new Button() 
+            { 
+                Content = "Blotter", 
+                Width = 80, 
+                Height = 25, 
+                VerticalAlignment = VerticalAlignment.Center, 
+                Margin = new Thickness(5), 
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            this._PrintButton = new Button()
+            {
+                Content = "Print",
+                Width = 75,
+                Height = 25,
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(15,0,0,0),
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            this._BlotterButton.Click += new RoutedEventHandler(this.BlotterSelectBtn_Click);
+            this._PrintButton.Click += new RoutedEventHandler(this.Print_Click);
         }
 
         private bool InilizeUI()
@@ -85,13 +124,13 @@ namespace ManagerConsole.UI
             this._SummaryGroupHeaderStyle = this.Resources["SummaryGroupHeaderStyle"] as Style;
             this._NormalHeaderStyle = this.Resources["NormalHeaderStyle"] as Style;
 
-            this.ExchangeComboBox.ItemsSource = this._App.ExchangeDataManager.ExchangeCodes;
-            this.ExchangeComboBox.SelectedItem = this._App.ExchangeDataManager.ExchangeCodes[0];
-            this.ExchangeComboBox2.ItemsSource = this._App.ExchangeDataManager.ExchangeCodes;
-            this.ExchangeComboBox2.SelectedItem = this._App.ExchangeDataManager.ExchangeCodes[0];
+            this._ExchangeComboBox.ItemsSource = this._App.ExchangeDataManager.ExchangeCodes;
+            this._ExchangeComboBox.SelectedItem = this._App.ExchangeDataManager.ExchangeCodes[0];
+
+            this._CurrentExchangeCode = (string)this._ExchangeComboBox.SelectedItem;
 
             this._ReportDataManager = this._App.ExchangeDataManager.ReportDataManager;
-            this._GroupNetPositionModel = this._ReportDataManager.GetGroupNetPositionModel(this._App.ExchangeDataManager.ExchangeCodes[0]);
+            this._GroupNetPositionModel = new GroupNetPositionModel();
 
             this.QueryGroupNetPosition();
         }
@@ -130,12 +169,18 @@ namespace ManagerConsole.UI
                 string columnCode = instrumentGNP.IsSummaryGroup ? instrumentGNP.SummaryGroupCode : instrumentGNP.InstrumentCode;
                 string key = "Columns[Item" + columnCode + "]";
                 string index = "Item" + columnCode;
+                int rowIndex = row.Index;
 
                 Column column = row.Columns[key] as Column;
 
                 if (instrumentGNP.IsSummaryGroup)
                 {
                     row.Cells[column].Style = this._BuySummaryGroupStyle;
+                    row.Cells[column].Column.HeaderStyle = this._SummaryGroupHeaderStyle;
+                }
+                else
+                {
+                    row.Cells[column].Column.HeaderStyle = this._NormalHeaderStyle;
                 }
 
                 if (obj.Columns[index] == null) continue;
@@ -151,17 +196,14 @@ namespace ManagerConsole.UI
                 if ((decimal)obj.Columns[index] >= 0)
                 {
                     row.Cells[column].Style = instrumentGNP.IsSummaryGroup ? this._BuySummaryGroupStyle : this._BuyCellStyle;
-                    row.Cells[column].Column.HeaderStyle = instrumentGNP.IsSummaryGroup ? this._SummaryGroupHeaderStyle : this._NormalHeaderStyle;
                 }
                 else if ((decimal)obj.Columns[index] < 0)
                 {
                     row.Cells[column].Style = instrumentGNP.IsSummaryGroup ? this._SellSummaryGroupStyle : this._SellCellStyle;
-                    row.Cells[column].Column.HeaderStyle = instrumentGNP.IsSummaryGroup ? this._SummaryGroupHeaderStyle : this._NormalHeaderStyle;
                 }
                 else
                 {
                     row.Cells[column].Style = this._BuySummaryGroupStyle;
-                   
                 }
             } 
         }
@@ -313,6 +355,47 @@ namespace ManagerConsole.UI
 
         #endregion
 
+        #region Button Event
+        private void Print_Click(object sender, RoutedEventArgs e)
+        {
+            e.Handled = true;
+            switch (_OpenInterestTab.SelectedIndex)
+            {
+                case 0:
+                    this.PrintGrid(this._GroupNetPositionGrid);
+                    break;
+                case 1:
+                    this.PrintGrid(this._SummaryItemGrid);
+                    break;
+            }
+        }
+
+        private void QueryData(object sender, RoutedEventArgs e)
+        {
+            e.Handled = true;
+            Button btn = (Button)sender;
+            switch (btn.Name)
+            {
+                case "_QueryNetPostionBtn":
+                    this.Reset();
+                    this.QueryGroupNetPosition();
+                    break;
+                case "_QuerySummaryBtn":
+                    this.QueryGroupNetPosition();
+                    break;
+            }
+        }
+
+        private void Reset()
+        {
+            if (this._ReportDataManager.GroupNetPositionModels.ContainsKey(this._CurrentExchangeCode))
+            {
+                this._ReportDataManager.GroupNetPositionModels.Remove(this._CurrentExchangeCode);
+            }
+            this._SummaryColumns.Clear();
+            this._AllColumns.Clear();
+        }
+
         private void _OpenInterestTab_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             e.Handled = true;
@@ -321,22 +404,116 @@ namespace ManagerConsole.UI
             {
                 this._SummaryToolbar.Visibility = System.Windows.Visibility.Collapsed;
                 this._NetPositionToolbar.Visibility = System.Windows.Visibility.Visible;
+                if (this.SummaryPanel.Children.Contains(this._BlotterButton))
+                {
+                    this.SummaryPanel.Children.Remove(this._BlotterButton);
+                }
+
+                if (this.SummaryPanel.Children.Contains(this._ExchangeComboBox))
+                {
+                    this.SummaryPanel.Children.Remove(this._ExchangeComboBox);
+                }
+
+                if (this.SummaryPanel.Children.Contains(this._PrintButton))
+                {
+                    this.SummaryPanel.Children.Remove(this._PrintButton);
+                }
+
+                this.NetPositionPanel.Children.Insert(3, this._BlotterButton);
+                this.NetPositionPanel.Children.Add(this._PrintButton);
+                this.NetPositionPanel.Children.Insert(1, this._ExchangeComboBox);
             }
             if (this.SummaryItem.IsSelected)
             {
                 this._SummaryToolbar.Visibility = System.Windows.Visibility.Visible;
                 this._NetPositionToolbar.Visibility = System.Windows.Visibility.Collapsed;
+
+                this.NetPositionPanel.Children.Remove(this._BlotterButton);
+                this.SummaryPanel.Children.Insert(6, this._BlotterButton);
+
+                this.NetPositionPanel.Children.Remove(this._ExchangeComboBox);
+                this.SummaryPanel.Children.Insert(1, this._ExchangeComboBox);
+
+                this.NetPositionPanel.Children.Remove(this._PrintButton);
+                this.SummaryPanel.Children.Add(this._PrintButton);
             }
         }
 
         private void SelectChk_Click(object sender, RoutedEventArgs e)
         {
-            //this.CalculateLotBalance();
             CheckBox chk = (CheckBox)sender;
             AccountGroupGNP accountGroupGNP = chk.DataContext as AccountGroupGNP;
 
-            this.CalculateOIPercentQuantity(accountGroupGNP,true,decimal.Zero);
+            this.CalculateOIPercentQuantity(accountGroupGNP, true, decimal.Zero);
         }
+
+        private void BlotterSelectBtn_Click(object sender, RoutedEventArgs e)
+        {
+            this._BlotterSelectionWind = new BlotterSelectionControl(this._CurrentExchangeCode);
+            this._App.MainFrame.Children.Add(this._BlotterSelectionWind);
+
+            this._BlotterSelectionWind.OnBlotterResultHandle += new BlotterSelectionControl.ConfirmBlotterResultHandle(this.BlotterSelectCompaleted);
+            this._BlotterSelectionWind.IsModal = true;
+            this._BlotterSelectionWind.StartupPosition = Infragistics.Controls.Interactions.StartupPosition.Center;
+            this._BlotterSelectionWind.Show();
+            this._BlotterSelectionWind.BringToFront();
+        }
+
+        private void BlotterSelectCompaleted(string[] blotterCodes)
+        {
+            this._SelectedBlotterCodes = blotterCodes;
+        }
+
+        private void _SetColumnWidthBtn_Click(object sender, RoutedEventArgs e)
+        {
+            string columnWidth = this._ColumnWidthTextBox.Text;
+            if (Toolkit.IsValidNumber(columnWidth))
+            {
+                if (int.Parse(columnWidth) < 0)
+                {
+                    this.SetColumnWidth(100);
+                    return;
+                }
+                this.SetColumnWidth(int.Parse(columnWidth));
+            }
+            else
+            {
+                this._App._CommonDialogWin.ShowDialogWin("Invalid input!", "Alert");
+            }
+        }
+
+        private void SetColumnWidth(int columnWidth)
+        {
+            for (int i = 3; i < this._ColumnsList.Count + 3; i++)
+            {
+                this._GroupNetPositionGrid.Columns.DataColumns[i].Width = new ColumnWidth(columnWidth, false);
+            }
+
+            if (this._GroupNetPositionGrid.Columns.ColumnLayouts.Count > 0)
+            {
+                for (int i = 3; i < this._ColumnsList.Count + 3; i++)
+                {
+                    this._GroupNetPositionGrid.Columns.ColumnLayouts["AccountGroupGNPs"].Columns.DataColumns[i].Width = new ColumnWidth(columnWidth, false);
+                }
+            }
+
+            if (this._GroupNetPositionGrid.Columns.ColumnLayouts["AccountGroupGNPs"].Columns.ColumnLayouts.Count > 0)
+            {
+                for (int i = 3; i < this._ColumnsList.Count + 3; i++)
+                {
+                    this._GroupNetPositionGrid.Columns.ColumnLayouts["AccountGroupGNPs"].Columns.ColumnLayouts["AccountGNPs"].Columns.DataColumns[i].Width = new ColumnWidth(columnWidth, false);
+                }
+            }
+
+            if (this._GroupNetPositionGrid.Columns.ColumnLayouts["AccountGroupGNPs"].Columns.ColumnLayouts["AccountGNPs"].Columns.ColumnLayouts.Count > 0)
+            {
+                for (int i = 3; i < this._ColumnsList.Count + 3; i++)
+                {
+                    this._GroupNetPositionGrid.Columns.ColumnLayouts["AccountGroupGNPs"].Columns.ColumnLayouts["AccountGNPs"].Columns.ColumnLayouts["DetailGNPs"].Columns.DataColumns[i].Width = new ColumnWidth(columnWidth, false);
+                }
+            }
+        }
+        #endregion
 
         private void CalculateOIPercentQuantity(AccountGroupGNP accountGroupGNP, bool isCheckBoxColumn, decimal oldOiPercent)
         {
@@ -380,20 +557,6 @@ namespace ManagerConsole.UI
             }
         }
 
-        private void Print_Click(object sender, RoutedEventArgs e)
-        {
-            e.Handled = true;
-            switch (_OpenInterestTab.SelectedIndex)
-            {
-                case 0:
-                    this.PrintGrid(this._GroupNetPositionGrid);
-                    break;
-                case 1:
-                    //this.PrintGrid();
-                    break;
-            }
-        }
-
         private void PrintGrid(Infragistics.Controls.Grids.XamGrid printGrid)
         {
             Report reportObj = new Report();
@@ -402,35 +565,17 @@ namespace ManagerConsole.UI
             reportObj.Print(true, false);
         }
 
-        void QueryData(object sender, RoutedEventArgs e)
-        {
-            e.Handled = true;
-            Button btn = (Button)sender;
-            switch (btn.Name)
-            {
-                case "_QueryNetPostionBtn":
-                    this.Reset();
-                    this.QueryGroupNetPosition();
-                    break;
-                case "_QuerySummaryBtn":
-                    this.QueryGroupNetPosition();
-                    break;
-            }
-        }
-
-        private void Reset()
-        {
-            //this._RootGNP = new ObservableCollection<RootGNP>();
-            this._SummaryColumns.Clear();
-            this._AllColumns.Clear();
-        }
-
         private void QueryGroupNetPosition()
         {
-            bool showActualQuantity = true;
-            //string[] blotterCodeSelecteds
-            string exchangeCode = (string)this.ExchangeComboBox.SelectedItem;
-            ConsoleClient.Instance.GetGroupNetPosition(exchangeCode,showActualQuantity, null, this.GetGroupNetPositionCallback);
+            try
+            {
+                bool showActualQuantity = true;
+                ConsoleClient.Instance.GetGroupNetPosition(this._CurrentExchangeCode, showActualQuantity, this._SelectedBlotterCodes, this.GetGroupNetPositionCallback);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(System.Diagnostics.TraceEventType.Error, "OpenInterestControl.QueryGroupNetPosition Error\r\n{0}", ex.ToString());
+            }
         }
 
         private void GetGroupNetPositionCallback(List<CommonAccountGroupGNP> accountGroupGNPs)
@@ -445,7 +590,7 @@ namespace ManagerConsole.UI
                     rootGNP.AccountGroupGNPs.Add(accountGroupGNP);
                 }
                 this._GroupNetPositionModel.RootGNPs.Add(rootGNP);
-                string exchangeCode = this.ExchangeComboBox.SelectedItem.ToString();
+                string exchangeCode = this._ExchangeComboBox.SelectedItem.ToString();
                 this.CalculateLotBalance(exchangeCode);
                 this.BindingData();
                 if (!this._ReportDataManager.GroupNetPositionModels.ContainsKey(exchangeCode))
@@ -458,51 +603,6 @@ namespace ManagerConsole.UI
         private void BindingData()
         {
             this._GroupNetPositionGrid.ItemsSource = this._GroupNetPositionModel.RootGNPs;
-        }
-
-        private void AddOrderToGroupNetPosition(OrderTask orderTask)
-        {
-            //orderTask.Account.Id = new Guid("3B0F0B69-AFB3-4B1C-A7F0-B3D186F06F08");
-            Guid accountId = new Guid("3B0F0B69-AFB3-4B1C-A7F0-B3D186F06F08");
-            string exchangeCode = orderTask.ExchangeCode;
-            // 判断是否是当前exchangeCode
-            string key = "ItemOther";
-            RootGNP rootGNP = this._GroupNetPositionModel.RootGNPs[0];
-            ColumnKeys keys = rootGNP.Columns;
-            keys[key] = decimal.Parse(keys[key].ToString()) + orderTask.Lot;
-            rootGNP.Columns = keys;
-
-            //ExchangeSettingManager settingManager = this._App.ExchangeDataManager.GetExchangeSetting(exchangeCode);
-            Guid groupId = new Guid("7E40A5A1-ABC9-4EA6-9700-10FE4C896C44");
-
-            AccountGroupGNP accountGroupGNP = rootGNP.AccountGroupGNPs.SingleOrDefault(P => P.Id == groupId);
-            if (accountGroupGNP == null) return;
-
-            ColumnKeys groupKeys = accountGroupGNP.Columns;
-            groupKeys[key] = decimal.Parse(groupKeys[key].ToString()) + orderTask.Lot;
-            accountGroupGNP.Columns = groupKeys;
-
-            AccountGNP accountGNP = accountGroupGNP.AccountGNPs.SingleOrDefault(P => P.Id == accountId);
-            if (accountGNP == null) return;
-
-            string jpykey = "ItemJPY";
-            ColumnKeys accountKeys = accountGNP.Columns;
-            accountKeys[jpykey] = decimal.Parse(accountKeys[jpykey].ToString()) + orderTask.Lot;
-            accountGNP.Columns = accountKeys;
-
-            Guid instrumentId = new Guid("2E42C798-97E7-4702-AFBA-0E6ABA0575D6");
-            InstrumentGNP instrumentGNP = accountGNP.InstrumentGNPs.SingleOrDefault(P => P.Instrument.Id == instrumentId);
-            string detailString = instrumentGNP.Detail;
-            instrumentGNP.BuyQuantity = 555;
-            instrumentGNP.LotBalance = 333;
-            instrumentGNP.Detail = instrumentGNP.GetDetailDisPlay();
-
-            DetailGNP detailGNP = accountGNP.DetailGNPs.SingleOrDefault(P => P.AccountId == accountId && P.InstrumentId == instrumentId);
-            if (detailGNP == null) return;
-
-            ColumnKeys detailKeys = detailGNP.Columns;
-            detailKeys[jpykey] = instrumentGNP.GetDetailDisPlay();
-            detailGNP.Columns = detailKeys;
         }
 
         private void CalculateLotBalance(string exchangeCode)
@@ -591,6 +691,9 @@ namespace ManagerConsole.UI
             }
         }
 
+        /// <summary>
+        /// OpenInsterest SummaryItem汇总
+        /// </summary>
         #region OpenInsterest SummaryItem
 
         private void AttachEvent()
@@ -634,29 +737,26 @@ namespace ManagerConsole.UI
         {
             this._OpenInterestSummarys.Clear();
             bool isGroupByOriginCode = this._OriginCodeRadio.IsChecked.Value;
-            string[] blotterCodes = new string[] { "123"};
-            this.QueryInstrumentSummary(isGroupByOriginCode, null);
+            this.QueryInstrumentSummary(isGroupByOriginCode, this._SelectedBlotterCodes);
         }
         private void QueryInstrumentSummary(bool isGroupByOriginCode, string[] blotterCodes)
         {
-            string exchangeCode = (string)this.ExchangeComboBox.SelectedItem;
-            ConsoleClient.Instance.GetOpenInterestInstrumentSummary(exchangeCode,isGroupByOriginCode, blotterCodes, this.GetInstrumentSummaryCallback);
+            ConsoleClient.Instance.GetOpenInterestInstrumentSummary(this._CurrentExchangeCode, isGroupByOriginCode, blotterCodes, this.GetInstrumentSummaryCallback);
         }
         private void QueryAccountSummary(Guid instrumentId, string[] blotterCodes)
         {
-            string exchangeCode = (string)this.ExchangeComboBox.SelectedItem;
-            ConsoleClient.Instance.GetOpenInterestAccountSummary(exchangeCode,instrumentId, blotterCodes, this.GetAccountSummaryCallback);
+            ConsoleClient.Instance.GetOpenInterestAccountSummary(this._CurrentExchangeCode, instrumentId, blotterCodes, this.GetAccountSummaryCallback);
         }
         private void QueryOrderSummary(OpenInterestSummary accountSumamry, string[] blotterCodes)
         {
-            string exchangeCode = (string)this.ExchangeComboBox.SelectedItem;
-            ConsoleClient.Instance.GetOpenInterestOrderSummary(exchangeCode,accountSumamry, blotterCodes, this.GetOrderSummaryCallback);
+            ConsoleClient.Instance.GetOpenInterestOrderSummary(this._CurrentExchangeCode, accountSumamry, blotterCodes, this.GetOrderSummaryCallback);
         }
 
         private void GetInstrumentSummaryCallback(List<CommonOpenInterestSummary> openInterestSummarys)
         {
             this.Dispatcher.BeginInvoke((Action)delegate() 
             {
+                if (openInterestSummarys == null) return;
                 foreach (CommonOpenInterestSummary openInterestSummary in openInterestSummarys)
                 {
                     OpenInterestSummary entity = new OpenInterestSummary(openInterestSummary,OpenInterestSummaryType.Instrument);
@@ -670,8 +770,9 @@ namespace ManagerConsole.UI
         {
             this.Dispatcher.BeginInvoke((Action)delegate()
             {
-                string exchangeCode = (string)this.ExchangeComboBox.SelectedItem;
-                ExchangeSettingManager settingManager = this._App.ExchangeDataManager.GetExchangeSetting(exchangeCode);
+                if (openInterestSummarys == null) return;
+
+                ExchangeSettingManager settingManager = this._App.ExchangeDataManager.GetExchangeSetting(this._CurrentExchangeCode);
                 ObservableCollection<OpenInterestSummary> accountGroupSummarys = new ObservableCollection<OpenInterestSummary>();
                 
                 foreach (CommonOpenInterestSummary openInterestSummary in openInterestSummarys)
@@ -730,6 +831,8 @@ namespace ManagerConsole.UI
         {
             this.Dispatcher.BeginInvoke((Action)delegate()
             {
+                if (openInterestSummarys == null) return;
+
                 accountSumamry.ChildSummaryItems.Clear();
                 foreach (CommonOpenInterestSummary openInterestSummary in openInterestSummarys)
                 {
@@ -745,15 +848,7 @@ namespace ManagerConsole.UI
         }
         #endregion
 
-        private void _BlotterSelectBtn_Click(object sender, RoutedEventArgs e)
-        {
-            //just test
-            OrderTask order = new OrderTask();
-            order.Lot = 1;
-            order.IsBuy = BuySell.Buy;
-
-            this.AddOrderToGroupNetPosition(order);
-        }
+        
 
         #region 布局
         /// <summary>
@@ -791,5 +886,7 @@ namespace ManagerConsole.UI
             }
         }
         #endregion
+
+        
     }
 }

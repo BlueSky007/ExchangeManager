@@ -54,6 +54,12 @@ namespace ManagerService.Exchange
             Logger.AddEvent(TraceEventType.Warning, "ExchangeSystem Channel_Broken of ExchangeCode:{0} sessionId:{1}", ExchangeCode, this._SessionId);
         }
 
+        public void Stop()
+        {
+            this._CommandRelayEngine.Stop();
+            this._QuotationRelayEngine.Stop();
+        }
+
         public void Replace(string sessionId, IStateServer stateServer)
         {
             this._SessionId = sessionId;
@@ -61,7 +67,7 @@ namespace ManagerService.Exchange
             this.ConnectionState = ConnectionState.Connected;
             this._QuotationServer.SetStateServer(stateServer);
             this._QuotationRelayEngine.Resume();
-            Logger.AddEvent(TraceEventType.Warning, "ExchangeCode:{0},Connection to StateSever established. sessionId:{1}", ExchangeCode, this._SessionId);
+            Logger.AddEvent(TraceEventType.Information, "ExchangeCode:{0},Connection to StateSever established. sessionId:{1}", ExchangeCode, this._SessionId);
         }
 
         public void AddCommand(Command command)
@@ -139,6 +145,26 @@ namespace ManagerService.Exchange
             info.ErrorMessage = errorMessage;
             info.UpdateTime = updateTime;
             return info;
+        }
+
+        public bool FixOverridedQuotationHistory(Token token, string quotation, bool needApplyAutoAdjustPoints, out iExchange.Common.OriginQuotation[] originQs, out iExchange.Common.OverridedQuotation[] overridedQs, out bool needBroadcastQuotation, out XmlNode fixChartDatas)
+        {
+            return this._QuotationServer.FixOverridedQuotationHistory(token, quotation, needApplyAutoAdjustPoints, out originQs, out overridedQs, out needBroadcastQuotation, out fixChartDatas);
+        }
+
+        public bool RestoreHighLow(int batchProcessId, out string errorMessage)
+        {
+             Guid instrumentId ;  
+             string instrumentCode ;  
+             string newInput ;  
+             bool isUpdateHigh ; 
+             bool highBid ;  
+             bool lowBid ;  
+             DateTime minTimestamp ; 
+             iExchange.Common.OverridedQuotation[] overridedQs ;  
+             int returnValue ;  
+             this._QuotationServer.RestoreHighLow(new Token(Guid.Empty, UserType.System, AppType.DealingConsole), "", batchProcessId, out instrumentId, out instrumentCode, out newInput, out isUpdateHigh, out highBid, out lowBid, out minTimestamp, out overridedQs, out returnValue, out errorMessage);
+             return returnValue == 0;
         }
 
         public void SwitchPriceState(string[] originCodes, bool enable)
@@ -222,6 +248,11 @@ namespace ManagerService.Exchange
                 }
                 else
                 {
+                    UpdateCommand updateCommand = command as UpdateCommand;
+                    if (updateCommand !=null)
+                    {
+                        this._QuotationServer.Update(new Token(), updateCommand.Content);
+                    }
                     Message message = CommandConvertor.Convert(this.ExchangeCode, command);
                     MainService.ClientManager.Dispatch(message);
                 }
@@ -421,6 +452,19 @@ namespace ManagerService.Exchange
                 return null;
             }
         }
+
+        public string GetStateServerAccount(Guid[] accountIds)
+        {
+            string outerXml = string.Empty;
+
+            Token token = new Token();
+            token.UserID = Guid.Empty;
+            token.UserType = UserType.System;
+            token.AppType = AppType.BackOffice;
+
+            return this._StateServer.GetAccounts(token, accountIds, true);
+        }
+
         #endregion
         private void HandleEngineException(Exception ex)
         {

@@ -21,14 +21,12 @@
         </Style>
         <DataTemplate x:Key="listBoxTemplate">
             <StackPanel Background="Black" Orientation="Horizontal">
-                <TextBlock Text="{Binding ExchangeCode}" Foreground="Green" FontWeight="Bold" />
-                <TextBlock Text="{Binding InstrumentCode}" Margin="10,0,0,0"/>
+                <TextBlock VerticalAlignment="Center" Text="{Binding ExchangeCode}" Foreground="Green" FontWeight="Bold" />
+                <TextBlock VerticalAlignment="Center" Text="{Binding InstrumentCode}" Margin="10,0,0,0"/>
             </StackPanel>
         </DataTemplate>
         <localui:TaskSchedulerDateConverter  x:Key="TaskSchedulerDateConverter" />
-        <Style TargetType="TextBlock" BasedOn="{StaticResource TextBlockStyle}">
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
+        
         <Style TargetType="CheckBox" BasedOn="{StaticResource CheckBoxStyle}">
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Margin" Value="15,0,15,0"/>
@@ -65,7 +63,7 @@
                     <ig:TemplateColumn Key="TaskStatus"  Width="60" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Status" >
                         <ig:TemplateColumn.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding TaskStatus}" Foreground="#FF9090FF" FontWeight="Bold"/>
+                                <TextBlock VerticalAlignment="Center" Text="{Binding TaskStatus}" Foreground="#FF9090FF" FontWeight="Bold"/>
                             </DataTemplate>
                         </ig:TemplateColumn.ItemTemplate>
                     </ig:TemplateColumn>
@@ -75,14 +73,14 @@
                     <ig:TemplateColumn Key="RunTime"  Width="140" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Next Run Time">
                         <ig:TemplateColumn.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding RunTime}" Foreground="Red"/>
+                                <TextBlock VerticalAlignment="Center" Text="{Binding RunTime}" Foreground="Red"/>
                             </DataTemplate>
                         </ig:TemplateColumn.ItemTemplate>
                     </ig:TemplateColumn>
                     <ig:TemplateColumn Key="LastRunTime" Width="140" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Last Run Time" >
                         <ig:TemplateColumn.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding LastRunTime,Converter={StaticResource TaskSchedulerDateConverter}}"/>
+                                <TextBlock VerticalAlignment="Center" Text="{Binding LastRunTime,Converter={StaticResource TaskSchedulerDateConverter}}"/>
                             </DataTemplate>
                         </ig:TemplateColumn.ItemTemplate>
                     </ig:TemplateColumn>
@@ -118,7 +116,7 @@
             </igOB:XamOutlookBar>
         
         <!--TaskDetail UI-->
-        <Border  Grid.Row="2" Margin="3,3,3,3" IsEnabled="False">
+        <Border  Grid.Row="2" Margin="3,3,3,3">
             <Grid x:Name="_TaskDetailGrid" >
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -141,15 +139,15 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Text="Task Name:"/>
+                    <TextBlock VerticalAlignment="Center" Grid.Row="0" Text="Task Name:"/>
                     <TextBox Grid.Row="0" Grid.Column="1" x:Name="_TaskNameTextBox" IsEnabled="{Binding IsEditorName}" Text="{Binding Name,Mode=TwoWay}"/>
-                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Task Type:" Margin="8,0,0,0" HorizontalAlignment="Right"/>
+                    <TextBlock VerticalAlignment="Center" Grid.Row="0" Grid.Column="2" Text="Task Type:" Margin="8,0,0,0" HorizontalAlignment="Right"/>
                     <ComboBox x:Name="_TaskTypeComboBox" Grid.Row="0" Grid.Column="3" Width="90" SelectedItem="{Binding TaskType,Mode=TwoWay}"/>
                     
-                    <TextBlock x:Name="ExchangeCodeCaption" HorizontalAlignment="Right" Grid.Row="0" Grid.Column="4" TextAlignment="Right" Text="ExchangeCode:" Margin="2,0,0,0"/>
+                    <TextBlock VerticalAlignment="Center" x:Name="ExchangeCodeCaption" HorizontalAlignment="Right" Grid.Row="0" Grid.Column="4" TextAlignment="Right" Text="ExchangeCode:" Margin="2,0,0,0"/>
                     <TextBox x:Name="ExchangeTextBox" HorizontalAlignment="Right" Grid.Row="0" Grid.Column="5" Width="80" Height="22"/>
 
-                    <TextBlock Grid.Row="1" Text="Description:" VerticalAlignment="Top"/>
+                    <TextBlock  Grid.Row="1" Text="Description:" VerticalAlignment="Top"/>
                     <TextBox  Margin="0,5,0,5" Grid.Row="1" Grid.Column="1" Text="{Binding Description,Mode=TwoWay}" TextAlignment="Left" FlowDirection="LeftToRight" x:Name="_TaskDescriptionText" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" Grid.ColumnSpan="5" Height="Auto" />
 
                     <TextBlock Visibility="Collapsed" Grid.Row="2" Grid.Column="0" x:Name="InstrumentCaption" Text="Instrument:" VerticalAlignment="Top"/>
@@ -160,7 +158,7 @@
 
                 <Border Style="{DynamicResource DealingBorderStyle}" Grid.Row="1" Margin="3 5 3 0">
                     <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
-                        <TextBlock Text="Start:"/>
+                        <TextBlock VerticalAlignment="Center" Text="Start:" />
                         <ig:XamDateTimeInput x:Name="_ActionTimePicker" Margin="8,0,0,0"  Width="150" Height="23" 
                                      AutoFillDate="MonthAndYear"  DropDownButtonDisplayMode="Always"
                                      SpinButtonDisplayMode="Focused" 
@@ -170,28 +168,28 @@
                                      Mask="yyyy-mm-dd hh:mm:ss"
                                      InvalidValueBehavior="DisplayErrorMessage"
                                      Value="{Binding RunTime,Mode=TwoWay}"/>
-                        <TextBlock Text="Action Type:" Margin="8,0,0,0"/>
+                        <TextBlock VerticalAlignment="Center" Text="Action Type:" Margin="8,0,0,0"/>
                         <ComboBox x:Name="_ActionTypeComboBox" Width="80" Height="25" Margin="8,0,0,0" SelectedItem="{Binding ActionType,Mode=TwoWay}"/>
-                        <TextBlock Visibility="Collapsed" Text="Parameter Type:" Margin="8,0,0,0"/>
+                        <TextBlock VerticalAlignment="Center" Visibility="Collapsed" Text="Parameter Type:" Margin="8,0,0,0"/>
                         <ComboBox Visibility="Collapsed" x:Name="SettingsTypeComboBox" Width="80" Height="22" Margin="8,0,0,0" Style="{StaticResource ComboBoxStyle}"/> 
                     </StackPanel>
                 </Border>
 
                 <Border Grid.Row="2" x:Name="WeeklyTypeBorder" Style="{DynamicResource DealingBorderStyle}" Margin="3 5 3 0" Visibility="Visible">
                     <StackPanel Orientation="Horizontal" Margin="5,0,0,0">
-                        <TextBlock Text="星期一:"/>
+                        <TextBlock VerticalAlignment="Center" Text="星期一:"/>
                         <CheckBox x:Name="MonCheckBox" IsChecked="{Binding WeekDays.IsMonDay}"/>
-                        <TextBlock Text="星期二:"/>
+                        <TextBlock VerticalAlignment="Center" Text="星期二:"/>
                         <CheckBox x:Name="TuesCheckBox" IsChecked="{Binding WeekDays.IsTuesDay,Mode=TwoWay}"/>
-                        <TextBlock Text="星期三:"/>
+                        <TextBlock VerticalAlignment="Center" Text="星期三:"/>
                         <CheckBox x:Name="WedCheckBox" IsChecked="{Binding WeekDays.IsWedDay,Mode=TwoWay}"/>
-                        <TextBlock Text="星期四:"/>
+                        <TextBlock VerticalAlignment="Center" Text="星期四:"/>
                         <CheckBox x:Name="ThurCheckBox" IsChecked="{Binding WeekDays.IsThurDay,Mode=TwoWay}"/>
-                        <TextBlock Text="星期五:"/>
+                        <TextBlock VerticalAlignment="Center" Text="星期五:"/>
                         <CheckBox x:Name="FriCheckBox" IsChecked="{Binding WeekDays.IsFriDay,Mode=TwoWay}"/>
-                        <TextBlock Text="星期六:"/>
+                        <TextBlock VerticalAlignment="Center" Text="星期六:"/>
                         <CheckBox x:Name="SatCheckBox" IsChecked="{Binding WeekDays.IsSateDay,Mode=TwoWay}"/>
-                        <TextBlock Text="星期日:"/>
+                        <TextBlock VerticalAlignment="Center" Text="星期日:"/>
                         <CheckBox x:Name="SunCheckBox" IsChecked="{Binding WeekDays.IsSunDay,Mode=TwoWay}"/>
                     </StackPanel>
                 </Border>
@@ -220,7 +218,7 @@
                                 <ig:TemplateColumn.ItemTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Vertical">
-                                            <TextBlock Foreground="#FF9090FF" Text="{Binding SqlDbTypeCellData.NumberSetValue}" Visibility="{Binding SqlDbTypeCellData.IsNumberType}" Height="25" TextAlignment="Right"  HorizontalAlignment="Center"/>
+                                            <TextBlock VerticalAlignment="Center" Foreground="#FF9090FF" Text="{Binding SqlDbTypeCellData.NumberSetValue}" Visibility="{Binding SqlDbTypeCellData.IsNumberType}" Height="25" TextAlignment="Right"  HorizontalAlignment="Center"/>
                                             <CheckBox  IsChecked="{Binding SqlDbTypeCellData.BoolSetValue,Mode=TwoWay}" Visibility="{Binding SqlDbTypeCellData.IsBoolType}"/>
                                         </StackPanel>
                                     </DataTemplate>

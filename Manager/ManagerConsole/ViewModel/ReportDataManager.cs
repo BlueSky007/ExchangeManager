@@ -14,6 +14,7 @@ namespace ManagerConsole.ViewModel
         { 
             this._ExchangeDataManager = exchangeDataManager;
             this.GroupNetPositionModels = new Dictionary<string, GroupNetPositionModel>();
+            this.ExchangeBlotterDict = new Dictionary<string, ObservableCollection<BlotterSelection>>();
         }
 
         public Dictionary<string, GroupNetPositionModel> GroupNetPositionModels
@@ -22,11 +23,20 @@ namespace ManagerConsole.ViewModel
             set;
         }
 
-        public void Add
+        public Dictionary<string, ObservableCollection<BlotterSelection>> ExchangeBlotterDict
+        {
+            get;
+            set;
+        }
 
         public GroupNetPositionModel GetGroupNetPositionModel(string exchangeCode)
         {
             return (this.GroupNetPositionModels.ContainsKey(exchangeCode) ? this.GroupNetPositionModels[exchangeCode] : null);
+        }
+
+        public ObservableCollection<BlotterSelection> GetBlotterCodeList(string exchangeCode)
+        {
+            return (this.ExchangeBlotterDict.ContainsKey(exchangeCode) ? this.ExchangeBlotterDict[exchangeCode] : null);
         }
     }
 }

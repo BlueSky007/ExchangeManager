@@ -71,7 +71,7 @@ namespace ManagerConsole.ViewModel
             this.OrderType = commonEntity.OrderType;
             this.ExecuteTime = commonEntity.ExecuteTime;
             this.Relation = commonEntity.Relation;
-            this.Dealer = ConsoleClient.Instance.user.UserName;
+            this.Dealer = ConsoleClient.Instance.User.UserName;
         }
     }
 }

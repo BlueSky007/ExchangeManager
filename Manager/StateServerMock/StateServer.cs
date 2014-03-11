@@ -78,6 +78,11 @@ namespace iExchange.StateServer.Manager
         {
             throw new NotImplementedException();
         }
+
+        internal XmlNode GetAccounts(Token token, Guid[] accountIDs, bool includeTransactions,bool istrue)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class ManagerHelper

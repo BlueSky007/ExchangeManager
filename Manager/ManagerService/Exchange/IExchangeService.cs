@@ -70,5 +70,8 @@ namespace ManagerService.Exchange
 
         [OperationContract]
         List<OpenInterestSummary> GetOpenInterestOrderSummary(Token token, Guid accountId, AccountType accountType, Guid[] instrumentIDs, string[] blotterCodeSelecteds);
+
+        [OperationContract]
+        string GetAccounts(Token token, Guid[] accountIDs, bool includeTransactions);
     }
 }

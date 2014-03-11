@@ -21,21 +21,6 @@ namespace ManagerConsole.Helper
         {
             this._LayoutContainer = layoutContainer;
         }
-        public CommonDialogWin(Grid layoutContainer, double left, double top)
-            : this(layoutContainer)
-        {
-            //this._CommonDialogWin = new XamDialogWindow
-            //{
-            //    StartupPosition = Infragistics.Controls.Interactions.StartupPosition.Manual,
-            //    IsModal = false,
-            //    CloseButtonVisibility = Visibility.Collapsed,
-            //    MinimizeButtonVisibility=Visibility.Collapsed,
-            //    MaximizeButtonVisibility=Visibility.Collapsed,
-            //    Left=left,
-            //    Top=top,
-            //    Name = "_CommonDialogWin"
-            //};			
-        }
 
         public void ShowDialogWin(string message, string caption, double width, double height, double left, double top, bool isManualStartupPosition)
         {

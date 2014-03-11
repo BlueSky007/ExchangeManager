@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using Manager.Common;
 using Manager.Common.QuotationEntities;
+using System.Xml;
 
 namespace ManagerConsole.ViewModel
 {
@@ -17,7 +18,7 @@ namespace ManagerConsole.ViewModel
         public DateTime TimeSpan { get; set; }
         public int NumeratorUnit { get; set; }
         public int Denominator { get; set; }
-        public string OriginMask { get { return GetMask(); } }
+        //public string OriginMask { get { return GetMask(); } }
 
         public ObservableCollection<HistoryQuotationData> HistoryQuotationGridData { get; set; }
 
@@ -30,12 +31,28 @@ namespace ManagerConsole.ViewModel
         {
             foreach (HistoryQuotationData item in this.HistoryQuotationGridData)
             {
-                if (item.IsEdit)
+                if (!string.IsNullOrEmpty(item.Status))
                 {
                     return true;
                 }
             }
             return false;
+        }
+
+        public bool ConvertEditDataForExchangeToXml(string exchange, out string xmlQuotation)
+        {
+            StringBuilder str = new StringBuilder();
+            str.Append("<HistoryQuotations>");
+            foreach (HistoryQuotationData item in this.HistoryQuotationGridData.Where(h=>h.ExchangeCode == exchange))
+            {
+                if (!string.IsNullOrEmpty(item.Status))
+                {
+                    str.AppendFormat("<HistoryQuotation InstrumentID=\"{0}\" Timestamp=\"{1}\" Origin=\"{2}\" Status=\"{3}\"", item.InstrumentId, item.Time, item.Origin, item.Status);
+                }
+            }
+            str.Append("</HistoryQuotations>");
+            xmlQuotation = string.Empty;
+            return true;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -48,14 +65,14 @@ namespace ManagerConsole.ViewModel
             }
         }
 
-        private string GetMask()
+        public string GetMask()
         {
             try
             {
                 string mask = "nnnnnnnnnn";
                 if (this.Denominator != 0)
                 {
-                    decimal digits = this.NumeratorUnit / this.Denominator;
+                    double digits = double.Parse(this.NumeratorUnit.ToString()) / this.Denominator;
                     string[] strs = digits.ToString().Split('.');
                     int decimals = 0;
                     if (strs.Length > 1)

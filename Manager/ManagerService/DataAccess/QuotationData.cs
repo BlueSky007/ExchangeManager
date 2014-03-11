@@ -535,6 +535,7 @@ namespace ManagerService.DataAccess
                         while (reader.Read())
                         {
                             HistoryQuotationData history = new HistoryQuotationData();
+                            history.ExchangeCode = exchangeCode;
                             history.InstrumentId = Guid.Parse(reader["InstrumentID"].ToString());
                             history.InstrumentCode = reader["InstrumentCode"].ToString();
                             history.Time = reader["Timestamp"].ToString();

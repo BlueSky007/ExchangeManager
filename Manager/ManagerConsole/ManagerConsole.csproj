@@ -177,6 +177,7 @@
     <Compile Include="ChangePassword.xaml.cs">
       <DependentUpon>ChangePassword.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Helper\AccountStatusHelper.cs" />
     <Compile Include="Helper\PriceHelper.cs" />
     <Compile Include="LayoutManager.cs" />
     <Compile Include="Model\ExchangeQuotation.cs" />
@@ -184,6 +185,19 @@
     <Compile Include="Model\SettingsManager.cs" />
     <Compile Include="Model\ExchangeTradingManager.cs" />
     <Compile Include="Model\Principal.cs" />
+    <Compile Include="UI\AccountHedgingLevelControl.xaml.cs">
+      <DependentUpon>AccountHedgingLevelControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\AccountOrderStatus.xaml.cs">
+      <DependentUpon>AccountOrderStatus.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\AccountStatusQuery.xaml.cs">
+      <DependentUpon>AccountStatusQuery.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\AccountSummaryControl.cs" />
+    <Compile Include="UI\BlotterSelectionControl.xaml.cs">
+      <DependentUpon>BlotterSelectionControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\ColumnWidthPersistence.cs" />
     <Compile Include="ThemeManager.cs" />
     <Compile Include="UI\ConnectionStateControl.xaml.cs">
@@ -229,6 +243,8 @@
     <Compile Include="UI\UpdateExchangeHistoryQuotationControl.xaml.cs">
       <DependentUpon>UpdateExchangeHistoryQuotationControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModel\AccountStatusItem.cs" />
+    <Compile Include="ViewModel\BlotterSelection.cs" />
     <Compile Include="ViewModel\ExchangeDataManager.cs" />
     <Compile Include="LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
@@ -470,7 +486,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UI\AccountHedgingLevelControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\AccountOrderStatus.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\AccountStatusQuery.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\AdjustAndSpreadSettingControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\BlotterSelectionControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -587,7 +619,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Helper\MainWindowHelper.cs" />
+    <Compile Include="Helper\MediaManager.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -784,7 +816,9 @@
     <Resource Include="Asset\Images\connected2.png" />
     <Resource Include="Asset\Images\connect_no2.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Asset\Images\Refresh.gif" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="AutoUpdateBin\AutoUpdateClient.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

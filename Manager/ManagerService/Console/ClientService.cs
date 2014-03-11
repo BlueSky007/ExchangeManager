@@ -394,6 +394,16 @@ namespace ManagerService.Console
         {
             return this._Client.GetOpenInterestOrderSummary(exchangeCode,instrumentId, accountId, accountType, blotterCodeSelecteds);
         }
+
+        public List<BlotterSelection> GetBlotterList(string exchangeCode)
+        {
+            return this._Client.GetBlotterList(exchangeCode);
+        }
+
+        public AccountStatusQueryResult GetAccountReportData(string exchangeCode, string selectedPrice, Guid accountId)
+        {
+            return this._Client.GetAccountReportData(exchangeCode, selectedPrice,accountId);
+        }
         #endregion
 
         #region Log Audit
@@ -689,6 +699,32 @@ namespace ManagerService.Console
                 info.ErrorMessage = ex.Message;
                 Logger.TraceEvent(TraceEventType.Error, "UpdateHighLow Failed\r\n{0}", ex.ToString());
                 return info;
+            }
+        }
+
+        public bool FixOverridedQuotationHistory(Dictionary<string, string> quotations, bool needApplyAutoAdjustPoints)
+        {
+            try
+            {
+                return this._Client.FixOverridedQuotationHistory(quotations, needApplyAutoAdjustPoints);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "FixOverridedQuotationHistory\r\n{0}", ex.ToString());
+                return false;
+            }
+        }
+
+        public bool RestoreHighLow(string exchangeCode,int batchProcessId)
+        {
+            try
+            {
+                return this._Client.RestoreHighLow(exchangeCode, batchProcessId);
+            }
+            catch (Exception ex)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "RestoreHighLow\r\n{0}", ex.ToString());
+                return false;
             }
         }
     }
