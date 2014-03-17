@@ -4,7 +4,8 @@
                     xmlns:local="clr-namespace:ManagerConsole.UI"
                     xmlns:igPrim="http://schemas.infragistics.com/xaml/primitives"
                     xmlns:localUI="clr-namespace:ManagerConsole.UI"
-                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+                    xmlns:system="clr-namespace:System;assembly=mscorlib"
+                    xmlns:TaskMenu="clr-namespace:ManagerConsole.UI.SettingTask">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="WhiteTheme/Office2010Blue.xamGrid.xaml"/>
         <ResourceDictionary Source="WhiteTheme/XamInput_whiteTheme.xaml"/>
@@ -12,9 +13,14 @@
     <Style x:Key="BorderStyle" TargetType="Border">
         <Setter Property="BorderBrush" Value="Black"/>
     </Style>
+    <LinearGradientBrush x:Key="DealingBorderBackground" StartPoint="0.5, 0" EndPoint="0.5, 1">
+        <GradientStop Color="#FFFFFFFF" Offset="0" />
+        <GradientStop Color="#E8FFFFFF" Offset="0.4" />
+        <GradientStop Color="#88FFFFFF" Offset="1" />
+    </LinearGradientBrush>
     <Style x:Key="DealingBorderStyle" TargetType="Border">
         <Setter Property="BorderBrush" Value="Black"/>
-        <Setter Property="Background" Value="#FFF0F0F0"/>
+        <Setter Property="Background" Value="{DynamicResource DealingBorderBackground}"/>
         <Setter Property="CornerRadius" Value="3"/>
         <Setter Property="BorderThickness" Value="1"/>
     </Style>
@@ -45,6 +51,13 @@
     <Style TargetType="local:ExchangeQuotationPropertyControl">
         <Setter Property="Background" Value="White"/>
         <Setter Property="Foreground" Value="Black"/>
+    </Style>
+     <!--Open Interest-->
+    <Style x:Key="BuyCellStyle" TargetType="ig:CellControl" BasedOn="{StaticResource CellControlStyle}">
+        <Setter Property="Foreground" Value="Blue"/>
+    </Style>
+    <Style x:Key="SellCellStyle" TargetType="ig:CellControl" BasedOn="{StaticResource CellControlStyle}">
+        <Setter Property="Foreground" Value="Red"/>
     </Style>
     <!--Account Status Grid Expand Style-->
     <Style x:Key="TradingSummaryControlStyle" TargetType="localUI:TradingSummaryControl">
@@ -187,7 +200,7 @@
                                                         <Rectangle 
                                                 Width="9" 
                                                 Height="9" 
-                                                Stroke="#b2c3d2" 
+                                                Stroke="Red" 
                                                 StrokeThickness="1">
                                                             <Rectangle.Fill>
                                                                 <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
@@ -225,6 +238,43 @@
                         </igPrim:ExpansionIndicator>
                     </Grid>
                 </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!--Task ExpandMenuItem Template-->
+    <Style TargetType="TaskMenu:TaskMenuCanva">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TaskMenu:TaskMenuCanva">
+                    <StackPanel Orientation="Vertical" x:Name="ExpandMenuWraPanel">
+
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <TaskMenu:TaskMenuCanva x:Name="TaskMenuCanva"/>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="TaskMenu:TaskMenuContentCanva">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TaskMenu:TaskMenuContentCanva">
+                    <StackPanel Orientation="Vertical" x:Name="ExpandMenuActionWraPanel">
+
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <TaskMenu:TaskMenuContentCanva x:Name="TaskMenuContentCanva"/>
+                </DataTemplate>
             </Setter.Value>
         </Setter>
     </Style>

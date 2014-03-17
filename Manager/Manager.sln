@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagerConsole", "ManagerConsole\ManagerConsole.csproj", "{F5C40A2B-77D4-4E07-BACF-CF123D2B890C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagerService", "ManagerService\ManagerService.csproj", "{40393775-FDC3-4433-A144-8D248F855E91}"
@@ -9,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RiskManage", "RiskManager\R
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Manager.Common", "Manager.Common\Manager.Common.csproj", "{FD64B9C0-DA18-46F7-8EF7-AFB6B66CE932}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StateServerMock", "StateServerMock\StateServerMock.csproj", "{C233E250-4A8A-43DA-9FE6-F92F51FDD404}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestConsole", "StateServerMock\TestConsole.csproj", "{C233E250-4A8A-43DA-9FE6-F92F51FDD404}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Manager.UnitTest", "Manager.UnitTest\Manager.UnitTest.csproj", "{BE40A354-B6E8-4B9B-B9EB-383D21FE3D17}"
 EndProject
@@ -38,15 +40,12 @@ Global
 		SccProjectUniqueName4 = RiskManager\\RiskManage.csproj
 		SccProjectName4 = RiskManager
 		SccLocalPath4 = RiskManager
-		SccProjectUniqueName5 = StateServerMock\\StateServerMock.csproj
-		SccProjectName5 = StateServerMock
-		SccLocalPath5 = StateServerMock
-		SccProjectUniqueName6 = Manager.UnitTest\\Manager.UnitTest.csproj
-		SccProjectName6 = Manager.UnitTest
-		SccLocalPath6 = Manager.UnitTest
-	EndGlobalSection
-	GlobalSection(TestCaseManagementSettings) = postSolution
-		CategoryFile = Manager.vsmdi
+		SccProjectUniqueName5 = Manager.UnitTest\\Manager.UnitTest.csproj
+		SccProjectName5 = Manager.UnitTest
+		SccLocalPath5 = Manager.UnitTest
+		SccProjectUniqueName6 = StateServerMock\\TestConsole.csproj
+		SccProjectName6 = StateServerMock
+		SccLocalPath6 = StateServerMock
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -120,5 +119,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = Manager.vsmdi
 	EndGlobalSection
 EndGlobal

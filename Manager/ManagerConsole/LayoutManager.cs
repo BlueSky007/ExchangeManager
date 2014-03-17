@@ -35,6 +35,7 @@ namespace ManagerConsole
             this._MultipleOpenModuleMaxSuffixes.Add(ModuleType.QuotationMonitor, 0);
             this._MultipleOpenModuleMaxSuffixes.Add(ModuleType.ExchangeQuotation, 0);
             this._MultipleOpenModuleMaxSuffixes.Add(ModuleType.DQOrderProcess, 0);
+            this._MultipleOpenModuleMaxSuffixes.Add(ModuleType.LimitBatchProcess, 0);
             this._ThemeManager = new ThemeManager(false);
         }
 

@@ -18,6 +18,7 @@ using TransactionError = iExchange.Common.TransactionError;
 using OrderQueryEntity = Manager.Common.ReportEntities.OrderQueryEntity;
 using SoundSetting = Manager.Common.Settings.SoundSetting;
 using BlotterSelection = Manager.Common.ReportEntities.BlotterSelection;
+using InstrumentForFloatingPLCalc = Manager.Common.ReportEntities.InstrumentForFloatingPLCalc;
 using System.Collections.ObjectModel;
 using iExchange.Common.Manager;
 using iExchange.Common;
@@ -212,8 +213,15 @@ namespace ManagerConsole.Model
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginGetAccountReportData(string exchangeCode, string selectedPrice, Guid accountId, AsyncCallback callback, object asyncState);
         AccountStatusQueryResult EndGetAccountReportData(IAsyncResult result);
-        
 
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginGetInstrumentForFloatingPLCalc(string exchangeCode, AsyncCallback callback, object asyncState);
+        List<InstrumentForFloatingPLCalc> EndGetInstrumentForFloatingPLCalc(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = true)]
+        IAsyncResult BeginUpdateInstrumentForFloatingPLCalc(string exchangeCode, Guid instrumentId, string bid, int spreadPoint, AsyncCallback callback, object asyncState);
+        bool EndUpdateInstrumentForFloatingPLCalc(IAsyncResult result);
+        
         #endregion
 
         #region Log Audit

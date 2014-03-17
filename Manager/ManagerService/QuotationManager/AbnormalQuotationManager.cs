@@ -31,7 +31,11 @@ namespace ManagerService.Quotation
             this._LastQuotationManager = lastQuotationManager;
             this._Timer = new Timer(this.CheckTimeout);
         }
-
+        public void Stop()
+        {
+            this._Timer.Change(Timeout.Infinite, Timeout.Infinite);
+            this._Timer.Dispose();
+        }
         public bool SetQuotation(SourceQuotation quotation)
         {
             bool isNormalAndNotWaiting = false;
@@ -172,20 +176,27 @@ namespace ManagerService.Quotation
 
         private void CheckTimeout(object state)
         {
-            this.StopTimer();
-            foreach (var item in this._AbnormalInstruments.Values)
-            {
-                item.CheckTimeout();
-            }
-
-            DateTime? nextCheckTime = this._AbnormalInstruments.Values.Min(ai => ai.CheckTime);
-            if (nextCheckTime == null)
+            try
             {
                 this.StopTimer();
+                foreach (var item in this._AbnormalInstruments.Values)
+                {
+                    item.CheckTimeout();
+                }
+
+                DateTime? nextCheckTime = this._AbnormalInstruments.Values.Min(ai => ai.CheckTime);
+                if (nextCheckTime == null)
+                {
+                    this.StopTimer();
+                }
+                else
+                {
+                    this.ChangeWaitTime(nextCheckTime.Value);
+                }
             }
-            else
+            catch (Exception exception)
             {
-                this.ChangeWaitTime(nextCheckTime.Value);
+                Logger.TraceEvent(TraceEventType.Error, "AbnormalQuotationManager.CheckTimeout exception\r\n{0}", exception);
             }
         }
 

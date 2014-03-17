@@ -4,6 +4,7 @@
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
                     xmlns:local="clr-namespace:ManagerConsole.UI"
                     xmlns:main="clr-namespace:ManagerConsole"
+                    xmlns:TaskMenu="clr-namespace:ManagerConsole.UI.SettingTask"
                     xmlns:System="clr-namespace:System;assembly=mscorlib" mc:Ignorable="d">
 
 
@@ -2683,6 +2684,18 @@
         <Setter Property="Foreground" Value="White"/>
     </Style>
     <Style TargetType="local:AccountStatusQuery">
+        <Setter Property="Background" Value="#FF1B1B1B"/>
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+    <Style TargetType="local:ChangePriceForFPLCalc">
+        <Setter Property="Background" Value="#FF1B1B1B"/>
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+    <Style TargetType="TaskMenu:TaskMenuItem">
+        <Setter Property="Background" Value="#FF1B1B1B"/>
+        <Setter Property="Foreground" Value="White"/>
+    </Style>
+    <Style TargetType="TaskMenu:TaskMenuContentControl">
         <Setter Property="Background" Value="#FF1B1B1B"/>
         <Setter Property="Foreground" Value="White"/>
     </Style>

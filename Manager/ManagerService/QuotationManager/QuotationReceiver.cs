@@ -53,7 +53,7 @@ namespace ManagerService.Quotation
                     }
                     catch (Exception exception)
                     {
-                        Logger.TraceEvent(TraceEventType.Error, "QuotationReceiver.Start Accept QuotationClient failed\r\n{0}", exception.ToString());
+                        Logger.TraceEvent(TraceEventType.Warning, "QuotationReceiver.Start Accept QuotationClient failed\r\n{0}", exception.ToString());
                         this.Stop();
                         break;
                     }
@@ -72,9 +72,9 @@ namespace ManagerService.Quotation
                 this._Running = false;
                 foreach (QuotationClient client in this._QuotationClients)
                 {
-                    client.Stop();
+                    client.Dispose();
                 }
-                this._Listener.Stop();
+                if (this._Listener != null) this._Listener.Stop();
             }
             catch(Exception exception)
             {

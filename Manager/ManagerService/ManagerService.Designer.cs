@@ -29,10 +29,10 @@
         private void InitializeComponent()
         {
             // 
-            // iExchangeManager
+            // ManagerService
             // 
             this.CanShutdown = true;
-            this.ServiceName = "iExchangeManager";
+            this.ServiceName = "ManagerService";
 
         }
 

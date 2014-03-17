@@ -42,11 +42,12 @@ namespace ManagerService.Exchange
 
         public void Stop()
         {
-            this._ServiceHost.Close();
             foreach (ExchangeSystem exchangeSystem in this._ExchangeSystems.Values)
             {
                 exchangeSystem.Stop();
             }
+            this._ConnectionManager.Stop();
+            this._ServiceHost.Close();
         }
 
         public void NotifyExchangeManagerStarted()

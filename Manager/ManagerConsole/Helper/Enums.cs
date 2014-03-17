@@ -104,6 +104,16 @@ namespace ManagerConsole
         InstrumentParameter = 3,
     }
 
-    
+    public enum TaskEventType
+    {
+        CreateTask,
+        EditorTask,
+        DeleteTask,
+        RefreshTask,
+        RunTask,
+        EnableTask,
+        DisabledTask,
+        StopTask,
+    }
 
 }

@@ -1,0 +1,17 @@
+﻿<StackPanel x:Class="TestConsole.Feeder.SourceItemControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" Orientation="Horizontal" >
+    <CheckBox IsChecked="{Binding IsSelected}" VerticalAlignment="Center"/>
+    <TextBlock Text="SourceName:" Margin="10,0,3,0" VerticalAlignment="Center"/>
+    <TextBox Text="{Binding SourceName}" Width="80"/>
+    <TextBlock Text="Login:" Margin="10,0,3,0" VerticalAlignment="Center"/>
+    <TextBox Text="{Binding LoginName}" Width="60"/>
+    <TextBlock Text="Password:" Margin="10,0,3,0" VerticalAlignment="Center"/>
+    <TextBox Text="{Binding Password}" Width="60"/>
+    <TextBox Text="{Binding DataFileName}" Width="280" Margin="10,0,0,0"/>
+    <TextBlock Text="Repeat:" Margin="10,0,3,0" VerticalAlignment="Center"/>
+    <CheckBox IsChecked="{Binding IsRepeat}" VerticalAlignment="Center"/>
+    <TextBlock Text="{Binding Status}" Foreground="Green" Margin="10,0,3,0" VerticalAlignment="Center"/>
+</StackPanel>

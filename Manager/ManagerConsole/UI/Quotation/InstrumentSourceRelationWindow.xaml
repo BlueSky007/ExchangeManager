@@ -1,0 +1,62 @@
+﻿<ig:XamDialogWindow xmlns:ig="http://schemas.infragistics.com/xaml"
+             x:Class="ManagerConsole.UI.InstrumentSourceRelationWindow"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ManagerConsole.ViewModel"
+             mc:Ignorable="d" MinimizeButtonVisibility="Collapsed" MaximizeButtonVisibility="Collapsed"
+             CloseButtonVisibility="Collapsed" Header="Instrument Source Relation" Width="560" Height="279" StartupPosition="Center">
+    <ig:XamDialogWindow.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="TextAlignment" Value="Right"/>
+        </Style>
+        <Style TargetType="CheckBox">
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+    </ig:XamDialogWindow.Resources>
+    <Grid Margin="10" PreviewKeyDown="Grid_PreviewKeyDown">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="120"/>
+            <ColumnDefinition Width="120"/>
+            <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="120"/>
+            <ColumnDefinition Width="120"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <TextBlock Text="Instrument Code"/>
+        <TextBlock Grid.Column="1" x:Name="InstrumentCodeTextBlock"/>
+        <TextBlock Grid.Row="1" Text="Source"/>
+        <ComboBox Grid.Row="1" Grid.Column="1" x:Name="SourcesComboBox" VerticalAlignment="Center" SelectedValue="{Binding SourceId}" SelectedValuePath="Id" DisplayMemberPath="Name" />
+        <TextBlock Grid.Row="1" Grid.Column="3" Text="Source Symbol"/>
+        <TextBox Grid.Row="1" Grid.Column="4" x:Name="SourceSymbolBox" Text="{Binding SourceSymbol}" MaxLength="20" TextAlignment="Left"/>
+        <TextBlock Grid.Row="2"  Text="IsDefault"/>
+        <CheckBox Grid.Row="2" Grid.Column="1" IsChecked="{Binding IsDefault}" x:Name="IsDefaultCheckBox"/>
+        <TextBlock Grid.Row="2" Grid.Column="3" Text="Inverted"/>
+        <CheckBox Grid.Row="2" Grid.Column="4" IsChecked="{Binding Inverted}"/>
+        <TextBlock Grid.Row="3" Text="Priority"/>
+        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Priority}" />
+        <TextBlock Grid.Row="3" Grid.Column="3" Text="Switch Timeout"/>
+        <TextBox Grid.Row="3" Grid.Column="4" x:Name="SwitchTimeoutBox" Text="{Binding SwitchTimeout}" />
+        <TextBlock Grid.Row="4" Text="Adjust Points"/>
+        <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding AdjustPoints}"/>
+        <TextBlock Grid.Row="4" Grid.Column="3" Text="Adjust Increment"/>
+        <TextBox Grid.Row="4" Grid.Column="4" Text="{Binding AdjustIncrement}"/>
+
+        <TextBlock x:Name="HintTextBlock" Grid.Row="5" Grid.ColumnSpan="4" VerticalAlignment="Top" Margin="0,8" TextWrapping="Wrap" />
+
+        <Button Grid.Row="5" Grid.ColumnSpan="5" Height="23" Width="75" HorizontalAlignment="Right"  Margin="0,36,120,0" x:Name="OKButton" Content="OK" Click="OK_Click" />
+        <Button Grid.Row="5" Grid.ColumnSpan="5" Height="23" Width="75" HorizontalAlignment="Right" Margin="0,36,0,0"  x:Name="CancelButton" Content="Cancel" Click="Cancel_Click"/>
+    </Grid>
+</ig:XamDialogWindow>

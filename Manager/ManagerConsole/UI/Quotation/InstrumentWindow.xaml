@@ -1,0 +1,77 @@
+﻿<ig:XamDialogWindow xmlns:ig="http://schemas.infragistics.com/xaml"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ManagerConsole.UI"  x:Class="ManagerConsole.UI.InstrumentWindow" 
+             mc:Ignorable="d" MinimizeButtonVisibility="Collapsed" MaximizeButtonVisibility="Collapsed"
+                    CloseButtonVisibility="Collapsed" Header="Instrument" Width="530" Height="490" StartupPosition="Center">
+    <Control.Resources>
+        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="Height" Value="20" />
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="TextAlignment" Value="Right"/>
+        </Style>
+        <Style TargetType="CheckBox" BasedOn="{StaticResource {x:Type CheckBox}}">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </Control.Resources>
+    <Grid Margin="10" PreviewKeyDown="Grid_PreviewKeyDown">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="200*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="250" />
+            <RowDefinition Height="118" />
+            <RowDefinition Height="80" />
+        </Grid.RowDefinitions>
+        <Grid Height="250" Width="200">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100" />
+                <ColumnDefinition Width="100"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="25"/>
+            </Grid.RowDefinitions>
+            <TextBlock Text="Code"/>
+            <TextBox x:Name="CodeBox" Grid.Column="1" Text="{Binding Instrument.Code}" TextAlignment="Left" />
+            <TextBlock Text="DecimalPlace" Grid.Row="1"/>
+            <TextBox x:Name="DecimalPlaceBox" Grid.Column="1" Grid.Row="1" Text="{Binding Instrument.DecimalPlace}"/>
+            <TextBlock Text="InactiveTime" Grid.Row="2" />
+            <TextBox x:Name="InactiveTimeBox" Grid.Column="1" Grid.Row="2" Text="{Binding Instrument.InactiveTime}"/>
+            <TextBlock Text="IsSwitchUseAgio" Grid.Row="3" />
+            <CheckBox x:Name="IsSwitchUseAgioBox" Grid.Column="1" Grid.Row="3" IsChecked="{Binding Instrument.IsSwitchUseAgio}"/>
+            <TextBlock Text="AgioSeconds" Grid.Row="4" />
+            <TextBox x:Name="AgioSecondsBox" Grid.Column="1" Grid.Row="4" Text="{Binding Instrument.AgioSeconds}" />
+            <TextBlock Text="LeastTicks" Grid.Row="5"/>
+            <TextBox x:Name="LeastTicksBox" Grid.Column="1" Grid.Row="5" Text="{Binding Instrument.LeastTicks}"/>
+            <TextBlock Text="AdjustPoints" Grid.Row="6"/>
+            <TextBox x:Name="AdjustPointssBox" Grid.Column="1" Grid.Row="6" Text="{Binding Instrument.AdjustPoints}"/>
+            <TextBlock Text="AdjustIncrement" Grid.Row="7"/>
+            <TextBox x:Name="AdjustIncrementBox" Grid.Column="1" Grid.Row="7" Text="{Binding Instrument.AdjustIncrement}"/>
+            <TextBlock Text="UseWeightedPrice" Grid.Row="8"/>
+            <CheckBox x:Name="UseWeightedPriceBox" Grid.Column="1" Grid.Row="8" IsChecked="{Binding Instrument.UseWeightedPrice}"/>
+        </Grid>
+
+        <local:RangeCheckRuleControl Grid.Column="1" Margin="15,0" DataContext="{Binding PriceRangeCheckRule}" />
+        <local:WeightedRuleControl Grid.Row="1" Grid.ColumnSpan="2" DataContext="{Binding WeightedPriceRule}" />
+
+        <TextBlock x:Name="HintTextBlock" Grid.Row="2" VerticalAlignment="Top" />
+        <StackPanel Grid.Row="2" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="OKButton" Content="OK" Height="23" Width="80" Click="OKButton_Click" />
+            <Button x:Name="CancelButton" Content="Cancel" Height="23" Width="80" Margin="40,0" Click="CancelButton_Click" />
+        </StackPanel>
+    </Grid>
+</ig:XamDialogWindow>

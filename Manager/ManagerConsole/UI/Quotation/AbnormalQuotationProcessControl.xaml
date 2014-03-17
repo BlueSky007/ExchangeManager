@@ -1,0 +1,80 @@
+﻿<UserControl xmlns:ig="http://schemas.infragistics.com/xaml"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Classic"  x:Class="ManagerConsole.UI.AbnormalQuotationProcessControl" 
+             mc:Ignorable="d" 
+             d:DesignHeight="400" d:DesignWidth="460" Background="White">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="121"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+            <Grid Height="30">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="92"/>
+                    <ColumnDefinition Width="92"/>
+                    <ColumnDefinition Width="92"/>
+                    <ColumnDefinition Width="92"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Instrument Code:" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="1" Text="{Binding FirstItem.InstrumentCode}" VerticalAlignment="Center" FontWeight="Bold"/>
+                <TextBlock Grid.Column="2" Text="OutOfRange Type:" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="3" Text="{Binding FirstItem.PriceOutOfRangeType}" VerticalAlignment="Center" FontWeight="Bold"/>
+            </Grid>
+            <Grid Height="90">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="160"/>
+                    <ColumnDefinition Width="60"/>
+                    <ColumnDefinition Width="160"/>
+                </Grid.ColumnDefinitions>
+                <Button Style="{DynamicResource ButtonStyle}" x:Name="AcceptButton" Click="ConfirmButton_Click">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="50"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="{Binding FirstItem.NewPrice}" FontSize="26" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="1" Text="ACCEPT" HorizontalAlignment="Right" />
+                    </Grid>
+                </Button>
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="{Binding FirstItem.DiffPoints}" HorizontalAlignment="Center" Margin="0,20,0,0" FontWeight="Bold" />
+                    <TextBlock Text="{Binding FirstItem.RemainingSeconds}" HorizontalAlignment="Center" Margin="0,20" Foreground="Red" />
+                </StackPanel>
+                <Button Grid.Column="3" Style="{DynamicResource ButtonStyle}" x:Name="MaintainButton" Click="ConfirmButton_Click">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="50"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="{Binding FirstItem.OldPrice}" FontSize="26" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="1" Text="MAINTAIN" HorizontalAlignment="Right" />
+                    </Grid>
+                </Button>
+            </Grid>
+        </StackPanel>
+        <ig:XamGrid x:Name="MainGrid" AutoGenerateColumns="False" Grid.Row="1" ItemsSource="{Binding AbnormalQuotations}">
+            <ig:XamGrid.CellStyle>
+                <Style TargetType="{x:Type ig:CellControl}">
+                    <Setter Property="Padding" Value="1"/>
+                </Style>
+            </ig:XamGrid.CellStyle>
+            <ig:XamGrid.Columns>
+                <ig:TextColumn Key="ConfirmId" HeaderText="Confirm" Visibility="Hidden"/>
+                <ig:TextColumn Key="RemainingSeconds" HeaderText="Timing" HorizontalContentAlignment="Center" />
+                <ig:TextColumn Key="InstrumentCode" HeaderText="InstrumentCode"/>
+                <ig:TextColumn Key="Timestamp" HeaderText="Timestamp"/>
+                <ig:TextColumn Key="NewPrice" HeaderText="NewPrice"/>
+                <ig:TextColumn Key="OldPrice" HeaderText="OldPrice"/>
+                <ig:TextColumn Key="PriceOutOfRangeType" HeaderText="OutOfRangeType"/>
+                <ig:TextColumn Key="DiffPoints" HeaderText="DiffPoints"/>
+            </ig:XamGrid.Columns>
+            <ig:XamGrid.SelectionSettings>
+                <ig:SelectionSettings CellClickAction="SelectRow"/>
+            </ig:XamGrid.SelectionSettings>
+        </ig:XamGrid>
+    </Grid>
+</UserControl>

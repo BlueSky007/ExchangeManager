@@ -122,22 +122,30 @@ namespace ManagerConsole.Model
 
         private void communicationObject_Faulted(object sender, EventArgs e)
         {
-            if (this._IsLoggedIn)
+            try
             {
-                this._ReocoverTimes = 1;
-                if (this._RecoverTimer == null)
+                if (this._IsLoggedIn)
                 {
-                    this._RecoverTimer = new Timer(this.RecoverConnection);
+                    this._ReocoverTimes = 1;
+                    if (this._RecoverTimer == null)
+                    {
+                        this._RecoverTimer = new Timer(this.RecoverConnection);
+                    }
+                    App.MainFrameWindow.StatusBar.ShowUserConnectionState(ConnectionState.Connecting);
+                    this._RecoverTimer.Change(50, Timeout.Infinite);
+                    Logger.AddEvent(TraceEventType.Warning, "ConsoleClient.communicationObject_Faulted try recover.");
                 }
-                App.MainFrameWindow.StatusBar.ShowUserConnectionState(ConnectionState.Connecting);
-                this._RecoverTimer.Change(50, Timeout.Infinite);
-                Logger.AddEvent(TraceEventType.Warning, "ConsoleClient.communicationObject_Faulted try recover.");
+                else
+                {
+                    App.MainFrameWindow.StatusBar.ShowUserConnectionState(ConnectionState.Disconnected);
+                }
+                this._IsLoggedIn = false;
             }
-            else
+            catch (Exception exception)
             {
-                App.MainFrameWindow.StatusBar.ShowUserConnectionState(ConnectionState.Disconnected);
+                Logger.TraceEvent(TraceEventType.Error, "ConsoleClient.communicationObject_Faulted exception\r\n{0}", exception);
             }
-            this._IsLoggedIn = false;
+  
         }
 
         private void RecoverConnection(object state)
@@ -147,33 +155,48 @@ namespace ManagerConsole.Model
                 this.CreateChannel();
                 this._ServiceProxy.BeginRecoverConnection(this._SessionId, delegate(IAsyncResult result)
                 {
-                    bool recovered = this._ServiceProxy.EndRecoverConnection(result);
-                    this._IsLoggedIn = recovered;
-                    if (recovered)
+                    try
                     {
-                        ICommunicationObject communicationObject = this._ServiceProxy as ICommunicationObject;
-                        communicationObject.Faulted += communicationObject_Faulted;
-                        Logger.AddEvent(TraceEventType.Information, "ConsoleClient.RecoverConnection Success");
+                        bool recovered = this._ServiceProxy.EndRecoverConnection(result);
+                        this._IsLoggedIn = recovered;
+                        if (recovered)
+                        {
+                            ICommunicationObject communicationObject = this._ServiceProxy as ICommunicationObject;
+                            communicationObject.Faulted += communicationObject_Faulted;
+                            Logger.AddEvent(TraceEventType.Information, "ConsoleClient.RecoverConnection Success");
+                        }
+                        else
+                        {
+                            Logger.AddEvent(TraceEventType.Information, "ConsoleClient.RecoverConnection Failed");
+                        }
+                        App.MainFrameWindow.StatusBar.ShowUserConnectionState(recovered ? ConnectionState.Connected : ConnectionState.Disconnected);
+
                     }
-                    else
+                    catch (Exception exception)
                     {
-                        Logger.AddEvent(TraceEventType.Information, "ConsoleClient.RecoverConnection Failed");
+                        this.RetryRecoverConnection(exception);
                     }
-                    App.MainFrameWindow.StatusBar.ShowUserConnectionState(recovered ? ConnectionState.Connected : ConnectionState.Disconnected);
                 }, null);
             }
             catch(Exception exception)
             {
-                if (this._ReocoverTimes++ < 20)
-                {
-                    this._RecoverTimer.Change(1000, Timeout.Infinite);
-                    Logger.AddEvent(TraceEventType.Warning, "ConsoleClient.RecoverConnection failed, try again.\r\n{0}", exception);
-                }
-                else
-                {
-                    App.MainFrameWindow.StatusBar.ShowUserConnectionState(ConnectionState.Disconnected);
-                    Logger.AddEvent(TraceEventType.Warning, "ConsoleClient.RecoverConnection failed\r\n{0}", exception);
-                }
+                this.RetryRecoverConnection(exception);
+            }
+        }
+
+        private void RetryRecoverConnection(Exception exception)
+        {
+            if (this._ReocoverTimes++ < 20)
+            {
+                this._RecoverTimer.Change(1000, Timeout.Infinite);
+                Logger.AddEvent(TraceEventType.Warning, "ConsoleClient.RecoverConnection failed, try again.\r\n{0}", exception);
+                App.MainFrameWindow.StatusBar.ShowStatusText(string.Format("Recovering connection({0})......", this._ReocoverTimes));
+            }
+            else
+            {
+                App.MainFrameWindow.StatusBar.ShowUserConnectionState(ConnectionState.Disconnected);
+                Logger.AddEvent(TraceEventType.Warning, "ConsoleClient.RecoverConnection failed\r\n{0}", exception);
+                App.MainFrameWindow.StatusBar.ShowStatusText("Recover connection failed.");
             }
         }
 
@@ -617,6 +640,25 @@ namespace ManagerConsole.Model
                 EndGetAccountReportData(queryResult);
             }, null);
         }
+
+        public void GetInstrumentForFloatingPLCalc(string exchangeCode,Action<List<InstrumentForFloatingPLCalc>> EndGetInstrumentForFloatingPLCalc)
+        {
+            this._ServiceProxy.BeginGetInstrumentForFloatingPLCalc(exchangeCode,delegate(IAsyncResult result)
+            {
+                List<InstrumentForFloatingPLCalc> instrumentList = this._ServiceProxy.EndGetInstrumentForFloatingPLCalc(result);
+                EndGetInstrumentForFloatingPLCalc(instrumentList);
+            },null);
+        }
+
+        public void UpdateInstrumentForFloatingPLCalc(string exchangeCode, Guid instrumentId, string bid, int spreadPoint, Action<bool> EndUpdateInstrumentForFloatingPLCalc)
+        {
+            this._ServiceProxy.BeginUpdateInstrumentForFloatingPLCalc(exchangeCode,instrumentId,bid,spreadPoint,delegate(IAsyncResult result)
+            {
+                bool isSucceed = this._ServiceProxy.EndUpdateInstrumentForFloatingPLCalc(result);
+                EndUpdateInstrumentForFloatingPLCalc(isSucceed);
+            },null);
+        }
+        
         #endregion
 
         #region Log Audit

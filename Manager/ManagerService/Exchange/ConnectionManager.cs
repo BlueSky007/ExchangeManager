@@ -29,6 +29,12 @@ namespace ManagerService.Exchange
             this._MonitorTimer = new Timer(this.Monitor);
         }
 
+        public void Stop()
+        {
+            this._MonitorTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            this._MonitorTimer.Dispose();
+        }
+
         public void NotifyExchangeManagerStarted()
         {
             foreach (var exchangeSystem in this._ExchangeSystems.Values)

@@ -21,6 +21,7 @@ namespace ManagerConsole.Helper
         public static readonly SolidColorBrush LightGray = new SolidColorBrush(Colors.LightGray);
         public static readonly SolidColorBrush DarkGray = new SolidColorBrush(Colors.DarkGray);
         public static readonly SolidColorBrush BorderBrush = new SolidColorBrush(Color.FromArgb(0xFF, 0x28, 0x28, 0x28));
+        public static readonly SolidColorBrush Gold = new SolidColorBrush(Colors.Gold);
 
         public static SolidColorBrush Sell = new SolidColorBrush(Color.FromArgb(0xFF, 0xDE, 0x1B, 0x1A));
         public static SolidColorBrush Buy = new SolidColorBrush(Color.FromArgb(0xFF, 0x1A, 0x1A, 0xDE));

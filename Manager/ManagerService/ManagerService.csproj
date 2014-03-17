@@ -44,6 +44,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>true</UseVSHostingProcess>
+    <CodeAnalysisRuleSet>ExtendedDesignGuidelineRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -91,7 +92,6 @@
     <Compile Include="Exchange\ConnectionManager.cs" />
     <Compile Include="Exchange\ExchangeSystem.cs" />
     <Compile Include="Exchange\IExchangeService.cs" />
-    <Compile Include="Exchange\QuotationGenerator.cs" />
     <Compile Include="Exchange\ExchangeService.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="ManagerSettings.cs" />

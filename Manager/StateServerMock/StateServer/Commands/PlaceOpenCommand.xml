@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Place xmlns="">
+  <Transaction ID="cfd5dba7-70fa-45f5-9945-b1d947611e05" Code="MHL131010MO00002" InstrumentID="66adc06c-c5fe-4428-867f-be97650eb3b4" InstrumentCategory="20" AccountID="9538eb6e-57b1-45fa-8595-58df7aabcfc9" Type="0" SubType="0" Phase="0" OrderType="3" BeginTime="2013-10-11 04:00:01" EndTime="2013-10-11 04:30:01" ExpireType="3" SubmitTime="2013-10-10 16:24:08" SubmitorID="d366d147-734a-4f2b-adb1-1623472b2c7e">
+    <Order ID="18132586-529b-4c40-b1cd-93a859ee5d45" Code="MHL2013101000046" TradeOption="0" IsOpen="true" IsBuy="true" PhysicalTradeSide="1" InterestValueDate="" Lot="40.00000000" OriginalLot="20.00000000" LotBalance="20.00000000" PlacedByRiskMonitor="false"/>
+  </Transaction>
+</Place>

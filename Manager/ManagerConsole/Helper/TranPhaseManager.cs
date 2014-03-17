@@ -49,6 +49,7 @@ namespace ManagerConsole.Helper
                         break;
                     case Phase.Deleted:
                         order.Status = OrderStatus.Deleted;
+                        this.DeleteOrderFromOpenInterestSummaryGrid(order);
                         break;
                     case Phase.Completed:
                         break;
@@ -94,6 +95,12 @@ namespace ManagerConsole.Helper
         {
             GroupNetPositionModel groupNetPostionModel = this._ExchangeDataManager.ReportDataManager.GetGroupNetPositionModel(executedOrder.ExchangeCode);
             groupNetPostionModel.AddOrderToGroupNetPosition(executedOrder);
+        }
+
+        public void DeleteOrderFromOpenInterestSummaryGrid(Order deletedOrder)
+        {
+            OpenInterestSummaryModel openInterestSummaryModel = this._ExchangeDataManager.ReportDataManager.GetOpenInterestSummaryModel(deletedOrder.ExchangeCode);
+            openInterestSummaryModel.DeleteOrderFromSummaryGrid(deletedOrder, false);
         }
 
         public void DeletedExecutedOrderSummaryItem(Order order)

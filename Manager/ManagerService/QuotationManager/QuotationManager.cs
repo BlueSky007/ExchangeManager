@@ -42,6 +42,7 @@ namespace ManagerService.Quotation
         {
             this._QuotationReceiver.Stop();
             this._SourceController.Stop();
+            this._AbnormalQuotationManager.Stop();
         }
 
         public ConfigMetadata ConfigMetadata { get { return this._ConfigMetadata; } }

@@ -127,11 +127,6 @@
       <HintPath>..\..\..\..\References\DotNet\Infragistics2013\infragisticswpf4.dockmanager.v13.1.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="InfragisticsWPF4.OutlookBar.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\References\DotNet\Infragistics2013\InfragisticsWPF4.OutlookBar.v13.1.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="InfragisticsWPF4.Reporting.v13.1, Version=13.1.20131.1009, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\References\DotNet\Infragistics2013\InfragisticsWPF4.Reporting.v13.1.dll</HintPath>
@@ -178,32 +173,38 @@
       <DependentUpon>ChangePassword.xaml</DependentUpon>
     </Compile>
     <Compile Include="Helper\AccountStatusHelper.cs" />
+    <Compile Include="Helper\BusyDecorator.cs" />
     <Compile Include="Helper\PriceHelper.cs" />
+    <Compile Include="Helper\TaskFactory.cs" />
     <Compile Include="LayoutManager.cs" />
     <Compile Include="Model\ExchangeQuotation.cs" />
     <Compile Include="Model\OrderRelation.cs" />
     <Compile Include="Model\SettingsManager.cs" />
     <Compile Include="Model\ExchangeTradingManager.cs" />
     <Compile Include="Model\Principal.cs" />
-    <Compile Include="UI\AccountHedgingLevelControl.xaml.cs">
+    <Compile Include="Model\TaskMenuItem.cs" />
+    <Compile Include="UI\Report\AccountHedgingLevelControl.xaml.cs">
       <DependentUpon>AccountHedgingLevelControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\AccountOrderStatus.xaml.cs">
+    <Compile Include="UI\Report\AccountOrderStatus.xaml.cs">
       <DependentUpon>AccountOrderStatus.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\AccountStatusQuery.xaml.cs">
+    <Compile Include="UI\Report\AccountStatusQuery.xaml.cs">
       <DependentUpon>AccountStatusQuery.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\AccountSummaryControl.cs" />
-    <Compile Include="UI\BlotterSelectionControl.xaml.cs">
+    <Compile Include="UI\Report\AccountSummaryControl.cs" />
+    <Compile Include="UI\Report\BlotterSelectionControl.xaml.cs">
       <DependentUpon>BlotterSelectionControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Report\ChangePriceForFPLCalc.xaml.cs">
+      <DependentUpon>ChangePriceForFPLCalc.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\ColumnWidthPersistence.cs" />
     <Compile Include="ThemeManager.cs" />
     <Compile Include="UI\ConnectionStateControl.xaml.cs">
       <DependentUpon>ConnectionStateControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\DealingLmtOrder.xaml.cs">
+    <Compile Include="UI\ProcessOrders\DealingLmtOrder.xaml.cs">
       <DependentUpon>DealingLmtOrder.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\ExchangeQuotationPropertyControl.xaml.cs">
@@ -233,10 +234,21 @@
     <Compile Include="UI\MainStatusBar.xaml.cs">
       <DependentUpon>MainStatusBar.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\RunSettingTaskDetail.xaml.cs">
+    <Compile Include="UI\SettingTask\RunSettingTaskDetail.xaml.cs">
       <DependentUpon>RunSettingTaskDetail.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\TaskSchedulerNotify.xaml.cs">
+    <Compile Include="UI\SettingTask\TaskMenuCanva.cs" />
+    <Compile Include="UI\SettingTask\TaskMenuContentCanva.cs" />
+    <Compile Include="UI\SettingTask\TaskMenuContentControl.xaml.cs">
+      <DependentUpon>TaskMenuContentControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\SettingTask\TaskMenuControl.xaml.cs">
+      <DependentUpon>TaskMenuControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\SettingTask\TaskMenuItem.xaml.cs">
+      <DependentUpon>TaskMenuItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\SettingTask\TaskSchedulerNotify.xaml.cs">
       <DependentUpon>TaskSchedulerNotify.xaml</DependentUpon>
     </Compile>
     <Compile Include="Updater.cs" />
@@ -263,78 +275,79 @@
     <Compile Include="UI\AdjustAndSpreadSettingControl.xaml.cs">
       <DependentUpon>AdjustAndSpreadSettingControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\DealingInstanceOrder.xaml.cs">
+    <Compile Include="UI\ProcessOrders\DealingInstanceOrder.xaml.cs">
       <DependentUpon>DealingInstanceOrder.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\ExchangeQuotationControl.xaml.cs">
       <DependentUpon>ExchangeQuotationControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\AbnormalQuotationProcessControl.xaml.cs">
+    <Compile Include="UI\Quotation\AbnormalQuotationProcessControl.xaml.cs">
       <DependentUpon>AbnormalQuotationProcessControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\DerivedInstrumentControl.xaml.cs">
+    <Compile Include="UI\Quotation\DerivedInstrumentControl.xaml.cs">
       <DependentUpon>DerivedInstrumentControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\DerivedInstrumentWindow.xaml.cs">
+    <Compile Include="UI\Quotation\DerivedInstrumentWindow.xaml.cs">
       <DependentUpon>DerivedInstrumentWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\ExecutedOrders.xaml.cs">
+    <Compile Include="UI\Report\ExecutedOrders.xaml.cs">
       <DependentUpon>ExecutedOrders.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\HintMessage.cs" />
     <Compile Include="UI\IControlLayout.cs" />
-    <Compile Include="UI\InstrumentSourceRelationWindow.xaml.cs">
+    <Compile Include="UI\Quotation\InstrumentSourceRelationWindow.xaml.cs">
       <DependentUpon>InstrumentSourceRelationWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\InstrumentWindow.xaml.cs">
+    <Compile Include="UI\Quotation\InstrumentWindow.xaml.cs">
       <DependentUpon>InstrumentWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\NewRelationWindow.xaml.cs">
       <DependentUpon>NewRelationWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\NewTaskWindow.xaml.cs">
+    <Compile Include="UI\SettingTask\NewTaskWindow.xaml.cs">
       <DependentUpon>NewTaskWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\OpenInterestControl.xaml.cs">
+    <Compile Include="UI\Report\OpenInterestControl.xaml.cs">
       <DependentUpon>OpenInterestControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\QuotationMonitorControl.xaml.cs">
+    <Compile Include="UI\Quotation\QuotationMonitorControl.xaml.cs">
       <DependentUpon>QuotationMonitorControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\LMTProcess.xaml.cs">
+    <Compile Include="UI\ProcessOrders\LMTProcess.xaml.cs">
       <DependentUpon>LMTProcess.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\OrderSearchControl.xaml.cs">
+    <Compile Include="UI\Report\OrderSearchControl.xaml.cs">
       <DependentUpon>OrderSearchControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\QuotationSourceControl.xaml.cs">
+    <Compile Include="UI\Quotation\QuotationSourceControl.xaml.cs">
       <DependentUpon>QuotationSourceControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\QuotePriceWindow.xaml.cs">
+    <Compile Include="UI\ProcessOrders\QuotePriceWindow.xaml.cs">
       <DependentUpon>QuotePriceWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\SettingParameterControl.xaml.cs">
+    <Compile Include="UI\SettingTask\SettingParameterControl.xaml.cs">
       <DependentUpon>SettingParameterControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\SettingSchedulerControl.xaml.cs">
+    <Compile Include="UI\SettingTask\SettingSchedulerControl.xaml.cs">
       <DependentUpon>SettingSchedulerControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\SourceRelationControl.xaml.cs">
+    <Compile Include="UI\Quotation\SourceRelationControl.xaml.cs">
       <DependentUpon>SourceRelationControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\AdjustRelationViewModel.cs" />
     <Compile Include="ViewModel\ExecuteOrderSummaryItem.cs" />
-    <Compile Include="UI\RangeCheckRuleControl.xaml.cs">
+    <Compile Include="UI\Quotation\RangeCheckRuleControl.xaml.cs">
       <DependentUpon>RangeCheckRuleControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\SourceQuotationControl.xaml.cs">
+    <Compile Include="UI\Quotation\SourceQuotationControl.xaml.cs">
       <DependentUpon>SourceQuotationControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\WeightedRuleControl.xaml.cs">
+    <Compile Include="UI\Quotation\WeightedRuleControl.xaml.cs">
       <DependentUpon>WeightedRuleControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\HistoryQuotationInfo.cs" />
     <Compile Include="ViewModel\InstantOrderForInstrument.cs" />
+    <Compile Include="ViewModel\InstrumentForFloatingPLCalc.cs" />
     <Compile Include="ViewModel\LmtOrderForInstrument.cs" />
     <Compile Include="ViewModel\OpenInterestSummary.cs" />
     <Compile Include="ViewModel\OrderQueryEntity.cs" />
@@ -362,19 +375,19 @@
     <Compile Include="Model\OrderHandle.cs" />
     <Compile Include="Model\SettingsChangedEventArgs.cs" />
     <Compile Include="Model\ExchangeSettingManager.cs" />
-    <Compile Include="UI\DQOrderTaskControl.xaml.cs">
+    <Compile Include="UI\ProcessOrders\DQOrderTaskControl.xaml.cs">
       <DependentUpon>DQOrderTaskControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\ExcuteOrderConfirm.xaml.cs">
+    <Compile Include="UI\ProcessOrders\ExcuteOrderConfirm.xaml.cs">
       <DependentUpon>ExcuteOrderConfirm.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\LogAuditControl.xaml.cs">
       <DependentUpon>LogAuditControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\MooMocOrderTask.xaml.cs">
+    <Compile Include="UI\ProcessOrders\MooMocOrderTask.xaml.cs">
       <DependentUpon>MooMocOrderTask.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\OrderTaskControl.xaml.cs">
+    <Compile Include="UI\ProcessOrders\OrderTaskControl.xaml.cs">
       <DependentUpon>OrderTaskControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\RoleManagerControl.xaml.cs">
@@ -482,19 +495,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\AbnormalQuotationProcessControl.xaml">
+    <Page Include="UI\Quotation\AbnormalQuotationProcessControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\AccountHedgingLevelControl.xaml">
+    <Page Include="UI\Report\AccountHedgingLevelControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\AccountOrderStatus.xaml">
+    <Page Include="UI\Report\AccountOrderStatus.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\AccountStatusQuery.xaml">
+    <Page Include="UI\Report\AccountStatusQuery.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -502,7 +515,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\BlotterSelectionControl.xaml">
+    <Page Include="UI\Report\BlotterSelectionControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\Report\ChangePriceForFPLCalc.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -510,19 +527,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\DealingInstanceOrder.xaml">
+    <Page Include="UI\ProcessOrders\DealingInstanceOrder.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\DealingLmtOrder.xaml">
+    <Page Include="UI\ProcessOrders\DealingLmtOrder.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\DerivedInstrumentControl.xaml">
+    <Page Include="UI\Quotation\DerivedInstrumentControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\DerivedInstrumentWindow.xaml">
+    <Page Include="UI\Quotation\DerivedInstrumentWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -534,7 +551,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\InstrumentSourceRelationWindow.xaml">
+    <Page Include="UI\Quotation\InstrumentSourceRelationWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -542,11 +559,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\NewTaskWindow.xaml">
+    <Page Include="UI\SettingTask\NewTaskWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\QuotePriceWindow.xaml">
+    <Page Include="UI\ProcessOrders\QuotePriceWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -554,31 +571,43 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\RangeCheckRuleControl.xaml">
+    <Page Include="UI\Quotation\RangeCheckRuleControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\RunSettingTaskDetail.xaml">
+    <Page Include="UI\SettingTask\RunSettingTaskDetail.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\SettingParameterControl.xaml">
+    <Page Include="UI\SettingTask\SettingParameterControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\SettingSchedulerControl.xaml">
+    <Page Include="UI\SettingTask\SettingSchedulerControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\SourceQuotationControl.xaml">
+    <Page Include="UI\Quotation\SourceQuotationControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\SourceRelationControl.xaml">
+    <Page Include="UI\Quotation\SourceRelationControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\TaskSchedulerNotify.xaml">
+    <Page Include="UI\SettingTask\TaskMenuContentControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\SettingTask\TaskMenuControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\SettingTask\TaskMenuItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\SettingTask\TaskSchedulerNotify.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -586,7 +615,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\WeightedRuleControl.xaml">
+    <Page Include="UI\Quotation\WeightedRuleControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -624,7 +653,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="UI\DQOrderTaskControl.xaml">
+    <Page Include="UI\ProcessOrders\DQOrderTaskControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -632,27 +661,27 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\ExcuteOrderConfirm.xaml">
+    <Page Include="UI\ProcessOrders\ExcuteOrderConfirm.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\ExecutedOrders.xaml">
+    <Page Include="UI\Report\ExecutedOrders.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\InstrumentWindow.xaml">
+    <Page Include="UI\Quotation\InstrumentWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\OpenInterestControl.xaml">
+    <Page Include="UI\Report\OpenInterestControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\QuotationMonitorControl.xaml">
+    <Page Include="UI\Quotation\QuotationMonitorControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\LMTProcess.xaml">
+    <Page Include="UI\ProcessOrders\LMTProcess.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -660,19 +689,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\MooMocOrderTask.xaml">
+    <Page Include="UI\ProcessOrders\MooMocOrderTask.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\OrderSearchControl.xaml">
+    <Page Include="UI\Report\OrderSearchControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\OrderTaskControl.xaml">
+    <Page Include="UI\ProcessOrders\OrderTaskControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\QuotationSourceControl.xaml">
+    <Page Include="UI\Quotation\QuotationSourceControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -838,6 +867,9 @@
     <None Include="AutoUpdateBin\Setting.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Asset\Images\Stop.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

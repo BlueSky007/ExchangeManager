@@ -14,6 +14,7 @@ namespace ManagerService.Quotation
         private Dictionary<int, DerivativeRelation> _DerivativeRelations;
 
         private LastQuotationManager _LastQuotationManager;
+        private int _DeriveRecursiveLevel = 0;
 
         public DerivativeController(Dictionary<int, DerivativeRelation> derivativeRelations, LastQuotationManager lastQuotationManager)
         {
@@ -23,15 +24,30 @@ namespace ManagerService.Quotation
 
         public void Derive(GeneralQuotation quotation, List<GeneralQuotation> quotations)
         {
-            var derivativeRelations = this._DerivativeRelations.Values.Where(r => r.UnderlyingInstrument1Id == quotation.InstrumentId || r.UnderlyingInstrument2Id == quotation.InstrumentId);
-            foreach (var relation in derivativeRelations)
+            this._DeriveRecursiveLevel++;
+            if (this._DeriveRecursiveLevel > 50)
             {
-                GeneralQuotation GeneralQuotation = this.Derive(quotation, relation);
-                if (GeneralQuotation != null)
+                this._DeriveRecursiveLevel = 0;
+                throw new Exception(string.Format("DerivativeController.Derive too deep SourceId:{0},InstrumentId:{1},OriginCode:{2}", quotation.SourceId, quotation.InstrumentId, quotation.OriginCode));
+            }
+            try
+            {
+                var derivativeRelations = this._DerivativeRelations.Values.Where(r => r.UnderlyingInstrument1Id == quotation.InstrumentId || r.UnderlyingInstrument2Id == quotation.InstrumentId);
+                foreach (var relation in derivativeRelations)
                 {
-                    quotations.Add(GeneralQuotation);
-                    this.Derive(GeneralQuotation, quotations);
+                    GeneralQuotation GeneralQuotation = this.Derive(quotation, relation);
+                    if (GeneralQuotation != null)
+                    {
+                        quotations.Add(GeneralQuotation);
+                        this.Derive(GeneralQuotation, quotations);
+                    }
                 }
+                this._DeriveRecursiveLevel--;
+            }
+            catch
+            {
+                this._DeriveRecursiveLevel = 0;
+                throw;
             }
         }
 

@@ -304,6 +304,7 @@ namespace ManagerConsole.ViewModel
         
         public void ProcessQuoteMessage(QuoteMessage quoteMessage)
         {
+            this.PlaySound(SoundOption.Enquiry);
             int waiteTime = this._SettingsParameterManager.DealingOrderParameter.EnquiryWaitTime;
 
             string exhcangeCode = quoteMessage.ExchangeCode;
@@ -317,9 +318,7 @@ namespace ManagerConsole.ViewModel
 
             if (!instruments.ContainsKey(quoteMessage.InstrumentID)) return;
             InstrumentClient instrument = instruments[quoteMessage.InstrumentID];
-
             QuotePolicyDetail quotePolicy = settingManager.GetQuotePolicyDetail(instrument.Id, customer);
-
             ExchangeQuotation quotation = this.GetExchangeQuotation(exhcangeCode, quotePolicy);
 
             QuotePriceClient quotePriceClient = new QuotePriceClient(quoteMessage, waiteTime, instrument, customer, quotation);
@@ -371,8 +370,8 @@ namespace ManagerConsole.ViewModel
             foreach (CommonTransaction commonTransaction in executeMessage.Transactions)
             {
                 if (commonTransaction.Error != null && commonTransaction.Error.Value != TransactionError.OK)
-                { 
-                    //...ErrorMessage
+                {
+                    this.PlaySound(SoundOption.DQTradeFailed);
                 }
                 else if(this._Transactions.ContainsKey(commonTransaction.Id) 
                     && this._Transactions[commonTransaction.Id].Phase == Phase.Executed)
@@ -390,7 +389,7 @@ namespace ManagerConsole.ViewModel
                 }
             }
 
-            //Sound.PlayExecute()
+            this.PlaySound(SoundOption.DQTradeSucceed);
             foreach (CommonOrder commonOrder in executeMessage.Orders)
             {
                 commonOrder.ExchangeCode = executeMessage.ExchangeCode;
@@ -447,7 +446,8 @@ namespace ManagerConsole.ViewModel
                     this.OnDeleteOrderNotifyEvent(deletedOrder);
                 }
             }
-            //Sound.PlayDelete();
+
+            this.PlaySound(SoundOption.DQDealerIntervene);
 
             foreach (CommonTransaction commonTransaction in deleteMessage.Transactions)
             {
@@ -470,7 +470,8 @@ namespace ManagerConsole.ViewModel
                     this.TranPhaseManager.AddOrderProcessBuySellLot(deleteMessage.InstrumentID, order);
                     this.TranPhaseManager.AddExecutedOrder(order);
                 }
-                //Refresh OpenInterestGrid
+
+                TranPhaseManager.UpdateTransaction(newTransaction);
             }
         }
 

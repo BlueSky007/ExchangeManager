@@ -8,6 +8,7 @@ using Manager.Common.QuotationEntities;
 using ManagerConsole.Helper;
 using ManagerConsole.Model;
 using System.Windows.Controls;
+using System.ComponentModel;
 
 namespace ManagerConsole.ViewModel
 {
@@ -73,6 +74,13 @@ namespace ManagerConsole.ViewModel
             this._Instrument = instrument;
             this._QuotationSource = quotationSource;
             this.SourceQuotations = new ObservableCollection<VmSourceQuotation>();
+            this.PropertyChanged += delegate(object sender, PropertyChangedEventArgs e)
+            {
+                if (e.PropertyName == FieldSR.IsActive)
+                {
+                    this.OnPropertyChanged("ActiveState");
+                }
+            };
         }
 
         public InstrumentSourceRelation InstrumentSourceRelation { get { return this._Relation; } }

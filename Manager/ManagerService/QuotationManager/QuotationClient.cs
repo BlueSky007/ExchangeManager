@@ -10,7 +10,7 @@ using Manager.Common.QuotationEntities;
 
 namespace ManagerService.Quotation
 {
-    public class QuotationClient
+    public class QuotationClient : IDisposable
     {
         private static Dictionary<string, QuotationClient> _Sources = new Dictionary<string, QuotationClient>();
 
@@ -74,7 +74,14 @@ namespace ManagerService.Quotation
             receiveDataThread.Start();
         }
 
-        public void Stop()
+        public void Dispose()
+        {
+            this.Stop();
+            this._ConnectionCheckTimer.Dispose();
+            this._PacketArrivedEvent.Dispose();
+        }
+
+        private void Stop()
         {
             try
             {

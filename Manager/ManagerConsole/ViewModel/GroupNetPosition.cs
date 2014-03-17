@@ -18,15 +18,25 @@ namespace ManagerConsole.ViewModel
 {
     public class GroupNetPositionModel
     {
+        private Dictionary<Guid, Order> _RepairNewOrderMultiNotifyOrders;
         public ObservableCollection<RootGNP> RootGNPs { get; set; }
 
         public GroupNetPositionModel()
         {
             this.RootGNPs = new ObservableCollection<RootGNP>();
+            this._RepairNewOrderMultiNotifyOrders = new Dictionary<Guid, Order>();
         }
 
         public void AddOrderToGroupNetPosition(Order executedOrder)
         {
+            if (this._RepairNewOrderMultiNotifyOrders.ContainsKey(executedOrder.Id))
+            {
+                return;
+            }
+            else
+            {
+                this._RepairNewOrderMultiNotifyOrders.Add(executedOrder.Id, executedOrder);
+            }
             Guid accountId = executedOrder.Transaction.Account.Id;
             Guid accountGroupId = executedOrder.Transaction.Account.GroupId;
             Guid instrumentId = executedOrder.Transaction.Instrument.Id;

@@ -275,6 +275,7 @@ namespace ManagerService.Quotation
         public void Stop()
         {
             this._Timer.Change(Timeout.Infinite, Timeout.Infinite);
+            this._Timer.Dispose();
         }
 
         private void CheckInactiveTime(object state)
@@ -389,6 +390,7 @@ namespace ManagerService.Quotation
         public void Stop()
         {
             this._Timer.Change(Timeout.Infinite, Timeout.Infinite);
+            this._Timer.Dispose();
             foreach (SourceInstrument sourceInstrument in this._SourceInstruments.Values)
             {
                 sourceInstrument.Stop();
@@ -472,16 +474,23 @@ namespace ManagerService.Quotation
 
         private void TimerCallback(object state)
         {
-            lock (this._SourceInstruments)
+            try
             {
-                DateTime now = DateTime.Now;
-                var timeoutSourceInstruments = this._SourceInstruments.Values.Where(s => s.ActiveSourceTimeoutTime <= now);
-                foreach (SourceInstrument sourceInstrument in timeoutSourceInstruments)
+                lock (this._SourceInstruments)
                 {
-                    sourceInstrument.ActiveSourceTimeout();
+                    DateTime now = DateTime.Now;
+                    var timeoutSourceInstruments = this._SourceInstruments.Values.Where(s => s.ActiveSourceTimeoutTime <= now);
+                    foreach (SourceInstrument sourceInstrument in timeoutSourceInstruments)
+                    {
+                        sourceInstrument.ActiveSourceTimeout();
+                    }
+                    DateTime minTimeoutTime = this._SourceInstruments.Values.Select(s => s.ActiveSourceTimeoutTime).Min();
+                    this._Timer.Change(minTimeoutTime - now, SourceController.Infinite);
                 }
-                DateTime minTimeoutTime = this._SourceInstruments.Values.Select(s => s.ActiveSourceTimeoutTime).Min();
-                this._Timer.Change(minTimeoutTime - now, SourceController.Infinite);
+            }
+            catch (Exception exception)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "SourceController.TimerCallback exception\r\n{0}", exception);
             }
         }
     }

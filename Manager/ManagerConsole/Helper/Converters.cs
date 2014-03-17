@@ -139,4 +139,24 @@ namespace ManagerConsole.Helper
             return value;
         }
     }
+
+    public class LotForegroundConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            decimal lot = (decimal)value;
+            if (lot >= 0)
+            {
+                return SolidColorBrushes.LightBlue;
+            }
+            else
+            {
+                return SolidColorBrushes.Red;
+            }
+        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

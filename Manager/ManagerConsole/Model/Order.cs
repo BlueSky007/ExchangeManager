@@ -569,7 +569,7 @@ namespace ManagerConsole.Model
                         this.ChangeStatus(OrderStatus.WaitOutLotLMT);
                     }
 
-                    if (string.IsNullOrEmpty(this.BestPrice) || string.IsNullOrEmpty(this.BestPrice)) return;
+                    if (string.IsNullOrEmpty(this.BestPrice) || string.IsNullOrEmpty(this.SetPrice)) return;
                     Price bestPrice = new Price(this.BestPrice, instrument.NumeratorUnit, instrument.Denominator);
                     Price setPrice = new Price(this.SetPrice, instrument.NumeratorUnit, instrument.Denominator);
                     decimal diff = decimal.Parse(this.BestPrice) - decimal.Parse(this.SetPrice);

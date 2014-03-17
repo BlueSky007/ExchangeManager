@@ -103,7 +103,7 @@ namespace ManagerConsole.ViewModel
         public void FillAccountCurrencyItem(AccountStatusItem item)
         {
             item.Value = this.GetValue(item.Type);
-            if (!item.Type.HasDetail() || this.AccountCurrencies.Count == 0) return;
+            if (!item.Type.HasDetail() || this.AccountCurrencies.Count == 0 || this.AccountCurrencies.Count == 1) return;
 
             foreach (AccountCurrency accountCurrency in this.AccountCurrencies)
             {
@@ -152,7 +152,7 @@ namespace ManagerConsole.ViewModel
                     this._SubItemsView = viewSource.View;
                     this._SubItemsView.Filter = delegate(object item)
                     {
-                        decimal dvalue;
+                        //decimal dvalue;
                         string value = ((SubCurrencyItem)item).Value;
                         return true;// (((SubCurrencyItem)item).Type == AccountStatusItemType.Adjustment && value != "-") || (decimal.TryParse(value, out dvalue) && dvalue != 0);
                     };

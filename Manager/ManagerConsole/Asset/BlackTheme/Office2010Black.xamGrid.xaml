@@ -1810,6 +1810,13 @@
         </Setter>
     </Style>
     <Style BasedOn="{StaticResource CellControlStyle}" TargetType="ig:CellControl"/>
+    <!--Open Interest-->
+    <Style x:Key="BuyCellStyle" TargetType="ig:CellControl" BasedOn="{StaticResource CellControlStyle}">
+        <Setter Property="Foreground" Value="#FF9090FF"/>
+    </Style>
+    <Style x:Key="SellCellStyle" TargetType="ig:CellControl" BasedOn="{StaticResource CellControlStyle}">
+        <Setter Property="Foreground" Value="Red"/>
+    </Style>
     <!-- *********************************  AddNewRowCellControl Style  ********************************* -->
     <Style TargetType="igPrim:AddNewRowCellControl">
         <Setter Property="FontSize" Value="11"/>
