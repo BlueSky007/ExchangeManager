@@ -41,8 +41,6 @@ namespace ManagerConsole.Helper
                         break;
                     case Phase.Executed:
                         order.Status = OrderStatus.Executed;
-                        this.AddExecutedOrder(order);
-                        this.AddOrderToGroupNetPosition(order);
                         break;
                     case Phase.Canceled:
                         order.Status = OrderStatus.Canceled;
@@ -85,21 +83,33 @@ namespace ManagerConsole.Helper
         }
 
         #region Binding Data Update
-        public void AddExecutedOrder(Order order)
+        public void AddExecutedOrder(Transaction transaction)
         {
-            this._ExchangeDataManager.ExecutedOrders.Add(order);
-            this._ExchangeDataManager.AddExecutedOrderSummaryItem(order);
+            foreach (Order order in transaction.Orders)
+            {
+                if (order.Phase != Phase.Executed) continue;
+                this._ExchangeDataManager.ExecutedOrders.Add(order);
+                this._ExchangeDataManager.AddExecutedOrderSummaryItem(order);
+            }
         }
 
-        public void AddOrderToGroupNetPosition(Order executedOrder)
+        public void AddOrderToGroupNetPosition(Transaction transaction)
         {
-            GroupNetPositionModel groupNetPostionModel = this._ExchangeDataManager.ReportDataManager.GetGroupNetPositionModel(executedOrder.ExchangeCode);
-            groupNetPostionModel.AddOrderToGroupNetPosition(executedOrder);
+            foreach (Order order in transaction.Orders)
+            {
+                if (order.Phase != Phase.Executed) continue;
+
+                GroupNetPositionModel groupNetPostionModel = this._ExchangeDataManager.ReportDataManager.GetGroupNetPositionModel(order.ExchangeCode);
+                if (groupNetPostionModel == null) continue;
+
+                groupNetPostionModel.AddOrderToGroupNetPosition(order);
+            }
         }
 
         public void DeleteOrderFromOpenInterestSummaryGrid(Order deletedOrder)
         {
             OpenInterestSummaryModel openInterestSummaryModel = this._ExchangeDataManager.ReportDataManager.GetOpenInterestSummaryModel(deletedOrder.ExchangeCode);
+            if (openInterestSummaryModel == null) return;
             openInterestSummaryModel.DeleteOrderFromSummaryGrid(deletedOrder, false);
         }
 

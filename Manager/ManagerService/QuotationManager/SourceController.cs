@@ -71,6 +71,7 @@ namespace ManagerService.Quotation
 
         public bool CanSwith(int fromSourceId, int toSourceId, out double agio)
         {
+            Logger.AddEvent(TraceEventType.Information, "[SourceController] Call CanSwith fromSourceId:{0}, toSourceId:{1}", fromSourceId, toSourceId);
             agio = 0;
             if (this._AveragePrices[fromSourceId].HasValue && this._AveragePrices[toSourceId].HasValue)
             {
@@ -80,6 +81,7 @@ namespace ManagerService.Quotation
                 }
                 return true;
             }
+            Logger.AddEvent(TraceEventType.Information, "[SourceController] Call CanSwith return false");
             return false;
         }
     }
@@ -90,13 +92,15 @@ namespace ManagerService.Quotation
         private TimeSpan _TimeoutSpan;
         private DateTime _TimeoutTime;
         private bool _IsTimeout;
+        private SourceInstrument _SourceInstrument;
 
-        public ActiveSource(int id, TimeSpan timeoutSpan)
+        public ActiveSource(int id, TimeSpan timeoutSpan, SourceInstrument sourceInstrument)
         {
             this._Id = id;
             this._TimeoutSpan = timeoutSpan;
-            this._TimeoutTime = DateTime.Now.Add(this._TimeoutSpan).AddMinutes(10);  // 系统启动时，未收到价格前的TimeoutTime. 暂时多加10分钟。
+            this._TimeoutTime = DateTime.Now.Add(this._TimeoutSpan);
             this._IsTimeout = false;
+            this._SourceInstrument = sourceInstrument;
         }
 
         public int Id { get { return this._Id; } }
@@ -106,21 +110,31 @@ namespace ManagerService.Quotation
 
         public void QuotationArrived()
         {
-            this._IsTimeout = false;
-            this._TimeoutTime = DateTime.Now + this._TimeoutSpan;
+            this.SetTimeout(false);
         }
 
         public void ChangeSource(InstrumentSourceRelation relation)
         {
             this._Id = relation.SourceId;
             this._TimeoutSpan = TimeSpan.FromSeconds(relation.SwitchTimeout);
-            this.QuotationArrived();
+            this.SetTimeout(true);
         }
 
         public void Timeout()
         {
             this._IsTimeout = true;
-            this._TimeoutTime = DateTime.Now.AddDays(10);  // Add 10 days to avoid be selected by SourceController Timer.
+        }
+
+        private void SetTimeout(bool forceCheckTimeoutTime)
+        {
+            bool prevStateIsTimeout = this._IsTimeout;
+            this._IsTimeout = false;
+            this._TimeoutTime = DateTime.Now + this._TimeoutSpan;
+            if (prevStateIsTimeout || forceCheckTimeoutTime)
+            {
+                this._SourceInstrument.CheckTimeoutTime(this._TimeoutTime);
+            }
+            Logger.AddEvent(TraceEventType.Information, "[SourceController] ActiveSource QuotationArrived _IsTimeout set to false, sourceid:{0}", this.Id);
         }
     }
 
@@ -130,12 +144,11 @@ namespace ManagerService.Quotation
     public class SourceInstrument
     {
         private Instrument _Instrument;
-        private Timer _Timer;
+        private Timer _PriceInactiveCheckTimer;
         private DateTime _LastActiveTime;
-        private bool _IsPriceEnabled = true;
+        //private bool _IsPriceEnabled = true;
         private double _Agio = 0;
-
-        
+        private UpdateMetadataMessage _IsActiveUpdateMetadataMessage;
 
         // Map for: SourceId - InstrumentSourceRelation
         private Dictionary<int, InstrumentSourceRelation> _Relations = new Dictionary<int, InstrumentSourceRelation>();
@@ -143,10 +156,13 @@ namespace ManagerService.Quotation
         private ActiveSource _ActiveSource;
 
         private AgioCalculator _AgioCalculator;
+        private SourceController _SourceController;
+
 
         // InstrumentId, Dictionary(SourceId - InstrumentSourceRelation)
-        public SourceInstrument(int instrumentId, Dictionary<int, InstrumentSourceRelation> relations)
+        public SourceInstrument(int instrumentId, Dictionary<int, InstrumentSourceRelation> relations, SourceController sourceController)
         {
+            this._SourceController = sourceController;
             this._Relations = relations;
             this.MakeActiveSource();
 
@@ -156,12 +172,25 @@ namespace ManagerService.Quotation
                 this._AgioCalculator = new AgioCalculator(this._Instrument.AgioSeconds.Value, this._Instrument.LeastTicks.Value, relations.Keys);
             }
             TimeSpan inactiveTimeSpan = TimeSpan.FromSeconds(this._Instrument.InactiveTime.Value);
-            this._Timer = new Timer(this.CheckInactiveTime, null, inactiveTimeSpan, inactiveTimeSpan);
+            this._PriceInactiveCheckTimer = new Timer(this.CheckPriceInactiveTime, null, inactiveTimeSpan, inactiveTimeSpan);
             this._LastActiveTime = DateTime.Now;
-
         }
 
         public int InstrumentId { get { return this._Instrument.Id; } }
+        public ActiveSource ActiveSource { get { return this._ActiveSource; } }
+
+        private bool IsActive
+        {
+            get
+            {
+                return this._Instrument.IsActive;
+            }
+            set
+            {
+                this._Instrument.IsActive = value;
+                this.NotifyClientsIsActiveChanged();
+            }
+        }
 
         private void MakeActiveSource()
         {
@@ -178,7 +207,7 @@ namespace ManagerService.Quotation
                 fieldsAndValues.Add(FieldSR.IsActive, true);
                 QuotationData.UpdateMetadataObject(MetadataType.InstrumentSourceRelation, relation.Id, fieldsAndValues);
             }
-            this._ActiveSource = new ActiveSource(relation.SourceId, TimeSpan.FromSeconds(relation.SwitchTimeout));
+            this._ActiveSource = new ActiveSource(relation.SourceId, TimeSpan.FromSeconds(relation.SwitchTimeout), this);
         }
 
         public void AddInstrumentSourceRelation(InstrumentSourceRelation relation)
@@ -200,21 +229,21 @@ namespace ManagerService.Quotation
             return removed;
         }
 
-        public TimeSpan ActiveSourceTimeoutSpan
-        {
-            get
-            {
-                return this._ActiveSource.TimeoutSpan;
-            }
-        }
+        //public TimeSpan ActiveSourceTimeoutSpan
+        //{
+        //    get
+        //    {
+        //        return this._ActiveSource.TimeoutSpan;
+        //    }
+        //}
 
-        public DateTime ActiveSourceTimeoutTime
-        {
-            get
-            {
-                return this._ActiveSource.TimeoutTime;
-            }
-        }
+        //public DateTime ActiveSourceTimeoutTime
+        //{
+        //    get
+        //    {
+        //        return this._ActiveSource.TimeoutTime;
+        //    }
+        //}
 
         public bool QuotationArrived(SourceQuotation quotation)
         {
@@ -254,10 +283,10 @@ namespace ManagerService.Quotation
                 quotation.Bid += this._Agio + CommonHelper.GetAdjustValue(this._Relations[quotation.SourceId].AdjustPoints, this._Instrument.DecimalPlace);
 
                 this._LastActiveTime = DateTime.Now;
-                if (!this._IsPriceEnabled)
+                if (!this.IsActive)
                 {
                     MainService.ExchangeManager.SwitchPriceEnableState(this._Instrument.Id, true);
-                    this._IsPriceEnabled = true;
+                    this.IsActive = true;
                 }
                 return true;
             }
@@ -269,25 +298,47 @@ namespace ManagerService.Quotation
 
         public void ActiveSourceTimeout()
         {
+            if(this.InstrumentId == 1) Logger.AddEvent(TraceEventType.Information, "[SourceController] SourceInstrument.ActiveSourceTimeout InstrumentId:{0}, Source:{1} Timeout.", this.InstrumentId, this._ActiveSource.Id);
             this._ActiveSource.Timeout();
+        }
+
+        public void CheckTimeoutTime(DateTime timeoutTime)
+        {
+            this._SourceController.CheckActiveSourceTime(timeoutTime);
         }
 
         public void Stop()
         {
-            this._Timer.Change(Timeout.Infinite, Timeout.Infinite);
-            this._Timer.Dispose();
+            this._PriceInactiveCheckTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            this._PriceInactiveCheckTimer.Dispose();
         }
 
-        private void CheckInactiveTime(object state)
+        private void NotifyClientsIsActiveChanged()
+        {
+            if (this._IsActiveUpdateMetadataMessage == null)
+            {
+                this._IsActiveUpdateMetadataMessage = new UpdateMetadataMessage { UpdateDatas = new UpdateData[1] };
+                this._IsActiveUpdateMetadataMessage.UpdateDatas[0] = new UpdateData
+                {
+                    FieldsAndValues = new Dictionary<string, object>(),
+                    MetadataType = MetadataType.Instrument,
+                    ObjectId = this._Instrument.Id
+                };
+            }
+            this._IsActiveUpdateMetadataMessage.UpdateDatas[0].FieldsAndValues[FieldSR.IsActive] = this.IsActive;
+            MainService.ClientManager.Dispatch(this._IsActiveUpdateMetadataMessage);
+        }
+
+        private void CheckPriceInactiveTime(object state)
         {
             try
             {
-                this._Timer.Change(Timeout.Infinite, Timeout.Infinite);
+                this._PriceInactiveCheckTimer.Change(Timeout.Infinite, Timeout.Infinite);
                 TimeSpan inactiveTimeSpan = TimeSpan.FromSeconds(this._Instrument.InactiveTime.Value);
 
                 if (DateTime.Now - this._LastActiveTime > inactiveTimeSpan)
                 {
-                    if (this._IsPriceEnabled)
+                    if (this.IsActive)
                     {
                         try
                         {
@@ -295,16 +346,16 @@ namespace ManagerService.Quotation
                         }
                         catch (Exception exception)
                         {
-                            Logger.AddEvent(TraceEventType.Warning, "SourceInstrument.CheckInactiveTime try SwitchPriceEnableState\r\n{0}", exception);
+                            Logger.AddEvent(TraceEventType.Warning, "[SourceController] SourceInstrument.CheckInactiveTime try SwitchPriceEnableState\r\n{0}", exception);
                         }
-                        this._IsPriceEnabled = false;
+                        this.IsActive = false;
                     }
                 }
-                this._Timer.Change(inactiveTimeSpan, inactiveTimeSpan);
+                this._PriceInactiveCheckTimer.Change(inactiveTimeSpan, inactiveTimeSpan);
             }
             catch (Exception exception)
             {
-                Logger.TraceEvent(TraceEventType.Error, "SourceInstrument.CheckInactiveTime exception\r\n{0}", exception);
+                Logger.TraceEvent(TraceEventType.Error, "[SourceController] SourceInstrument.CheckInactiveTime exception\r\n{0}", exception);
             }
         }
 
@@ -331,6 +382,7 @@ namespace ManagerService.Quotation
                     NewRelationId = newRelationId
                 };
                 MainService.ClientManager.Dispatch(switchActiveSourceMessage);
+                Logger.AddEvent(TraceEventType.Information, "SwitchActiveSource switched from {0} to {1}", oldRelationId, newSourceId);
 
                 // write log
                 WriteLogManager.WriteSourceChangeLog(LogManager.Instance.GetLogSourceChangeEntity(oldSourceId,newSourceId));
@@ -343,12 +395,15 @@ namespace ManagerService.Quotation
         private static TimeSpan Infinite = TimeSpan.FromMilliseconds(-1);
 
         // Map for: InstrumentId - SourceInstrument
-        private Dictionary<int, SourceInstrument> _SourceInstruments = new Dictionary<int, SourceInstrument>();
+        private Dictionary<int, SourceInstrument> _SourceInstruments;
 
-        private Timer _Timer;
+        private Timer _ActiveSourceTimeoutCheckTimer;
+        private DateTime _CheckTimerEndTime;
 
         public SourceController()
         {
+            this._SourceInstruments = new Dictionary<int, SourceInstrument>();
+            this._CheckTimerEndTime = DateTime.Now;
         }
 
         public void Start()
@@ -377,20 +432,21 @@ namespace ManagerService.Quotation
 
             foreach (var pair in instrumentSourceRelations)
             {
-                this._SourceInstruments.Add(pair.Key, new SourceInstrument(pair.Key, pair.Value));
+                this._SourceInstruments.Add(pair.Key, new SourceInstrument(pair.Key, pair.Value, this));
             }
 
             if (this._SourceInstruments.Count > 0)
             {
-                TimeSpan minTimeSpan = this._SourceInstruments.Values.Select(s => s.ActiveSourceTimeoutSpan).Min();
-                this._Timer = new Timer(this.TimerCallback, null, minTimeSpan, SourceController.Infinite);
+                TimeSpan minTimeSpan = this._SourceInstruments.Values.Select(s => s.ActiveSource.TimeoutSpan).Min();
+                this._ActiveSourceTimeoutCheckTimer = new Timer(this.ActiveSourceTimeoutCheck, null, minTimeSpan, SourceController.Infinite);
+                Logger.AddEvent(TraceEventType.Information, "[SourceController] SourceController.Start minTimeSpan:{0}", minTimeSpan);
             }
         }
 
         public void Stop()
         {
-            this._Timer.Change(Timeout.Infinite, Timeout.Infinite);
-            this._Timer.Dispose();
+            this._ActiveSourceTimeoutCheckTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            this._ActiveSourceTimeoutCheckTimer.Dispose();
             foreach (SourceInstrument sourceInstrument in this._SourceInstruments.Values)
             {
                 sourceInstrument.Stop();
@@ -410,7 +466,7 @@ namespace ManagerService.Quotation
                     // Map for SourceId - InstrumentSourceRelation
                     Dictionary<int, InstrumentSourceRelation> relations = new Dictionary<int, InstrumentSourceRelation>();
                     relations.Add(relation.SourceId, relation);
-                    SourceInstrument sourceInstrument = new SourceInstrument(relation.InstrumentId, relations);
+                    SourceInstrument sourceInstrument = new SourceInstrument(relation.InstrumentId, relations, this);
                     this._SourceInstruments.Add(relation.InstrumentId, sourceInstrument);
                 }
             }
@@ -472,25 +528,50 @@ namespace ManagerService.Quotation
             }
         }
 
-        private void TimerCallback(object state)
+        public void CheckActiveSourceTime(DateTime timeoutTime)
+        {
+
+            if (this._CheckTimerEndTime < timeoutTime)
+            {
+                TimeSpan timeSpan = timeoutTime - DateTime.Now;
+                if(timeSpan < TimeSpan.Zero) timeSpan = TimeSpan.Zero;
+                this._ActiveSourceTimeoutCheckTimer.Change(timeSpan, SourceController.Infinite); 
+            }
+        }
+
+        private void ActiveSourceTimeoutCheck(object state)
         {
             try
             {
                 lock (this._SourceInstruments)
                 {
-                    DateTime now = DateTime.Now;
-                    var timeoutSourceInstruments = this._SourceInstruments.Values.Where(s => s.ActiveSourceTimeoutTime <= now);
-                    foreach (SourceInstrument sourceInstrument in timeoutSourceInstruments)
+                    IEnumerable<SourceInstrument> activeSourceInstruments = this._SourceInstruments.Values.Where(si => !si.ActiveSource.IsTimeout);
+                    if (activeSourceInstruments.Any())
                     {
-                        sourceInstrument.ActiveSourceTimeout();
+                        DateTime now = DateTime.Now;
+                        var timeoutSourceInstruments = activeSourceInstruments.Where(s => s.ActiveSource.TimeoutTime <= now);
+                        foreach (SourceInstrument sourceInstrument in timeoutSourceInstruments)
+                        {
+                            sourceInstrument.ActiveSourceTimeout();
+                        }
+                        if (activeSourceInstruments.Any())
+                        {
+                            this._CheckTimerEndTime = activeSourceInstruments.Select(s => s.ActiveSource.TimeoutTime).Min();
+                            TimeSpan timeSpen = this._CheckTimerEndTime - now;
+
+                            this._ActiveSourceTimeoutCheckTimer.Change(timeSpen, SourceController.Infinite);
+                            Logger.AddEvent(TraceEventType.Information, "[SourceController] SourceController.TimerCallback next call TimeSpan:{0}", timeSpen);
+                        }
                     }
-                    DateTime minTimeoutTime = this._SourceInstruments.Values.Select(s => s.ActiveSourceTimeoutTime).Min();
-                    this._Timer.Change(minTimeoutTime - now, SourceController.Infinite);
+                    else
+                    {
+                        Logger.AddEvent(TraceEventType.Information, "[SourceController] SourceController.TimerCallback all source timedout.");
+                    }
                 }
             }
             catch (Exception exception)
             {
-                Logger.TraceEvent(TraceEventType.Error, "SourceController.TimerCallback exception\r\n{0}", exception);
+                Logger.TraceEvent(TraceEventType.Error, "[SourceController] SourceController.TimerCallback exception\r\n{0}", exception);
             }
         }
     }

@@ -1,0 +1,630 @@
+﻿<UserControl xmlns:igWPF="http://schemas.infragistics.com/xaml/wpf"  x:Class="ManagerConsole.UI.RoleManagerControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:ig="http://schemas.infragistics.com/xaml"
+             xmlns:igPrim="http://schemas.infragistics.com/xaml/primitives"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="600" >
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibility"/>
+        <Style x:Key="MetroButton" TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="#EEEEEEEE"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="10 5"/>
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Grid>
+                            <Border
+                                x:Name="Border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}" />
+
+                            <ContentPresenter
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                Margin="{TemplateBinding Padding}"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                RecognizesAccessKey="True" />
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="OpacityMask" Value="#AA888888"/>
+                                <Setter Property="Margin" Value="0 0" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <!--<Setter Property="Background" Value="DimGray"/>-->
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Foreground" Value="#ADADAD"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Name="CustomPager1" TargetType="igPrim:PagerCellControl" >
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="igPrim:PagerCellControl">
+                        <igPrim:PagerControl x:Name="PagerItemControl">
+                            <ig:Commanding.Commands>
+                                <ig:CommandSourceCollection>
+                                    <ig:XamGridPagingCommandSource  AllowEventHandling="True" EventName="FirstPage"  CommandType="FirstPage" >
+                                    </ig:XamGridPagingCommandSource>
+                                    <ig:XamGridPagingCommandSource AllowEventHandling="True" EventName="LastPage"  CommandType="LastPage" >
+                                    </ig:XamGridPagingCommandSource>
+                                    <ig:XamGridPagingCommandSource AllowEventHandling="True" EventName="PreviousPage"  CommandType="PreviousPage" >
+                                    </ig:XamGridPagingCommandSource>
+                                    <ig:XamGridPagingCommandSource  AllowEventHandling="True" EventName="NextPage"  CommandType="NextPage" >
+                                    </ig:XamGridPagingCommandSource>
+                                    <ig:XamGridPagingCommandSource  AllowEventHandling="True" EventName="GoToPage"  CommandType="GoToPage" >
+                                    </ig:XamGridPagingCommandSource>
+                                </ig:CommandSourceCollection>
+                            </ig:Commanding.Commands>
+                            <igPrim:PagerControl.Style>
+                                <Style TargetType="igPrim:PagerControl">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="igPrim:PagerControl">
+                                                <Grid Height="20" Background="{TemplateBinding Background}" Width="AUTO">
+                                                    <Button x:Name="AddNew" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="AddRole_Click" HorizontalAlignment="Left" Margin="5,0,0,0" Visibility="{Binding IsAllowAdd, RelativeSource={RelativeSource AncestorType=UserControl},Converter={StaticResource BooleanToVisibility}}">
+                                                        <Button.Content>
+                                                            <Image Source="../Asset/Images/add.png" ToolTipService.ToolTip="Add New Role"/>
+                                                        </Button.Content>
+                                                    </Button>
+                                                    <StackPanel Orientation="Horizontal" Background="{TemplateBinding Background}" HorizontalAlignment="Right">
+                                                        <Button x:Name="PreviouspageButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" >
+                                                            <Button.Content>
+                                                                <Path Data="M0,0.5 L10,10 10,0Z" Fill="DarkGray" RenderTransformOrigin="0.5,0.5">
+                                                                    <Path.RenderTransform>
+                                                                        <TransformGroup>
+                                                                            <ScaleTransform/>
+                                                                            <SkewTransform/>
+                                                                            <RotateTransform Angle="-134"/>
+                                                                            <TranslateTransform/>
+                                                                        </TransformGroup>
+                                                                    </Path.RenderTransform>
+                                                                </Path>
+                                                                <!--<Image Source="../Asset/Images/back.png" ToolTipService.ToolTip="Prev"/>-->
+                                                            </Button.Content>
+                                                            <ig:Commanding.Command>
+                                                                <ig:XamGridPagingControlsCommandSource EventName="Click" CommandType="PreviousPage"  ></ig:XamGridPagingControlsCommandSource>
+                                                            </ig:Commanding.Command>
+                                                        </Button>
+                                                        <ComboBox x:Name="PagerItems" >
+                                                            <ComboBox.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <TextBlock TextAlignment="Center" Text="{Binding}"></TextBlock>
+                                                                </DataTemplate>
+                                                            </ComboBox.ItemTemplate>
+                                                            <ig:Commanding.Command>
+                                                                <ig:XamGridPagingControlsCommandSource EventName="SelectionChanged" CommandType="GoToPage"  ></ig:XamGridPagingControlsCommandSource>
+                                                            </ig:Commanding.Command>
+                                                        </ComboBox>
+                                                        <Button x:Name="NextPageButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" >
+                                                            <Button.Content>
+                                                                <Path Data="M0,0.5 L10,10 10,0Z" Fill="DarkGray" RenderTransformOrigin="0.5,0.5">
+                                                                    <Path.RenderTransform>
+                                                                        <TransformGroup>
+                                                                            <ScaleTransform/>
+                                                                            <SkewTransform/>
+                                                                            <RotateTransform Angle="45"/>
+                                                                            <TranslateTransform/>
+                                                                        </TransformGroup>
+                                                                    </Path.RenderTransform>
+                                                                </Path>
+                                                                <!--<Image Source="../Asset/Images/forward.png" ToolTipService.ToolTip="Next"/>-->
+                                                            </Button.Content>
+                                                            <ig:Commanding.Command>
+                                                                <ig:XamGridPagingControlsCommandSource EventName="Click" CommandType="NextPage"  ></ig:XamGridPagingControlsCommandSource>
+                                                            </ig:Commanding.Command>
+                                                        </Button>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </igPrim:PagerControl.Style>
+                        </igPrim:PagerControl>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+    <Grid Loaded="Grid_Loaded">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="40*"/>
+            <ColumnDefinition Width="60*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="23"/>
+                <RowDefinition Height="5*"/>
+                <RowDefinition Height="90*"/>
+            </Grid.RowDefinitions>
+            <StackPanel Orientation="Horizontal" Grid.Row="0">
+                <Button x:Name="Submit" Content="Submit" Height="20" Style="{DynamicResource ButtonStyle}" Visibility="Visible" Click="Submit_Click" Margin="15,0,0,0"/>
+                <Button x:Name="Cancel" Content="Cancel" Height="20" Style="{DynamicResource ButtonStyle}" Click="Cancel_Click" Margin="20,0,0,0"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Grid.Row="1">
+                <TextBlock Text="RoleName:" Width="AUTO" FontSize="13" VerticalAlignment="Center" />
+                <TextBox x:Name="RoleName" IsReadOnly="True" Width="200" Height="25" Margin="30,0,0,0" />
+            </StackPanel>
+            <igWPF:XamDockManager x:Name="permissionDock" Grid.Row="2" Foreground="Black" AllowDrop="True" BorderThickness="0" Margin="0" Padding="0">
+                <igWPF:DocumentContentHost BorderThickness="0" Margin="0" Padding="0">
+                    <igWPF:SplitPane>
+                        <igWPF:TabGroupPane TabStripPlacement="Top" BorderThickness="0" Margin="0" Padding="0">
+                            <igWPF:ContentPane x:Name="FunctionPane" Header="FunctionPermission" AllowClose="False" AllowDockingFloating="True" AllowDocking="True" AllowDrop="True" BorderThickness="0" Margin="0" Padding="0">
+                                <ig:XamGrid x:Name="FunctionPermission" ColumnWidth="*" ScrollViewer.CanContentScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Visible" AutoGenerateColumns="False"  Margin="0,0,0,0"  Height="AUTO" BorderThickness="0" >
+                                    <ig:XamGrid.ColumnResizingSettings>
+                                        <ig:ColumnResizingSettings AllowCellAreaResizing="False" AllowColumnResizing="Disabled" AllowDoubleClickToSize="False" AllowMultipleColumnResize="False" />
+                                    </ig:XamGrid.ColumnResizingSettings>
+                                    <ig:XamGrid.Columns>
+                                        <ig:TemplateColumn Key="CategoryId" Visibility="Hidden"/>
+                                        <ig:TemplateColumn Key="CategoryName" HeaderText="Name" Width="400" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                                        </ig:TemplateColumn>
+                                        <ig:TemplateColumn Key="IsCategoryAllow" HeaderText="Allow" Width="80">
+                                            <ig:TemplateColumn.ItemTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsThreeState="True" IsHitTestVisible="False" IsEnabled="True" IsChecked="{Binding IsCategoryAllow}"/>
+                                                </DataTemplate>
+                                            </ig:TemplateColumn.ItemTemplate>
+                                            <ig:TemplateColumn.EditorTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsThreeState="False" IsChecked="{Binding IsCategoryAllow, Mode=TwoWay}"/>
+                                                </DataTemplate>
+                                            </ig:TemplateColumn.EditorTemplate>
+                                        </ig:TemplateColumn>
+                                        <ig:TemplateColumn Key="IsCategoryDeny" HeaderText="Deny" Width="80">
+                                            <ig:TemplateColumn.ItemTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsThreeState="True" IsHitTestVisible="False" IsChecked="{Binding IsCategoryDeny}"/>
+                                                </DataTemplate>
+                                            </ig:TemplateColumn.ItemTemplate>
+                                            <ig:TemplateColumn.EditorTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsThreeState="False" IsChecked="{Binding IsCategoryDeny, Mode=TwoWay}"/>
+                                                </DataTemplate>
+                                            </ig:TemplateColumn.EditorTemplate>
+                                        </ig:TemplateColumn>
+                                        <ig:ColumnLayout Key="ModuleDatas" HeaderVisibility="Hidden">
+                                            <ig:ColumnLayout.Columns>
+                                                <ig:TemplateColumn Key="ModuleId" Visibility="Hidden"></ig:TemplateColumn>
+                                                <ig:TemplateColumn Key="ModuleName" Width="370"></ig:TemplateColumn>
+                                                <ig:TemplateColumn Key="IsModuleAllow" Width="80">
+                                                    <ig:TemplateColumn.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <CheckBox IsThreeState="True" Margin="10,0,0,0" IsHitTestVisible="False" IsChecked="{Binding IsModuleAllow}"/>
+                                                        </DataTemplate>
+                                                    </ig:TemplateColumn.ItemTemplate>
+                                                    <ig:TemplateColumn.EditorTemplate>
+                                                        <DataTemplate>
+                                                            <CheckBox IsThreeState="False" Margin="10,0,0,0" IsChecked="{Binding IsModuleAllow, Mode=TwoWay}"/>
+                                                        </DataTemplate>
+                                                    </ig:TemplateColumn.EditorTemplate>
+                                                </ig:TemplateColumn>
+                                                <ig:TemplateColumn Key="IsModuleDeny" Width="80">
+                                                    <ig:TemplateColumn.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <CheckBox IsThreeState="True" Margin="10,0,0,0" IsHitTestVisible="False" IsChecked="{Binding IsModuleDeny}"/>
+                                                        </DataTemplate>
+                                                    </ig:TemplateColumn.ItemTemplate>
+                                                    <ig:TemplateColumn.EditorTemplate>
+                                                        <DataTemplate>
+                                                            <CheckBox IsThreeState="False" Margin="10,0,0,0" IsChecked="{Binding IsModuleDeny, Mode=TwoWay}"/>
+                                                        </DataTemplate>
+                                                    </ig:TemplateColumn.EditorTemplate>
+                                                </ig:TemplateColumn>
+                                                <ig:ColumnLayout Key="OperationDatas" HeaderVisibility="Hidden">
+                                                    <ig:ColumnLayout.Columns>
+                                                        <ig:TemplateColumn Key="FunctionId" Visibility="Hidden"></ig:TemplateColumn>
+                                                        <ig:TemplateColumn Key="Description" Width="370"></ig:TemplateColumn>
+                                                        <ig:TemplateColumn Key="IsAllow" Width="80">
+                                                            <ig:TemplateColumn.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <CheckBox IsThreeState="True" Margin="20,0,0,0" IsHitTestVisible="False" IsChecked="{Binding IsAllow}"/>
+                                                                </DataTemplate>
+                                                            </ig:TemplateColumn.ItemTemplate>
+                                                            <ig:TemplateColumn.EditorTemplate>
+                                                                <DataTemplate>
+                                                                    <CheckBox IsThreeState="False" Margin="20,0,0,0" IsChecked="{Binding IsAllow, Mode=TwoWay}"/>
+                                                                </DataTemplate>
+                                                            </ig:TemplateColumn.EditorTemplate>
+                                                        </ig:TemplateColumn>
+                                                        <ig:TemplateColumn Key="IsDeny" Width="80">
+                                                            <ig:TemplateColumn.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <CheckBox IsThreeState="True" Margin="20,0,0,0" IsHitTestVisible="False" IsChecked="{Binding IsDeny}"/>
+                                                                </DataTemplate>
+                                                            </ig:TemplateColumn.ItemTemplate>
+                                                            <ig:TemplateColumn.EditorTemplate>
+                                                                <DataTemplate>
+                                                                    <CheckBox IsThreeState="False" Margin="20,0,0,0" IsChecked="{Binding IsDeny, Mode=TwoWay}"/>
+                                                                </DataTemplate>
+                                                            </ig:TemplateColumn.EditorTemplate>
+                                                        </ig:TemplateColumn>
+                                                    </ig:ColumnLayout.Columns>
+                                                </ig:ColumnLayout>
+                                            </ig:ColumnLayout.Columns>
+                                        </ig:ColumnLayout>
+                                    </ig:XamGrid.Columns>
+                                </ig:XamGrid>
+                            </igWPF:ContentPane>
+                            <igWPF:ContentPane x:Name="DataPane" Header="DataPermission" AllowClose="False" AllowDockingFloating="True" AllowDocking="True" AllowDrop="True" BorderThickness="0" Margin="0" Padding="0">
+                                <ig:XamGrid x:Name="DataPermission" ColumnWidth="*" ScrollViewer.CanContentScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Visible" AutoGenerateColumns="False"  Margin="0,0,0,0"  Height="AUTO" BorderThickness="0">
+                                    <ig:XamGrid.ColumnResizingSettings>
+                                        <ig:ColumnResizingSettings AllowCellAreaResizing="False" AllowColumnResizing="Disabled" AllowDoubleClickToSize="False" AllowMultipleColumnResize="False" />
+                                    </ig:XamGrid.ColumnResizingSettings>
+                                    <ig:XamGrid.Columns>
+                                        <ig:TemplateColumn Key="ExchangeId" Visibility="Hidden"/>
+                                        <ig:TemplateColumn Key="ExchangeCode" HeaderText="Name" Width="400">
+                                        </ig:TemplateColumn>
+                                        <ig:TemplateColumn Key="IsExchangeAllow" HeaderText="Allow" Width="80">
+                                            <ig:TemplateColumn.ItemTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsThreeState="True" IsHitTestVisible="False" IsChecked="{Binding IsExchangeAllow}"/>
+                                                </DataTemplate>
+                                            </ig:TemplateColumn.ItemTemplate>
+                                            <ig:TemplateColumn.EditorTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsThreeState="False" IsChecked="{Binding IsExchangeAllow, Mode=TwoWay}"/>
+                                                </DataTemplate>
+                                            </ig:TemplateColumn.EditorTemplate>
+                                        </ig:TemplateColumn>
+                                        <ig:TemplateColumn Key="IsExchangeDeny" HeaderText="Deny" Width="80">
+                                            <ig:TemplateColumn.ItemTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsThreeState="True" IsHitTestVisible="False" IsChecked="{Binding IsExchangeDeny}"/>
+                                                </DataTemplate>
+                                            </ig:TemplateColumn.ItemTemplate>
+                                            <ig:TemplateColumn.EditorTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsThreeState="False" IsChecked="{Binding IsExchangeDeny, Mode=TwoWay}"/>
+                                                </DataTemplate>
+                                            </ig:TemplateColumn.EditorTemplate>
+                                        </ig:TemplateColumn>
+                                        <ig:ColumnLayout Key="DataObjectTypes" HeaderVisibility="Hidden">
+                                            <ig:ColumnLayout.Columns>
+                                                <ig:TemplateColumn Key="DataObjectTypeId" Visibility="Hidden"></ig:TemplateColumn>
+                                                <ig:TemplateColumn Key="DataObjectType" Width="370"></ig:TemplateColumn>
+                                                <ig:TemplateColumn Key="IsDataObjectTypeAllow" Width="80">
+                                                    <ig:TemplateColumn.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <CheckBox IsThreeState="True" Margin="10,0,0,0" IsHitTestVisible="False" IsChecked="{Binding IsDataObjectTypeAllow}"/>
+                                                        </DataTemplate>
+                                                    </ig:TemplateColumn.ItemTemplate>
+                                                    <ig:TemplateColumn.EditorTemplate>
+                                                        <DataTemplate>
+                                                            <CheckBox IsThreeState="False" Margin="10,0,0,0" IsChecked="{Binding IsDataObjectTypeAllow, Mode=TwoWay}"/>
+                                                        </DataTemplate>
+                                                    </ig:TemplateColumn.EditorTemplate>
+                                                </ig:TemplateColumn>
+                                                <ig:TemplateColumn Key="IsDataObjectTypeDeny" Width="80">
+                                                    <ig:TemplateColumn.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <CheckBox IsThreeState="True" Margin="10,0,0,0" IsHitTestVisible="False" IsChecked="{Binding IsDataObjectTypeDeny}"/>
+                                                        </DataTemplate>
+                                                    </ig:TemplateColumn.ItemTemplate>
+                                                    <ig:TemplateColumn.EditorTemplate>
+                                                        <DataTemplate>
+                                                            <CheckBox IsThreeState="False" Margin="10,0,0,0" IsChecked="{Binding IsDataObjectTypeDeny, Mode=TwoWay}"/>
+                                                        </DataTemplate>
+                                                    </ig:TemplateColumn.EditorTemplate>
+                                                </ig:TemplateColumn>
+                                                <ig:ColumnLayout Key="DataObjects" HeaderVisibility="Hidden">
+                                                    <ig:ColumnLayout.Columns>
+                                                        <ig:TemplateColumn Key="Id" Visibility="Hidden"></ig:TemplateColumn>
+                                                        <ig:TemplateColumn Key="DataObjectId" Visibility="Hidden"></ig:TemplateColumn>
+                                                        <ig:TemplateColumn Key="Code" Width="370"></ig:TemplateColumn>
+                                                        <ig:TemplateColumn Key="IsAllow" Width="80">
+                                                            <ig:TemplateColumn.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <CheckBox IsThreeState="True" Margin="20,0,0,0" IsHitTestVisible="False" IsChecked="{Binding IsAllow}"/>
+                                                                </DataTemplate>
+                                                            </ig:TemplateColumn.ItemTemplate>
+                                                            <ig:TemplateColumn.EditorTemplate>
+                                                                <DataTemplate>
+                                                                    <CheckBox IsThreeState="False" Margin="20,0,0,0" IsChecked="{Binding IsAllow, Mode=TwoWay}"/>
+                                                                </DataTemplate>
+                                                            </ig:TemplateColumn.EditorTemplate>
+                                                        </ig:TemplateColumn>
+                                                        <ig:TemplateColumn Key="IsDeny" Width="80">
+                                                            <ig:TemplateColumn.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <CheckBox IsThreeState="True" Margin="20,0,0,0" IsHitTestVisible="False" IsChecked="{Binding IsDeny}"/>
+                                                                </DataTemplate>
+                                                            </ig:TemplateColumn.ItemTemplate>
+                                                            <ig:TemplateColumn.EditorTemplate>
+                                                                <DataTemplate>
+                                                                    <CheckBox IsThreeState="False" Margin="20,0,0,0" IsChecked="{Binding IsDeny, Mode=TwoWay}"/>
+                                                                </DataTemplate>
+                                                            </ig:TemplateColumn.EditorTemplate>
+                                                        </ig:TemplateColumn>
+                                                    </ig:ColumnLayout.Columns>
+                                                </ig:ColumnLayout>
+                                            </ig:ColumnLayout.Columns>
+                                        </ig:ColumnLayout>
+                                    </ig:XamGrid.Columns>
+                                </ig:XamGrid>
+                            </igWPF:ContentPane>
+                        </igWPF:TabGroupPane>
+                    </igWPF:SplitPane>
+                </igWPF:DocumentContentHost>
+            </igWPF:XamDockManager>
+        </Grid>
+        <!--<Grid Grid.Column="1" Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="10*"/>
+                <RowDefinition Height="10*"/>
+                <RowDefinition Height="10*"/>
+                <RowDefinition Height="80*"/>
+            </Grid.RowDefinitions>
+            <StackPanel Orientation="Horizontal" Grid.Row="0">
+                <Button x:Name="Submit" Content="Submit" Style="{StaticResource MetroButton}" Visibility="Hidden" Click="Submit_Click"/>
+                <Button x:Name="Cancel" Content="Cancel" Style="{StaticResource MetroButton}" Visibility="Hidden" Click="Cancel_Click" Margin="20,0,0,0"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Grid.Row="1">
+                <Label Content="RoleName" Width="AUTO"/>
+                <TextBox x:Name="RoleName" IsReadOnly="True" Width="200" Height="25" Margin="30,0,0,0" />
+            </StackPanel>
+            <Grid HorizontalAlignment="Stretch" Grid.Row="2" Margin="0,10,0,0">
+                <Label HorizontalAlignment="Left" Content="AccessPermission" ></Label>
+            </Grid>
+            <Grid HorizontalAlignment="Stretch" Grid.Row="3" Margin="0,10,0,0">
+                <ig:XamGrid x:Name="FunctionPermission" ColumnWidth="*" ScrollViewer.CanContentScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Visible" AutoGenerateColumns="False"  Margin="0,0,3,0"  Height="AUTO">
+                    <ig:XamGrid.ColumnResizingSettings>
+                        <ig:ColumnResizingSettings AllowCellAreaResizing="False" AllowColumnResizing="Disabled" AllowDoubleClickToSize="False" AllowMultipleColumnResize="False" />
+                    </ig:XamGrid.ColumnResizingSettings>
+                    <ig:XamGrid.Columns>
+                        <ig:TemplateColumn Key="CategoryId" Visibility="Hidden"/>
+                        <ig:TemplateColumn Key="CategoryName" HeaderText="Name" Width="400">
+                        </ig:TemplateColumn>
+                        <ig:TemplateColumn Key="IsCategoryAllow" HeaderText="Allow" Width="80">
+                            <ig:TemplateColumn.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsThreeState="True" IsHitTestVisible="False" IsEnabled="True" IsChecked="{Binding IsCategoryAllow}"/>
+                                </DataTemplate>
+                            </ig:TemplateColumn.ItemTemplate>
+                            <ig:TemplateColumn.EditorTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsThreeState="False" IsChecked="{Binding IsCategoryAllow, Mode=TwoWay}"/>
+                                </DataTemplate>
+                            </ig:TemplateColumn.EditorTemplate>
+                        </ig:TemplateColumn>
+                        <ig:TemplateColumn Key="IsCategoryDeny" HeaderText="Deny" Width="80">
+                            <ig:TemplateColumn.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsThreeState="True" IsHitTestVisible="False" IsChecked="{Binding IsCategoryDeny}"/>
+                                </DataTemplate>
+                            </ig:TemplateColumn.ItemTemplate>
+                            <ig:TemplateColumn.EditorTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsThreeState="False" IsChecked="{Binding IsCategoryDeny, Mode=TwoWay}"/>
+                                </DataTemplate>
+                            </ig:TemplateColumn.EditorTemplate>
+                        </ig:TemplateColumn>
+                        <ig:ColumnLayout Key="ModuleDatas" HeaderVisibility="Hidden">
+                            <ig:ColumnLayout.Columns>
+                                <ig:TemplateColumn Key="ModuleId" Visibility="Hidden"></ig:TemplateColumn>
+                                <ig:TemplateColumn Key="ModuleName" Width="370"></ig:TemplateColumn>
+                                <ig:TemplateColumn Key="IsModuleAllow" Width="80">
+                                    <ig:TemplateColumn.ItemTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsThreeState="True" Margin="10,0,0,0" IsHitTestVisible="False" IsChecked="{Binding IsModuleAllow}"/>
+                                        </DataTemplate>
+                                    </ig:TemplateColumn.ItemTemplate>
+                                    <ig:TemplateColumn.EditorTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsThreeState="False" Margin="10,0,0,0" IsChecked="{Binding IsModuleAllow, Mode=TwoWay}"/>
+                                        </DataTemplate>
+                                    </ig:TemplateColumn.EditorTemplate>
+                                </ig:TemplateColumn>
+                                <ig:TemplateColumn Key="IsModuleDeny" Width="80">
+                                    <ig:TemplateColumn.ItemTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsThreeState="True" Margin="10,0,0,0" IsHitTestVisible="False" IsChecked="{Binding IsModuleDeny}"/>
+                                        </DataTemplate>
+                                    </ig:TemplateColumn.ItemTemplate>
+                                    <ig:TemplateColumn.EditorTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsThreeState="False" Margin="10,0,0,0" IsChecked="{Binding IsModuleDeny, Mode=TwoWay}"/>
+                                        </DataTemplate>
+                                    </ig:TemplateColumn.EditorTemplate>
+                                </ig:TemplateColumn>
+                                <ig:ColumnLayout Key="OperationDatas" HeaderVisibility="Hidden">
+                                    <ig:ColumnLayout.Columns>
+                                        <ig:TemplateColumn Key="FunctionId" Visibility="Hidden"></ig:TemplateColumn>
+                                        <ig:TemplateColumn Key="Description" Width="370"></ig:TemplateColumn>
+                                        <ig:TemplateColumn Key="IsAllow" Width="80">
+                                            <ig:TemplateColumn.ItemTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsThreeState="True" Margin="20,0,0,0" IsHitTestVisible="False" IsChecked="{Binding IsAllow}"/>
+                                                </DataTemplate>
+                                            </ig:TemplateColumn.ItemTemplate>
+                                            <ig:TemplateColumn.EditorTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsThreeState="False" Margin="20,0,0,0" IsChecked="{Binding IsAllow, Mode=TwoWay}"/>
+                                                </DataTemplate>
+                                            </ig:TemplateColumn.EditorTemplate>
+                                        </ig:TemplateColumn>
+                                        <ig:TemplateColumn Key="IsDeny" Width="80">
+                                            <ig:TemplateColumn.ItemTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsThreeState="True" Margin="20,0,0,0" IsHitTestVisible="False" IsChecked="{Binding IsDeny}"/>
+                                                </DataTemplate>
+                                            </ig:TemplateColumn.ItemTemplate>
+                                            <ig:TemplateColumn.EditorTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsThreeState="False" Margin="20,0,0,0" IsChecked="{Binding IsDeny, Mode=TwoWay}"/>
+                                                </DataTemplate>
+                                            </ig:TemplateColumn.EditorTemplate>
+                                        </ig:TemplateColumn>
+                                    </ig:ColumnLayout.Columns>
+                                </ig:ColumnLayout>
+                            </ig:ColumnLayout.Columns>
+                        </ig:ColumnLayout>
+                    </ig:XamGrid.Columns>
+                </ig:XamGrid>
+            </Grid>
+        </Grid>
+        <Grid Grid.Row="1" Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="5*"/>
+                <RowDefinition Height="95*"/>
+            </Grid.RowDefinitions>
+            <Grid HorizontalAlignment="Stretch" Grid.Row="0">
+                <Label HorizontalAlignment="Left" Content="DataPermission"></Label>
+            </Grid>
+            <Grid HorizontalAlignment="Stretch" Grid.Row="1" Margin="0,10,0,0">
+                <ig:XamGrid x:Name="DataPermission" ColumnWidth="*" ScrollViewer.CanContentScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Visible" AutoGenerateColumns="False"  Margin="0,0,3,0"  Height="AUTO">
+                    <ig:XamGrid.ColumnResizingSettings>
+                        <ig:ColumnResizingSettings AllowCellAreaResizing="False" AllowColumnResizing="Disabled" AllowDoubleClickToSize="False" AllowMultipleColumnResize="False" />
+                    </ig:XamGrid.ColumnResizingSettings>
+                    <ig:XamGrid.Columns>
+                        <ig:TemplateColumn Key="IExchangeId" Visibility="Hidden"/>
+                        <ig:TemplateColumn Key="IExchangeCode" HeaderText="Name" Width="400">
+                        </ig:TemplateColumn>
+                        <ig:TemplateColumn Key="IsIExchangeAllow" HeaderText="Allow" Width="80">
+                            <ig:TemplateColumn.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsThreeState="True" IsHitTestVisible="False" IsChecked="{Binding IsIExchangeAllow}"/>
+                                </DataTemplate>
+                            </ig:TemplateColumn.ItemTemplate>
+                            <ig:TemplateColumn.EditorTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsThreeState="False" IsChecked="{Binding IsIExchangeAllow, Mode=TwoWay}"/>
+                                </DataTemplate>
+                            </ig:TemplateColumn.EditorTemplate>
+                        </ig:TemplateColumn>
+                        <ig:TemplateColumn Key="IsIExchangeDeny" HeaderText="Deny" Width="80">
+                            <ig:TemplateColumn.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsThreeState="True" IsHitTestVisible="False" IsChecked="{Binding IsIExchangeDeny}"/>
+                                </DataTemplate>
+                            </ig:TemplateColumn.ItemTemplate>
+                            <ig:TemplateColumn.EditorTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsThreeState="False" IsChecked="{Binding IsIExchangeDeny, Mode=TwoWay}"/>
+                                </DataTemplate>
+                            </ig:TemplateColumn.EditorTemplate>
+                        </ig:TemplateColumn>
+                        <ig:ColumnLayout Key="DataObjectTypes" HeaderVisibility="Hidden">
+                            <ig:ColumnLayout.Columns>
+                                <ig:TemplateColumn Key="DataObjectTypeId" Visibility="Hidden"></ig:TemplateColumn>
+                                <ig:TemplateColumn Key="DataObjectType" Width="370"></ig:TemplateColumn>
+                                <ig:TemplateColumn Key="IsDataObjectTypeAllow" Width="80">
+                                    <ig:TemplateColumn.ItemTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsThreeState="True" Margin="10,0,0,0" IsHitTestVisible="False" IsChecked="{Binding IsDataObjectTypeAllow}"/>
+                                        </DataTemplate>
+                                    </ig:TemplateColumn.ItemTemplate>
+                                    <ig:TemplateColumn.EditorTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsThreeState="False" Margin="10,0,0,0" IsChecked="{Binding IsDataObjectTypeAllow, Mode=TwoWay}"/>
+                                        </DataTemplate>
+                                    </ig:TemplateColumn.EditorTemplate>
+                                </ig:TemplateColumn>
+                                <ig:TemplateColumn Key="IsDataObjectTypeDeny" Width="80">
+                                    <ig:TemplateColumn.ItemTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsThreeState="True" Margin="10,0,0,0" IsHitTestVisible="False" IsChecked="{Binding IsDataObjectTypeDeny}"/>
+                                        </DataTemplate>
+                                    </ig:TemplateColumn.ItemTemplate>
+                                    <ig:TemplateColumn.EditorTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsThreeState="False" Margin="10,0,0,0" IsChecked="{Binding IsDataObjectTypeDeny, Mode=TwoWay}"/>
+                                        </DataTemplate>
+                                    </ig:TemplateColumn.EditorTemplate>
+                                </ig:TemplateColumn>
+                                <ig:ColumnLayout Key="DataObjects" HeaderVisibility="Hidden">
+                                    <ig:ColumnLayout.Columns>
+                                        <ig:TemplateColumn Key="Id" Visibility="Hidden"></ig:TemplateColumn>
+                                        <ig:TemplateColumn Key="DataObjectId" Visibility="Hidden"></ig:TemplateColumn>
+                                        <ig:TemplateColumn Key="Code" Width="370"></ig:TemplateColumn>
+                                        <ig:TemplateColumn Key="IsAllow" Width="80">
+                                            <ig:TemplateColumn.ItemTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsThreeState="True" Margin="20,0,0,0" IsHitTestVisible="False" IsChecked="{Binding IsAllow}"/>
+                                                </DataTemplate>
+                                            </ig:TemplateColumn.ItemTemplate>
+                                            <ig:TemplateColumn.EditorTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsThreeState="False" Margin="20,0,0,0" IsChecked="{Binding IsAllow, Mode=TwoWay}"/>
+                                                </DataTemplate>
+                                            </ig:TemplateColumn.EditorTemplate>
+                                        </ig:TemplateColumn>
+                                        <ig:TemplateColumn Key="IsDeny" Width="80">
+                                            <ig:TemplateColumn.ItemTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsThreeState="True" Margin="20,0,0,0" IsHitTestVisible="False" IsChecked="{Binding IsDeny}"/>
+                                                </DataTemplate>
+                                            </ig:TemplateColumn.ItemTemplate>
+                                            <ig:TemplateColumn.EditorTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsThreeState="False" Margin="20,0,0,0" IsChecked="{Binding IsDeny, Mode=TwoWay}"/>
+                                                </DataTemplate>
+                                            </ig:TemplateColumn.EditorTemplate>
+                                        </ig:TemplateColumn>
+                                    </ig:ColumnLayout.Columns>
+                                </ig:ColumnLayout>
+                            </ig:ColumnLayout.Columns>
+                        </ig:ColumnLayout>
+                    </ig:XamGrid.Columns>
+                </ig:XamGrid>
+            </Grid>
+        </Grid>-->
+        <ig:XamGrid x:Name="RoleGrid" Grid.Column="0" Grid.RowSpan="2" CellClicked="RoleGrid_CellClicked"  >
+            
+            <ig:XamGrid.SelectionSettings>
+                <ig:SelectionSettings CellClickAction="SelectRow" CellSelection="Single" ColumnSelection="Single" RowSelection="Single"></ig:SelectionSettings>
+            </ig:XamGrid.SelectionSettings>
+            <ig:XamGrid.PagerSettings>
+                <ig:PagerSettings AllowPaging="Top" PageSize="30"/>
+            </ig:XamGrid.PagerSettings>
+            <ig:XamGrid.Columns>
+                <ig:TemplateColumn Key="RoleId" HeaderText="Action">
+                    <ig:TemplateColumn.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Tag="{Binding RoleId}" Visibility="{Binding IsAllowEdit, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BooleanToVisibility}}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="EditButton_Click">
+                                    <Button.Content>
+                                        <Image Source="../Asset/Images/edit.png" Width="14" Height="14" ToolTipService.ToolTip="Edit"/>
+                                    </Button.Content>
+                                </Button>
+                                <Button Tag="{Binding RoleId}" Visibility="{Binding IsAllowDelete,RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BooleanToVisibility}}" Click="DeleteButton_Click">
+                                    <Button.Resources>
+                                        <Style TargetType="Button" BasedOn="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Tag,RelativeSource={RelativeSource Self}}" Value="2">
+                                                    <Setter Property="IsEnabled" Value="False"/>
+                                                    <Setter Property="Opacity" Value="0.7"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Resources>
+                                    <Button.Content>
+                                        <Image Source="../Asset/Images/delete.png" Width="14" Height="14" ToolTipService.ToolTip="Delete"/>
+                                    </Button.Content>
+                                </Button>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ig:TemplateColumn.ItemTemplate>
+                </ig:TemplateColumn>
+                <ig:TextColumn Key="RoleName"/>
+                <ig:TemplateColumn Visibility="Hidden" Key="IsAllowEdit"/>
+                <ig:TemplateColumn Key="IsAllowAdd" Visibility="Hidden"/>
+                <ig:TemplateColumn Key="IsAllowDelete" Visibility="Hidden"/>
+            </ig:XamGrid.Columns>
+        </ig:XamGrid>
+    </Grid>
+</UserControl>

@@ -21,7 +21,7 @@
     <Color x:Key="Color_002">#FF8B8B8B</Color>
     <Color x:Key="Color_003">#FFC0C0C0</Color>
     <Color x:Key="Color_004">#FF26355D</Color> <!--Color of grid line-->
-    <Color x:Key="Color_005">#FF000000</Color>
+    <Color x:Key="Color_005">#8F000000</Color>
     <Color x:Key="Color_006">#FF7C2320</Color>
     <Color x:Key="Color_007">#FFAB322E</Color>
     <Color x:Key="Color_008">#FF9B3D3D</Color>
@@ -48,7 +48,7 @@
     <Color x:Key="Color_028">#FFA6BBD7</Color>
     <Color x:Key="Color_029">#FFC1D4EC</Color>
     <Color x:Key="Color_030">#FF181818</Color>
-    <Color x:Key="Color_031">#FF000000</Color>
+    <Color x:Key="Color_031">#3F000000</Color>
     <Color x:Key="Color_032">#FF122F7C</Color>
     <Color x:Key="Color_033">#00FFFFFF</Color>
     <Color x:Key="Color_0331">#7FFFFFFF</Color>

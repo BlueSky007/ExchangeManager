@@ -10,6 +10,7 @@ using CommonTaskScheduler = Manager.Common.Settings.TaskScheduler;
 using TaskType = Manager.Common.TaskType;
 using ActionType = Manager.Common.ActionType;
 using System.Xml.Linq;
+using ExchangInstrument = Manager.Common.Settings.ExchangInstrument;
 
 
 namespace ManagerConsole.UI
@@ -22,6 +23,7 @@ namespace ManagerConsole.UI
         private NewTaskWindow _NewTaskWindow;
         private TaskSchedulerModel _TaskSchedulerModel = new TaskSchedulerModel();
         private ObservableCollection<TaskMenuItemEntity> _TaskMenuItems = new ObservableCollection<TaskMenuItemEntity>();
+        private ObservableCollection<TaskMenuItemEntity> _InstrumentItems = new ObservableCollection<TaskMenuItemEntity>();
         private MainWindow _App;
         private bool _IsInitilizedTaskMenu = false;
         public SettingSchedulerControl()
@@ -30,15 +32,17 @@ namespace ManagerConsole.UI
             this._App = ((ManagerConsole.MainWindow)Application.Current.MainWindow);
 
             this.Loaded += SettingSchedulerControl_Loaded;
-        }
 
-        private void SettingSchedulerControl_Loaded(object sender, RoutedEventArgs e)
-        {
             this.SetBindingComboBox();
             this._SettingSchedulerGrid.ItemsSource = TaskSchedulerModel.Instance.TaskSchedulers;
             this._TaskSchedulerModel = TaskSchedulerModel.Instance;
             if (this._IsInitilizedTaskMenu) return;
             this.IntilizeTaskMenu();
+        }
+
+        private void SettingSchedulerControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            //切换窗体，重新装载
         }
 
         private void SetBindingComboBox()
@@ -65,18 +69,35 @@ namespace ManagerConsole.UI
             this._TaskTypeComboBox.SelectedIndex = (int)currentTaskScheduler.TaskType;
             this._ActionTypeComboBox.SelectedIndex = (int)currentTaskScheduler.ActionType;
             this.ExchangeTextBox.Text = currentTaskScheduler.ExchangeCode;
-            if (currentTaskScheduler.ExchangInstruments.Count > 0)
-            {
-                this._InstrumentListBox.Visibility = Visibility.Visible;
-                this.InstrumentCaption.Visibility = Visibility.Visible;
+            //if (currentTaskScheduler.ExchangInstruments.Count > 0)
+            //{
+            //    this._InstrumentListBox.Visibility = Visibility.Visible;
+            //    this.InstrumentCaption.Visibility = Visibility.Visible;
                 
-                this._InstrumentListBox.ItemsSource = currentTaskScheduler.ExchangInstruments;
-            }
-            else
+            //    this._InstrumentListBox.ItemsSource = currentTaskScheduler.ExchangInstruments;
+            //}
+            //else
+            //{
+            //    this._InstrumentListBox.Visibility = Visibility.Collapsed;
+            //    this.InstrumentCaption.Visibility = Visibility.Collapsed;
+            //}
+
+            this.GetInstrumentList(currentTaskScheduler.ExchangInstruments);
+        }
+
+        private void GetInstrumentList(ObservableCollection<ExchangInstrument> exchangeInstruments)
+        {
+            this.InstrumentList.ItemsSource = null;
+            this._InstrumentItems.Clear();
+            TaskMenuItemEntity menuItem = new TaskMenuItemEntity();
+            menuItem.MenuTitle = "Instrument List";
+            foreach (ExchangInstrument item in exchangeInstruments)
             {
-                this._InstrumentListBox.Visibility = Visibility.Collapsed;
-                this.InstrumentCaption.Visibility = Visibility.Collapsed;
+                TaskMenuEventItem eventItem = new TaskMenuEventItem() { ExchangeCode = item.ExchangeCode, InstrumentCode = item.InstrumentCode, ImageUri = ImageSources.Instance.EnableTaskImage };
+                menuItem.TaskMenuEventItems.Add(eventItem);
             }
+            this._InstrumentItems.Add(menuItem);
+            this.InstrumentList.ItemsSource = this._InstrumentItems;
         }
 
         private void SettingSchedulerGrid_CellDoubleClicked(object sender, CellClickedEventArgs e)

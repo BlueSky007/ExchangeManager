@@ -394,5 +394,18 @@ namespace ManagerConsole.Model
             diffValue = lastAsk - lastBid;
             return diffValue;
         }
+
+        public short GetDecimalsForChart()
+        {
+            double result = Math.Log10(this.Denominator);
+            if (((short)result) == result)
+            {
+                return (short)result;
+            }
+            else
+            {
+                return 2;
+            }
+        }
     }
 }

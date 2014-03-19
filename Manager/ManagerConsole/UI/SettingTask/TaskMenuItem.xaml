@@ -28,10 +28,6 @@
                                 </Rectangle>
                                 <ContentPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
                                 <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="188"/>
-                                        <ColumnDefinition Width="100"/>
-                                    </Grid.ColumnDefinitions>
                                     <TextBlock Text="{Binding MenuTitle}"  VerticalAlignment="Center" FontFamily="hei" FontWeight="Black" Foreground="White" Margin="5"/>
                                     <Image Grid.Column="1" Width="15" Height="10" HorizontalAlignment="Right"/>
                                 </Grid>
@@ -40,7 +36,7 @@
                     </ControlTemplate>
                 </Button.Template>
             </Button>
-            <Border x:Name="MyBorder" Grid.Row="1" Height="400">
+            <Border x:Name="MyBorder" Grid.Row="1" Height="Auto">
                 <StackPanel x:Name="ActionItemStackPanel" Orientation="Vertical">
                     <local:TaskMenuContentCanva x:Name="TaskMenuContentCanva" Margin="1"/>
                 </StackPanel>

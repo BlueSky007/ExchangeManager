@@ -132,7 +132,7 @@ namespace ManagerConsole.Model
         TransactionResult EndExecute(IAsyncResult result);
 
         [OperationContract(AsyncPattern = true)]
-        IAsyncResult BeginCancel(Guid transactionId, CancelReason cancelReason, LogOrder logEntity, AsyncCallback callback, object asyncState);
+        IAsyncResult BeginCancel(Guid transactionId,CancelReason cancelReason, LogOrder logEntity, AsyncCallback callback, object asyncState);
         TransactionError EndCancel(IAsyncResult result);
 
         [OperationContract(IsInitiating = false)]
@@ -334,6 +334,12 @@ namespace ManagerConsole.Model
         [OperationContract(AsyncPattern = true)]
         IAsyncResult BeginRestoreHighLow(string exchangeCode, int batchProcessId, AsyncCallback callback, object asyncState);
         bool EndRestoreHighLow(IAsyncResult result);
+
+        [OperationContract(AsyncPattern = false)]
+        List<Manager.Common.ExchangeEntities.ChartQuotation> GetChartQuotation(string exchangeCode, Guid quotePolicyId, Guid instrumentId, string frequency, DateTime fromTime, DateTime toTime);
+
+        [OperationContract(AsyncPattern = false)]
+        Manager.Common.ExchangeEntities.ChartQuotation GetLastQuotationsForTrendSheet(string exchangeCode, Guid quotePolicyId, Guid instrumentId, string frequency, DateTime fromTime, decimal open);
     }
 
     [ServiceContract]

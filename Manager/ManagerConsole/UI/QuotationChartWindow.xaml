@@ -1,0 +1,21 @@
+﻿<UserControl x:Class="ManagerConsole.UI.QuotationChartWindow"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300" Background="Black" Foreground="White">
+    <Grid  Background="Black">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Canvas Grid.Row="0">
+            <TextBlock Text="ExchangeCode:" Width="120" Height=" 20" Canvas.Left="0" Canvas.Top="0"/>
+            <ComboBox x:Name="Exchange" Width="180" Height="20" Canvas.Left="120" Canvas.Top="0" SelectionChanged="ComboBox_SelectionChanged"></ComboBox>
+            <TextBlock Text="QuotePolicy" Width="120" Height="20" Canvas.Left="305" Canvas.Top="0"/>
+            <ComboBox x:Name="QuotePolicy" Width="180" Height="20" Canvas.Left="425" Canvas.Top="0" SelectionChanged="QuotePolicy_SelectionChanged"></ComboBox>
+        </Canvas>
+        <WebBrowser x:Name="ExchangeChart" Grid.Row="1" Height="AUTO" Width="AUTO" Panel.ZIndex="-5"></WebBrowser>
+    </Grid>
+</UserControl>

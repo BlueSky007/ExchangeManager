@@ -334,6 +334,7 @@ namespace ManagerConsole.ViewModel
             }
         }
 
+        //Modify Completed Update
         internal void Update(TaskScheduler newTaskScheduler)
         {
             this.ExchangeCode = newTaskScheduler.ExchangeCode;
@@ -349,6 +350,18 @@ namespace ManagerConsole.ViewModel
             this.LastRunTime = newTaskScheduler.LastRunTime;
 
             this.ParameterSettings = newTaskScheduler.ParameterSettings;
+
+            this.ParameterSettings.Clear();
+            this.ExchangInstruments.Clear();
+
+            foreach (ParameterSetting setting in newTaskScheduler.ParameterSettings)
+            {
+                this.ParameterSettings.Add(setting.Clone());
+            }
+            foreach (ExchangInstrument entity in newTaskScheduler.ExchangInstruments)
+            {
+                this.ExchangInstruments.Add(entity);
+            }
         }
 
         internal TaskScheduler Clone()

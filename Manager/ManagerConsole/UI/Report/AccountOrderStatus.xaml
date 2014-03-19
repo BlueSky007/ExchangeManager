@@ -1,0 +1,137 @@
+﻿<UserControl x:Class="ManagerConsole.UI.AccountOrderStatus"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:igGrid="http://schemas.infragistics.com/xaml"
+             mc:Ignorable="d" Width="1210"
+             d:DesignHeight="300" d:DesignWidth="1208">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Style="{DynamicResource DealingBorderStyle}" Grid.Row="0">
+            <TextBlock Margin="8,0,0,0" Foreground="Gold" Text="Open Position" FontWeight="Black" FontSize="15" VerticalAlignment="Center"/>
+        </Border>
+        <Border Style="{DynamicResource DealingBorderStyle}" Grid.Row="2">
+            <TextBlock Margin="8,0,0,0" Foreground="Gold" Text="Current TradeDay Order List" FontWeight="Black" FontSize="15" VerticalAlignment="Center"/>
+        </Border>
+        <Border Style="{DynamicResource DealingBorderStyle}" Grid.Row="4">
+            <TextBlock Margin="8,0,0,0" Foreground="Gold" Text="Lmt Order" FontWeight="Black" FontSize="15" VerticalAlignment="Center"/>
+        </Border>
+        
+        <!--Open Position Grid-->
+        <Border Grid.Row="1"  Margin="0,3,0,0">
+            <igGrid:XamGrid x:Name="_OpenPositionGrid" AutoGenerateColumns="False" IsAlternateRowsEnabled="True" ColumnWidth="Auto">
+                <igGrid:XamGrid.FilteringSettings>
+                    <igGrid:FilteringSettings AllowFiltering="FilterMenu" FilteringScope="ColumnLayout" />
+                </igGrid:XamGrid.FilteringSettings>
+                <igGrid:XamGrid.ColumnMovingSettings>
+                    <igGrid:ColumnMovingSettings AllowColumnMoving="Indicator"/>
+                </igGrid:XamGrid.ColumnMovingSettings>
+                <igGrid:XamGrid.SortingSettings>
+                    <igGrid:SortingSettings AllowSorting="True"/>
+                </igGrid:XamGrid.SortingSettings>
+                <igGrid:XamGrid.ColumnChooserSettings>
+                    <igGrid:ColumnChooserSettings AllowHideColumnIcon="True" AllowHiddenColumnIndicator="True" HiddenColumnIndicatorToolTipText="Click to display hidden columns" 
+                                              ColumnChooserDisplayText="Hide Column"/>
+                </igGrid:XamGrid.ColumnChooserSettings>
+
+                <!--Column Setting-->
+                <igGrid:XamGrid.Columns>
+                    <igGrid:TextColumn Key="TradeDay" Width="130" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Date" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="OrderCode" Width="150" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Order Code" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="InstrumentCode" Width="100" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Item"  IsFilterable="False"/>
+                    <igGrid:TextColumn Key="IsBuyString" Width="60" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="B/S"  IsFilterable="False"/>
+                    <igGrid:TextColumn Key="Lot" Width="60" HorizontalContentAlignment="Right" IsReadOnly="False" HeaderText="Lot" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="Price" Width="100" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Price" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="MktPrice" Width="100" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Ref." IsFilterable="False"/>
+                    <igGrid:TextColumn Key="Interest" Width="100" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Interest"  IsFilterable="False"/>
+                    <igGrid:TextColumn Key="Storage" Width="120" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Storage"  IsFilterable="False"/>
+                    <igGrid:TextColumn Key="FloatTrade" Width="120" HorizontalContentAlignment="Right" IsReadOnly="False" HeaderText="Trade P/L" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="RateIn" Width="85" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="RateIn" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="RateOut" Width="85" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="RateOut" IsFilterable="False"/>
+                </igGrid:XamGrid.Columns>
+            </igGrid:XamGrid>
+        </Border>
+
+        <!--Current TradeDay OrderList Grid-->
+        <Border Grid.Row="3" Margin="0,3,0,0">
+            <igGrid:XamGrid x:Name="_CurrentOrderListGrid" AutoGenerateColumns="False" IsAlternateRowsEnabled="True" ColumnWidth="Auto">
+                <igGrid:XamGrid.FilteringSettings>
+                    <igGrid:FilteringSettings AllowFiltering="FilterMenu" FilteringScope="ColumnLayout" />
+                </igGrid:XamGrid.FilteringSettings>
+                <igGrid:XamGrid.ColumnMovingSettings>
+                    <igGrid:ColumnMovingSettings AllowColumnMoving="Indicator"/>
+                </igGrid:XamGrid.ColumnMovingSettings>
+                <igGrid:XamGrid.SortingSettings>
+                    <igGrid:SortingSettings AllowSorting="True"/>
+                </igGrid:XamGrid.SortingSettings>
+                <igGrid:XamGrid.ColumnChooserSettings>
+                    <igGrid:ColumnChooserSettings AllowHideColumnIcon="True" AllowHiddenColumnIndicator="True" HiddenColumnIndicatorToolTipText="Click to display hidden columns" 
+                                              ColumnChooserDisplayText="Hide Column"/>
+                </igGrid:XamGrid.ColumnChooserSettings>
+
+                <!--Column Setting-->
+                <igGrid:XamGrid.Columns>
+                    <igGrid:TextColumn Key="ExecutedTime" Width="120" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Executed Time" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="OrderCode" Width="120" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Order Code" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="InstrumentCode" Width="100" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Item"  IsFilterable="False"/>
+                    <igGrid:TextColumn Key="IsOpen" Width="55" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="N/C"  IsFilterable="False"/>
+                    <igGrid:TextColumn Key="IsBuyString" Width="55" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="B/S"  IsFilterable="False"/>
+                    <igGrid:TextColumn Key="Lot" Width="55" HorizontalContentAlignment="Right" IsReadOnly="False" HeaderText="Lot" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="ExecutePrice" Width="100" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Execute Price" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="ContractSize" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Contract Size" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="Phase" Width="100" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Order Type" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="CommissionSum" Width="100" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Comm."  IsFilterable="False"/>
+                    <igGrid:TextColumn Key="LevySum" Width="100" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Levy"  IsFilterable="False"/>
+                    <igGrid:TextColumn Key="FloatTrade" Width="100" HorizontalContentAlignment="Right" IsReadOnly="False" HeaderText="Trade P/L" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="OpenPosition" Width="85" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Open Postion" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="Dealer" Width="85" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Dealer" IsFilterable="False"/>
+                </igGrid:XamGrid.Columns>
+            </igGrid:XamGrid>
+        </Border>
+
+        <!--LMT Order Grid-->
+        <Border Grid.Row="5" Margin="0,3,0,0">
+            <igGrid:XamGrid x:Name="_LmtOrderListGrid" AutoGenerateColumns="False" IsAlternateRowsEnabled="True" ColumnWidth="Auto">
+                <igGrid:XamGrid.FilteringSettings>
+                    <igGrid:FilteringSettings AllowFiltering="FilterMenu" FilteringScope="ColumnLayout" />
+                </igGrid:XamGrid.FilteringSettings>
+                <igGrid:XamGrid.ColumnMovingSettings>
+                    <igGrid:ColumnMovingSettings AllowColumnMoving="Indicator"/>
+                </igGrid:XamGrid.ColumnMovingSettings>
+                <igGrid:XamGrid.SortingSettings>
+                    <igGrid:SortingSettings AllowSorting="True"/>
+                </igGrid:XamGrid.SortingSettings>
+                <igGrid:XamGrid.ColumnChooserSettings>
+                    <igGrid:ColumnChooserSettings AllowHideColumnIcon="True" AllowHiddenColumnIndicator="True" HiddenColumnIndicatorToolTipText="Click to display hidden columns" 
+                                              ColumnChooserDisplayText="Hide Column"/>
+                </igGrid:XamGrid.ColumnChooserSettings>
+
+                <!--Column Setting-->
+                <igGrid:XamGrid.Columns>
+                    <igGrid:TextColumn Key="SubmitTime" Width="120" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Submit Time" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="EndTime" Width="120" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="End Time" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="OrderCode" Width="150" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Order Code" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="InstrumentCode" Width="100" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Item"  IsFilterable="False"/>
+                    <igGrid:TextColumn Key="IsOpen" Width="55" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="N/C"  IsFilterable="False"/>
+                    <igGrid:TextColumn Key="IsBuyString" Width="55" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="B/S"  IsFilterable="False"/>
+                    <igGrid:TextColumn Key="Lot" Width="55" HorizontalContentAlignment="Right" IsReadOnly="False" HeaderText="Lot" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="LotBalance" Width="55" HorizontalContentAlignment="Right" IsReadOnly="False" HeaderText="Lot Balance" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="ExecutePrice" Width="100" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Set Price" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="ContractSize" Width="80" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Contract Size" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="Phase" Width="100" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Order Type" IsFilterable="False"/>
+                    <igGrid:TextColumn Key="OpenPosition" Width="85" HorizontalContentAlignment="Center" IsReadOnly="True" HeaderText="Open Postion" IsFilterable="False"/>
+                </igGrid:XamGrid.Columns>
+            </igGrid:XamGrid>
+        </Border>
+
+    </Grid>
+</UserControl>

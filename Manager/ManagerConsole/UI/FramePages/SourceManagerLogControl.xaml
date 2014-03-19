@@ -1,0 +1,89 @@
+﻿<UserControl x:Class="ManagerConsole.FramePages.SourceManagerLogControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:igGrid="http://schemas.infragistics.com/xaml"
+             mc:Ignorable="d" 
+             d:DesignHeight="800" d:DesignWidth="800">
+    <UserControl.Resources>
+        <ResourceDictionary Source="../../Asset/Icons.xaml" />
+    </UserControl.Resources>
+    <Grid x:Name="LayoutRoot">
+        <Grid.Resources>
+
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35" />
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <Border Grid.Row="0" Style="{DynamicResource DealingBorderStyle}" CornerRadius="3" BorderBrush="Gray" BorderThickness="1">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock x:Name="_FromTextBlock" Foreground="White" Text="From:" Margin="8,10,0,0" Height="25"/>
+                <DatePicker Width="120" x:Name="_FromDatePicker" Margin="2,0,0,0"  Height="25" ></DatePicker>
+                <TextBlock x:Name="_ToTextBlock"  Foreground="White" Text="To:" Margin="2,10,0,0" Height="25"/>
+                <DatePicker Width="120" x:Name="_ToDatePicker" Margin="2,0,0,0" Height="25"></DatePicker>
+                <Button x:Name="_QueryButton" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"  Click="ToolBar_Click" Width="25" Height="25" Margin="2" >
+                    <Button.Content>
+                        <StackPanel x:Name="QueryImg"/>
+                        <!--<Image Source="../Asset/Images/Search.png" ToolTipService.ToolTip="Query Log"  Margin="1"/>-->
+                    </Button.Content>
+                </Button>
+            </StackPanel>
+        </Border>
+            
+        <igGrid:XamGrid x:Name="_LogPriceGrid" AutoGenerateColumns="False" Grid.Row="1" Margin="1,5,0,0">
+            <igGrid:XamGrid.EditingSettings>
+                <igGrid:EditingSettings AllowEditing="None" IsEnterKeyEditingEnabled="True" IsF2EditingEnabled="True"/>
+            </igGrid:XamGrid.EditingSettings>
+            <igGrid:XamGrid.FilteringSettings>
+                <igGrid:FilteringSettings AllowFiltering="FilterMenu" FilteringScope="ColumnLayout" />
+            </igGrid:XamGrid.FilteringSettings>
+            <igGrid:XamGrid.ColumnMovingSettings>
+                <igGrid:ColumnMovingSettings AllowColumnMoving="Indicator"/>
+            </igGrid:XamGrid.ColumnMovingSettings>
+
+            <!--Columns-->
+            <igGrid:XamGrid.Columns>
+                <igGrid:TextColumn Key="IP" Width="80" HorizontalContentAlignment="Center" HeaderText="IP" IsFilterable="False"/>
+                <igGrid:TextColumn Key="ExchangeCode" Width="100" HorizontalContentAlignment="Center" HeaderText="Exchange Code" IsFilterable="True"/>
+                <igGrid:TextColumn Key="Event" Width="200" HorizontalContentAlignment="Center" HeaderText="Event" IsFilterable="False"/>
+                <igGrid:TextColumn Key="UserName" Width="60" HorizontalContentAlignment="Center" HeaderText="Customer" IsFilterable="False"/>
+
+                <igGrid:TextColumn Key="InstrumentCode" Width="80" HorizontalContentAlignment="Center" HeaderText="Item" IsFilterable="False"/>
+                <igGrid:TextColumn Key="OperationType" Width="100" HorizontalContentAlignment="Center" HeaderText="Operation Type" IsFilterable="True"/>
+                <igGrid:TextColumn Key="OutOfRangeType" Width="100" HorizontalContentAlignment="Center" HeaderText="OutOfRange Type" IsFilterable="True"/>
+                <igGrid:TextColumn Key="Bid" Width="60" HorizontalContentAlignment="Center" HeaderText="Bid" IsFilterable="False"/>
+                <igGrid:TextColumn Key="Ask" Width="60" HorizontalContentAlignment="Center" HeaderText="Ask" IsFilterable="False"/>
+                <igGrid:TextColumn Key="Diff" Width="60" HorizontalContentAlignment="Center" HeaderText="Diff" IsFilterable="False"/>
+                <igGrid:TextColumn Key="Timestamp" Width="100" HorizontalContentAlignment="Center" HeaderText="Timestamp" IsFilterable="False"/>
+            </igGrid:XamGrid.Columns>
+            <igGrid:XamGrid.PagerSettings>
+                <igGrid:PagerSettings AllowPaging="Bottom"  />
+            </igGrid:XamGrid.PagerSettings>
+        </igGrid:XamGrid>
+
+        <igGrid:XamGrid Grid.Row="1" x:Name="_LogSourceChangeGrid" AutoGenerateColumns="False" >
+            <igGrid:XamGrid.Columns>
+                <igGrid:TextColumn Key="IP" Width="80" HorizontalContentAlignment="Center" HeaderText="IP" IsFilterable="False"/>
+                <igGrid:TextColumn Key="ExchangeCode" Width="100" HorizontalContentAlignment="Center" HeaderText="Exchange Code" IsFilterable="True"/>
+                <igGrid:TextColumn Key="Event" Width="200" HorizontalContentAlignment="Center" HeaderText="Event" IsFilterable="False"/>
+                <igGrid:TextColumn Key="UserName" Width="60" HorizontalContentAlignment="Center" HeaderText="Customer" IsFilterable="False"/>
+                <igGrid:TextColumn Key="Timestamp" Width="100" HorizontalContentAlignment="Center" HeaderText="Timestamp" IsFilterable="False"/>
+
+                <igGrid:CheckBoxColumn Key="IsDefault" Width="50" HorizontalContentAlignment="Center" HeaderText="IsDefault" IsFilterable="False"/>
+                <igGrid:TextColumn Key="FromSourceName" Width="80" HorizontalContentAlignment="Center" HeaderText="From Source" IsFilterable="False"/>
+                <igGrid:TextColumn Key="ToSourceName" Width="80" HorizontalContentAlignment="Center" HeaderText="To Source" IsFilterable="False"/>
+                <igGrid:TextColumn Key="Priority" Width="60" HorizontalContentAlignment="Center" HeaderText="Priority" IsFilterable="False"/>
+                
+            </igGrid:XamGrid.Columns>
+            <igGrid:XamGrid.PagerSettings>
+                <igGrid:PagerSettings AllowPaging="Bottom"  />
+            </igGrid:XamGrid.PagerSettings>
+        </igGrid:XamGrid>
+
+        <Grid x:Name="_BusyDecoratorGrid" Visibility="Collapsed" Grid.Row="1" Grid.RowSpan="2" Background="Black" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+    </Grid>
+</UserControl>

@@ -7,7 +7,7 @@
              xmlns:localui="clr-namespace:ManagerConsole.Helper"
              xmlns:TaskMenu="clr-namespace:ManagerConsole.UI.SettingTask"
              mc:Ignorable="d" 
-             d:DesignHeight="800" d:DesignWidth="800">
+             d:DesignHeight="800" d:DesignWidth="850">
     <UserControl.Resources>
         <!--ListBox样式-->
         <Style x:Key="ListBox" TargetType="ListBox">
@@ -117,6 +117,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="25"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <TextBlock VerticalAlignment="Center" Grid.Row="0" Text="Task Name:"/>
@@ -130,10 +131,14 @@
                     <TextBlock  Grid.Row="1" Text="Description:" VerticalAlignment="Top"/>
                     <TextBox  Margin="0,5,0,5" Grid.Row="1" Grid.Column="1" Text="{Binding Description,Mode=TwoWay}" TextAlignment="Left" FlowDirection="LeftToRight" x:Name="_TaskDescriptionText" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" Grid.ColumnSpan="5" Height="Auto" />
 
-                    <TextBlock Visibility="Collapsed" Grid.Row="2" Grid.Column="0" x:Name="InstrumentCaption" Text="Instrument:" VerticalAlignment="Top"/>
+                    <TextBlock  Grid.Row="3" Grid.Column="0" x:Name="InstrumentCaption" Text="Instrument:" VerticalAlignment="Top"/>
                     <ListBox Visibility="Collapsed" Grid.Row="2" Name="_InstrumentListBox" Grid.Column="1" Grid.ColumnSpan="2"
                               ItemTemplate="{StaticResource listBoxTemplate}" >
                     </ListBox>
+                    <!--Create Task Menu-->
+                    <Border Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="5" Margin="3,3,0,0">
+                        <TaskMenu:TaskMenuCanva x:Name="InstrumentList"  MinWidth="200"/>
+                    </Border>
                 </Grid>
 
                 <Border Style="{DynamicResource DealingBorderStyle}" Grid.Row="1" Margin="3 5 3 0">

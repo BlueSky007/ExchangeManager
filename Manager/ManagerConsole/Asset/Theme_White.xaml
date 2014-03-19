@@ -13,16 +13,23 @@
     <Style x:Key="BorderStyle" TargetType="Border">
         <Setter Property="BorderBrush" Value="Black"/>
     </Style>
-    <LinearGradientBrush x:Key="DealingBorderBackground" StartPoint="0.5, 0" EndPoint="0.5, 1">
-        <GradientStop Color="#FFFFFFFF" Offset="0" />
-        <GradientStop Color="#E8FFFFFF" Offset="0.4" />
-        <GradientStop Color="#88FFFFFF" Offset="1" />
+
+    <LinearGradientBrush x:Key="ToolBarBorderBackground" StartPoint="0.5, 0" EndPoint="0.5, 1">
+        <GradientStop Color="#FFBAAFAA" Offset="0.5" />
+        <GradientStop Color="DarkGray" Offset="1" />
     </LinearGradientBrush>
+
     <Style x:Key="DealingBorderStyle" TargetType="Border">
-        <Setter Property="BorderBrush" Value="Black"/>
-        <Setter Property="Background" Value="{DynamicResource DealingBorderBackground}"/>
+        <Setter Property="Background" Value="#FFD9D9FF"/>
         <Setter Property="CornerRadius" Value="3"/>
         <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="Black"/>
+    </Style>
+    <Style x:Key="ToolBarBorderStyle" TargetType="Border">
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="Black"/>
+        <Setter Property="Background" Value="{StaticResource ToolBarBorderBackground}"/>
+        <Setter Property="CornerRadius" Value="3"/>
     </Style>
     <Style x:Key="StackPanelBackgroundStyle" TargetType="StackPanel">
         <Setter Property="Background" Value="White"/>
@@ -58,6 +65,15 @@
     </Style>
     <Style x:Key="SellCellStyle" TargetType="ig:CellControl" BasedOn="{StaticResource CellControlStyle}">
         <Setter Property="Foreground" Value="Red"/>
+    </Style>
+    <Style x:Key="SummaryGroupHeaderStyle" TargetType="igPrim:HeaderCellControl">
+        <Setter Property="Background" Value="#FF007AAC"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Foreground" Value="Black"/>
+    </Style>
+    <Style x:Key="NormalHeaderStyle" TargetType="igPrim:HeaderCellControl">
+        <Setter Property="Background" Value="Gold"/>
+        <Setter Property="Foreground" Value="Black"/>
     </Style>
     <!--Account Status Grid Expand Style-->
     <Style x:Key="TradingSummaryControlStyle" TargetType="localUI:TradingSummaryControl">

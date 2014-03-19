@@ -24,5 +24,7 @@ namespace ManagerConsole.Model
         public TaskEventType ActionType { get; set; }
         public string ActionName { get; set; }
         public BitmapImage ImageUri { get; set; }
+        public string ExchangeCode { get; set; }
+        public string InstrumentCode { get; set; }
     }
 }

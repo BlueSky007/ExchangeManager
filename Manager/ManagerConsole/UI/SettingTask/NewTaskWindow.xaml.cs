@@ -65,6 +65,7 @@ namespace ManagerConsole.UI
 
         private void SettingsUIBinding()
         {
+            this.SetBindingComboBox();
             if (this._EditMode == EditMode.AddNew)
             {
                 this.LayOutGrid.DataContext = this._TaskScheduler;
@@ -77,11 +78,18 @@ namespace ManagerConsole.UI
                 this._ParameterSettingGrid.ItemsSource = this._EditorTaskScheduler.ParameterSettings;
                 foreach (ExchangInstrument exchangeInstrument in this._EditorTaskScheduler.ExchangInstruments)
                 {
-                    this._InstrumentComboBox.SelectedItems.Add(exchangeInstrument);
+                    int i = 0;
+                    foreach (ExchangInstrument item in this._InstrumentComboBox.ItemsSource)
+                    {
+                        if (item.InstrumentId == exchangeInstrument.InstrumentId)
+                        {
+                            this._InstrumentComboBox.SelectedItems.Add(exchangeInstrument);
+                            this._InstrumentComboBox.SelectedIndex = i;
+                        }
+                        i++;
+                    }
                 }
             }
-
-            this.SetBindingComboBox();
         }
 
         private void ConvertToParameterSetting(List<CommonParameterDefine> parameterDefines)
@@ -161,7 +169,7 @@ namespace ManagerConsole.UI
         {
             string exchangeCode = this.ExchangeComboBox.SelectedItem.ToString();
             TaskScheduler taskEntity = this._EditMode == EditMode.AddNew ? this._TaskScheduler : this._EditorTaskScheduler;
-            ObservableCollection<ExchangInstrument> instruments = this.GetExchangeInstruments();
+            ObservableCollection<ExchangInstrument> instruments = this.GetExchangeInstruments(exchangeCode);
             taskEntity.ExchangInstruments = instruments;
             taskEntity.CreateDateTime = DateTime.Now;
             taskEntity.ExchangeCode = exchangeCode;
@@ -176,11 +184,12 @@ namespace ManagerConsole.UI
             }
         }
 
-        private ObservableCollection<ExchangInstrument> GetExchangeInstruments()
+        private ObservableCollection<ExchangInstrument> GetExchangeInstruments(string exchangeCode)
         {
             ObservableCollection<ExchangInstrument> instruments = new ObservableCollection<ExchangInstrument>();
             foreach (ExchangInstrument item in this._InstrumentComboBox.SelectedItems)
             {
+                item.ExchangeCode = exchangeCode;
                 instruments.Add(item);
             }
             return instruments;
@@ -257,11 +266,13 @@ namespace ManagerConsole.UI
         private void InstrumentComboBox_SelectionChanged(object sender, EventArgs e)
         {
             if (!this._IsLoaded) return;
+            string exchangeCode = this.ExchangeComboBox.SelectedItem.ToString();
             ExchangInstrument exchangInstrument = this._InstrumentComboBox.SelectedItem as ExchangInstrument;
+            if (exchangInstrument == null) return;
             var item = this._InstrumentComboBox.SelectedIndex;
             var item1 = this._InstrumentComboBox.Tag;
             var item2 = this._InstrumentComboBox.SelectedItems;
-            ObservableCollection<ExchangInstrument> instruments = this.GetExchangeInstruments();   
+            ObservableCollection<ExchangInstrument> instruments = this.GetExchangeInstruments(exchangeCode);   
         }
 
         private void FilterSettingParameter(SettingTaskType settingType)

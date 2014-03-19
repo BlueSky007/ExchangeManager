@@ -1,0 +1,138 @@
+﻿<UserControl x:Class="ManagerConsole.UI.AccountHedgingLevelControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" Width="1210" Height="Auto"
+             d:DesignHeight="300" d:DesignWidth="1200">
+    <UserControl.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style TargetType="Border">
+            <Setter Property="BorderBrush" Value="#FF26355D"/>
+            <Setter Property="BorderThickness" Value="1,1,0,0"/>
+        </Style>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="83"/>
+        </Grid.RowDefinitions>
+        <Grid x:Name="HedgingLevelGrid" Grid.Row="0" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="26"/>
+                <RowDefinition Height="26"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="30"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="75"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="75"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="100"/>
+            </Grid.ColumnDefinitions>
+            <!---Caption-->
+            <Border Grid.RowSpan="3" Grid.Column="0" BorderThickness="1,1,0,1">
+                <TextBlock VerticalAlignment="Center" Text="Level" FontWeight="Bold" Margin="15,0,0,0"/>
+            </Border>
+            <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" BorderThickness="1,1,0,0">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="Instrument" FontWeight="Bold"/>
+            </Border>
+            <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" BorderThickness="1,1,0,0">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="P/L" FontWeight="Bold"/>
+            </Border>
+            <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="3" BorderThickness="1,1,0,0">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="Net Lot" FontWeight="Bold"/>
+            </Border>
+            <Border Grid.Row="0" Grid.Column="4" Grid.ColumnSpan="2" BorderThickness="1,1,0,0">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="Buy" FontWeight="Bold"/>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="4" BorderThickness="1,1,0,0">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="Lot" FontWeight="Bold"/>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="5" BorderThickness="1,1,0,0">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="Average" FontWeight="Bold"/>
+            </Border>
+            <Border Grid.Row="0"  Grid.Column="6" Grid.ColumnSpan="2" BorderThickness="1,1,0,0">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="Sell" FontWeight="Bold"/>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="6" BorderThickness="1,1,0,0">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="Lot" FontWeight="Bold"/>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="7" BorderThickness="1,1,0,0">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="Average" FontWeight="Bold"/>
+            </Border>
+            <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="8" BorderThickness="1,1,0,0">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="Call Price" FontWeight="Bold"/>
+            </Border>
+            <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="9" BorderThickness="1,1,0,0">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="Cut Price" FontWeight="Bold"/>
+            </Border>
+            <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="10" BorderThickness="1,1,1,0">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="Rate In" FontWeight="Bold"/>
+            </Border>
+            <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="11" BorderThickness="1,1,1,0">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="Rate Out" FontWeight="Bold"/>
+            </Border>
+
+            <!---Data-->
+            <Border Grid.Row="2" Grid.Column="1" BorderThickness="1,1,0,1">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="{Binding InstrumentCode,Mode=OneWay}"/>
+            </Border>
+            <Border Grid.Row="2" Grid.Column="2" BorderThickness="1,1,0,1">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="{Binding PLTrade,Mode=OneWay}"/>
+            </Border>
+            <Border Grid.Row="2" Grid.Column="3" BorderThickness="1,1,0,1">
+                <TextBlock Foreground="Blue" VerticalAlignment="Center" HorizontalAlignment="Right" Text="{Binding NetLot,Mode=OneWay}"/>
+            </Border>
+            <Border Grid.Row="2" Grid.Column="4" BorderThickness="1,1,0,1">
+                <TextBlock Foreground="Blue" VerticalAlignment="Center" HorizontalAlignment="Right" Text="{Binding BuyLotBalance,StringFormat={}{0:N2}}"/>
+            </Border>
+            <Border Grid.Row="2" Grid.Column="5" BorderThickness="1,1,0,1">
+                <TextBlock Foreground="Blue" VerticalAlignment="Center" HorizontalAlignment="Right" Text="{Binding AverageBuyPrice,StringFormat={}{0:N2}}" />
+            </Border>
+            <Border Grid.Row="2" Grid.Column="6" BorderThickness="1,1,0,1">
+                <TextBlock Foreground="Red" VerticalAlignment="Center" HorizontalAlignment="Right" Text="{Binding SellLotBalance,StringFormat={}{0:N2}}"/>
+            </Border>
+            <Border Grid.Row="2" Grid.Column="7" BorderThickness="1,1,0,1">
+                <TextBlock Foreground="Red" VerticalAlignment="Center" HorizontalAlignment="Right" Text="{Binding AverageSellPrice,StringFormat={}{0:N2}}"/>
+            </Border>
+            <Border Grid.Row="2" Grid.Column="8" BorderThickness="1,1,0,1">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="{Binding CallPriceString,Mode=OneWay}"/>
+            </Border>
+            <Border Grid.Row="2" Grid.Column="9" BorderThickness="1,1,0,1">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="{Binding CutPriceString,Mode=OneWay}"/>
+            </Border>
+            <Border Grid.Row="2" Grid.Column="10" BorderThickness="1,1,0,1">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="{Binding RateIn,Mode=OneWay}"/>
+            </Border>
+            <Border Grid.Row="2" Grid.Column="11" BorderThickness="1,1,1,1">
+                <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Text="{Binding RateOut,Mode=OneWay}"/>
+            </Border>
+        </Grid>
+        <Grid Grid.Row="0" x:Name="NoLevelGrid" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="35"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="1050"/>
+            </Grid.ColumnDefinitions>
+            <Border x:Name="NoLevelBorder" Grid.Row="0" Grid.Column="0" BorderThickness="1,1,0,1">
+                <TextBlock VerticalAlignment="Top" Text="Level" FontWeight="Bold" Margin="15,0,0,0"/>
+            </Border>
+            <Border Grid.Row="0" Grid.Column="1" Width="1050" VerticalAlignment="Top" HorizontalAlignment="Left" BorderThickness="1,1,0,1">
+                <TextBlock Foreground="Gold" FontSize="13" VerticalAlignment="Top" Text="No Open Position" FontWeight="Bold" Margin="15,0,0,0"/>
+            </Border>     
+        </Grid>
+    </Grid>
+
+</UserControl>

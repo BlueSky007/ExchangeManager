@@ -49,9 +49,19 @@ namespace ManagerService.Exchange
 
         public void Channel_Broken(object sender, EventArgs e)
         {
-            this.ConnectionState = ConnectionState.Disconnected;
-            this._ConnectionManager.NotifyExchangeToConnect(this.StateServerUrl, this.ExchangeCode);
-            Logger.AddEvent(TraceEventType.Warning, "ExchangeSystem Channel_Broken of ExchangeCode:{0} sessionId:{1}", ExchangeCode, this._SessionId);
+            try
+            {
+                if (!MainService.IsShuttingDown)
+                {
+                    this.ConnectionState = ConnectionState.Disconnected;
+                    this._ConnectionManager.NotifyExchangeToConnect(this.StateServerUrl, this.ExchangeCode);
+                    Logger.AddEvent(TraceEventType.Warning, "ExchangeSystem Channel_Broken of ExchangeCode:{0} sessionId:{1}", ExchangeCode, this._SessionId);
+                }
+            }
+            catch (Exception exception)
+            {
+                Logger.TraceEvent(TraceEventType.Error, "ExchangeSystem.Channel_Broken exception\r\n{0}", exception);
+            }
         }
 
         public void Stop()
@@ -338,7 +348,7 @@ namespace ManagerService.Exchange
             TransactionResult tranResult = null;
             try
             {
-                Token token = new Token(Guid.Empty, UserType.System, AppType.Manager);
+                Token token = new Token(Guid.Empty, UserType.System, AppType.DealingConsole);
                 tranResult = this._StateServer.Execute(token, transactionId, buyPrice, sellPrice, lot.ToString(), executedOrderGuid);
             }
             catch (Exception ex)

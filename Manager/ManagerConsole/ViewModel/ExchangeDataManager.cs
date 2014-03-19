@@ -365,35 +365,55 @@ namespace ManagerConsole.ViewModel
 
         public void ProcessExecuteMessage(ExecuteMessage executeMessage)
         {
-            string exchangeCode = executeMessage.ExchangeCode;
-            bool oDisablePopup = this._SettingsParameterManager.DealingOrderParameter.DisablePopup;
-            foreach (CommonTransaction commonTransaction in executeMessage.Transactions)
+            try
             {
-                if (commonTransaction.Error != null && commonTransaction.Error.Value != TransactionError.OK)
+                string exchangeCode = executeMessage.ExchangeCode;
+                bool oDisablePopup = this._SettingsParameterManager.DealingOrderParameter.DisablePopup;
+                foreach (CommonTransaction commonTransaction in executeMessage.Transactions)
                 {
-                    this.PlaySound(SoundOption.DQTradeFailed);
+                    if (commonTransaction.Error != null && commonTransaction.Error.Value != TransactionError.OK)
+                    {
+                        this.PlaySound(SoundOption.DQTradeFailed);
+                    }
+                    else if (this._Transactions.ContainsKey(commonTransaction.Id)
+                        && this._Transactions[commonTransaction.Id].Phase == Phase.Executed)
+                    {
+                        continue;
+                    }
+                    else if (this._Transactions.ContainsKey(commonTransaction.Id))
+                    {
+                        Transaction tran = this._Transactions[commonTransaction.Id];
+                        tran.ExecuteTime = commonTransaction.ExecuteTime;
+                        tran.Phase = iExchange.Common.OrderPhase.Executed;
+                    }
+                    else
+                    {
+                        this.ProcessTransaction(executeMessage.ExchangeCode, commonTransaction);
+                    }
                 }
-                else if(this._Transactions.ContainsKey(commonTransaction.Id) 
-                    && this._Transactions[commonTransaction.Id].Phase == Phase.Executed)
+
+                this.PlaySound(SoundOption.DQTradeSucceed);
+                foreach (CommonOrder commonOrder in executeMessage.Orders)
                 {
-                    continue;
+                    commonOrder.ExchangeCode = executeMessage.ExchangeCode;
+                    this.Process(commonOrder, false);
                 }
-                else if (this._Transactions.ContainsKey(commonTransaction.Id))
+
+                //Change Order status
+                foreach (CommonTransaction commonTransaction in executeMessage.Transactions)
                 {
                     Transaction tran = this._Transactions[commonTransaction.Id];
                     this.TranPhaseManager.UpdateTransaction(tran);
-                }
-                else
-                {
-                    this.ProcessTransaction(executeMessage.ExchangeCode, commonTransaction);
-                }
-            }
 
-            this.PlaySound(SoundOption.DQTradeSucceed);
-            foreach (CommonOrder commonOrder in executeMessage.Orders)
+                    this.TranPhaseManager.AddExecutedOrder(tran);
+                    this.TranPhaseManager.AddOrderToGroupNetPosition(tran);
+                }
+
+               
+            }
+            catch (Exception ex)
             {
-                commonOrder.ExchangeCode = executeMessage.ExchangeCode;
-                this.Process(commonOrder, false);
+                throw ex;
             }
         }
 
@@ -464,11 +484,10 @@ namespace ManagerConsole.ViewModel
             foreach (CommonTransaction commonTran in deleteMessage.Transactions)
             {
                 Transaction newTransaction = this._Transactions[commonTran.Id];
+                this.TranPhaseManager.AddExecutedOrder(newTransaction);
                 foreach (Order order in newTransaction.Orders)
                 {
-                    this.TranPhaseManager.AddExecutedOrder(order);
-                    this.TranPhaseManager.AddOrderProcessBuySellLot(deleteMessage.InstrumentID, order);
-                    this.TranPhaseManager.AddExecutedOrder(order);
+                    this.TranPhaseManager.AddOrderProcessBuySellLot(deleteMessage.InstrumentID, order); 
                 }
 
                 TranPhaseManager.UpdateTransaction(newTransaction);

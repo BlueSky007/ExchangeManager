@@ -18,6 +18,7 @@ namespace ManagerService
         {
             try
             {
+                MainService.IsShuttingDown = false;
                 System.IO.Directory.SetCurrentDirectory(System.AppDomain.CurrentDomain.BaseDirectory);
                 MainService.ManagerSettings = ManagerSettings.Load();
                 MainService.ExchangeManager = new ExchangeManager(MainService.ManagerSettings.ExchangeSystems);
@@ -37,6 +38,7 @@ namespace ManagerService
         public static ClientManager ClientManager { get; private set; }
         public static QuotationManager QuotationManager { get; private set; }
         public static SettingsTaskSchedulerManager SettingsTaskSchedulerManager { get; private set; }
+        public static bool IsShuttingDown { get; private set; }
 
         public void Start()
         {
@@ -58,6 +60,7 @@ namespace ManagerService
         {
             try
             {
+                MainService.IsShuttingDown = true;
                 MainService.QuotationManager.Stop();
                 MainService.ExchangeManager.Stop();
                 MainService.ClientManager.Stop();

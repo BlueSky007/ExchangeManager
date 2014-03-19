@@ -210,7 +210,7 @@ namespace ManagerService.Quotation
             }
             catch(Exception ex)
             {
-                Logger.TraceEvent(TraceEventType.Error, "QuotationClient.ReadAll error:\r\n{0}", ex.ToString());
+                Logger.TraceEvent(TraceEventType.Warning, "QuotationClient.ReadAll error:\r\n{0}", ex.ToString());
                 return false;
             }
         }

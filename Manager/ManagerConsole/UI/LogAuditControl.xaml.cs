@@ -46,6 +46,7 @@ namespace ManagerConsole.UI
             LogGroup logGroup = (LogGroup)Enum.ToObject(typeof(LogGroup),this.LogGroupComboBox.SelectedIndex);
             this.SetBindingByGroup(logGroup);
             LogAudit logAudit = this.LogTypeComboBox.SelectedItem as LogAudit;
+            if (logAudit == null) return;
             LogType type = logAudit.LogType;
             //this.ShowLogFrm(logGroup, type);
         }

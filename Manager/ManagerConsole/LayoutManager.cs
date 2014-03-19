@@ -264,6 +264,8 @@ namespace ManagerConsole
                     return new OpenInterestControl();
                 case ModuleType.AccountStatus:
                     return new AccountStatusQuery();
+                case ModuleType.QuotationChartWindow:
+                    return new QuotationChartWindow();  
                 default:
                     break;
             }

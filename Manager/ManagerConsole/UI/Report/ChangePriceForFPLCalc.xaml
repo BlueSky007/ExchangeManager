@@ -1,0 +1,60 @@
+﻿<ig:XamDialogWindow xmlns:ig="http://schemas.infragistics.com/xaml" x:Class="ManagerConsole.UI.ChangePriceForFPLCalc"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Header="ChangePriceForFPLCalc" Height="500" Width="530">
+    <Grid Style="{DynamicResource DealingGridStyle}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="323"/>
+            <ColumnDefinition Width="200"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Text="Change Price" Foreground="Gold" FontSize="15" VerticalAlignment="Center" Margin="8" FontFamily="hei" FontWeight="Black" FontStyle="Italic"/>
+        <TextBlock Text="Exchange Code" Foreground="Gold" VerticalAlignment="Center" Margin="10,0,0,0" Grid.Row="0" Grid.Column="1" FontFamily="hei" FontWeight="Black" FontStyle="Italic"/>
+        <TextBlock x:Name="ExchangeCodeTextBlock" Text="" Foreground="Gold" VerticalAlignment="Center" Margin="120,0,0,0" Grid.Row="0" Grid.Column="1" FontFamily="hei" FontWeight="Black" FontStyle="Italic"/>
+        <Border Margin="5" Grid.Row="1" Grid.Column="0">
+            <ig:XamGrid Margin="-2,-3,2,3" Grid.Row="1" x:Name="_ChangePriceGrid" RowHeight="20" CellClicked="ChangePriceGrid_Click">
+                <ig:XamGrid.SelectionSettings>
+                    <ig:SelectionSettings CellClickAction="SelectRow" RowSelection="Single"  ColumnSelection="Single"></ig:SelectionSettings>
+                </ig:XamGrid.SelectionSettings>
+                <ig:XamGrid.ColumnMovingSettings>
+                    <ig:ColumnMovingSettings AllowColumnMoving="Indicator"></ig:ColumnMovingSettings>
+                </ig:XamGrid.ColumnMovingSettings>
+                <ig:XamGrid.EditingSettings>
+                    <ig:EditingSettings AllowEditing="Hover" />
+                </ig:XamGrid.EditingSettings>
+                <ig:XamGrid.PagerSettings>
+                    <ig:PagerSettings AllowPaging="Bottom"  />
+                </ig:XamGrid.PagerSettings>
+                <ig:XamGrid.Columns>
+                    <ig:TextColumn Key="InstrumentCode" HeaderText="Code" Width="100" IsReadOnly="True"/>
+                    <ig:TextColumn Key="Bid" HeaderText="Bid" Width="80" IsReadOnly="True"/>
+                    <ig:TextColumn Key="Ask" HeaderText="Ask" Width="80" IsReadOnly="True"/>
+                    <ig:TextColumn Key="SpreadPoint" HeaderText="SP" Width="50" IsReadOnly="True"/>
+                </ig:XamGrid.Columns>
+            </ig:XamGrid>
+        </Border>
+        <Grid Grid.Row="1" Grid.Column="1" Margin="12,0,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="30"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="90"/>
+                <ColumnDefinition Width="100"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Instrument" Foreground="Gold" FontWeight="Black" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0"/>
+            <TextBlock Text="Bid" Foreground="Gold" FontWeight="Black" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0"/>
+            <TextBlock Text="Spread" Foreground="Gold" FontWeight="Black" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0"/>
+
+            <TextBox x:Name="InstrumentText" Width="80" Height="25" Grid.Row="0" Grid.Column="1" IsReadOnly="True" HorizontalAlignment="Left"/>
+            <TextBox x:Name="BidText" Width="80" Height="25" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" />
+            <TextBox x:Name="SpreadText" Width="80" Height="25" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left"/>
+            <Button x:Name="SaveButton" Content="Save" Width="60" HorizontalAlignment="Left" Grid.Row="3" Grid.Column="1" Margin="0,6,0,0" Height="25" VerticalAlignment="Top" Click="SaveButton_Click"/>
+        </Grid>
+    </Grid>
+</ig:XamDialogWindow>

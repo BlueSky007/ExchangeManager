@@ -1,0 +1,9 @@
+﻿<Application xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+             x:Class="ManagerConsole.Chart.App"
+             xmlns:chart ="clr-namespace:iExchange4.Chart.SilverlightExtension;assembly=iExchange4.Chart.SilverlightExtension"
+             >
+    <Application.Resources>
+        <chart:LocalizedStrings x:Key="Chart_LocalizedStrings"/>
+    </Application.Resources>
+</Application>

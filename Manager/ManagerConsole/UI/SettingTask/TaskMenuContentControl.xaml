@@ -11,7 +11,30 @@
                 <Button x:Name="ItemButton1" Tag="{Binding}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="ItemButton_Click">
                     <Image Source="{Binding ImageUri}" ToolTipService.ToolTip="Resume" Width="18" Height="18"/>
                 </Button>
-                <TextBlock Text="{Binding ActionName}" FontWeight="Black" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                <Button Content="{Binding ActionName}" Margin="8,0,0,0" VerticalAlignment="Center" Cursor="Hand" Click="ItemButton_Click">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <TextBlock >
+                <ContentPresenter />
+                            </TextBlock>
+                        </ControlTemplate>
+                    </Button.Template>
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Foreground" Value="{Binding ElementName=ActionNameText,Path=Foreground}" />
+                            <Setter Property="FontWeight" Value="Black"/>
+                            <Setter Property="FontFamily" Value="hei"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="true">
+                                    <Setter Property="Foreground" Value="Red" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <TextBlock x:Name="ActionNameText" Visibility="Collapsed"/>
+                <TextBlock Foreground="Green" FontWeight="Bold" FontSize="12" Text="{Binding ExchangeCode}" VerticalAlignment="Center"/>
+                <TextBlock FontWeight="Bold" FontSize="12" Text="{Binding InstrumentCode}" VerticalAlignment="Center" Margin="20,0,0,0"/>
             </StackPanel>
         </Grid>
 

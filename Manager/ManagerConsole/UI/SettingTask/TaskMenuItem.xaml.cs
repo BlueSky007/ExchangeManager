@@ -29,13 +29,16 @@ namespace ManagerConsole.UI.SettingTask
         {
             InitializeComponent();
             this._Storyboard = new Storyboard();
-            this._OriginHeight = this.MyBorder.Height;
+            this.MyBorder.Height += 30;
+            
         }
 
         public void SetEventItemBinding(TaskMenuItemEntity taskMenuItem)
         {
             this.DataContext = taskMenuItem;
             this.TaskMenuContentCanva.ItemsSource = taskMenuItem.TaskMenuEventItems;
+
+            this._OriginHeight = taskMenuItem.TaskMenuEventItems.Count * 25 + 30;
         }
 
         protected void ExpandMenuButton_Click(object sender, RoutedEventArgs e)

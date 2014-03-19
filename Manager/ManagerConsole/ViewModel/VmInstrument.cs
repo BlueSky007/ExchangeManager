@@ -206,6 +206,22 @@ namespace ManagerConsole.ViewModel
             }
         }
 
+        public bool IsActive
+        {
+            get
+            {
+                return this._Instrument.IsActive;
+            }
+            set
+            {
+                if (this._Instrument.IsActive != value)
+                {
+                    this._Instrument.IsActive = value;
+                    this.OnPropertyChanged(FieldSR.IsActive);
+                }
+            }
+        }
+
         public bool HasDefaultSourceRelation
         {
             get

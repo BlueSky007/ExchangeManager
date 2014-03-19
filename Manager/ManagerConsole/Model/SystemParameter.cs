@@ -34,6 +34,12 @@ namespace ManagerConsole.Model
 
         public bool ConfirmRejectDQOrder { get; set; } //WebConfig
 
+        public bool HighBid { get; set; }
+
+        public bool LowBid { get; set; }
+
+        public bool EnableTrendSheetChart { get; set; }
+
         #region Update
         public void Update(Dictionary<string, string> fieldAndValues)
         {
@@ -86,6 +92,9 @@ namespace ManagerConsole.Model
             this.LotDecimal = systemParameter.LotDecimal;
             this.AutoConfirmOrder = systemParameter.AutoConfirmOrder;
             this.ConfirmRejectDQOrder = systemParameter.ConfirmRejectDQOrder;
+            this.HighBid = systemParameter.HighBid;
+            this.LowBid = systemParameter.LowBid;
+            this.EnableTrendSheetChart = systemParameter.EnableTrendSheetChart;
         }
         #endregion
     }

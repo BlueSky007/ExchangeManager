@@ -1,0 +1,397 @@
+﻿<UserControl x:Class="ManagerConsole.UI.OpenInterestControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:igWindows="http://infragistics.com/Windows"
+             xmlns:igGrid="http://schemas.infragistics.com/xaml"
+             xmlns:igPrim="http://schemas.infragistics.com/xaml/primitives"
+             xmlns:local="clr-namespace:ManagerConsole.Helper"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="600">
+    <UserControl.Resources>
+        <Style x:Key="CellStyle" TargetType="igGrid:CellControl">
+            <Setter Property="BorderBrush" Value="#FFDEDEDE" />
+            <Setter Property="BorderThickness" Value="0,0,1,1" />
+            <Setter Property="Foreground" Value="#FF9090FF"/>
+        </Style>
+        
+        <Style x:Key="BuySummaryGroupCellStyle" TargetType="igGrid:CellControl" BasedOn="{StaticResource CellControlStyle}">
+            <Setter Property="Background" Value="#FF007ACC"/>
+            <Setter Property="Foreground" Value="#FF9090FF"/>
+            <Setter Property="BorderThickness" Value="0,0,0,0"/>
+        </Style>
+        <Style x:Key="SellSummaryGroupStyle" TargetType="igGrid:CellControl" BasedOn="{StaticResource CellControlStyle}">
+            <Setter Property="Background" Value="#FF007ACC"/>
+            <Setter Property="Foreground" Value="Red"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        <!--<Style x:Key="SummaryGroupHeaderStyle" TargetType="igPrim:HeaderCellControl">
+            <Setter Property="Background" Value="#FF007AAC"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="Black"/>
+        </Style>
+        <Style x:Key="NormalHeaderStyle" TargetType="igPrim:HeaderCellControl">
+            <Setter Property="Background" Value="#FF282828"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>-->
+        <local:LotForegroundConverter x:Key="LotForegroundConverter"/>
+    </UserControl.Resources>
+    <Grid Style="{DynamicResource DealingGridStyle}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="43"/>
+            <RowDefinition Height="500*"/>
+        </Grid.RowDefinitions>
+        <Border x:Name="_NetPositionToolbar" Style="{DynamicResource ToolBarBorderStyle}" Grid.Row="0" Margin="0,5,0,0">
+            <StackPanel x:Name="NetPositionPanel" Orientation="Horizontal" Margin="15,0,0,0">
+                <TextBlock Style="{DynamicResource QueryOrderTextBlckStyle}" Text="ExchangeCode:" Grid.Row="0" Grid.Column="0" />
+
+                <TextBlock  Margin="10,0,0,0" Style="{DynamicResource QueryOrderTextBlckStyle}" Text="Show Actual Quantity" />
+                <CheckBox x:Name="_ShowQuantityChk" VerticalAlignment="Center" Margin="8,0,0,0" IsChecked="True"/>
+                <Button x:Name="_QueryNetPostionBtn" Click="QueryData" Content="Go" Width="40" Height="25" Margin="3,0,0,0" VerticalAlignment="Center"/>
+
+                <TextBlock Style="{DynamicResource QueryOrderTextBlckStyle}" Text="Column Width:" Grid.Row="0" Grid.Column="0" />
+                <TextBox x:Name="_ColumnWidthTextBox" Width="65" Height="25" Margin="8,0,0,0"/>
+                <Button x:Name="_SetColumnWidthBtn" Content="Set" Width="40" Height="25" Margin="3,0,0,0" VerticalAlignment="Center" Click="_SetColumnWidthBtn_Click"/>
+            </StackPanel>
+        </Border>
+        <Border x:Name="_SummaryToolbar" Style="{DynamicResource ToolBarBorderStyle}" Visibility="Collapsed"  Grid.Row="0" Margin="0,5,0,0">
+            <StackPanel x:Name="SummaryPanel" Orientation="Horizontal" Margin="15,0,0,0">
+                <TextBlock Style="{DynamicResource QueryOrderTextBlckStyle}" Text="ExchangeCode:" Grid.Row="0" Grid.Column="0" />
+                <Rectangle Width="2" />
+                <RadioButton x:Name="_CodeRadio" VerticalAlignment="Center" IsChecked="True" Margin="18,0,0,0"/>
+                <TextBlock Text="Code" Style="{DynamicResource QueryOrderTextBlckStyle}"/>
+                <RadioButton x:Name="_OriginCodeRadio" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                <TextBlock Text="Origin Code" Style="{DynamicResource QueryOrderTextBlckStyle}"/>
+                <Button x:Name="_QuerySummaryBtn" Content="Go" Width="40" Height="25" BorderBrush="Black" Click="QuerySummaryBtn_Click"  Margin="1,0,0,0" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <TabControl x:Name="_OpenInterestTab" Grid.Row="1" Margin="0,5,0,0" SelectionChanged="_OpenInterestTab_SelectionChanged" >
+            <TabItem Header="Group Net Position" x:Name="NetPositionItem" Width="100">
+                <!--#BEGIN SNIPPET#-->
+                <igGrid:XamGrid KeyboardNavigation="AllLayouts" x:Name="_GroupNetPositionGrid" FontWeight="Bold" FontFamily="hei" FontStyle="Italic" AutoGenerateColumns="false" Grid.Row="1"
+                                ColumnLayoutAssigned="GroupNetPositionGrid_ColumnLayoutAssigned" 
+                                InitializeRow="GroupNetPositionGrid_InitializeRow"
+                                CellExitedEditMode="GroupNetPositionGrid_CellExitedEditMode"
+                                CellExitingEditMode="GroupNetPositionGrid_CellExitingEditMode">
+                    <igGrid:XamGrid.ColumnResizingSettings>
+                        <igGrid:ColumnResizingSettings
+                            AllowCellAreaResizing="False"
+                            AllowColumnResizing="Immediate"
+                            AllowDoubleClickToSize="False"
+                            AllowMultipleColumnResize="False" />
+                    </igGrid:XamGrid.ColumnResizingSettings>
+                    <igGrid:XamGrid.EditingSettings>
+                        <igGrid:EditingSettings AllowEditing="Cell"/>
+                    </igGrid:XamGrid.EditingSettings>
+                    <igGrid:XamGrid.Columns>
+                        <igGrid:ColumnLayout Key="AccountGroupGNPs">
+                            <igGrid:ColumnLayout.Columns>
+                                <igGrid:ColumnLayout Key="AccountGNPs">
+                                    <igGrid:ColumnLayout.Columns>
+                                        <igGrid:ColumnLayout Key="DetailGNPs" HeaderVisibility="Hidden">
+                                            <igGrid:ColumnLayout.Columns>
+                                                <igGrid:TextColumn Key="OrderRelation" HorizontalContentAlignment="Center" Width="90" IsReadOnly="True" HeaderText="Detail"/>
+                                                <igGrid:TextColumn Key="EmptyColumn1" HorizontalContentAlignment="Left" Width="50" IsReadOnly="True" HeaderText="X"/>
+                                                <igGrid:TextColumn Key="EmptyColumn2" HorizontalContentAlignment="Left" Width="50" IsReadOnly="True" HeaderText="%"/>
+                                            </igGrid:ColumnLayout.Columns>
+                                        </igGrid:ColumnLayout>
+                                        <igGrid:TextColumn Key="Code" HorizontalContentAlignment="Center" Width="90" IsReadOnly="True" HeaderText="Account"/>
+                                        <igGrid:TextColumn Key="EmptyColumn1" HorizontalContentAlignment="Left" Width="50" IsReadOnly="True" HeaderText="X"/>
+                                        <igGrid:TextColumn Key="EmptyColumn2" HorizontalContentAlignment="Left" Width="50" IsReadOnly="True" HeaderText="%"/>
+                                    </igGrid:ColumnLayout.Columns>
+                                </igGrid:ColumnLayout>
+                                <!--Column Setting-->
+                                <igGrid:TextColumn Key="Code" HorizontalContentAlignment="Left" Width="120" IsReadOnly="True" HeaderText="Group" />
+                                <igGrid:TemplateColumn Key="IsSelected" Width="50" HorizontalContentAlignment="Center" IsReadOnly="False" HeaderText="X" >
+                                    <igGrid:TemplateColumn.ItemTemplate>
+                                        <DataTemplate>
+                                            <CheckBox x:Name="SelectChk" Click="SelectChk_Click" IsChecked="{Binding IsSelected,Mode=TwoWay}" />
+                                        </DataTemplate>
+                                    </igGrid:TemplateColumn.ItemTemplate>
+                                </igGrid:TemplateColumn>
+                                <igGrid:TextColumn Key="OIPercent" Width="50" HorizontalContentAlignment="Center" IsReadOnly="False" HeaderText="%" />
+
+                            </igGrid:ColumnLayout.Columns>
+                        </igGrid:ColumnLayout>
+
+                        <!--Column Setting-->
+                        <igGrid:TextColumn Key="Code" HorizontalContentAlignment="Left" Width="150" IsReadOnly="True" HeaderText="Group"/>
+                        <igGrid:TextColumn Key="EmptyColumn1" HorizontalContentAlignment="Left" Width="50" IsReadOnly="True" HeaderText="X"/>
+                        <igGrid:TextColumn Key="EmptyColumn2" HorizontalContentAlignment="Left" Width="50" IsReadOnly="True" HeaderText="%"/>
+                    </igGrid:XamGrid.Columns>
+                </igGrid:XamGrid>
+                <!--#END SNIPPET#-->
+            </TabItem>
+            <TabItem Header="Net Summary" x:Name="SummaryItem" Width="100">
+                <!--#BEGIN SNIPPET#-->
+                <igGrid:XamGrid KeyboardNavigation="AllLayouts" x:Name="_SummaryItemGrid" FontWeight="Bold"  FontFamily="hei" FontStyle="Italic" AutoGenerateColumns="false" Grid.Row="1"
+                                 RowSelectorClicked="SummaryItemGrid_RowSelectorClicked"
+                                 RowExpansionChanged="SummaryItemGrid_RowExpansionChanging">
+                    <igGrid:XamGrid.RowSelectorSettings>
+                        <igGrid:RowSelectorSettings Visibility="Collapsed"/>
+                    </igGrid:XamGrid.RowSelectorSettings>
+                    <igGrid:XamGrid.ColumnResizingSettings>
+                        <igGrid:ColumnResizingSettings
+                            AllowCellAreaResizing="False"
+                            AllowColumnResizing="Immediate"
+                            AllowDoubleClickToSize="False"
+                            AllowMultipleColumnResize="False" />
+                    </igGrid:XamGrid.ColumnResizingSettings>
+                    <igGrid:XamGrid.EditingSettings>
+                        <igGrid:EditingSettings AllowEditing="Cell"/>
+                    </igGrid:XamGrid.EditingSettings>
+                    <igGrid:XamGrid.Columns>
+                        <!--InstrumentColumn Setting-->
+                        <igGrid:ColumnLayout Key="ChildSummaryItems">
+                            <igGrid:ColumnLayout.Columns>
+                                <!--Account Group Setting-->
+                                <igGrid:ColumnLayout Key="ChildSummaryItems">
+                                    <igGrid:ColumnLayout.Columns>
+                                        <!--Account Setting-->
+                                        <igGrid:ColumnLayout Key="ChildSummaryItems">
+                                            <igGrid:ColumnLayout.Columns>
+                                                <!--Order Setting-->
+                                                <igGrid:TextColumn Key="Code" HorizontalContentAlignment="Center" Width="90" IsReadOnly="True" HeaderText="Order" IsResizable="False"/>
+                                                <igGrid:TemplateColumn Key="BuyLot" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Total Buy">
+                                                    <igGrid:TemplateColumn.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding BuyLot,StringFormat={}{0:F},Converter={StaticResource _LotNullValueConverter}}" Foreground="#FF9090FF"/>
+                                                        </DataTemplate>
+                                                    </igGrid:TemplateColumn.ItemTemplate>
+                                                </igGrid:TemplateColumn>
+                                                <igGrid:TextColumn Key="BuyAvgPrice" FormatString="{}{0:F}" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Avg Price"/>
+                                                <igGrid:TemplateColumn Key="BuyContractSize" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Size">
+                                                    <igGrid:TemplateColumn.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding BuyContractSize,StringFormat={}{0:F},Converter={StaticResource _LotNullValueConverter}}"/>
+                                                        </DataTemplate>
+                                                    </igGrid:TemplateColumn.ItemTemplate>
+                                                </igGrid:TemplateColumn>
+                                                <igGrid:TemplateColumn Key="SellLot" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Total Sell">
+                                                    <igGrid:TemplateColumn.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding SellLot,StringFormat={}{0:F},Converter={StaticResource _LotNullValueConverter}}" Foreground="Red"/>
+                                                        </DataTemplate>
+                                                    </igGrid:TemplateColumn.ItemTemplate>
+                                                </igGrid:TemplateColumn>
+                                                <igGrid:TextColumn Key="SellAvgPrice" FormatString="{}{0:F}" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Avg Price"/>
+                                                <igGrid:TemplateColumn Key="SellContractSize" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Size">
+                                                    <igGrid:TemplateColumn.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding SellContractSize,StringFormat={}{0:F},Converter={StaticResource _LotNullValueConverter}}" />
+                                                        </DataTemplate>
+                                                    </igGrid:TemplateColumn.ItemTemplate>
+                                                </igGrid:TemplateColumn>
+                                                <igGrid:TemplateColumn Key="NetLot" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Net Lot">
+                                                    <igGrid:TemplateColumn.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding NetLot,StringFormat={}{0:F},Converter={StaticResource _LotNullValueConverter}}" Foreground="{Binding Path=NetLot, Converter={StaticResource LotForegroundConverter}, ConverterParameter=NetLot}"/>
+                                                        </DataTemplate>
+                                                    </igGrid:TemplateColumn.ItemTemplate>
+                                                </igGrid:TemplateColumn>
+                                                <igGrid:TextColumn Key="NetAvgPrice" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Avg Price"/>
+                                                <igGrid:TemplateColumn Key="NetContractSize" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Size">
+                                                    <igGrid:TemplateColumn.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding NetContractSize,StringFormat={}{0:F},Converter={StaticResource _LotNullValueConverter}}"/>
+                                                        </DataTemplate>
+                                                    </igGrid:TemplateColumn.ItemTemplate>
+                                                </igGrid:TemplateColumn>
+                                            </igGrid:ColumnLayout.Columns>
+                                        </igGrid:ColumnLayout>
+                                        <igGrid:TextColumn Key="Code" HorizontalContentAlignment="Center" Width="90" IsReadOnly="True" HeaderText="Account" IsResizable="False"/>
+                                        <igGrid:TemplateColumn Key="BuyLot" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Total Buy">
+                                            <igGrid:TemplateColumn.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding BuyLot,StringFormat={}{0:F},Converter={StaticResource _LotNullValueConverter}}" Foreground="#FF9090FF"/>
+                                                </DataTemplate>
+                                            </igGrid:TemplateColumn.ItemTemplate>
+                                        </igGrid:TemplateColumn>
+                                        <igGrid:TextColumn Key="BuyAvgPrice" FormatString="{}{0:F}" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Avg Price"/>
+                                        <igGrid:TemplateColumn Key="BuyContractSize" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Size">
+                                            <igGrid:TemplateColumn.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding BuyContractSize,StringFormat={}{0:F},Converter={StaticResource _LotNullValueConverter}}"/>
+                                                </DataTemplate>
+                                            </igGrid:TemplateColumn.ItemTemplate>
+                                        </igGrid:TemplateColumn>
+                                        <igGrid:TemplateColumn Key="SellLot" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Total Sell">
+                                            <igGrid:TemplateColumn.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding SellLot,Converter={StaticResource _LotNullValueConverter}}" Foreground="Red"/>
+                                                </DataTemplate>
+                                            </igGrid:TemplateColumn.ItemTemplate>
+                                        </igGrid:TemplateColumn>
+                                        <igGrid:TextColumn Key="SellAvgPrice" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Avg Price"/>
+                                        <igGrid:TemplateColumn Key="SellContractSize" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Size">
+                                            <igGrid:TemplateColumn.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding SellContractSize,StringFormat={}{0:F},Converter={StaticResource _LotNullValueConverter}}" />
+                                                </DataTemplate>
+                                            </igGrid:TemplateColumn.ItemTemplate>
+                                        </igGrid:TemplateColumn>
+                                        <igGrid:TemplateColumn Key="NetLot" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Net Lot">
+                                            <igGrid:TemplateColumn.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding NetLot,Converter={StaticResource _LotNullValueConverter}}" Foreground="{Binding Path=NetLot, Converter={StaticResource LotForegroundConverter}, ConverterParameter=NetLot}"/>
+                                                </DataTemplate>
+                                            </igGrid:TemplateColumn.ItemTemplate>
+                                        </igGrid:TemplateColumn>
+                                        <igGrid:TextColumn Key="NetAvgPrice" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Avg Price"/>
+                                        <igGrid:TemplateColumn Key="NetContractSize" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Size">
+                                            <igGrid:TemplateColumn.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding NetContractSize,StringFormat={}{0:F},Converter={StaticResource _LotNullValueConverter}}"/>
+                                                </DataTemplate>
+                                            </igGrid:TemplateColumn.ItemTemplate>
+                                        </igGrid:TemplateColumn>
+                                        <igGrid:TemplateColumn Key="IsExclude" Width="60" HorizontalContentAlignment="Center" IsReadOnly="False" HeaderText="IsExclude" >
+                                            <igGrid:TemplateColumn.ItemTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox Click="IsExcludeCheckBox_Click" IsChecked="{Binding IsExclude,Mode=TwoWay}" />
+                                                </DataTemplate>
+                                            </igGrid:TemplateColumn.ItemTemplate>
+                                            <igGrid:TemplateColumn.EditorTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox x:Name="IsExcludeCheckBox" Click="IsExcludeCheckBox_Click" IsChecked="{Binding IsExclude,Mode=TwoWay}" />
+                                                </DataTemplate>
+                                            </igGrid:TemplateColumn.EditorTemplate>
+                                        </igGrid:TemplateColumn>
+                                    </igGrid:ColumnLayout.Columns>
+                                </igGrid:ColumnLayout>
+                                <igGrid:TextColumn Key="GroupCode" HorizontalContentAlignment="Center" Width="120" IsReadOnly="True" HeaderText="Group" IsResizable="False"/>
+                                <igGrid:TemplateColumn Key="BuyLot" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Total Buy">
+                                    <igGrid:TemplateColumn.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock FontStyle="Italic" Text="{Binding BuyLot,StringFormat={}{0:F},Converter={StaticResource _LotNullValueConverter}}" Foreground="#FF9090FF"/>
+                                        </DataTemplate>
+                                    </igGrid:TemplateColumn.ItemTemplate>
+                                </igGrid:TemplateColumn>
+                                <igGrid:TemplateColumn Key="BuyAvgPrice" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Avg Price">
+                                    <igGrid:TemplateColumn.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock FontStyle="Italic" Text="{Binding BuyAvgPrice}"/>
+                                        </DataTemplate>
+                                    </igGrid:TemplateColumn.ItemTemplate>
+                                </igGrid:TemplateColumn>
+                                <igGrid:TemplateColumn Key="BuyContractSize" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Size">
+                                    <igGrid:TemplateColumn.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock FontStyle="Italic" Text="{Binding BuyContractSize,StringFormat={}{0:F},Converter={StaticResource _LotNullValueConverter}}"/>
+                                        </DataTemplate>
+                                    </igGrid:TemplateColumn.ItemTemplate>
+                                </igGrid:TemplateColumn>
+                                <igGrid:TemplateColumn Key="SellLot" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Total Sell">
+                                    <igGrid:TemplateColumn.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock FontStyle="Italic" Text="{Binding SellLot,StringFormat={}{0:F},Converter={StaticResource _LotNullValueConverter}}" Foreground="Red"/>
+                                        </DataTemplate>
+                                    </igGrid:TemplateColumn.ItemTemplate>
+                                </igGrid:TemplateColumn>
+                                <igGrid:TemplateColumn Key="SellAvgPrice" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Avg Price">
+                                    <igGrid:TemplateColumn.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock FontStyle="Italic" Text="{Binding SellAvgPrice}"/>
+                                        </DataTemplate>
+                                    </igGrid:TemplateColumn.ItemTemplate>
+                                </igGrid:TemplateColumn>
+                                <igGrid:TemplateColumn Key="SellContractSize" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Size">
+                                    <igGrid:TemplateColumn.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock FontStyle="Italic" Text="{Binding SellContractSize,StringFormat={}{0:F},Converter={StaticResource _LotNullValueConverter}}" />
+                                        </DataTemplate>
+                                    </igGrid:TemplateColumn.ItemTemplate>
+                                </igGrid:TemplateColumn>
+                                <igGrid:TemplateColumn Key="NetLot" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Net Lot">
+                                    <igGrid:TemplateColumn.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock FontStyle="Italic" Text="{Binding NetLot,StringFormat={}{0:F},Converter={StaticResource _LotNullValueConverter}}" Foreground="{Binding Path=NetLot, Converter={StaticResource LotForegroundConverter}, ConverterParameter=NetLot}"/>
+                                        </DataTemplate>
+                                    </igGrid:TemplateColumn.ItemTemplate>
+                                </igGrid:TemplateColumn>
+                                <igGrid:TemplateColumn Key="NetAvgPrice" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Avg Price">
+                                    <igGrid:TemplateColumn.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock FontStyle="Italic" Text="{Binding NetAvgPrice}"/>
+                                        </DataTemplate>
+                                    </igGrid:TemplateColumn.ItemTemplate>
+                                </igGrid:TemplateColumn>
+                                <igGrid:TemplateColumn Key="NetContractSize" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Size">
+                                    <igGrid:TemplateColumn.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding NetContractSize,StringFormat={}{0:F},Converter={StaticResource _LotNullValueConverter}}"/>
+                                        </DataTemplate>
+                                    </igGrid:TemplateColumn.ItemTemplate>
+                                </igGrid:TemplateColumn>
+                                <igGrid:TemplateColumn Key="IsExclude" Width="60" HorizontalContentAlignment="Center" IsReadOnly="False" HeaderText="IsExclude" >
+                                    <igGrid:TemplateColumn.ItemTemplate>
+                                        <DataTemplate>
+                                            <CheckBox Click="IsExcludeCheckBox_Click" IsChecked="{Binding IsExclude,Mode=TwoWay}" />
+                                        </DataTemplate>
+                                    </igGrid:TemplateColumn.ItemTemplate>
+                                    <igGrid:TemplateColumn.EditorTemplate>
+                                        <DataTemplate>
+                                            <CheckBox x:Name="IsExcludeCheckBox" Click="IsExcludeCheckBox_Click" IsChecked="{Binding IsExclude,Mode=TwoWay}" />
+                                        </DataTemplate>
+                                    </igGrid:TemplateColumn.EditorTemplate>
+                                </igGrid:TemplateColumn>
+                            </igGrid:ColumnLayout.Columns>
+                        </igGrid:ColumnLayout>
+                        <igGrid:TextColumn Key="Code" HorizontalContentAlignment="Center" Width="150" IsReadOnly="True" HeaderText="Code" IsResizable="False"/>
+                        <igGrid:TemplateColumn Key="BuyLot" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Total Buy">
+                            <igGrid:TemplateColumn.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding BuyLot,StringFormat={}{0:F},Converter={StaticResource _LotNullValueConverter}}" Foreground="#FF9090FF"/>
+                                </DataTemplate>
+                            </igGrid:TemplateColumn.ItemTemplate>
+                        </igGrid:TemplateColumn>
+                        <igGrid:TextColumn Key="BuyAvgPrice" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Avg Price"/>
+                        <igGrid:TemplateColumn Key="BuyContractSize" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Size">
+                            <igGrid:TemplateColumn.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding BuyContractSize,StringFormat={}{0:F},Converter={StaticResource _LotNullValueConverter}}"/>
+                                </DataTemplate>
+                            </igGrid:TemplateColumn.ItemTemplate>
+                        </igGrid:TemplateColumn>
+                        <igGrid:TemplateColumn Key="SellLot" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Total Sell">
+                            <igGrid:TemplateColumn.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding SellLot,StringFormat={}{0:F},Converter={StaticResource _LotNullValueConverter}}" Foreground="Red"/>
+                                </DataTemplate>
+                            </igGrid:TemplateColumn.ItemTemplate>
+                        </igGrid:TemplateColumn>
+                        <igGrid:TextColumn Key="SellAvgPrice" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Avg Price"/>
+                        <igGrid:TemplateColumn Key="SellContractSize" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Size">
+                            <igGrid:TemplateColumn.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding SellContractSize,StringFormat={}{0:F},Converter={StaticResource _LotNullValueConverter}}" />
+                                </DataTemplate>
+                            </igGrid:TemplateColumn.ItemTemplate>
+                        </igGrid:TemplateColumn>
+                        <igGrid:TemplateColumn Key="NetLot" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Net Lot">
+                            <igGrid:TemplateColumn.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding NetLot,Converter={StaticResource _LotNullValueConverter}}" Foreground="#FF9090FF"/>
+                                </DataTemplate>
+                            </igGrid:TemplateColumn.ItemTemplate>
+                        </igGrid:TemplateColumn>
+                        <igGrid:TextColumn Key="NetAvgPrice" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Avg Price"/>
+                        <igGrid:TemplateColumn Key="NetContractSize" HorizontalContentAlignment="Right" Width="80" IsReadOnly="True" HeaderText="Size">
+                            <igGrid:TemplateColumn.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding NetContractSize,StringFormat={}{0:F},Converter={StaticResource _LotNullValueConverter}}"/>
+                                </DataTemplate>
+                            </igGrid:TemplateColumn.ItemTemplate>
+                        </igGrid:TemplateColumn>
+                        <igGrid:TextColumn Key="NullColumn" HorizontalContentAlignment="Center" Width="60" IsReadOnly="True" HeaderText="IsExclude"/>
+                    </igGrid:XamGrid.Columns>
+                </igGrid:XamGrid>
+                <!--#END SNIPPET#-->
+            </TabItem>
+        </TabControl>
+
+        <Grid x:Name="_BusyDecoratorGrid" Visibility="Collapsed" Grid.Row="1" Grid.RowSpan="2" Background="Black" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Grid>
+</UserControl>

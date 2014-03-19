@@ -712,7 +712,7 @@ namespace ManagerConsole.Model
                     bool oDisablePopup = true;  //配置参数
                     if (oDisablePopup)
                     {
-                        string sMsg = "";// this._Message.GetMessageForOrder("DealerCanceled");
+                        string sMsg = MessageHelper.Instance.GetMessageForOrder(transactionError.ToString()); // this._Message.GetMessageForOrder("DealerCanceled");
                         this._CommonDialogWin.ShowDialogWin(sMsg, "Alert", 300, 200);
                     }
                 }

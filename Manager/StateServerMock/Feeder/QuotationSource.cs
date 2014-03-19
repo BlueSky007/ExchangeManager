@@ -103,16 +103,21 @@ namespace TestConsole.Feeder
         {
             try
             {
-                StringReader reader;
+                List<string> quotations = new List<string>();
                 using (StreamReader fileReader = new StreamReader(this._SendTask.DataFileName))
                 {
-                    reader = new StringReader(fileReader.ReadToEnd());
+                    string line;
+                    while (!string.IsNullOrEmpty(line = fileReader.ReadLine()))
+                    {
+                        quotations.Add(line);
+                    }
                 }
                 while(this._IsRunning)
                 {
                     string line, last, high, low;
-                    while (!string.IsNullOrEmpty(line = reader.ReadLine()) && this._IsRunning)
+                    for (int i = 0; i < quotations.Count && this._IsRunning; i++)
                     {
+                        line = quotations[i];
                         this._ConnectedEvent.Wait();
                         if (line.TrimStart().StartsWith("--")) continue;
                         string[] items = line.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);

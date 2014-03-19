@@ -114,6 +114,7 @@ namespace ManagerConsole.UI
             {
                 Dictionary<string, object> instrumentUpdates = new Dictionary<string,object>();
                 VmBase.GetUpdates(typeof(Instrument), this._vmInstrument.Instrument, this._InstrumentData.Instrument, instrumentUpdates);
+                if (instrumentUpdates.ContainsKey(FieldSR.IsActive)) instrumentUpdates.Remove(FieldSR.IsActive);
 
                 Dictionary<string, object> rangeRuleUpdates = new Dictionary<string,object>();
                 VmBase.GetUpdates(typeof(PriceRangeCheckRule), this._vmInstrument.VmPriceRangeCheckRule.PriceRangeCheckRule, this._InstrumentData.PriceRangeCheckRule, rangeRuleUpdates);

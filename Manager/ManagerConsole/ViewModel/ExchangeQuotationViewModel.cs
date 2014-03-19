@@ -22,7 +22,9 @@ namespace ManagerConsole.ViewModel
         private ObservableCollection<InstrumentQuotation> _Exchanges = new ObservableCollection<InstrumentQuotation>();
 
         public ObservableCollection<UpdateHighLowBatchProcessInfo> HighLowBatchProcessInfos { get; set; }
-                
+
+        public event Action<string,Guid,Guid,DateTime,string,string> NotifyChartWindowRealTimeData;
+
         public ObservableCollection<InstrumentQuotation> Exchanges
         {
             get
@@ -81,6 +83,10 @@ namespace ManagerConsole.ViewModel
                 instrument.High = value.High;
                 instrument.Low = value.Low;
                 instrument.TimeSpan = value.Timestamp.ToLongTimeString();
+                if (this.NotifyChartWindowRealTimeData!=null)
+                {
+                    this.NotifyChartWindowRealTimeData(exchangeCode, value.QuotePolicyID, value.InstrumentID, value.Timestamp, value.Ask, value.Bid);
+                }
             }
             return true;
         }

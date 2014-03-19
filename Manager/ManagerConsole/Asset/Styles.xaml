@@ -4,7 +4,6 @@
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                     xmlns:localUI="clr-namespace:ManagerConsole.UI"
                     xmlns:igPrim="http://schemas.infragistics.com/xaml/primitives"
-                    xmlns:TaskMenu="clr-namespace:ManagerConsole.UI.SettingTask"
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
     <system:Double x:Key="DividerWith">1.4</system:Double>
     <SolidColorBrush x:Key="TextBrush" Color="#FFFFFFFF" />

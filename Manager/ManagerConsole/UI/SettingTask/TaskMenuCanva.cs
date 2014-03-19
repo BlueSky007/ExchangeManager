@@ -15,7 +15,7 @@ namespace ManagerConsole.UI.SettingTask
     {
         public event RoutedEventHandler ItemClicked;
         public TaskMenuCanva()
-        { 
+        {
             this.DefaultStyleKey = typeof(TaskMenuCanva);
             this.Loaded += new RoutedEventHandler(ExpandMenuCanva_Loaded);
         }
@@ -30,9 +30,18 @@ namespace ManagerConsole.UI.SettingTask
         {
             base.OnItemsChanged(e);
 
-            if (e.NewItems != null && e.NewItems.Count > 0)
+            if (this.TaskMenus == null) return;
+            this.TaskMenus.Children.Clear();
+            ObservableCollection<TaskMenuItemEntity> taskMenuItems = this.ItemsSource as ObservableCollection<TaskMenuItemEntity>;
+            if (taskMenuItems == null) return;
+            foreach (TaskMenuItemEntity menuItem in taskMenuItems)
             {
-
+                TaskMenuControl item = new TaskMenuControl();
+                int childCount = menuItem.TaskMenuEventItems.Count;
+                //item.Height = 25 * childCount + 100;
+                item.Margin = new Thickness(-1);
+                item.SetBinding(menuItem);
+                this.TaskMenus.Children.Add(item);
             }
         }
 
@@ -43,6 +52,7 @@ namespace ManagerConsole.UI.SettingTask
         }
         void ExpandMenuCanva_Loaded(object sender, RoutedEventArgs e)
         {
+            if (this.TaskMenus == null || this.TaskMenus.Children.Count > 0) return;
             ObservableCollection<TaskMenuItemEntity> taskMenuItems = this.ItemsSource as ObservableCollection<TaskMenuItemEntity>;
             if (taskMenuItems == null) return;
             foreach (TaskMenuItemEntity menuItem in taskMenuItems)
@@ -50,7 +60,6 @@ namespace ManagerConsole.UI.SettingTask
                 TaskMenuControl item = new TaskMenuControl();
                 int childCount = menuItem.TaskMenuEventItems.Count;
                 //item.Height = 25 * childCount + 100;
-                item.Height = double.NaN;
                 item.Margin = new Thickness(-1);
                 item.ItemClicked += new RoutedEventHandler(this.TaskItemEvent);
                 item.SetBinding(menuItem);

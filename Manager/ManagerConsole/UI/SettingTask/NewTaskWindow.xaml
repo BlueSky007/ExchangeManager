@@ -79,9 +79,8 @@
 
                 <TextBlock x:Name="InstrumentCaption" Text="Instrument:" Margin="8,0,0,0"/>
                 <ComboBox x:Name="InstrumentComboBox" Visibility="Collapsed" Width="80" Height="22" Margin="8,0,0,0" Style="{StaticResource ComboBoxStyle}"/>
-                <ig:XamComboEditor x:Name="_InstrumentComboBox" 
-                                   IsEditable="False" CheckBoxVisibility="Visible"
-                                   AllowMultipleSelection="True" MultiSelectValueDelimiter="," 
+                <ig:XamComboEditor x:Name="_InstrumentComboBox"  IsEditable="False" 
+                                   CheckBoxVisibility="Visible" AllowMultipleSelection="True" MultiSelectValueDelimiter=","  DisplayMemberPath="InstrumentCode"
                                    Width="120" Margin="5,0,10,0"
                                    VerticalAlignment="Center" HorizontalAlignment="Left" Height="25" SelectionChanged="InstrumentComboBox_SelectionChanged"/>
 

@@ -897,6 +897,16 @@ namespace ManagerConsole.Model
                 callback(result);
             }, null);
         }
+
+        public List<Manager.Common.ExchangeEntities.ChartQuotation> GetChartQuotation(string exchangeCode, Guid quotePolicyId, Guid instrumentId, string frequency, DateTime fromTime, DateTime toTime)
+        {
+            return this._ServiceProxy.GetChartQuotation(exchangeCode,quotePolicyId,instrumentId,frequency,fromTime,toTime);
+        }
+
+        public Manager.Common.ExchangeEntities.ChartQuotation GetLastQuotationsForTrendSheet(string exchangeCode, Guid quotePolicyId, Guid instrumentId, string frequency, DateTime fromTime, decimal open)
+        {
+            return this._ServiceProxy.GetLastQuotationsForTrendSheet(exchangeCode, quotePolicyId, instrumentId, frequency, fromTime, open);
+        }
         #endregion
     }
 }

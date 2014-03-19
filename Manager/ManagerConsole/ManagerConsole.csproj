@@ -174,14 +174,19 @@
     </Compile>
     <Compile Include="Helper\AccountStatusHelper.cs" />
     <Compile Include="Helper\BusyDecorator.cs" />
+    <Compile Include="Helper\MessageHelper.cs" />
     <Compile Include="Helper\PriceHelper.cs" />
-    <Compile Include="Helper\TaskFactory.cs" />
     <Compile Include="LayoutManager.cs" />
     <Compile Include="Model\ExchangeQuotation.cs" />
+    <Compile Include="Model\InitDataForChart.cs" />
+    <Compile Include="Model\ObjectForChartWindowJs.cs" />
     <Compile Include="Model\OrderRelation.cs" />
     <Compile Include="Model\SettingsManager.cs" />
     <Compile Include="Model\ExchangeTradingManager.cs" />
     <Compile Include="Model\Principal.cs" />
+    <Compile Include="UI\QuotationChartWindow.xaml.cs">
+      <DependentUpon>QuotationChartWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Model\TaskMenuItem.cs" />
     <Compile Include="UI\Report\AccountHedgingLevelControl.xaml.cs">
       <DependentUpon>AccountHedgingLevelControl.xaml</DependentUpon>
@@ -207,7 +212,7 @@
     <Compile Include="UI\ProcessOrders\DealingLmtOrder.xaml.cs">
       <DependentUpon>DealingLmtOrder.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\ExchangeQuotationPropertyControl.xaml.cs">
+    <Compile Include="UI\ExchangeQuotation\ExchangeQuotationPropertyControl.xaml.cs">
       <DependentUpon>ExchangeQuotationPropertyControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Model\QuotePolicy.cs" />
@@ -227,7 +232,7 @@
     <Compile Include="Helper\PropertyChangedNotifier.cs" />
     <Compile Include="Helper\Toolkit.cs" />
     <Compile Include="Helper\TopToolBarImages.cs" />
-    <Compile Include="UI\HistoryQuotationAddingControl.xaml.cs">
+    <Compile Include="UI\ExchangeQuotation\HistoryQuotationAddingControl.xaml.cs">
       <DependentUpon>HistoryQuotationAddingControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\ImageSources.cs" />
@@ -272,13 +277,13 @@
     <Compile Include="Model\InstrumentClient.cs" />
     <Compile Include="Model\MessageClient.cs" />
     <Compile Include="Model\Order.cs" />
-    <Compile Include="UI\AdjustAndSpreadSettingControl.xaml.cs">
+    <Compile Include="UI\ExchangeQuotation\AdjustAndSpreadSettingControl.xaml.cs">
       <DependentUpon>AdjustAndSpreadSettingControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\ProcessOrders\DealingInstanceOrder.xaml.cs">
       <DependentUpon>DealingInstanceOrder.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\ExchangeQuotationControl.xaml.cs">
+    <Compile Include="UI\ExchangeQuotation\ExchangeQuotationControl.xaml.cs">
       <DependentUpon>ExchangeQuotationControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\Quotation\AbnormalQuotationProcessControl.xaml.cs">
@@ -390,7 +395,7 @@
     <Compile Include="UI\ProcessOrders\OrderTaskControl.xaml.cs">
       <DependentUpon>OrderTaskControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\RoleManagerControl.xaml.cs">
+    <Compile Include="UI\UserManager\RoleManagerControl.xaml.cs">
       <DependentUpon>RoleManagerControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="SaveLayoutWindow.xaml.cs">
@@ -400,10 +405,10 @@
     <Compile Include="ViewModel\VmInstrumentSourceRelation.cs" />
     <Compile Include="ViewModel\VmQuotationSource.cs" />
     <Compile Include="ViewModel\VmSourceQuotation.cs" />
-    <Compile Include="UI\UserManagerControl.xaml.cs">
+    <Compile Include="UI\UserManager\UserManagerControl.xaml.cs">
       <DependentUpon>UserManagerControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\UserTileControl.xaml.cs">
+    <Compile Include="UI\UserManager\UserTileControl.xaml.cs">
       <DependentUpon>UserTileControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\DQOrderTaskForInstrument.cs" />
@@ -495,6 +500,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UI\QuotationChartWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\Quotation\AbnormalQuotationProcessControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -511,7 +520,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\AdjustAndSpreadSettingControl.xaml">
+    <Page Include="UI\ExchangeQuotation\AdjustAndSpreadSettingControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -543,11 +552,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\ExchangeQuotationPropertyControl.xaml">
+    <Page Include="UI\ExchangeQuotation\ExchangeQuotationPropertyControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\HistoryQuotationAddingControl.xaml">
+    <Page Include="UI\ExchangeQuotation\HistoryQuotationAddingControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -657,7 +666,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\ExchangeQuotationControl.xaml">
+    <Page Include="UI\ExchangeQuotation\ExchangeQuotationControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -705,7 +714,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\RoleManagerControl.xaml">
+    <Page Include="UI\UserManager\RoleManagerControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -713,11 +722,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\UserManagerControl.xaml">
+    <Page Include="UI\UserManager\UserManagerControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\UserTileControl.xaml">
+    <Page Include="UI\UserManager\UserTileControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

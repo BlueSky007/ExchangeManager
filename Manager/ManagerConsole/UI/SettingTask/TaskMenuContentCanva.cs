@@ -34,7 +34,7 @@ namespace ManagerConsole.UI.SettingTask
         void TaskMenuContentCanva_OnLoad(object sender, RoutedEventArgs e)
         {
             ObservableCollection<TaskMenuEventItem> items = this.ItemsSource as ObservableCollection<TaskMenuEventItem>;
-            if (items == null) return;
+            if (items == null || this.MenuEventItems == null || this.MenuEventItems.Children.Count > 0) return;
             foreach (TaskMenuEventItem item in items)
             {
                 TaskMenuContentControl control = new TaskMenuContentControl();

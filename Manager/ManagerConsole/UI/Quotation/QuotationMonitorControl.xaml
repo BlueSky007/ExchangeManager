@@ -57,6 +57,69 @@
             </Grid.ColumnDefinitions>
             <ig:XamGrid x:Name="MonitorGrid" AutoGenerateColumns="False"
                         SelectedRowsCollectionChanged="MonitorGrid_SelectedRowsCollectionChanged" RowHeight="23">
+                <ig:XamGrid.Resources>
+                    <Style TargetType="ig:CellControl">
+                        <Setter Property="Foreground" Value="{DynamicResource CellItemForegroundBrush}"/>
+                        <Setter Property="Background" Value="{DynamicResource EnablePriceBackgroudBrush}"/>
+                        <Setter Property="BorderBrush" Value="{DynamicResource CellItemBorderBrush}"/>
+                        <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ig:CellControl">
+                                    <Grid>
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroup x:Name="CommonStates">
+                                                <VisualState x:Name="Normal"/>
+                                                <VisualState x:Name="MouseOver"/>
+                                                <VisualState x:Name="Alternate"/>
+                                            </VisualStateGroup>
+                                            <VisualStateGroup x:Name="SelectedStates">
+                                                <VisualState x:Name="NotSelected"/>
+                                                <VisualState x:Name="Selected">
+                                                    <Storyboard>
+                                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="rowSelected" Storyboard.TargetProperty="Visibility">
+                                                            <DiscreteObjectKeyFrame KeyTime="00:00:00">
+                                                                <DiscreteObjectKeyFrame.Value>
+                                                                    <Visibility>Visible
+                                                                    </Visibility>
+                                                                </DiscreteObjectKeyFrame.Value>
+                                                            </DiscreteObjectKeyFrame>
+                                                        </ObjectAnimationUsingKeyFrames>
+                                                    </Storyboard>
+                                                </VisualState>
+                                            </VisualStateGroup>
+                                            <VisualStateGroup x:Name="ActiveStates">
+                                                <VisualState x:Name="InActive"/>
+                                                <VisualState x:Name="Active">
+                                                    <Storyboard>
+                                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ActiveSelected" Storyboard.TargetProperty="Visibility">
+                                                            <DiscreteObjectKeyFrame KeyTime="00:00:00">
+                                                                <DiscreteObjectKeyFrame.Value>
+                                                                    <Visibility>Visible
+                                                                    </Visibility>
+                                                                </DiscreteObjectKeyFrame.Value>
+                                                            </DiscreteObjectKeyFrame>
+                                                        </ObjectAnimationUsingKeyFrames>
+                                                    </Storyboard>
+                                                </VisualState>
+                                            </VisualStateGroup>
+                                        </VisualStateManager.VisualStateGroups>
+                                        <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" x:Name="Root"/>
+                                        <Border x:Name="rowSelected" Background="{DynamicResource CellItemSelectedBackgroundBrush}" Visibility="Collapsed" Margin="{TemplateBinding BorderThickness}"/>
+                                        <Border x:Name="ActiveSelected" Background="{DynamicResource CellItemActiveBackgroundBrush}" BorderBrush="{DynamicResource CellItemActiveBorderBrush}" BorderThickness="2" Visibility="Collapsed"/>
+                                        <ContentPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}"/>
+                                    </Grid>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Cell.Row.Data.IsActive}" Value="true">
+                                <Setter Property="Background" Value="{DynamicResource CellItemBackgroundBrush}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ig:XamGrid.Resources>
                 <ig:XamGrid.SelectionSettings>
                     <ig:SelectionSettings CellClickAction="SelectRow" />
                 </ig:XamGrid.SelectionSettings>

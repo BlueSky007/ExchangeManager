@@ -22,6 +22,7 @@ using SoundSetting = Manager.Common.Settings.SoundSetting;
 using SetValueSetting = Manager.Common.Settings.SetValueSetting;
 using System.Xml.Linq;
 using Manager.Common.ExchangeEntities;
+using Manager.Common.Settings;
 
 namespace ManagerConsole.Model
 {
@@ -68,6 +69,12 @@ namespace ManagerConsole.Model
             private set;
         }
 
+        public TradeDay TradeDay
+        {
+            get;
+            private set;
+        }
+
         public Dictionary<Guid, InstrumentClient> Instruments
         {
             get { return this._Instruments; }
@@ -84,6 +91,11 @@ namespace ManagerConsole.Model
         {
             get { return this._ExchangeQuotations; }
             set { this._ExchangeQuotations = value; }
+        }
+
+        public Dictionary<Guid, QuotePolicy> QuotePolicies
+        {
+            get { return this._QuotePolicies; }
         }
         #endregion
 
@@ -224,6 +236,7 @@ namespace ManagerConsole.Model
             if (action == UpdateAction.Initialize)
             {
                 this.SystemParameter = new SystemParameter(settingSet.SystemParameter);
+                this.TradeDay = settingSet.TradeDay;
             }
             if (settingSet.Instruments != null)
             {
